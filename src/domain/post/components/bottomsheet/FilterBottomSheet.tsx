@@ -1,0 +1,400 @@
+// src/domain/post/components/bottomsheet/FilterBottomSheet.tsx
+
+import React from "react";
+import styled from "styled-components";
+import { AnimatePresence, motion } from "framer-motion";
+import HoneyRange from "./HoneyRange";
+import { useFilterStore } from "../../../../store/useFilterStore";
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+}
+// 메인 페이지 바텀 시트
+const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
+  const {
+    regions,
+    removeRegion,
+    addRegion,
+
+    selectedHelpTypes,
+    toggleHelpType,
+
+    gender,
+    setGender,
+
+    disability,
+    setDisability,
+
+    days,
+    toggleDay,
+
+    resetAll,
+  } = useFilterStore();
+
+  const handleAddRegion = () => {
+    alert("지역 추가 기능은 아직 구현되지 않았습니다!");
+  };
+
+  const handleSubmit = () => {
+    onClose();
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <Dim
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          />
+
+          <Sheet
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ duration: 0.3 }}
+          >
+            <HandleBarWrapper>
+              <HandleBar />
+            </HandleBarWrapper>
+
+            <Title>맞춤조건 설정</Title>
+
+            <Content>
+              {/* 🔶 도움 지역 */}
+              <Section>
+                <Header>
+                  <Label>도움 지역</Label>
+                  <Count>
+                    <Highlight>{regions.length}</Highlight>/10
+                  </Count>
+                </Header>
+
+                <RegionChipRow>
+                  {regions.map((region) => (
+                    <RegionChip key={region}>
+                      {region}
+                      <DeleteBtn onClick={() => removeRegion(region)}>
+                        X
+                      </DeleteBtn>
+                    </RegionChip>
+                  ))}
+                </RegionChipRow>
+
+                <AddRegionBtn onClick={handleAddRegion}>
+                  <Plus>＋</Plus> 추가하기
+                </AddRegionBtn>
+              </Section>
+
+              {/* 도움 유형 */}
+              <Section>
+                <Header>
+                  <Label>도움 유형</Label>
+                </Header>
+
+                <Row>
+                  {[
+                    "외출 동행",
+                    "방문 목욕",
+                    "방문 간호",
+                    "가사 지원",
+                    "정서적 지원",
+                    "식사 도움",
+                    "학습 지원",
+                    "기타",
+                  ].map((label) => (
+                    <Chip
+                      key={label}
+                      $active={selectedHelpTypes.includes(label)}
+                      onClick={() => toggleHelpType(label)}
+                    >
+                      {label}
+                    </Chip>
+                  ))}
+                </Row>
+              </Section>
+
+              {/* 성별 */}
+              <Section>
+                <Label>성별</Label>
+
+                <GenderTabs>
+                  <GenderTab
+                    $active={gender === "남자"}
+                    onClick={() => setGender("남자")}
+                  >
+                    남자
+                  </GenderTab>
+                  <GenderTab
+                    $active={gender === "여자"}
+                    onClick={() => setGender("여자")}
+                  >
+                    여자
+                  </GenderTab>
+                </GenderTabs>
+              </Section>
+
+              {/* 🍯 회당 획득 꿀 */}
+              <HoneyRange />
+
+              {/* 장애 유형 */}
+              <Section>
+                <Label>장애 유형</Label>
+
+                <Row>
+                  {[
+                    "지체장애",
+                    "시각장애",
+                    "청각장애",
+                    "발달장애",
+                    "내부기관장애",
+                    "기타장애",
+                  ].map((v) => (
+                    <Chip
+                      key={v}
+                      $active={disability === v}
+                      onClick={() => setDisability(v)}
+                    >
+                      {v}
+                    </Chip>
+                  ))}
+                </Row>
+              </Section>
+
+              {/* 도움 요일 */}
+              <Section>
+                <Header>
+                  <Label>도움 요일</Label>
+                  <Count>
+                    <Highlight>{days.length}</Highlight>/7
+                  </Count>
+                </Header>
+
+                <Row>
+                  {["월", "화", "수", "목", "금", "토", "일"].map((d) => (
+                    <DayChip
+                      key={d}
+                      $active={days.includes(d)}
+                      onClick={() => toggleDay(d)}
+                    >
+                      {d}
+                    </DayChip>
+                  ))}
+                </Row>
+              </Section>
+            </Content>
+
+            {/* 하단 버튼 */}
+            <Buttons>
+              <ResetBtn onClick={resetAll}>초기화</ResetBtn>
+              <SubmitBtn onClick={handleSubmit}>완료</SubmitBtn>
+            </Buttons>
+          </Sheet>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+export default FilterBottomSheet;
+
+/* ---------------- styled-components ---------------- */
+
+const Dim = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 90;
+`;
+
+const Sheet = styled(motion.div)`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: white;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  z-index: 100;
+
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+`;
+
+const HandleBarWrapper = styled.div`
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+`;
+
+const HandleBar = styled.div`
+  width: 45px;
+  height: 4px;
+  background: var(--natural-100);
+  border-radius: 2px;
+`;
+
+const Title = styled.div`
+  text-align: center;
+  font-size: 17px;
+  font-weight: 700;
+`;
+
+const Content = styled.div`
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+`;
+
+const Section = styled.div`
+  margin-bottom: 24px;
+`;
+
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const Label = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+`;
+
+const Count = styled.div`
+  font-size: 12px;
+  color: var(--text);
+`;
+
+const Highlight = styled.span`
+  color: var(--main-color);
+  font-weight: 700;
+`;
+
+const Row = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+`;
+
+const Chip = styled.button<{ $active?: boolean }>`
+  padding: 6px 12px;
+  border-radius: 20px !important;
+  background: ${({ $active }) =>
+    $active ? "var(--sub-color2)" : "var(--natural-100)"};
+  color: ${({ $active }) =>
+    $active ? "var(--main-color)" : "var(--sub-text2)"};
+  border: 1px solid
+    ${({ $active }) => ($active ? "var(--main-color)" : "var(--natural-100)")};
+  font-size: 12px;
+
+  appearance: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+`;
+
+const RegionChipRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+`;
+
+const RegionChip = styled.div`
+  padding: 8px 12px;
+  background: var(--sub-color2);
+  color: var(--main-color);
+  border-radius: 12px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const DeleteBtn = styled.span`
+  font-size: 12px;
+  cursor: pointer;
+`;
+
+const AddRegionBtn = styled.button`
+  width: 100%;
+  padding: 12px 0;
+  background: white;
+  border: 0.5px solid var(--sub-text2);
+  border-radius: 12px;
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  align-items: center;
+`;
+
+const Plus = styled.span`
+  font-size: 12px;
+  color: var(--text);
+`;
+
+const GenderTabs = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin-top: 10px;
+`;
+
+const GenderTab = styled.button<{ $active?: boolean }>`
+  padding: 12px 0;
+  border-radius: 6px;
+
+  background: ${({ $active }) => ($active ? "#fff" : "var(--natural-100)")};
+  color: ${({ $active }) =>
+    $active ? "var(--main-color)" : "var(--sub-text2)"};
+  border: 1px solid
+    ${({ $active }) => ($active ? "var(--main-color)" : "var(--natural-100)")};
+
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+`;
+
+const DayChip = styled.button<{ $active?: boolean }>`
+  padding: 8px 14px;
+  border-radius: 40px;
+  background: ${({ $active }) =>
+    $active ? "var(--sub-color2)" : "var(--natural-100)"};
+  color: ${({ $active }) =>
+    $active ? "var(--main-color)" : "var(--sub-text2)"};
+  border: 1px solid
+    ${({ $active }) => ($active ? "var(--main-color)" : "var(--natural-100)")};
+
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+`;
+
+const Buttons = styled.div`
+  display: flex;
+  gap: 10px;
+  padding: 16px;
+`;
+
+const ResetBtn = styled.button`
+  flex: 1;
+  padding: 14px 0;
+  border-radius: 6px;
+  background: var(--natural-100);
+  color: var(--sub-text);
+  border: none;
+`;
+
+const SubmitBtn = styled.button`
+  flex: 1;
+  padding: 14px 0;
+  border-radius: 6px;
+  background: var(--main-color);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+`;
