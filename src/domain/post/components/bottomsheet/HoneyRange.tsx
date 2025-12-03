@@ -1,5 +1,3 @@
-// src/domain/post/components/filter/HoneyRange.tsx
-
 import styled from "styled-components";
 import { useRef, useState } from "react";
 import { useFilterStore } from "../../../../store/useFilterStore";
@@ -112,8 +110,8 @@ const Section = styled.div`
 `;
 
 const Title = styled.div`
-  font-size: 14px;
-  font-weight: 600;
+  font-size: ${({ theme }) => theme.size.lg};
+  font-weight: ${({ theme }) => theme.weight.bold};
   margin-bottom: 12px;
 `;
 
@@ -124,16 +122,16 @@ const SliderWrapper = styled.div`
 const Track = styled.div`
   position: relative;
   height: 8px;
-  background: var(--natural-100);
-  border-radius: 8px;
+  background: ${({ theme }) => theme.color.natural100};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
 `;
 
 const ActiveBar = styled.div`
   position: absolute;
   top: 0;
   bottom: 0;
-  background: var(--main-color);
-  border-radius: 8px;
+  background: ${({ theme }) => theme.color.main};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
 `;
 
 const Handle = styled.div`
@@ -141,7 +139,7 @@ const Handle = styled.div`
   top: 50%;
   width: 18px;
   height: 18px;
-  background: var(--main-color);
+  background: ${({ theme }) => theme.color.main};
   border-radius: 50%;
   border: 3px solid white;
   transform: translate(-50%, -50%);
@@ -152,6 +150,6 @@ const Scale = styled.div`
   margin-top: 6px;
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
-  color: var(--main-color);
+  font-size: ${({ theme }) => theme.size.md};
+  color: ${({ theme }) => theme.color.main};
 `;
