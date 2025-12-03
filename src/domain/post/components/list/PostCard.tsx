@@ -3,7 +3,7 @@ import type { Post } from "../../../../store/usePostStore";
 import { MdOutlinePlace } from "react-icons/md";
 import { MdOutlineCalendarToday } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-
+import HelpTag from "../../../../components/HelpTag";
 interface Props {
   post: Post;
 }
@@ -38,9 +38,7 @@ const PostCard = ({ post }: Props) => {
         </InfoLine>
 
         <TagWrapper>
-          {post.tags.map((tag) => (
-            <Tag key={tag}>{tag}</Tag>
-          ))}
+          <HelpTag>이동지원</HelpTag>
         </TagWrapper>
       </Content>
 
@@ -60,7 +58,7 @@ const Card = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 16px;
-  border-bottom: 0.5px solid var(--natural-100);
+  border-bottom: 0.5px solid ${({ theme }) => theme.color.natural100};
   background: white;
 `;
 
