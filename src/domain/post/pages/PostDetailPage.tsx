@@ -6,6 +6,7 @@ import { FaDroplet } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { RxIconjarLogo } from "react-icons/rx";
 import ActionSheetModal from "../components/common/ActionSheetModal";
+
 const PostDetailPage = () => {
   const navigate = useNavigate();
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
