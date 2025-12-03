@@ -1,0 +1,252 @@
+import styled from "styled-components";
+import { useState } from "react";
+import { FiChevronLeft, FiMoreVertical } from "react-icons/fi";
+import { FiCalendar, FiClock, FiMapPin } from "react-icons/fi";
+import { FaDroplet } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
+import { RxIconjarLogo } from "react-icons/rx";
+import ActionSheetModal from "../components/common/ActionSheetModal";
+const PostDetailPage = () => {
+  const navigate = useNavigate();
+  const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
+
+  return (
+    <Wrapper>
+      {/* ---------------- Header ---------------- */}
+      <TopBar>
+        <FiChevronLeft size={24} onClick={() => navigate(`/`)} />
+        <FiMoreVertical size={22} onClick={() => setIsActionSheetOpen(true)} />
+
+        <ActionSheetModal
+          isOpen={isActionSheetOpen}
+          onClose={() => setIsActionSheetOpen(false)}
+        />
+      </TopBar>
+
+      {/* ---------------- Category Tags ---------------- */}
+      <TagList>
+        <Tag>이동지원</Tag>
+        <Tag>의료동행</Tag>
+      </TagList>
+
+      {/* ---------------- Title ---------------- */}
+      <Title>집에서 병원까지 픽드랍 필요해요</Title>
+
+      {/* ---------------- User Info ---------------- */}
+      <UserSection>
+        <UserLeft>
+          <UserImage
+            src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fnamu.wiki%2Fw%2F%25ED%2594%2584%25EB%25A1%259C%25ED%2595%2584%2520%25EC%2582%25AC%25EC%25A7%2584%2F%25EC%259D%25B8%25ED%2584%25B0%25EB%2584%25B7&psig=AOvVaw0DFekrzGQ3crLC2zHdaMua&ust=1764684147691000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCODW1fLGnJEDFQAAAAAdAAAAABAE"
+            alt="user profile"
+          />
+          <UserInfo>
+            <UserName>박원</UserName>
+            <UserAddress>갈현 제2동</UserAddress>
+          </UserInfo>
+        </UserLeft>
+
+        <Temperature>
+          60.7 당도 <FaDroplet color="var(--main-color)" />
+        </Temperature>
+      </UserSection>
+
+      <Divider />
+
+      {/* ---------------- Info List ---------------- */}
+      <InfoList>
+        <InfoItem>
+          <RxIconjarLogo size={16} />
+          <span>150 꿀</span>
+        </InfoItem>
+
+        <InfoItem>
+          <FiCalendar size={16} />
+          <span>2025년 11월 21일 (수)</span>
+        </InfoItem>
+
+        <InfoItem>
+          <FiClock size={16} />
+          <span>11시–14시</span>
+        </InfoItem>
+
+        <InfoItem>
+          <FiMapPin size={16} />
+          <span>신촌동</span>
+        </InfoItem>
+      </InfoList>
+
+      {/* ---------------- Description ---------------- */}
+      <Description>
+        매주 혼자 병원을 가는 게 벅차서 도우미 구합니다. 휠체어가 들어가는 SUV
+        차량 이상이었으면 좋겠어요. 왕복으로 지원해주셔야 합니다. 왔다갔다 하는
+        시간 + 진료 보는 시간 총 3시간 정도 걸려요. 신촌동 부근으로 오시면 되고
+        자세한 주소는 채팅으로 말씀드리겠습니다. 병원은 은평세브란스병원입니다!
+      </Description>
+
+      <ApplicantCount>지원자 수 13</ApplicantCount>
+
+      {/* ---------------- Bottom Buttons ---------------- */}
+      <BottomBar>
+        <ShareButton>나눔하기</ShareButton>
+        <ApplyButton>지원하기</ApplyButton>
+      </BottomBar>
+    </Wrapper>
+  );
+};
+
+export default PostDetailPage;
+
+/* ---------------------------------------------
+   styled-components
+--------------------------------------------- */
+
+const Wrapper = styled.div`
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 80px;
+`;
+
+const TopBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+`;
+
+const TagList = styled.div`
+  display: flex;
+  gap: 6px;
+  padding: 0 16px;
+`;
+
+const Tag = styled.div`
+  font-size: 12px;
+  color: var(--main-color);
+
+  font-weight: 500;
+`;
+
+const Title = styled.h1`
+  padding: 16px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--main-text);
+  line-height: 1.3;
+`;
+
+const UserSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px 16px 16px;
+  align-items: center;
+`;
+
+const UserLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const UserImage = styled.img`
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+`;
+
+const UserInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const UserName = styled.div`
+  font-size: 16px;
+  font-weight: 600;
+`;
+
+const UserAddress = styled.div`
+  font-size: 14px;
+  color: var(--sub-text2);
+`;
+
+const Temperature = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--main-color);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const Divider = styled.div`
+  width: 100%;
+  height: 0.5px;
+  background: #e5e5e5;
+`;
+
+const InfoList = styled.div`
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const InfoItem = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 400;
+`;
+
+const Description = styled.p`
+  padding: 16px;
+  font-size: 15px;
+  color: #333;
+  line-height: 1.6;
+`;
+
+const ApplicantCount = styled.div`
+  font-size: 12px;
+  color: var(--sub-text2);
+  padding: 0 16px;
+  margin-bottom: 12px;
+`;
+
+const BottomBar = styled.div`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  max-width: 430px;
+  margin: 0 auto;
+
+  background: #fff;
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+`;
+
+const ShareButton = styled.button`
+  flex: 1;
+  height: 48px;
+  border-radius: 5px;
+  border: 1px solid #d4d4d8;
+  font-size: 12px;
+  background: #fff;
+`;
+
+const ApplyButton = styled.button`
+  flex: 2;
+  height: 48px;
+  border-radius: 5px;
+  background: var(--main-color);
+  color: #fff;
+  font-size: 12px;
+  border: none;
+  font-weight: 600;
+`;
