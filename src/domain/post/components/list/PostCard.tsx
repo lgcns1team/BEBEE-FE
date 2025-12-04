@@ -4,6 +4,7 @@ import { MdOutlinePlace } from "react-icons/md";
 import { MdOutlineCalendarToday } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import HelpTag from "../../../../components/HelpTag";
+
 interface Props {
   post: Post;
 }
@@ -57,9 +58,10 @@ const Card = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 16px;
+  padding: 16px 0px;
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural100};
   background: white;
+  margin-bottom: 8px;
 `;
 
 const Content = styled.div`
@@ -84,7 +86,7 @@ const Category = styled.div`
   font-size: ${({ theme }) => theme.size.sm};
   background: ${({ theme }) => theme.color.subColor2};
   padding: 4px 8px;
-  border: 1px solid ${({ theme }) => theme.color.main};
+  border: 0.5px solid ${({ theme }) => theme.color.main};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   color: ${({ theme }) => theme.color.text};
 `;
@@ -102,6 +104,7 @@ const DoneBadge = styled.div`
   color: ${({ theme }) => theme.color.red500};
   border: 0.5px solid ${({ theme }) => theme.color.red500};
   background-color: ${({ theme }) => theme.color.red50};
+  border-radius: 1px;
 `;
 
 const Title = styled.div`
@@ -127,6 +130,7 @@ const InfoLine = styled.div`
   display: flex;
   gap: 9px;
   align-items: center;
+  margin-bottom: 4px;
 `;
 
 const InfoText = styled.span`
@@ -139,14 +143,6 @@ const TagWrapper = styled.div`
   display: flex;
   gap: 6px;
   margin-top: 6px;
-`;
-
-const Tag = styled.div`
-  font-size: ${({ theme }) => theme.size.md};
-  padding: 4px 8px;
-  background: ${({ theme }) => theme.color.natural100};
-  color: ${({ theme }) => theme.color.text};
-  border-radius: ${({ theme }) => theme.borderRadius.sm};
 `;
 
 const Thumbnail = styled.div`

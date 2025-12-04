@@ -23,7 +23,7 @@ const Button = styled.button`
 
   padding: 6px 14px;
   border-radius: ${({ theme }) => theme.borderRadius.lg};
-  border: 1px solid #dcdcdc;
+  border: 0.5px solid #e5e5e5;
 
   background: #ffffff;
   font-size: ${({ theme }) => theme.size.sm};

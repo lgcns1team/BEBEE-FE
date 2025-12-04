@@ -7,6 +7,7 @@ import { IoWarningOutline } from "react-icons/io5";
 import { RiShieldUserLine } from "react-icons/ri";
 import { BsPencil } from "react-icons/bs";
 import { IoTrashOutline } from "react-icons/io5";
+import Layout from "../../../../components/Layout";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -15,65 +16,67 @@ interface Props {
 // 게시물 상세 보기 내
 const ActionSheetModal = ({ isOpen, onClose }: Props) => {
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <Dim
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-          />
+    <Layout>
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <Dim
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              onClick={onClose}
+            />
 
-          <Sheet
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-          >
-            <Panel>
-              <MenuList>
-                <Item>
-                  <IconWrapper>
-                    <IoWarningOutline size={18} />
-                  </IconWrapper>
-                  <span>신고하기</span>
-                </Item>
+            <Sheet
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+            >
+              <Panel>
+                <MenuList>
+                  <Item>
+                    <IconWrapper>
+                      <IoWarningOutline size={18} />
+                    </IconWrapper>
+                    <span>신고하기</span>
+                  </Item>
 
-                <Divider />
+                  <Divider />
 
-                <Item>
-                  <IconWrapper>
-                    <RiShieldUserLine size={18} />
-                  </IconWrapper>
-                  <span>이 사용자의 글 보지 않기</span>
-                </Item>
+                  <Item>
+                    <IconWrapper>
+                      <RiShieldUserLine size={18} />
+                    </IconWrapper>
+                    <span>이 사용자의 글 보지 않기</span>
+                  </Item>
 
-                <Divider />
+                  <Divider />
 
-                <Item>
-                  <IconWrapper>
-                    <PencilIcon size={18} />
-                  </IconWrapper>
-                  <BlueText>수정하기</BlueText>
-                </Item>
+                  <Item>
+                    <IconWrapper>
+                      <PencilIcon size={18} />
+                    </IconWrapper>
+                    <BlueText>수정하기</BlueText>
+                  </Item>
 
-                <Divider />
+                  <Divider />
 
-                <Item>
-                  <IconWrapper>
-                    <TrashIcon size={18} />
-                  </IconWrapper>
-                  <RedText>삭제하기</RedText>
-                </Item>
-              </MenuList>
+                  <Item>
+                    <IconWrapper>
+                      <TrashIcon size={18} />
+                    </IconWrapper>
+                    <RedText>삭제하기</RedText>
+                  </Item>
+                </MenuList>
 
-              <CloseButton onClick={onClose}>닫기</CloseButton>
-            </Panel>
-          </Sheet>
-        </>
-      )}
-    </AnimatePresence>
+                <CloseButton onClick={onClose}>닫기</CloseButton>
+              </Panel>
+            </Sheet>
+          </>
+        )}
+      </AnimatePresence>
+    </Layout>
   );
 };
 
@@ -160,7 +163,7 @@ const CloseButton = styled.button`
   background: ${({ theme }) => theme.color.natural100};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
 
-  font-size: ${({ theme }) => theme.size.lg};
+  font-size: ${({ theme }) => theme.size.md};
   color: ${({ theme }) => theme.color.subText3};
   border: none;
   cursor: pointer;
