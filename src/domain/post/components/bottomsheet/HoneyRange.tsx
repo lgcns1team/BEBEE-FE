@@ -110,7 +110,7 @@ const Section = styled.div`
 `;
 
 const Title = styled.div`
-  font-size: ${({ theme }) => theme.size.lg};
+  font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.bold};
   margin-bottom: 12px;
 `;
@@ -150,6 +150,6 @@ const Scale = styled.div`
   margin-top: 6px;
   display: flex;
   justify-content: space-between;
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.main};
 `;

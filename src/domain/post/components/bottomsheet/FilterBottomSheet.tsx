@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { AnimatePresence, motion } from "framer-motion";
 import HoneyRange from "./HoneyRange";
 import { useFilterStore } from "../../../../store/useFilterStore";
+import Layout from "../../../../components/Layout";
 
 interface Props {
   isOpen: boolean;
@@ -39,161 +40,163 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <Dim
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.4 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-          />
+    <Layout>
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <Dim
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              exit={{ opacity: 0 }}
+              onClick={onClose}
+            />
 
-          <Sheet
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ duration: 0.3 }}
-          >
-            <HandleBarWrapper>
-              <HandleBar />
-            </HandleBarWrapper>
+            <Sheet
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ duration: 0.3 }}
+            >
+              <HandleBarWrapper>
+                <HandleBar />
+              </HandleBarWrapper>
 
-            <Title>맞춤조건 설정</Title>
+              <Title>맞춤조건 설정</Title>
 
-            <Content>
-              {/* 🔶 도움 지역 */}
-              <Section>
-                <Header>
-                  <Label>도움 지역</Label>
-                  <Count>
-                    <Highlight>{regions.length}</Highlight>/10
-                  </Count>
-                </Header>
+              <Content>
+                {/* 🔶 도움 지역 */}
+                <Section>
+                  <Header>
+                    <Label>도움 지역</Label>
+                    <Count>
+                      <Highlight>{regions.length}</Highlight>/10
+                    </Count>
+                  </Header>
 
-                <RegionChipRow>
-                  {regions.map((region) => (
-                    <RegionChip key={region}>
-                      {region}
-                      <DeleteBtn onClick={() => removeRegion(region)}>
-                        X
-                      </DeleteBtn>
-                    </RegionChip>
-                  ))}
-                </RegionChipRow>
+                  <RegionChipRow>
+                    {regions.map((region) => (
+                      <RegionChip key={region}>
+                        {region}
+                        <DeleteBtn onClick={() => removeRegion(region)}>
+                          X
+                        </DeleteBtn>
+                      </RegionChip>
+                    ))}
+                  </RegionChipRow>
 
-                <AddRegionBtn onClick={handleAddRegion}>
-                  <Plus>＋</Plus> 추가하기
-                </AddRegionBtn>
-              </Section>
+                  <AddRegionBtn onClick={handleAddRegion}>
+                    <Plus>＋</Plus> 추가하기
+                  </AddRegionBtn>
+                </Section>
 
-              {/* 도움 유형 */}
-              <Section>
-                <Header>
-                  <Label>도움 유형</Label>
-                </Header>
+                {/* 도움 유형 */}
+                <Section>
+                  <Header>
+                    <Label>도움 유형</Label>
+                  </Header>
 
-                <Row>
-                  {[
-                    "외출 동행",
-                    "방문 목욕",
-                    "방문 간호",
-                    "가사 지원",
-                    "정서적 지원",
-                    "식사 도움",
-                    "학습 지원",
-                    "기타",
-                  ].map((label) => (
-                    <Chip
-                      key={label}
-                      $active={selectedHelpTypes.includes(label)}
-                      onClick={() => toggleHelpType(label)}
+                  <Row>
+                    {[
+                      "외출 동행",
+                      "방문 목욕",
+                      "방문 간호",
+                      "가사 지원",
+                      "정서적 지원",
+                      "식사 도움",
+                      "학습 지원",
+                      "기타",
+                    ].map((label) => (
+                      <Chip
+                        key={label}
+                        $active={selectedHelpTypes.includes(label)}
+                        onClick={() => toggleHelpType(label)}
+                      >
+                        {label}
+                      </Chip>
+                    ))}
+                  </Row>
+                </Section>
+
+                {/* 성별 */}
+                <Section>
+                  <Label>성별</Label>
+
+                  <GenderTabs>
+                    <GenderTab
+                      $active={gender === "남자"}
+                      onClick={() => setGender("남자")}
                     >
-                      {label}
-                    </Chip>
-                  ))}
-                </Row>
-              </Section>
-
-              {/* 성별 */}
-              <Section>
-                <Label>성별</Label>
-
-                <GenderTabs>
-                  <GenderTab
-                    $active={gender === "남자"}
-                    onClick={() => setGender("남자")}
-                  >
-                    남자
-                  </GenderTab>
-                  <GenderTab
-                    $active={gender === "여자"}
-                    onClick={() => setGender("여자")}
-                  >
-                    여자
-                  </GenderTab>
-                </GenderTabs>
-              </Section>
-
-              {/* 🍯 회당 획득 꿀 */}
-              <HoneyRange />
-
-              {/* 장애 유형 */}
-              <Section>
-                <Label>장애 유형</Label>
-
-                <Row>
-                  {[
-                    "지체장애",
-                    "시각장애",
-                    "청각장애",
-                    "발달장애",
-                    "내부기관장애",
-                    "기타장애",
-                  ].map((v) => (
-                    <Chip
-                      key={v}
-                      $active={disability === v}
-                      onClick={() => setDisability(v)}
+                      남자
+                    </GenderTab>
+                    <GenderTab
+                      $active={gender === "여자"}
+                      onClick={() => setGender("여자")}
                     >
-                      {v}
-                    </Chip>
-                  ))}
-                </Row>
-              </Section>
+                      여자
+                    </GenderTab>
+                  </GenderTabs>
+                </Section>
 
-              {/* 도움 요일 */}
-              <Section>
-                <Header>
-                  <Label>도움 요일</Label>
-                  <Count>
-                    <Highlight>{days.length}</Highlight>/7
-                  </Count>
-                </Header>
+                {/* 🍯 회당 획득 꿀 */}
+                <HoneyRange />
 
-                <Row>
-                  {["월", "화", "수", "목", "금", "토", "일"].map((d) => (
-                    <DayChip
-                      key={d}
-                      $active={days.includes(d)}
-                      onClick={() => toggleDay(d)}
-                    >
-                      {d}
-                    </DayChip>
-                  ))}
-                </Row>
-              </Section>
-            </Content>
+                {/* 장애 유형 */}
+                <Section>
+                  <Label>장애 유형</Label>
 
-            {/* 하단 버튼 */}
-            <Buttons>
-              <ResetBtn onClick={resetAll}>초기화</ResetBtn>
-              <SubmitBtn onClick={handleSubmit}>완료</SubmitBtn>
-            </Buttons>
-          </Sheet>
-        </>
-      )}
-    </AnimatePresence>
+                  <Row>
+                    {[
+                      "지체장애",
+                      "시각장애",
+                      "청각장애",
+                      "발달장애",
+                      "내부기관장애",
+                      "기타장애",
+                    ].map((v) => (
+                      <Chip
+                        key={v}
+                        $active={disability === v}
+                        onClick={() => setDisability(v)}
+                      >
+                        {v}
+                      </Chip>
+                    ))}
+                  </Row>
+                </Section>
+
+                {/* 도움 요일 */}
+                <Section>
+                  <Header>
+                    <Label>도움 요일</Label>
+                    <Count>
+                      <Highlight>{days.length}</Highlight>/7
+                    </Count>
+                  </Header>
+
+                  <Row>
+                    {["월", "화", "수", "목", "금", "토", "일"].map((d) => (
+                      <DayChip
+                        key={d}
+                        $active={days.includes(d)}
+                        onClick={() => toggleDay(d)}
+                      >
+                        {d}
+                      </DayChip>
+                    ))}
+                  </Row>
+                </Section>
+              </Content>
+
+              {/* 하단 버튼 */}
+              <Buttons>
+                <ResetBtn onClick={resetAll}>초기화</ResetBtn>
+                <SubmitBtn onClick={handleSubmit}>완료</SubmitBtn>
+              </Buttons>
+            </Sheet>
+          </>
+        )}
+      </AnimatePresence>
+    </Layout>
   );
 };
 
@@ -204,7 +207,7 @@ export default FilterBottomSheet;
 const Dim = styled(motion.div)`
   position: fixed;
   inset: 0;
-  background: #000;
+  background: ${({ theme }) => theme.color.text};
   z-index: 90;
 `;
 
@@ -215,7 +218,7 @@ const Sheet = styled(motion.div)`
   bottom: 0;
   max-width: 430px;
   margin: 0 auto;
-  background: white;
+  background: ${({ theme }) => theme.color.white};
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   z-index: 100;
@@ -235,12 +238,12 @@ const HandleBar = styled.div`
   width: 45px;
   height: 4px;
   background: ${({ theme }) => theme.color.natural100};
-  border-radius: 2px;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
 `;
 
 const Title = styled.div`
   text-align: center;
-  font-size: ${({ theme }) => theme.size.lg};
+  font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.bold};
 `;
 
@@ -251,7 +254,7 @@ const Content = styled.div`
 `;
 
 const Section = styled.div`
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 `;
 
 const Header = styled.div`
@@ -260,12 +263,12 @@ const Header = styled.div`
 `;
 
 const Label = styled.div`
-  font-size: ${({ theme }) => theme.size.lg};
+  font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.bold};
 `;
 
 const Count = styled.div`
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.text};
 `;
 
@@ -277,25 +280,24 @@ const Highlight = styled.span`
 const Row = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 12px;
   margin-top: 10px;
 `;
 
 const Chip = styled.button<{ $active?: boolean }>`
   padding: 6px 12px;
-  border-radius: 20px !important;
-
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   background: ${({ $active, theme }) =>
     $active ? theme.color.subColor2 : theme.color.natural100};
 
   color: ${({ $active, theme }) =>
     $active ? theme.color.main : theme.color.subText2};
 
-  border: 1px solid
+  border: 0.5px solid
     ${({ $active, theme }) =>
       $active ? theme.color.main : theme.color.natural100};
 
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.sm};
 
   appearance: none;
   outline: none;
@@ -314,14 +316,14 @@ const RegionChip = styled.div`
   background: ${({ theme }) => theme.color.subColor2};
   color: ${({ theme }) => theme.color.main};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.sm};
   display: inline-flex;
   align-items: center;
   gap: 6px;
 `;
 
 const DeleteBtn = styled.span`
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.sm};
   cursor: pointer;
 `;
 
@@ -331,7 +333,7 @@ const AddRegionBtn = styled.button`
   background: white;
   border: 0.5px solid ${({ theme }) => theme.color.subText2};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
-  font-size: ${({ theme }) => theme.size.lg};
+  font-size: ${({ theme }) => theme.size.sm};
   display: flex;
   justify-content: center;
   gap: 6px;
@@ -339,7 +341,7 @@ const AddRegionBtn = styled.button`
 `;
 
 const Plus = styled.span`
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.text};
 `;
 
@@ -352,7 +354,7 @@ const GenderTabs = styled.div`
 const GenderTab = styled.button<{ $active?: boolean }>`
   padding: 12px 0;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
-
+  font-size: ${({ theme }) => theme.size.sm};
   background: ${({ $active, theme }) =>
     $active ? "#fff" : theme.color.natural100};
 
@@ -368,19 +370,20 @@ const GenderTab = styled.button<{ $active?: boolean }>`
 `;
 
 const DayChip = styled.button<{ $active?: boolean }>`
-  padding: 8px 14px;
-  border-radius: 40px;
-
+  /* padding: 8px 14px; */
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
   background: ${({ $active, theme }) =>
     $active ? theme.color.subColor2 : theme.color.natural100};
 
   color: ${({ $active, theme }) =>
     $active ? theme.color.main : theme.color.subText2};
 
-  border: 1px solid
+  border: 0.5px solid
     ${({ $active, theme }) =>
       $active ? theme.color.main : theme.color.natural100};
-
+  font-size: ${({ theme }) => theme.size.sm};
   appearance: none;
   -webkit-tap-highlight-color: transparent;
 `;
@@ -397,6 +400,8 @@ const ResetBtn = styled.button`
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   background: ${({ theme }) => theme.color.natural100};
   color: ${({ theme }) => theme.color.subText};
+  font-weight: ${({ theme }) => theme.weight.medium};
+  font-size: ${({ theme }) => theme.size.sm};
   border: none;
 `;
 
@@ -405,7 +410,8 @@ const SubmitBtn = styled.button`
   padding: 14px 0;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   background: ${({ theme }) => theme.color.main};
-  color: #fff;
-  font-weight: ${({ theme }) => theme.weight.bold};
+  color: ${({ theme }) => theme.color.white};
+  font-weight: ${({ theme }) => theme.weight.medium};
+  font-size: ${({ theme }) => theme.size.sm};
   border: none;
 `;
