@@ -26,7 +26,7 @@ const Button = styled.button`
   border: 1px solid #dcdcdc;
 
   background: #ffffff;
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.text};
 
   cursor: pointer;

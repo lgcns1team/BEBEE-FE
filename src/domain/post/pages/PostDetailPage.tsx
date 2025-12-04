@@ -141,7 +141,7 @@ const Tag = styled.div`
 
 const Title = styled.h1`
   padding: 16px;
-  font-size: 20px;
+  font-size: ${({ theme }) => theme.size.lg};
   font-weight: ${({ theme }) => theme.weight.bold};
   color: ${({ theme }) => theme.color.text};
   line-height: 1.3;
@@ -216,8 +216,8 @@ const InfoItem = styled.div`
 
 const Description = styled.p`
   padding: 16px;
-  font-size: ${({ theme }) => theme.size.md};
-  color: ${({ theme }) => theme.color.text};
+  font-size: 15px;
+  color: #333;
   line-height: 1.6;
 `;
 

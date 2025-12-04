@@ -117,7 +117,7 @@ const Item = styled.div`
   display: flex;
   align-items: center;
   padding: 14px 18px;
-  font-size: ${({ theme }) => theme.size.lg};
+  font-size: ${({ theme }) => theme.size.md};
   cursor: pointer;
 `;
 
@@ -143,13 +143,13 @@ const Divider = styled.div`
 const BlueText = styled.span`
   color: ${({ theme }) => theme.color.blue500};
   font-weight: ${({ theme }) => theme.weight.medium};
-  font-size: ${({ theme }) => theme.size.lg};
+  font-size: ${({ theme }) => theme.size.md};
 `;
 
 const RedText = styled.span`
   color: ${({ theme }) => theme.color.red500};
   font-weight: ${({ theme }) => theme.weight.medium};
-  font-size: ${({ theme }) => theme.size.lg};
+  font-size: ${({ theme }) => theme.size.md};
 `;
 
 const CloseButton = styled.button`

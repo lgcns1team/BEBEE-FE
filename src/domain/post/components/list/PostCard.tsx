@@ -81,7 +81,7 @@ const RightTop = styled.div`
 `;
 
 const Category = styled.div`
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.sm};
   background: ${({ theme }) => theme.color.subColor2};
   padding: 4px 8px;
   border: 1px solid ${({ theme }) => theme.color.main};
@@ -100,18 +100,18 @@ const DoneBadge = styled.div`
   font-size: ${({ theme }) => theme.size.sm};
   padding: 3px 7px;
   color: ${({ theme }) => theme.color.red500};
-  border: 1px solid ${({ theme }) => theme.color.red500};
+  border: 0.5px solid ${({ theme }) => theme.color.red500};
   background-color: ${({ theme }) => theme.color.red50};
 `;
 
 const Title = styled.div`
-  font-size: ${({ theme }) => theme.size.lg};
+  font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
   line-height: 1.3;
 `;
 
 const Honey = styled.div`
-  font-size: ${({ theme }) => theme.size.lg};
+  font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.bold};
 `;
 
@@ -132,7 +132,7 @@ const InfoLine = styled.div`
 const InfoText = styled.span`
   font-weight: ${({ theme }) => theme.weight.regular};
   color: ${({ theme }) => theme.color.subText2};
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.sm};
 `;
 
 const TagWrapper = styled.div`

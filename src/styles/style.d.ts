@@ -21,6 +21,7 @@ declare module "styled-components" {
       red500: string;
       blue50: string;
       red50: string;
+      white: string;
     };
     borderRadius: {
       sm: string;

@@ -30,6 +30,7 @@ const Container = styled.header`
   align-items: center;
   box-sizing: border-box;
   position: relative;
+  margin-bottom: 20px;
 `;
 
 const Left = styled.div`
@@ -44,7 +45,7 @@ const Left = styled.div`
 const Title = styled.h1`
   flex: 1;
   text-align: center;
-  font-size: 16px;
+  font-size: ${({ theme }) => theme.size.lg};
   font-weight: 600;
   color: #1c1c1c;
 `;

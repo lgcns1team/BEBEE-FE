@@ -5,9 +5,9 @@
 /*fontsize*/
 const theme = {
   size: {
-    lg: "1rem", //16px -> figma 기준 14 ~ 16
-    md: "0.75rem", //12px-> figma 기준 12
-    sm: "0.6rem", //8px -> figma 기준 10 이하
+    lg: "20px", // figma 기준 14 ~ 16 (제목,헤더)
+    md: "16px", //figma 기준 12 (본문)
+    sm: "12px", //figma 기준 10 이하 (뱃지, 부가 회색 텍스트)
   },
 
   /*color*/
