@@ -3,7 +3,7 @@ import type { Post } from "../../../../store/usePostStore";
 import { MdOutlinePlace } from "react-icons/md";
 import { MdOutlineCalendarToday } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-
+import HelpTag from "../../../../components/HelpTag";
 interface Props {
   post: Post;
 }
@@ -28,19 +28,17 @@ const PostCard = ({ post }: Props) => {
         </HoneyRow>
 
         <InfoLine>
-          <MdOutlinePlace size={16} color="#777" />
+          <PlaceIcon size={16} />
           <InfoText>{post.location}</InfoText>
         </InfoLine>
 
         <InfoLine>
-          <MdOutlineCalendarToday size={16} color="#777" />
+          <CalendarIcon size={16} />
           <InfoText>{post.date}</InfoText>
         </InfoLine>
 
         <TagWrapper>
-          {post.tags.map((tag) => (
-            <Tag key={tag}>{tag}</Tag>
-          ))}
+          <HelpTag>이동지원</HelpTag>
         </TagWrapper>
       </Content>
 
@@ -60,7 +58,7 @@ const Card = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 16px;
-  border-bottom: 0.5px solid var(--natural-100);
+  border-bottom: 0.5px solid ${({ theme }) => theme.color.natural100};
   background: white;
 `;
 
@@ -83,12 +81,12 @@ const RightTop = styled.div`
 `;
 
 const Category = styled.div`
-  font-size: 12px;
-  background: var(--sub-color2);
+  font-size: ${({ theme }) => theme.size.sm};
+  background: ${({ theme }) => theme.color.subColor2};
   padding: 4px 8px;
-  border: 1px solid var(--main-color);
-  border-radius: 8px;
-  color: var(--text);
+  border: 1px solid ${({ theme }) => theme.color.main};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  color: ${({ theme }) => theme.color.text};
 `;
 
 const HoneyRow = styled.div`
@@ -99,22 +97,30 @@ const HoneyRow = styled.div`
 `;
 
 const DoneBadge = styled.div`
-  font-size: 9px;
+  font-size: ${({ theme }) => theme.size.sm};
   padding: 3px 7px;
-  color: var(--error-red);
-  border: 1px solid var(--error-red);
-  background-color: #fef2f2;
+  color: ${({ theme }) => theme.color.red500};
+  border: 0.5px solid ${({ theme }) => theme.color.red500};
+  background-color: ${({ theme }) => theme.color.red50};
 `;
 
 const Title = styled.div`
-  font-size: 14px;
-  font-weight: 500;
+  font-size: ${({ theme }) => theme.size.md};
+  font-weight: ${({ theme }) => theme.weight.medium};
   line-height: 1.3;
 `;
 
 const Honey = styled.div`
-  font-size: 16px;
-  font-weight: 600;
+  font-size: ${({ theme }) => theme.size.md};
+  font-weight: ${({ theme }) => theme.weight.bold};
+`;
+
+const PlaceIcon = styled(MdOutlinePlace)`
+  color: ${({ theme }) => theme.color.subText2};
+`;
+
+const CalendarIcon = styled(MdOutlineCalendarToday)`
+  color: ${({ theme }) => theme.color.subText2};
 `;
 
 const InfoLine = styled.div`
@@ -124,9 +130,9 @@ const InfoLine = styled.div`
 `;
 
 const InfoText = styled.span`
-  font-weight: 400;
-  color: var(--sub-text2);
-  font-size: 12px;
+  font-weight: ${({ theme }) => theme.weight.regular};
+  color: ${({ theme }) => theme.color.subText2};
+  font-size: ${({ theme }) => theme.size.sm};
 `;
 
 const TagWrapper = styled.div`
@@ -136,11 +142,11 @@ const TagWrapper = styled.div`
 `;
 
 const Tag = styled.div`
-  font-size: 12px;
+  font-size: ${({ theme }) => theme.size.md};
   padding: 4px 8px;
-  background: var(--natural-100);
-  color: var(--text);
-  border-radius: 5px;
+  background: ${({ theme }) => theme.color.natural100};
+  color: ${({ theme }) => theme.color.text};
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
 `;
 
 const Thumbnail = styled.div`
@@ -150,7 +156,7 @@ const Thumbnail = styled.div`
   img {
     width: 100%;
     height: 100%;
-    border-radius: 8px;
+    border-radius: ${({ theme }) => theme.borderRadius.md};
     object-fit: cover;
   }
 `;

@@ -1,29 +1,7 @@
 import { createGlobalStyle } from "styled-components";
+import theme from "./theme";
 
 export const GlobalStyle = createGlobalStyle`
-  :root {
-    /* Main */
-    --main-color: #FFBE00;
-
-    /* Text */
-    --text: #262626;            /* neutral 800 */
-    --sub-text: #525252;        /* neutral 600 */
-    --sub-text2: #737373;       /* neutral 500 */
-    --sub-text3: #A1A1A1;
-
-    /* Sub Colors */
-    --sub-color: #FFF8C4;
-    --sub-color2: #FEFCE8;      /* yellow 50 */
-    --natural-100: #F5F5F5;
-    --natural-50: #FAFAFA;
-    
-    /* Semantic */
-    --accept-blue: #155DFC;
-    --error-red: #FB2C36;
-  
-  
-  }
-
   * {
     margin: 0;
     padding: 0;
@@ -31,8 +9,21 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    font-family: sans-serif;
-    color: var(--text);
-    background: #fff;
+    width: 375px;
+    max-width: 100%;
+    margin: 0 auto;
+    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: ${theme.size.md};
+    color: ${theme.color.text};
+    background-color: ${theme.color.white};
+    line-height: 1.4;
+   
   }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+
 `;

@@ -6,7 +6,6 @@ import { useState, useEffect } from "react";
 
 import FilterButton from "../components/list/FilterButton";
 import FilterBottomSheet from "../components/bottomsheet/FilterBottomSheet";
-
 import { IoChevronDown } from "react-icons/io5";
 
 const HomePage = () => {
@@ -94,7 +93,7 @@ const HomePage = () => {
         <SortSelect>
           <button className="sort-btn" onClick={toggleSort}>
             {sort || "정렬"}
-            <IoChevronDown size={14} color="#737373" />
+            <ChevronDownIcon size={14} />
           </button>
 
           {isSortOpen && (
@@ -148,15 +147,15 @@ const TabBar = styled.div`
 `;
 
 const Tab = styled.div`
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--sub-text2);
+  font-size: ${({ theme }) => theme.size.md};
+  font-weight: ${({ theme }) => theme.weight.medium};
+  color: ${({ theme }) => theme.color.subText2};
   padding-bottom: 10px;
   cursor: pointer;
   position: relative;
 
   &.active {
-    color: var(--text);
+    color: ${({ theme }) => theme.color.text};
     font-weight: 600;
   }
 
@@ -167,7 +166,7 @@ const Tab = styled.div`
     left: 0;
     width: 100%;
     height: 2px;
-    background-color: var(--text);
+    background-color: ${({ theme }) => theme.color.text};
     border-radius: 2px;
   }
 `;
@@ -178,7 +177,9 @@ const FilterRow = styled.div`
   gap: 12px;
   padding: 12px;
 `;
-
+const ChevronDownIcon = styled(IoChevronDown)`
+  color: ${({ theme }) => theme.color.subText2};
+`;
 const CheckBoxWrapper = styled.label`
   margin-left: auto;
   display: flex;
@@ -188,8 +189,8 @@ const CheckBoxWrapper = styled.label`
   input {
     width: 18px;
     height: 18px;
-    border: 1.5px solid #e5e5e5;
-    border-radius: 4px;
+    border: 1px solid #e5e5e5;
+    border-radius: ${({ theme }) => theme.borderRadius.sm};
     cursor: pointer;
 
     /* 기본 체크박스 스타일 제거 */
@@ -201,15 +202,15 @@ const CheckBoxWrapper = styled.label`
 
     /* 체크되었을 때 */
     &:checked {
-      background-color: var(--main-color);
-      border-color: var(--main-color);
+      background-color: ${({ theme }) => theme.color.main};
+      border-color: ${({ theme }) => theme.color.main};
     }
 
     /* 체크 표시 커스텀 (흰색 V 표시) */
     &:checked::after {
       content: "V";
       color: #fff;
-      font-size: 14px;
+      font-size: ${({ theme }) => theme.size.lg};
       font-weight: 300;
       position: relative;
       left: 3px;
@@ -218,8 +219,8 @@ const CheckBoxWrapper = styled.label`
   }
 
   span {
-    font-size: 14px;
-    color: var(--sub-text);
+    font-size: ${({ theme }) => theme.size.md};
+    color: ${({ theme }) => theme.color.subText};
   }
 `;
 
@@ -235,13 +236,12 @@ const SortSelect = styled.div`
     align-items: center;
     gap: 6px;
     padding: 6px 14px;
-    height: 32px;
     background: #fff;
-    border: 1px solid #e5e5e5;
-    border-radius: 12px;
-    font-size: 14px;
+    border: 1px solid #dcdcdc;
+    border-radius: ${({ theme }) => theme.borderRadius.lg};
+    font-size: ${({ theme }) => theme.size.sm};
     cursor: pointer;
-    color: var(--sub-text);
+    color: ${({ theme }) => theme.color.text};
   }
 
   .dropdown {
@@ -251,18 +251,18 @@ const SortSelect = styled.div`
     width: 100%;
     background: white;
     border: 1px solid #e5e5e5;
-    border-radius: 12px;
+    border-radius: ${({ theme }) => theme.borderRadius.lg};
     overflow: hidden;
     z-index: 20;
 
     span {
       display: block;
       padding: 10px;
-      font-size: 13px;
+      font-size: ${({ theme }) => theme.size.md};
       cursor: pointer;
 
       &:hover {
-        background: #f5f5f5;
+        background: ${({ theme }) => theme.color.natural100};
       }
     }
   }

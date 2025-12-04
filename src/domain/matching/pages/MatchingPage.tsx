@@ -1,5 +1,5 @@
 import React from "react";
-import MatchingCalendar from "../components/MatchingCalendar.tsx";
+import MatchingCalendar from "../components/MatchingCalendar";
 const MatchingPage = () => {
   return (
     <div>

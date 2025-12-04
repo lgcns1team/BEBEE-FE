@@ -53,7 +53,7 @@ const ActionSheetModal = ({ isOpen, onClose }: Props) => {
 
                 <Item>
                   <IconWrapper>
-                    <BsPencil size={18} color="#4D7CFF" />
+                    <PencilIcon size={18} />
                   </IconWrapper>
                   <BlueText>수정하기</BlueText>
                 </Item>
@@ -62,7 +62,7 @@ const ActionSheetModal = ({ isOpen, onClose }: Props) => {
 
                 <Item>
                   <IconWrapper>
-                    <IoTrashOutline size={18} color="#FF3B30" />
+                    <TrashIcon size={18} />
                   </IconWrapper>
                   <RedText>삭제하기</RedText>
                 </Item>
@@ -108,7 +108,7 @@ const Panel = styled.div`
 `;
 
 const MenuList = styled.div`
-  background: #f5f5f5;
+  background: ${({ theme }) => theme.color.natural100};
   border-radius: 16px;
   overflow: hidden;
 `;
@@ -117,7 +117,7 @@ const Item = styled.div`
   display: flex;
   align-items: center;
   padding: 14px 18px;
-  font-size: 15px;
+  font-size: ${({ theme }) => theme.size.md};
   cursor: pointer;
 `;
 
@@ -127,6 +127,12 @@ const IconWrapper = styled.div`
   justify-content: center;
   margin-right: 10px;
 `;
+const PencilIcon = styled(BsPencil)`
+  color: ${({ theme }) => theme.color.blue500};
+`;
+const TrashIcon = styled(IoTrashOutline)`
+  color: ${({ theme }) => theme.color.red500};
+`;
 
 const Divider = styled.div`
   height: 1px;
@@ -135,13 +141,15 @@ const Divider = styled.div`
 `;
 
 const BlueText = styled.span`
-  color: #4d7cff;
-  font-weight: 500;
+  color: ${({ theme }) => theme.color.blue500};
+  font-weight: ${({ theme }) => theme.weight.medium};
+  font-size: ${({ theme }) => theme.size.md};
 `;
 
 const RedText = styled.span`
-  color: var(--error-red);
-  font-weight: 500;
+  color: ${({ theme }) => theme.color.red500};
+  font-weight: ${({ theme }) => theme.weight.medium};
+  font-size: ${({ theme }) => theme.size.md};
 `;
 
 const CloseButton = styled.button`
@@ -149,11 +157,11 @@ const CloseButton = styled.button`
   margin-top: 10px;
 
   padding: 14px 0;
-  background: var(--natural-100);
-  border-radius: 12px;
+  background: ${({ theme }) => theme.color.natural100};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
 
-  font-size: 16px;
-  color: #a1a1a1;
+  font-size: ${({ theme }) => theme.size.lg};
+  color: ${({ theme }) => theme.color.subText3};
   border: none;
   cursor: pointer;
 `;

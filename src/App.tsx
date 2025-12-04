@@ -1,14 +1,19 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import HomePage from "./domain/post/pages/HomePage";
 import PostDetailPage from "./domain/post/pages/PostDetailPage"; // 상세페이지(파일명은 네 프로젝트에 맞게 조정)
+// import ChatListPage from "./domain/chat/pages/ChatListPage";
+// import MatchConfirmModal from "./domain/chat/components/MatchConfirmModal";
+import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
+import theme from "./styles/theme";
 import "./App.css";
+import MatchingPage from "./domain/matching/pages/MatchingPage";
 
 function App() {
   return (
-    <>
+    <ThemeProvider theme={theme}>
+      <GlobalStyle />
       <BrowserRouter>
         <Routes>
           {/* 홈 */}
@@ -16,10 +21,22 @@ function App() {
 
           {/* 게시글 상세 */}
           <Route path="/post/:id" element={<PostDetailPage />} />
+
+          {/*채팅*/}
+          {/* <Route path="/chat/:roomId" element={<ChatRoomPage />} /> */}
+          {/* <Route path="/chat" element={<ChatListPage />} /> */}
+
+          {/*마이페이지*/}
+          {/* <Route path="/mypage" element={<MyPage />} /> */}
+
+          {/*동네지도*/}
+          {/* <Route path="/map" element={<MapPage />} /> */}
+
+          {/*매칭*/}
+          {/* <Route path="/match" element={<MatchConfirmModal />} /> */}
         </Routes>
       </BrowserRouter>
-      <GlobalStyle />
-    </>
+    </ThemeProvider>
   );
 }
 
