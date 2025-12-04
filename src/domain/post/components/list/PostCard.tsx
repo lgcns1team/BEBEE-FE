@@ -60,7 +60,7 @@ const Card = styled.div`
   justify-content: space-between;
   padding: 16px 0px;
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural100};
-  background: white;
+  background: ${({ theme }) => theme.color.white};
   margin-bottom: 8px;
 `;
 

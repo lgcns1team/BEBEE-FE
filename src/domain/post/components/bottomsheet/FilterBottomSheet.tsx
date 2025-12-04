@@ -207,7 +207,7 @@ export default FilterBottomSheet;
 const Dim = styled(motion.div)`
   position: fixed;
   inset: 0;
-  background: #000;
+  background: ${({ theme }) => theme.color.text};
   z-index: 90;
 `;
 
@@ -218,7 +218,7 @@ const Sheet = styled(motion.div)`
   bottom: 0;
   max-width: 430px;
   margin: 0 auto;
-  background: white;
+  background: ${({ theme }) => theme.color.white};
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   z-index: 100;
@@ -238,7 +238,7 @@ const HandleBar = styled.div`
   width: 45px;
   height: 4px;
   background: ${({ theme }) => theme.color.natural100};
-  border-radius: 2px;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
 `;
 
 const Title = styled.div`
@@ -286,8 +286,7 @@ const Row = styled.div`
 
 const Chip = styled.button<{ $active?: boolean }>`
   padding: 6px 12px;
-  border-radius: 20px;
-
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   background: ${({ $active, theme }) =>
     $active ? theme.color.subColor2 : theme.color.natural100};
 
@@ -371,9 +370,10 @@ const GenderTab = styled.button<{ $active?: boolean }>`
 `;
 
 const DayChip = styled.button<{ $active?: boolean }>`
-  padding: 8px 14px;
-  border-radius: 999px;
-
+  /* padding: 8px 14px; */
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
   background: ${({ $active, theme }) =>
     $active ? theme.color.subColor2 : theme.color.natural100};
 
@@ -410,7 +410,7 @@ const SubmitBtn = styled.button`
   padding: 14px 0;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   background: ${({ theme }) => theme.color.main};
-  color: #fff;
+  color: ${({ theme }) => theme.color.white};
   font-weight: ${({ theme }) => theme.weight.medium};
   font-size: ${({ theme }) => theme.size.sm};
   border: none;

@@ -25,14 +25,14 @@ const Button = styled.button`
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   border: 0.5px solid #e5e5e5;
 
-  background: #ffffff;
+  background: ${({ theme }) => theme.color.white};
   font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.text};
 
   cursor: pointer;
 
   &:active {
-    background: #f3f3f3;
+    background: ${({ theme }) => theme.color.subText3};
   }
 `;
 

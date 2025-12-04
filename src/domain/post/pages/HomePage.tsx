@@ -164,7 +164,7 @@ const Tab = styled.div`
 
   &.active {
     color: ${({ theme }) => theme.color.text};
-    font-weight: 600;
+    font-weight: ${({ theme }) => theme.weight.medium};
   }
 
   &.active::after {
@@ -175,7 +175,7 @@ const Tab = styled.div`
     width: 100%;
     height: 2px;
     background-color: ${({ theme }) => theme.color.text};
-    border-radius: 2px;
+    border-radius: ${({ theme }) => theme.borderRadius.sm};
   }
 `;
 
@@ -210,18 +210,18 @@ const HiddenCheckbox = styled.input.attrs({ type: "checkbox" })`
 const CustomCheckbox = styled.div<{ $checked: boolean }>`
   width: 16px;
   height: 16px;
-  border-radius: 4px;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
   border: 0.5px solid
     ${({ theme, $checked }) =>
       $checked ? theme.color.main : theme.color.subText3};
 
   background: ${({ theme, $checked }) =>
-    $checked ? theme.color.main : "#fff"};
+    $checked ? theme.color.main : theme.color.white};
 
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #fff;
+  color: ${({ theme }) => theme.color.white};
 
   transition: 0.15s ease-in-out;
 `;
@@ -238,7 +238,7 @@ const SortSelect = styled.div`
     align-items: center;
     gap: 6px;
     padding: 6px 14px;
-    background: #fff;
+    background: ${({ theme }) => theme.color.white};
     border: 0.5px solid #e5e5e5;
     border-radius: ${({ theme }) => theme.borderRadius.lg};
     font-size: ${({ theme }) => theme.size.sm};
@@ -251,7 +251,7 @@ const SortSelect = styled.div`
     top: 38px;
     left: 0;
     width: 100%;
-    background: white;
+    background: ${({ theme }) => theme.color.white};
     border: 1px solid #e5e5e5;
     border-radius: ${({ theme }) => theme.borderRadius.lg};
     overflow: hidden;

@@ -118,7 +118,7 @@ const Wrapper = styled.div`
   max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
-  background: #fff;
+  background: ${({ theme }) => theme.color.white};
   display: flex;
   flex-direction: column;
   padding-bottom: 80px;
@@ -250,7 +250,7 @@ const BottomBar = styled.div`
   right: 0;
 
   width: 100%;
-  background: #fff;
+  background: ${({ theme }) => theme.color.white};
 
   display: flex;
   justify-content: center;
@@ -268,10 +268,13 @@ const ShareButton = styled.button`
   flex: 1;
   height: 48px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
-  border: 1px solid #d4d4d8;
-  font-size: ${({ theme }) => theme.size.md};
-  background: #fff;
+  border: 0.5px solid #d4d4d8;
+  font-size: ${({ theme }) => theme.size.sm};
+  background: ${({ theme }) => theme.color.white};
   font-weight: ${({ theme }) => theme.weight.medium};
+  appearance: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 `;
 
 const ApplyButton = styled.button`
@@ -279,8 +282,8 @@ const ApplyButton = styled.button`
   height: 48px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   background: ${({ theme }) => theme.color.main};
-  color: #fff;
-  font-size: ${({ theme }) => theme.size.md};
+  color: ${({ theme }) => theme.color.white};
+  font-size: ${({ theme }) => theme.size.sm};
   border: none;
   font-weight: ${({ theme }) => theme.weight.medium};
 `;

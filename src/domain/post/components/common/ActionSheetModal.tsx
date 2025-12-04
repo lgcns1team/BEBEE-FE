@@ -87,7 +87,7 @@ export default ActionSheetModal;
 const Dim = styled(motion.div)`
   position: fixed;
   inset: 0;
-  background: #000;
+  background: ${({ theme }) => theme.color.text};
   z-index: 900;
 `;
 
@@ -112,7 +112,7 @@ const Panel = styled.div`
 
 const MenuList = styled.div`
   background: ${({ theme }) => theme.color.natural100};
-  border-radius: 16px;
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   overflow: hidden;
 `;
 
@@ -139,7 +139,7 @@ const TrashIcon = styled(IoTrashOutline)`
 
 const Divider = styled.div`
   height: 1px;
-  background: #e5e5e5;
+  background: #d4d4d4;
   margin-left: 18px;
 `;
 
