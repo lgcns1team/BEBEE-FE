@@ -6,6 +6,7 @@ import { FaDroplet } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { RxIconjarLogo } from "react-icons/rx";
 import ActionSheetModal from "../components/common/ActionSheetModal";
+import HelpTagBee from "../../../assets/images/helptag-bee.png";
 
 const PostDetailPage = () => {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ const PostDetailPage = () => {
 
       {/* ---------------- Category Tags ---------------- */}
       <TagList>
+        <HelpBeeImage src={HelpTagBee} alt="bee" />
         <Tag>이동지원</Tag>
         <Tag>의료동행</Tag>
       </TagList>
@@ -47,7 +49,7 @@ const PostDetailPage = () => {
         </UserLeft>
 
         <Temperature>
-          60.7 당도 <FaDroplet color="var(--main-color)" />
+          60.7 당도 <DropletIcon size={16} />
         </Temperature>
       </UserSection>
 
@@ -117,6 +119,13 @@ const TopBar = styled.div`
   padding: 16px;
 `;
 
+const HelpBeeImage = styled.img`
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  margin-right: 2px;
+`;
+
 const TagList = styled.div`
   display: flex;
   gap: 6px;
@@ -124,17 +133,17 @@ const TagList = styled.div`
 `;
 
 const Tag = styled.div`
-  font-size: 12px;
-  color: var(--main-color);
+  font-size: ${({ theme }) => theme.size.md};
+  color: ${({ theme }) => theme.color.main};
 
-  font-weight: 500;
+  font-weight: ${({ theme }) => theme.weight.medium};
 `;
 
 const Title = styled.h1`
   padding: 16px;
   font-size: 20px;
-  font-weight: 700;
-  color: var(--main-text);
+  font-weight: ${({ theme }) => theme.weight.bold};
+  color: ${({ theme }) => theme.color.text};
   line-height: 1.3;
 `;
 
@@ -164,24 +173,26 @@ const UserInfo = styled.div`
 `;
 
 const UserName = styled.div`
-  font-size: 16px;
-  font-weight: 600;
+  font-size: ${({ theme }) => theme.size.md};
+  font-weight: ${({ theme }) => theme.weight.medium};
 `;
 
 const UserAddress = styled.div`
-  font-size: 14px;
-  color: var(--sub-text2);
+  font-size: ${({ theme }) => theme.size.md};
+  color: ${({ theme }) => theme.color.subText2};
 `;
 
 const Temperature = styled.div`
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--main-color);
+  font-size: ${({ theme }) => theme.size.md};
+  font-weight: ${({ theme }) => theme.weight.medium};
+  color: ${({ theme }) => theme.color.main};
   display: flex;
   align-items: center;
   gap: 4px;
 `;
-
+const DropletIcon = styled(FaDroplet)`
+  color: ${({ theme }) => theme.color.main};
+`;
 const Divider = styled.div`
   width: 100%;
   height: 0.5px;
@@ -199,20 +210,20 @@ const InfoItem = styled.div`
   display: flex;
   gap: 8px;
   align-items: center;
-  font-size: 14px;
-  font-weight: 400;
+  font-size: ${({ theme }) => theme.size.md};
+  font-weight: ${({ theme }) => theme.weight.regular};
 `;
 
 const Description = styled.p`
   padding: 16px;
-  font-size: 15px;
-  color: #333;
+  font-size: ${({ theme }) => theme.size.md};
+  color: ${({ theme }) => theme.color.text};
   line-height: 1.6;
 `;
 
 const ApplicantCount = styled.div`
-  font-size: 12px;
-  color: var(--sub-text2);
+  font-size: ${({ theme }) => theme.size.md};
+  color: ${({ theme }) => theme.color.subText2};
   padding: 0 16px;
   margin-bottom: 12px;
 `;
@@ -235,19 +246,20 @@ const BottomBar = styled.div`
 const ShareButton = styled.button`
   flex: 1;
   height: 48px;
-  border-radius: 5px;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
   border: 1px solid #d4d4d8;
-  font-size: 12px;
+  font-size: ${({ theme }) => theme.size.md};
   background: #fff;
+  font-weight: ${({ theme }) => theme.weight.medium};
 `;
 
 const ApplyButton = styled.button`
   flex: 2;
   height: 48px;
-  border-radius: 5px;
-  background: var(--main-color);
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  background: ${({ theme }) => theme.color.main};
   color: #fff;
-  font-size: 12px;
+  font-size: ${({ theme }) => theme.size.md};
   border: none;
-  font-weight: 600;
+  font-weight: ${({ theme }) => theme.weight.medium};
 `;

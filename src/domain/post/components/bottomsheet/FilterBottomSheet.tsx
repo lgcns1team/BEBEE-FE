@@ -1,5 +1,3 @@
-// src/domain/post/components/bottomsheet/FilterBottomSheet.tsx
-
 import React from "react";
 import styled from "styled-components";
 import { AnimatePresence, motion } from "framer-motion";
@@ -236,14 +234,14 @@ const HandleBarWrapper = styled.div`
 const HandleBar = styled.div`
   width: 45px;
   height: 4px;
-  background: var(--natural-100);
+  background: ${({ theme }) => theme.color.natural100};
   border-radius: 2px;
 `;
 
 const Title = styled.div`
   text-align: center;
-  font-size: 17px;
-  font-weight: 700;
+  font-size: ${({ theme }) => theme.size.lg};
+  font-weight: ${({ theme }) => theme.weight.bold};
 `;
 
 const Content = styled.div`
@@ -262,18 +260,18 @@ const Header = styled.div`
 `;
 
 const Label = styled.div`
-  font-size: 14px;
-  font-weight: 600;
+  font-size: ${({ theme }) => theme.size.lg};
+  font-weight: ${({ theme }) => theme.weight.bold};
 `;
 
 const Count = styled.div`
-  font-size: 12px;
-  color: var(--text);
+  font-size: ${({ theme }) => theme.size.md};
+  color: ${({ theme }) => theme.color.text};
 `;
 
 const Highlight = styled.span`
-  color: var(--main-color);
-  font-weight: 700;
+  color: ${({ theme }) => theme.color.main};
+  font-weight: ${({ theme }) => theme.weight.bold};
 `;
 
 const Row = styled.div`
@@ -286,13 +284,18 @@ const Row = styled.div`
 const Chip = styled.button<{ $active?: boolean }>`
   padding: 6px 12px;
   border-radius: 20px !important;
-  background: ${({ $active }) =>
-    $active ? "var(--sub-color2)" : "var(--natural-100)"};
-  color: ${({ $active }) =>
-    $active ? "var(--main-color)" : "var(--sub-text2)"};
+
+  background: ${({ $active, theme }) =>
+    $active ? theme.color.subColor2 : theme.color.natural100};
+
+  color: ${({ $active, theme }) =>
+    $active ? theme.color.main : theme.color.subText2};
+
   border: 1px solid
-    ${({ $active }) => ($active ? "var(--main-color)" : "var(--natural-100)")};
-  font-size: 12px;
+    ${({ $active, theme }) =>
+      $active ? theme.color.main : theme.color.natural100};
+
+  font-size: ${({ theme }) => theme.size.md};
 
   appearance: none;
   outline: none;
@@ -308,17 +311,17 @@ const RegionChipRow = styled.div`
 
 const RegionChip = styled.div`
   padding: 8px 12px;
-  background: var(--sub-color2);
-  color: var(--main-color);
-  border-radius: 12px;
-  font-size: 13px;
+  background: ${({ theme }) => theme.color.subColor2};
+  color: ${({ theme }) => theme.color.main};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  font-size: ${({ theme }) => theme.size.md};
   display: inline-flex;
   align-items: center;
   gap: 6px;
 `;
 
 const DeleteBtn = styled.span`
-  font-size: 12px;
+  font-size: ${({ theme }) => theme.size.md};
   cursor: pointer;
 `;
 
@@ -326,9 +329,9 @@ const AddRegionBtn = styled.button`
   width: 100%;
   padding: 12px 0;
   background: white;
-  border: 0.5px solid var(--sub-text2);
-  border-radius: 12px;
-  font-size: 14px;
+  border: 0.5px solid ${({ theme }) => theme.color.subText2};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  font-size: ${({ theme }) => theme.size.lg};
   display: flex;
   justify-content: center;
   gap: 6px;
@@ -336,8 +339,8 @@ const AddRegionBtn = styled.button`
 `;
 
 const Plus = styled.span`
-  font-size: 12px;
-  color: var(--text);
+  font-size: ${({ theme }) => theme.size.md};
+  color: ${({ theme }) => theme.color.text};
 `;
 
 const GenderTabs = styled.div`
@@ -348,13 +351,17 @@ const GenderTabs = styled.div`
 
 const GenderTab = styled.button<{ $active?: boolean }>`
   padding: 12px 0;
-  border-radius: 6px;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
 
-  background: ${({ $active }) => ($active ? "#fff" : "var(--natural-100)")};
-  color: ${({ $active }) =>
-    $active ? "var(--main-color)" : "var(--sub-text2)"};
+  background: ${({ $active, theme }) =>
+    $active ? "#fff" : theme.color.natural100};
+
+  color: ${({ $active, theme }) =>
+    $active ? theme.color.main : theme.color.subText2};
+
   border: 1px solid
-    ${({ $active }) => ($active ? "var(--main-color)" : "var(--natural-100)")};
+    ${({ $active, theme }) =>
+      $active ? theme.color.main : theme.color.natural100};
 
   appearance: none;
   -webkit-tap-highlight-color: transparent;
@@ -363,12 +370,16 @@ const GenderTab = styled.button<{ $active?: boolean }>`
 const DayChip = styled.button<{ $active?: boolean }>`
   padding: 8px 14px;
   border-radius: 40px;
-  background: ${({ $active }) =>
-    $active ? "var(--sub-color2)" : "var(--natural-100)"};
-  color: ${({ $active }) =>
-    $active ? "var(--main-color)" : "var(--sub-text2)"};
+
+  background: ${({ $active, theme }) =>
+    $active ? theme.color.subColor2 : theme.color.natural100};
+
+  color: ${({ $active, theme }) =>
+    $active ? theme.color.main : theme.color.subText2};
+
   border: 1px solid
-    ${({ $active }) => ($active ? "var(--main-color)" : "var(--natural-100)")};
+    ${({ $active, theme }) =>
+      $active ? theme.color.main : theme.color.natural100};
 
   appearance: none;
   -webkit-tap-highlight-color: transparent;
@@ -383,18 +394,18 @@ const Buttons = styled.div`
 const ResetBtn = styled.button`
   flex: 1;
   padding: 14px 0;
-  border-radius: 6px;
-  background: var(--natural-100);
-  color: var(--sub-text);
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  background: ${({ theme }) => theme.color.natural100};
+  color: ${({ theme }) => theme.color.subText};
   border: none;
 `;
 
 const SubmitBtn = styled.button`
   flex: 1;
   padding: 14px 0;
-  border-radius: 6px;
-  background: var(--main-color);
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  background: ${({ theme }) => theme.color.main};
   color: #fff;
-  font-weight: 700;
+  font-weight: ${({ theme }) => theme.weight.bold};
   border: none;
 `;

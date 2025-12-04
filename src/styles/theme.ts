@@ -1,4 +1,7 @@
 //사용: ${({ theme }) => theme.color.변수명};
+//사용: ${({ theme }) => theme.size.변수명};
+//사용: ${({ theme }) => theme.borderRadius.변수명};
+//사용: ${({ theme }) => theme.weight.변수명};
 /*fontsize*/
 const theme = {
   size: {

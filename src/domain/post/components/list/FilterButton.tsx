@@ -9,7 +9,7 @@ const FilterButton = ({ onClick }: Props) => {
   return (
     <Button onClick={onClick}>
       <span>필터</span>
-      <FiChevronDown size={16} color="var(--text)" />
+      <ChevronDownIcon size={16} />
     </Button>
   );
 };
@@ -22,16 +22,20 @@ const Button = styled.button`
   gap: 6px;
 
   padding: 6px 14px;
-  border-radius: 12px;
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
   border: 1px solid #dcdcdc;
 
   background: #ffffff;
-  font-size: 14px;
-  color: var(--text);
+  font-size: ${({ theme }) => theme.size.md};
+  color: ${({ theme }) => theme.color.text};
 
   cursor: pointer;
 
   &:active {
     background: #f3f3f3;
   }
+`;
+
+const ChevronDownIcon = styled(FiChevronDown)`
+  color: ${({ theme }) => theme.color.text};
 `;
