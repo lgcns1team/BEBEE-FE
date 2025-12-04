@@ -6,7 +6,6 @@ import { useState, useEffect } from "react";
 
 import FilterButton from "../components/list/FilterButton";
 import FilterBottomSheet from "../components/bottomsheet/FilterBottomSheet";
-
 import { IoChevronDown } from "react-icons/io5";
 
 const HomePage = () => {
@@ -148,7 +147,7 @@ const TabBar = styled.div`
 `;
 
 const Tab = styled.div`
-  font-size: ${({ theme }) => theme.size.lg};
+  font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
   color: ${({ theme }) => theme.color.subText2};
   padding-bottom: 10px;
@@ -240,7 +239,7 @@ const SortSelect = styled.div`
     background: #fff;
     border: 1px solid #dcdcdc;
     border-radius: ${({ theme }) => theme.borderRadius.lg};
-    font-size: ${({ theme }) => theme.size.md};
+    font-size: ${({ theme }) => theme.size.sm};
     cursor: pointer;
     color: ${({ theme }) => theme.color.text};
   }
