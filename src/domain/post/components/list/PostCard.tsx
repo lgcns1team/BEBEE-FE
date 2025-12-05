@@ -1,7 +1,9 @@
 import styled from "styled-components";
 import type { Post } from "../../../../store/usePostStore";
-import { MdOutlinePlace } from "react-icons/md";
+
+import { FiCalendar } from "react-icons/fi";
 import { MdOutlineCalendarToday } from "react-icons/md";
+import { FiMapPin } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import HelpTag from "../../../../components/HelpTag";
 
@@ -29,7 +31,7 @@ const PostCard = ({ post }: Props) => {
         </HoneyRow>
 
         <InfoLine>
-          <PlaceIcon size={16} />
+          <MapPinIcon size={16} />
           <InfoText>{post.location}</InfoText>
         </InfoLine>
 
@@ -96,6 +98,7 @@ const HoneyRow = styled.div`
   align-items: center;
   gap: 8px;
   margin-top: 4px;
+  margin-bottom: 8px;
 `;
 
 const DoneBadge = styled.div`
@@ -118,11 +121,11 @@ const Honey = styled.div`
   font-weight: ${({ theme }) => theme.weight.bold};
 `;
 
-const PlaceIcon = styled(MdOutlinePlace)`
+const MapPinIcon = styled(FiMapPin)`
   color: ${({ theme }) => theme.color.subText2};
 `;
 
-const CalendarIcon = styled(MdOutlineCalendarToday)`
+const CalendarIcon = styled(FiCalendar)`
   color: ${({ theme }) => theme.color.subText2};
 `;
 

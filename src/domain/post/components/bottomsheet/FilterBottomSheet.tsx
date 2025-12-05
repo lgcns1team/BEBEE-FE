@@ -401,7 +401,7 @@ const ResetBtn = styled.button`
   background: ${({ theme }) => theme.color.natural100};
   color: ${({ theme }) => theme.color.subText};
   font-weight: ${({ theme }) => theme.weight.medium};
-  font-size: ${({ theme }) => theme.size.sm};
+  font-size: ${({ theme }) => theme.size.md};
   border: none;
 `;
 
@@ -412,6 +412,6 @@ const SubmitBtn = styled.button`
   background: ${({ theme }) => theme.color.main};
   color: ${({ theme }) => theme.color.white};
   font-weight: ${({ theme }) => theme.weight.medium};
-  font-size: ${({ theme }) => theme.size.sm};
+  font-size: ${({ theme }) => theme.size.md};
   border: none;
 `;

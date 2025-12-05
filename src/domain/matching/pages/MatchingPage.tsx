@@ -1,4 +1,3 @@
-import React from "react";
 import MatchingCalendar from "../components/MatchingCalendar";
 const MatchingPage = () => {
   return (
