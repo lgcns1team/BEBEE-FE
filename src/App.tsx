@@ -8,6 +8,7 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import "./App.css";
+import MatchingPage from "./domain/matching/pages/MatchingPage";
 
 function App() {
   return (

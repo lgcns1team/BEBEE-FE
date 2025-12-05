@@ -21,6 +21,7 @@ const theme = {
     subColor2: "#FEFCE8",
     natural100: "#F5F5F5",
     natural50: "#FAFAFA",
+    natural200: "#E5E5E5",
     blue500: "#155DFC",
     red500: "#FB2C36",
     blue50: "#EFF6FF",
@@ -28,8 +29,9 @@ const theme = {
     white: "#FFFFFF",
   },
 
-  /*border-radius*/
+  /*border-radius*/ // xsm -> 1px 로 추가
   borderRadius: {
+    xsm: "1px",
     sm: "4px",
     md: "8px",
     lg: "12px",

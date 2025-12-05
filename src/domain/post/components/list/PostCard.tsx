@@ -104,7 +104,7 @@ const DoneBadge = styled.div`
   color: ${({ theme }) => theme.color.red500};
   border: 0.5px solid ${({ theme }) => theme.color.red500};
   background-color: ${({ theme }) => theme.color.red50};
-  border-radius: 1px;
+  border-radius: ${({ theme }) => theme.borderRadius.xsm};
 `;
 
 const Title = styled.div`

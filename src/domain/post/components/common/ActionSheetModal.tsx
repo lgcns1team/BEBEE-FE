@@ -139,7 +139,7 @@ const TrashIcon = styled(IoTrashOutline)`
 
 const Divider = styled.div`
   height: 1px;
-  background: #d4d4d4;
+  background: ${({ theme }) => theme.color.natural200};
   margin-left: 18px;
 `;
 

@@ -211,7 +211,7 @@ const DropletIcon = styled(FaDroplet)`
 const Divider = styled.div`
   width: 100%;
   height: 0.5px;
-  background: #e5e5e5;
+  background: ${({ theme }) => theme.color.natural200};
 `;
 
 const InfoList = styled.div`
@@ -268,7 +268,7 @@ const ShareButton = styled.button`
   flex: 1;
   height: 48px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
-  border: 0.5px solid #d4d4d8;
+  border: 0.5px solid ${({ theme }) => theme.color.natural200};
   font-size: ${({ theme }) => theme.size.sm};
   background: ${({ theme }) => theme.color.white};
   font-weight: ${({ theme }) => theme.weight.medium};

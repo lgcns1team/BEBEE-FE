@@ -239,7 +239,7 @@ const SortSelect = styled.div`
     gap: 6px;
     padding: 6px 14px;
     background: ${({ theme }) => theme.color.white};
-    border: 0.5px solid #e5e5e5;
+    border: 0.5px solid ${({ theme }) => theme.color.natural200};
     border-radius: ${({ theme }) => theme.borderRadius.lg};
     font-size: ${({ theme }) => theme.size.sm};
     cursor: pointer;
@@ -252,7 +252,7 @@ const SortSelect = styled.div`
     left: 0;
     width: 100%;
     background: ${({ theme }) => theme.color.white};
-    border: 1px solid #e5e5e5;
+    border: 1px solid ${({ theme }) => theme.color.natural200};
     border-radius: ${({ theme }) => theme.borderRadius.lg};
     overflow: hidden;
     z-index: 20;
