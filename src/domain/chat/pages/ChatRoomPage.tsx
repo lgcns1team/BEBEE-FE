@@ -2,10 +2,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import styled from "styled-components";
 /* Components */
-import MatchConfirmation from "../components/MatchConfirmModal";
 import HelpTag from "../../../components/HelpTag";
-import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
+import MatchFormModal from "../components/matchModal/MatchFormModal";
 
 const ChatRoomPage = () => {
   const { chatId } = useParams();
@@ -30,7 +29,7 @@ const ChatRoomPage = () => {
         </HelpTagBox>
       </ChatHeader>
 
-      <MatchConfirmation isOpen={isOpen} setIsOpen={setIsOpen} />
+      <MatchFormModal isOpen={isOpen} setIsOpen={setIsOpen} />
     </>
   );
 };

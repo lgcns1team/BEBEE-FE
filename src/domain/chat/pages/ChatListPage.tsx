@@ -236,6 +236,7 @@ const Nickname = styled.p`
 const ChatLastTime = styled.p`
   position: absolute;
   right: 0px;
+  font-weight: ${({ theme }) => theme.weight.regular};
   font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.subText2};
 `;
@@ -252,8 +253,7 @@ const ChatLastRow = styled.div`
 `;
 const LastMessage = styled.p`
   max-width: 80%;
-
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.subText2};
   white-space: nowrap;
   overflow: hidden;
