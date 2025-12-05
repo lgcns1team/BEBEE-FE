@@ -8,6 +8,7 @@ import { RxIconjarLogo } from "react-icons/rx";
 import ActionSheetModal from "../components/common/ActionSheetModal";
 import HelpTagBee from "../../../assets/images/helptag-bee.png";
 import Layout from "../../../components/Layout";
+import Header from "../../../components/Header";
 
 const PostDetailPage = () => {
   const navigate = useNavigate();
@@ -17,16 +18,12 @@ const PostDetailPage = () => {
     <Layout>
       <Wrapper>
         {/* ---------------- Header ---------------- */}
-        <TopBar>
-          <FiChevronLeft size={24} onClick={() => navigate(`/`)} />
 
-          <RightArea>
-            <FiMoreVertical
-              size={22}
-              onClick={() => setIsActionSheetOpen(true)}
-            />
-          </RightArea>
-        </TopBar>
+        <Header
+          onBack={() => navigate(-1)}
+          showRight
+          onRightClick={() => setIsActionSheetOpen(true)}
+        />
 
         <ActionSheetModal
           isOpen={isActionSheetOpen}
