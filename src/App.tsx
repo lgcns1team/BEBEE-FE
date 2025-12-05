@@ -1,9 +1,10 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./domain/post/pages/HomePage";
-import PostDetailPage from "./domain/post/pages/PostDetailPage"; // 상세페이지(파일명은 네 프로젝트에 맞게 조정)
-// import ChatListPage from "./domain/chat/pages/ChatListPage";
-// import MatchConfirmModal from "./domain/chat/components/MatchConfirmModal";
+import PostDetailPage from "./domain/post/pages/PostDetailPage";
+import ChatListPage from "./domain/chat/pages/ChatListPage";
+import MatchConfirmModal from "./domain/chat/components/matchModal/DayHelpForm";
+import ChatRoomPage from "./domain/chat/pages/ChatRoomPage";
 import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
@@ -23,8 +24,8 @@ function App() {
           <Route path="/post/:id" element={<PostDetailPage />} />
 
           {/*채팅*/}
-          {/* <Route path="/chat/:roomId" element={<ChatRoomPage />} /> */}
-          {/* <Route path="/chat" element={<ChatListPage />} /> */}
+          <Route path="/chat" element={<ChatListPage />} />
+          <Route path="/chat/:chatId" element={<ChatRoomPage />} />
 
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
