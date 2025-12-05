@@ -7,7 +7,8 @@ import { useState, useEffect } from "react";
 import FilterButton from "../components/list/FilterButton";
 import FilterBottomSheet from "../components/bottomsheet/FilterBottomSheet";
 import { IoChevronDown } from "react-icons/io5";
-
+import { RiCheckLine } from "react-icons/ri";
+import Layout from "../../../components/Layout";
 const HomePage = () => {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -72,60 +73,66 @@ const HomePage = () => {
   });
 
   return (
-    <Wrapper>
-      {/* ---------------- Tabs ---------------- */}
-      <TabBar>
-        {(["전체", "하루 도움", "지속 도움"] as const).map((tab) => (
-          <Tab
-            key={tab}
-            className={activeTab === tab ? "active" : ""}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </Tab>
-        ))}
-      </TabBar>
+    <Layout>
+      <Wrapper>
+        {/* ---------------- Tabs ---------------- */}
+        <TabBar>
+          {(["전체", "하루 도움", "지속 도움"] as const).map((tab) => (
+            <Tab
+              key={tab}
+              className={activeTab === tab ? "active" : ""}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab}
+            </Tab>
+          ))}
+        </TabBar>
 
-      {/* ---------------- Filters Row ---------------- */}
-      <FilterRow>
-        <FilterButton onClick={() => setIsFilterSheetOpen(true)} />
+        {/* ---------------- Filters Row ---------------- */}
+        <FilterRow>
+          <FilterButton onClick={() => setIsFilterSheetOpen(true)} />
 
-        <SortSelect>
-          <button className="sort-btn" onClick={toggleSort}>
-            {sort || "정렬"}
-            <ChevronDownIcon size={14} />
-          </button>
+          <SortSelect>
+            <button className="sort-btn" onClick={toggleSort}>
+              {sort || "정렬"}
+              <ChevronDownIcon size={16} />
+            </button>
 
-          {isSortOpen && (
-            <div className="dropdown">
-              <span onClick={() => handleSelectSort("최신순")}>최신순</span>
-              <span onClick={() => handleSelectSort("마감순")}>마감순</span>
-            </div>
-          )}
-        </SortSelect>
-        <CheckBoxWrapper>
-          <input
-            type="checkbox"
-            checked={excludeDone}
-            onChange={(e) => setExcludeDone(e.target.checked)}
-          />
-          <span>완료 제외</span>
-        </CheckBoxWrapper>
-      </FilterRow>
+            {isSortOpen && (
+              <div className="dropdown">
+                <span onClick={() => handleSelectSort("최신순")}>최신순</span>
+                <span onClick={() => handleSelectSort("마감순")}>마감순</span>
+              </div>
+            )}
+          </SortSelect>
+          <CheckBoxWrapper>
+            <HiddenCheckbox
+              checked={excludeDone}
+              onChange={(e) => setExcludeDone(e.target.checked)}
+            />
 
-      {/* ---------------- Post List ---------------- */}
-      <ListWrapper>
-        {filteredPosts.map((post) => (
-          <PostCard key={post.id} post={post} />
-        ))}
-      </ListWrapper>
+            <CustomCheckbox $checked={excludeDone}>
+              {excludeDone && <RiCheckLine size={14} />}
+            </CustomCheckbox>
 
-      {/* ---------------- Filter BottomSheet ---------------- */}
-      <FilterBottomSheet
-        isOpen={isFilterSheetOpen}
-        onClose={() => setIsFilterSheetOpen(false)}
-      />
-    </Wrapper>
+            <span>완료 제외</span>
+          </CheckBoxWrapper>
+        </FilterRow>
+
+        {/* ---------------- Post List ---------------- */}
+        <ListWrapper>
+          {filteredPosts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </ListWrapper>
+
+        {/* ---------------- Filter BottomSheet ---------------- */}
+        <FilterBottomSheet
+          isOpen={isFilterSheetOpen}
+          onClose={() => setIsFilterSheetOpen(false)}
+        />
+      </Wrapper>
+    </Layout>
   );
 };
 
@@ -142,7 +149,8 @@ const Wrapper = styled.div`
 const TabBar = styled.div`
   display: flex;
   gap: 32px;
-  padding: 12px 16px 0 16px;
+  padding-top: 12px;
+  padding-bottom: 0;
   border-bottom: 0.5px solid #d4d4d8;
 `;
 
@@ -156,7 +164,7 @@ const Tab = styled.div`
 
   &.active {
     color: ${({ theme }) => theme.color.text};
-    font-weight: 600;
+    font-weight: ${({ theme }) => theme.weight.medium};
   }
 
   &.active::after {
@@ -167,7 +175,7 @@ const Tab = styled.div`
     width: 100%;
     height: 2px;
     background-color: ${({ theme }) => theme.color.text};
-    border-radius: 2px;
+    border-radius: ${({ theme }) => theme.borderRadius.sm};
   }
 `;
 
@@ -175,53 +183,47 @@ const FilterRow = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
+  padding-top: 12px;
+  padding-bottom: 12px;
 `;
 const ChevronDownIcon = styled(IoChevronDown)`
   color: ${({ theme }) => theme.color.subText2};
 `;
+
 const CheckBoxWrapper = styled.label`
-  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 6px;
-
-  input {
-    width: 18px;
-    height: 18px;
-    border: 1px solid #e5e5e5;
-    border-radius: ${({ theme }) => theme.borderRadius.sm};
-    cursor: pointer;
-
-    /* 기본 체크박스 스타일 제거 */
-    appearance: none;
-    -webkit-appearance: none;
-    outline: none;
-
-    background-color: #fff; /* 기본 */
-
-    /* 체크되었을 때 */
-    &:checked {
-      background-color: ${({ theme }) => theme.color.main};
-      border-color: ${({ theme }) => theme.color.main};
-    }
-
-    /* 체크 표시 커스텀 (흰색 V 표시) */
-    &:checked::after {
-      content: "V";
-      color: #fff;
-      font-size: ${({ theme }) => theme.size.lg};
-      font-weight: 300;
-      position: relative;
-      left: 3px;
-      top: -1px;
-    }
-  }
+  cursor: pointer;
+  margin-left: auto;
 
   span {
-    font-size: ${({ theme }) => theme.size.md};
-    color: ${({ theme }) => theme.color.subText};
+    font-size: ${({ theme }) => theme.size.sm};
+    color: ${({ theme }) => theme.color.subText2};
   }
+`;
+
+const HiddenCheckbox = styled.input.attrs({ type: "checkbox" })`
+  display: none; /* 실제 체크박스 숨김 */
+`;
+
+const CustomCheckbox = styled.div<{ $checked: boolean }>`
+  width: 16px;
+  height: 16px;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  border: 0.5px solid
+    ${({ theme, $checked }) =>
+      $checked ? theme.color.main : theme.color.subText3};
+
+  background: ${({ theme, $checked }) =>
+    $checked ? theme.color.main : theme.color.white};
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: ${({ theme }) => theme.color.white};
+
+  transition: 0.15s ease-in-out;
 `;
 
 const ListWrapper = styled.div`
@@ -236,8 +238,8 @@ const SortSelect = styled.div`
     align-items: center;
     gap: 6px;
     padding: 6px 14px;
-    background: #fff;
-    border: 1px solid #dcdcdc;
+    background: ${({ theme }) => theme.color.white};
+    border: 0.5px solid ${({ theme }) => theme.color.natural200};
     border-radius: ${({ theme }) => theme.borderRadius.lg};
     font-size: ${({ theme }) => theme.size.sm};
     cursor: pointer;
@@ -249,8 +251,8 @@ const SortSelect = styled.div`
     top: 38px;
     left: 0;
     width: 100%;
-    background: white;
-    border: 1px solid #e5e5e5;
+    background: ${({ theme }) => theme.color.white};
+    border: 1px solid ${({ theme }) => theme.color.natural200};
     border-radius: ${({ theme }) => theme.borderRadius.lg};
     overflow: hidden;
     z-index: 20;
@@ -258,7 +260,7 @@ const SortSelect = styled.div`
     span {
       display: block;
       padding: 10px;
-      font-size: ${({ theme }) => theme.size.md};
+      font-size: ${({ theme }) => theme.size.sm};
       cursor: pointer;
 
       &:hover {

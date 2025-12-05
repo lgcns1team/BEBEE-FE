@@ -17,6 +17,7 @@ declare module "styled-components" {
       subColor2: string;
       natural100: string;
       natural50: string;
+      natural200: string;
       blue500: string;
       red500: string;
       blue50: string;
@@ -24,6 +25,7 @@ declare module "styled-components" {
       white: string;
     };
     borderRadius: {
+      xsm: string;
       sm: string;
       md: string;
       lg: string;
