@@ -18,13 +18,19 @@ const PostDetailPage = () => {
     <Layout>
       <Wrapper>
         {/* ---------------- Header ---------------- */}
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop
         <Header
           onBack={() => navigate(-1)}
           showRight
           onRightClick={() => setIsActionSheetOpen(true)}
         />
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop
         <ActionSheetModal
           isOpen={isActionSheetOpen}
           onClose={() => setIsActionSheetOpen(false)}

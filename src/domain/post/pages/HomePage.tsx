@@ -10,6 +10,7 @@ import { IoChevronDown } from "react-icons/io5";
 import { RiCheckLine } from "react-icons/ri";
 
 import Layout from "../../../components/Layout";
+import NavBar from "../../../components/NavBar";
 const HomePage = () => {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -133,6 +134,7 @@ const HomePage = () => {
           onClose={() => setIsFilterSheetOpen(false)}
         />
       </Wrapper>
+      <NavBar />
     </Layout>
   );
 };
