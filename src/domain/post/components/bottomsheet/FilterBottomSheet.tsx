@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import HoneyRange from "./HoneyRange";
 import { useFilterStore } from "../../../../store/useFilterStore";
 import Layout from "../../../../components/Layout";
-
+import Badge from "../../../../components/Badge";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
@@ -106,13 +106,13 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                       "학습 지원",
                       "기타",
                     ].map((label) => (
-                      <Chip
+                      <Badge
                         key={label}
                         $active={selectedHelpTypes.includes(label)}
                         onClick={() => toggleHelpType(label)}
                       >
                         {label}
-                      </Chip>
+                      </Badge>
                     ))}
                   </Row>
                 </Section>
@@ -153,13 +153,13 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                       "내부기관장애",
                       "기타장애",
                     ].map((v) => (
-                      <Chip
+                      <Badge
                         key={v}
                         $active={disability === v}
                         onClick={() => setDisability(v)}
                       >
                         {v}
-                      </Chip>
+                      </Badge>
                     ))}
                   </Row>
                 </Section>
@@ -208,7 +208,7 @@ const Dim = styled(motion.div)`
   position: fixed;
   inset: 0;
   background: ${({ theme }) => theme.color.text};
-  z-index: 90;
+  z-index: 100;
 `;
 
 const Sheet = styled(motion.div)`
@@ -284,25 +284,25 @@ const Row = styled.div`
   margin-top: 10px;
 `;
 
-const Chip = styled.button<{ $active?: boolean }>`
-  padding: 6px 12px;
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  background: ${({ $active, theme }) =>
-    $active ? theme.color.subColor2 : theme.color.natural100};
+// const Chip = styled.button<{ $active?: boolean }>`
+//   padding: 6px 12px;
+//   border-radius: ${({ theme }) => theme.borderRadius.lg};
+//   background: ${({ $active, theme }) =>
+//     $active ? theme.color.subColor2 : theme.color.natural100};
 
-  color: ${({ $active, theme }) =>
-    $active ? theme.color.main : theme.color.subText2};
+//   color: ${({ $active, theme }) =>
+//     $active ? theme.color.main : theme.color.subText2};
 
-  border: 0.5px solid
-    ${({ $active, theme }) =>
-      $active ? theme.color.main : theme.color.natural100};
+//   border: 0.5px solid
+//     ${({ $active, theme }) =>
+//       $active ? theme.color.main : theme.color.natural100};
 
-  font-size: ${({ theme }) => theme.size.sm};
+//   font-size: ${({ theme }) => theme.size.sm};
 
-  appearance: none;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-`;
+//   appearance: none;
+//   outline: none;
+//   -webkit-tap-highlight-color: transparent;
+// `;
 
 const RegionChipRow = styled.div`
   display: flex;
@@ -401,7 +401,7 @@ const ResetBtn = styled.button`
   background: ${({ theme }) => theme.color.natural100};
   color: ${({ theme }) => theme.color.subText};
   font-weight: ${({ theme }) => theme.weight.medium};
-  font-size: ${({ theme }) => theme.size.sm};
+  font-size: ${({ theme }) => theme.size.md};
   border: none;
 `;
 
@@ -412,6 +412,6 @@ const SubmitBtn = styled.button`
   background: ${({ theme }) => theme.color.main};
   color: ${({ theme }) => theme.color.white};
   font-weight: ${({ theme }) => theme.weight.medium};
-  font-size: ${({ theme }) => theme.size.sm};
+  font-size: ${({ theme }) => theme.size.md};
   border: none;
 `;

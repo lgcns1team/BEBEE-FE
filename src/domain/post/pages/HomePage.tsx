@@ -8,8 +8,11 @@ import FilterButton from "../components/list/FilterButton";
 import FilterBottomSheet from "../components/bottomsheet/FilterBottomSheet";
 import { IoChevronDown } from "react-icons/io5";
 import { RiCheckLine } from "react-icons/ri";
+
 import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
+import WriteButton from "../../../components/WriteButton";
+
 const HomePage = () => {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -132,7 +135,9 @@ const HomePage = () => {
           isOpen={isFilterSheetOpen}
           onClose={() => setIsFilterSheetOpen(false)}
         />
+        <WriteButton />
       </Wrapper>
+
       <NavBar />
     </Layout>
   );
@@ -146,6 +151,7 @@ const Wrapper = styled.div`
   max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
+  position: relative;
 `;
 
 const TabBar = styled.div`

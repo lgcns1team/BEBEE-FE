@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { useState } from "react";
-import { FiChevronLeft, FiMoreVertical } from "react-icons/fi";
 import { FiCalendar, FiClock, FiMapPin } from "react-icons/fi";
 import { FaDroplet } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
@@ -119,16 +118,6 @@ const Wrapper = styled.div`
   padding-bottom: 80px;
 `;
 
-const TopBar = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 16px 0;
-`;
-const RightArea = styled.div`
-  margin-left: auto; /* 오른쪽으로 밀기 */
-  display: flex;
-  align-items: center;
-`;
 const HelpBeeImage = styled.img`
   width: 16px;
   height: 16px;
@@ -150,7 +139,8 @@ const Tag = styled.div`
 `;
 
 const Title = styled.h1`
-  padding: 16px 0px;
+  padding: 4px 0px;
+  margin-bottom: 16px;
   font-size: ${({ theme }) => theme.size.lg};
   font-weight: ${({ theme }) => theme.weight.bold};
   color: ${({ theme }) => theme.color.text};
@@ -199,6 +189,7 @@ const Temperature = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
+  margin-top: 24px;
 `;
 const DropletIcon = styled(FaDroplet)`
   color: ${({ theme }) => theme.color.main};
@@ -227,7 +218,7 @@ const InfoItem = styled.div`
 const Description = styled.p`
   padding: 16px 0px;
   font-size: ${({ theme }) => theme.size.md};
-  color: #333;
+  color: ${({ theme }) => theme.color.text};
   line-height: 1.6;
 `;
 
@@ -264,7 +255,7 @@ const ShareButton = styled.button`
   height: 48px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   border: 0.5px solid ${({ theme }) => theme.color.natural200};
-  font-size: ${({ theme }) => theme.size.sm};
+  font-size: ${({ theme }) => theme.size.md};
   background: ${({ theme }) => theme.color.white};
   font-weight: ${({ theme }) => theme.weight.medium};
   appearance: none;
@@ -278,7 +269,7 @@ const ApplyButton = styled.button`
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   background: ${({ theme }) => theme.color.main};
   color: ${({ theme }) => theme.color.white};
-  font-size: ${({ theme }) => theme.size.sm};
+  font-size: ${({ theme }) => theme.size.md};
   border: none;
   font-weight: ${({ theme }) => theme.weight.medium};
 `;

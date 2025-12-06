@@ -4,7 +4,7 @@ import { useFilterStore } from "../../../../store/useFilterStore";
 
 const MAX_VALUE = 1000;
 
-// 메인 페이지 바텀시트 내 회당 획득 꿀 범위 조절
+//  메인 페이지 바텀시트 내 회당 획득 꿀 범위 조절
 const HoneyRange = () => {
   const { honeyRange, setHoneyRange } = useFilterStore();
   const trackRef = useRef<HTMLDivElement>(null);

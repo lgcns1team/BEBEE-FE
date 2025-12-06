@@ -26,7 +26,7 @@ const StyledButton = styled.button`
   font-weight: ${({ theme }) => theme.weight.medium};
   cursor: pointer;
   &:active {
-    background-color: ${({ theme }) => theme.color.mainDark};
+    background-color: ${({ theme }) => theme.color.main};
   }
 `;
 

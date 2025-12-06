@@ -13,7 +13,7 @@ interface Props {
   onClose: () => void;
 }
 
-// 게시물 상세 보기 내
+//  게시물 상세 보기 내
 const ActionSheetModal = ({ isOpen, onClose }: Props) => {
   return (
     <Layout>
