@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { useState } from "react";
-import { FiChevronLeft, FiMoreVertical } from "react-icons/fi";
 import { FiCalendar, FiClock, FiMapPin } from "react-icons/fi";
 import { FaDroplet } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
@@ -18,19 +17,11 @@ const PostDetailPage = () => {
     <Layout>
       <Wrapper>
         {/* ---------------- Header ---------------- */}
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
         <Header
           onBack={() => navigate(-1)}
           showRight
           onRightClick={() => setIsActionSheetOpen(true)}
         />
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
         <ActionSheetModal
           isOpen={isActionSheetOpen}
           onClose={() => setIsActionSheetOpen(false)}
@@ -127,16 +118,6 @@ const Wrapper = styled.div`
   padding-bottom: 80px;
 `;
 
-const TopBar = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 16px 0;
-`;
-const RightArea = styled.div`
-  margin-left: auto; /* 오른쪽으로 밀기 */
-  display: flex;
-  align-items: center;
-`;
 const HelpBeeImage = styled.img`
   width: 16px;
   height: 16px;

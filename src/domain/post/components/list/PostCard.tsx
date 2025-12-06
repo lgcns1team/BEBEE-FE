@@ -2,7 +2,7 @@ import styled from "styled-components";
 import type { Post } from "../../../../store/usePostStore";
 
 import { FiCalendar } from "react-icons/fi";
-import { MdOutlineCalendarToday } from "react-icons/md";
+
 import { FiMapPin } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import HelpTag from "../../../../components/HelpTag";
