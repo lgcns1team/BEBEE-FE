@@ -13,6 +13,7 @@ const theme = {
   /*color*/
   color: {
     main: "#FFBE00",
+    mainDark: "#F0B100",
     text: "#262626",
     subText: "#525252",
     subText2: "#737373",
