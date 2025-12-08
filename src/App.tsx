@@ -10,6 +10,7 @@ import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import "./App.css";
 import MatchingPage from "./domain/matching/pages/MatchingPage";
+import ReviewPage from "./domain/review/pages/ReviewPage";
 
 function App() {
   return (
@@ -33,8 +34,10 @@ function App() {
           {/*동네지도*/}
           {/* <Route path="/map" element={<MapPage />} /> */}
 
-          {/*매칭*/}
-          {/* <Route path="/match" element={<MatchConfirmModal />} /> */}
+          {/* 매칭 */}
+          <Route path="/match" element={<MatchingPage />} />
+          {/* 리뷰 */}
+          <Route path="/review" element={<ReviewPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

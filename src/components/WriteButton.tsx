@@ -19,11 +19,11 @@ const WriteButton = () => {
 export default WriteButton;
 
 const Button = styled.button`
-  position: absolute;
+  position: fixed;
   bottom: 90px;
-  right: 16px;
-  z-index: 90;
-
+  right: 50%;
+  transform: translateX(170px); /* 430px / 2 → 오른쪽 끝 */
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -32,7 +32,6 @@ const Button = styled.button`
   height: 45px;
   border-radius: 50px;
   border: none;
-
   background-color: ${({ theme }) => theme.color.main};
   color: ${({ theme }) => theme.color.white};
 
