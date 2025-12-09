@@ -13,14 +13,14 @@ const PeriodToggle = ({ active, onChange }: Props) => {
         position="left"
         onClick={() => onChange("week")}
       >
-        한주 보기
+        한 주 보기
       </ToggleButton>
       <ToggleButton
         $active={active === "month"}
         position="right"
         onClick={() => onChange("month")}
       >
-        한달보기
+        한 달 보기
       </ToggleButton>
     </Wrapper>
   );
@@ -35,7 +35,7 @@ const Wrapper = styled.div`
   align-items: center;
   width: fit-content;
   height: 24px;
-  margin-left: 195px;
+  margin-left: 197px;
   margin-bottom: 15px;
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   overflow: hidden;

@@ -17,7 +17,7 @@ const MatchingPage = () => {
   const { posts } = useMatchPostStore();
   const { activeTab } = useTabStore();
 
-  const [period, setPeriod] = useState<"week" | "month">("week");
+  const [period, setPeriod] = useState<"week" | "month">("month");
 
   const filteredPosts = posts.filter((post) => {
     if (activeTab === "전체") return true;
@@ -46,6 +46,7 @@ const MatchingPage = () => {
     </Layout>
   );
 };
+
 const PageContainer = styled.div`
   display: flex;
   flex-direction: column;

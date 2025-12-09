@@ -158,7 +158,7 @@ const Thumbnail = styled.div`
 const BottomBar = styled.div`
   display: flex;
   justify-content: center;
-  padding: 12px 0 0;
+  padding: 4px 0 0;
 `;
 
 const BottomInner = styled.div`
@@ -169,12 +169,12 @@ const BottomInner = styled.div`
 
 const ChatButton = styled.button`
   flex: 1;
-  height: 48px;
+  height: 40px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   border: 0.5px solid ${({ theme }) => theme.color.natural200};
   background: ${({ theme }) => theme.color.white};
   font-size: ${({ theme }) => theme.size.md};
-  font-weight: ${({ theme }) => theme.weight.medium};
+  font-weight: ${({ theme }) => theme.weight.regular};
   span {
     margin-left: 6px;
   }
@@ -182,24 +182,25 @@ const ChatButton = styled.button`
 
 const DoneButton = styled.button`
   flex: 2;
-  height: 48px;
+  height: 40px;
+
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   background: ${({ theme }) => theme.color.main};
   color: ${({ theme }) => theme.color.white};
   font-size: ${({ theme }) => theme.size.md};
   border: none;
-  font-weight: ${({ theme }) => theme.weight.medium};
+  font-weight: ${({ theme }) => theme.weight.regular};
 `;
 
 const ReviewButton = styled.button`
   flex: 2;
-  height: 48px;
+  height: 40px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   background: ${({ theme }) => theme.color.natural100};
   color: ${({ theme }) => theme.color.text};
   font-size: ${({ theme }) => theme.size.md};
   border: none;
-  font-weight: ${({ theme }) => theme.weight.medium};
+  font-weight: ${({ theme }) => theme.weight.regular};
   span {
     margin-left: 6px;
   }

@@ -152,15 +152,15 @@ const ScrollContainer = styled.div`
 `;
 
 const DayBox = styled.div<{ $active: boolean }>`
-  width: calc(100% / 5);
-  min-width: calc(100% / 5);
-  max-width: calc(100% / 5);
+  width: calc(100% / 4);
+  min-width: calc(100% / 4);
+  max-width: calc(100% / 4);
   height: 100px;
   border-radius: ${({ theme }) => theme.borderRadius.lg};
-  padding: 0 5px;
+  padding: 0 20px;
   margin: 0 5px;
   background: ${({ $active, theme }) =>
-    $active ? theme.color.main : theme.color.natural100};
+    $active ? theme.color.main : theme.color.natural50};
   color: ${({ $active, theme }) =>
     $active ? theme.color.white : theme.color.text};
   display: flex;

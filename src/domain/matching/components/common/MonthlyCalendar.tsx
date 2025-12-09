@@ -72,9 +72,10 @@ const CustomHeader = ({
 const StyledWrapper = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   background: ${({ theme }) => theme.color.natural100};
-  width: 320px;
-  height: 320px;
   margin: 0 auto;
+  width: 100%;
+  max-width: 430px;
+  padding-bottom: 8px;
 
   .react-datepicker__header {
     background-color: ${({ theme }) => theme.color.natural100};
@@ -82,7 +83,8 @@ const StyledWrapper = styled.div`
   }
 
   .react-datepicker {
-    transform: scale(0.9);
+    width: 100%;
+    transform: scale(1);
     transform-origin: top center;
     border: none;
     width: 100%;
