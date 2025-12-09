@@ -36,6 +36,7 @@ export const useMatchPostStore = create<PostState>(() => ({
       date: "월요일, 수요일",
       category: "하루 도움",
       tags: ["이동 지원", "생활 지원"],
+      done: true,
       image: "",
     },
     {
@@ -45,6 +46,7 @@ export const useMatchPostStore = create<PostState>(() => ({
       location: "연남동",
       date: "매주 화, 금",
       category: "지속 도움",
+      done: true,
       tags: ["식사 도움"],
     },
   ],
