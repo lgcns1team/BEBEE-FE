@@ -1,57 +1,26 @@
+/*input 스타일 통일 스타일 파일*/
+
 import styled from "styled-components";
 
-interface InputProps {
-  inputLabel?: string;
-  infoText?: string;
-  disabled?: boolean;
-  value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  required?: boolean;
-}
-
-const Input = ({
-  inputLabel,
-  infoText,
-  disabled,
-  value,
-  onChange,
-  required,
-}: InputProps) => {
-  return (
-    <FieldSet>
-      {inputLabel && (
-        <InputLabel>
-          {inputLabel}
-          {required && <RequiredMark>*</RequiredMark>}
-          {infoText && <InfoText>{infoText}</InfoText>}
-        </InputLabel>
-      )}
-      <InputBox disabled={disabled} value={value} onChange={onChange} />
-    </FieldSet>
-  );
-};
-
-export default Input;
-
-const FieldSet = styled.div`
+export const FieldSet = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 `;
 
-const InputLabel = styled.label`
+export const InputLabel = styled.label`
   font-size: ${({ theme }) => theme.size.lg};
   font-weight: ${({ theme }) => theme.weight.medium};
   color: ${({ theme }) => theme.color.text};
 `;
 
-const RequiredMark = styled.span`
+export const RequiredMark = styled.span`
   margin-left: 4px;
   color: ${({ theme }) => theme.color.red500};
 `;
 
-const InputBox = styled.input<{ disabled?: boolean }>`
+export const InputBox = styled.input<{ disabled?: boolean }>`
   width: 100%;
   font-size: ${({ theme }) => theme.size.md};
   padding: 1rem;
@@ -67,9 +36,33 @@ const InputBox = styled.input<{ disabled?: boolean }>`
   }
 `;
 
-const InfoText = styled.p`
+export const InfoText = styled.p`
   font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.subText3};
   font-weight: ${({ theme }) => theme.weight.regular};
   margin: 0;
+`;
+
+export const InputWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+export const LocationInputWrapper = styled.div`
+  position: relative;
+  width: 100%;
+
+  input {
+    padding-left: 3rem;
+  }
+`;
+
+export const SearchIconWrapper = styled.div`
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: ${({ theme }) => theme.color.subText2};
+  display: flex;
+  align-items: center;
 `;

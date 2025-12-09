@@ -25,6 +25,7 @@ const StyledButton = styled.button`
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
   cursor: pointer;
+  margin-top: 2rem;
   &:active {
     background-color: ${({ theme }) => theme.color.main};
   }
