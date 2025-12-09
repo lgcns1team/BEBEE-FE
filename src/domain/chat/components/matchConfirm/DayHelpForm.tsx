@@ -121,7 +121,7 @@ const FieldSet = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem; // label과 input/select 사이 간격
-  margin-bottom: 2rem; // 세트 간 마진
+  margin-top: 2.5rem;
 `;
 
 const ModalLabel = styled.label`
