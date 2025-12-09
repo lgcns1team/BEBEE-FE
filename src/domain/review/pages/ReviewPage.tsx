@@ -13,10 +13,13 @@ import ReviewBee3Black from "../../../assets/images/review-bee3-black.png";
 import ReviewBee3 from "../../../assets/images/review-bee3.png";
 import ReviewBee4Black from "../../../assets/images/review-bee4-black.png";
 import ReviewBee4 from "../../../assets/images/review-bee4.png";
+import BaseLongButton from "../../../components/BaseLongButton";
 const ReviewPage = () => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<number | null>(null);
-
+  const ReviewSubmit = () => {
+    navigate("/");
+  };
   const bees = [
     { id: 1, color: ReviewBee1, black: ReviewBee1Black },
     { id: 2, color: ReviewBee2, black: ReviewBee2Black },
@@ -25,7 +28,7 @@ const ReviewPage = () => {
   ];
   return (
     <Layout>
-      <Container>
+      <Wrapper>
         <Header title="리뷰 보내기" onBack={() => navigate(-1)} />
         <Title>아자아자 화이팅!</Title>
         <TagWrapper>
@@ -55,14 +58,13 @@ const ReviewPage = () => {
             ))}
           </SelectReview>
         </Content>
-        <SubmitButton>리뷰 보내기</SubmitButton>
-      </Container>
+        <BaseLongButton onClick={ReviewSubmit} label="리뷰 보내기" />
+      </Wrapper>
     </Layout>
   );
 };
-
-const Container = styled.div`
-  height: 100vh;
+const Wrapper = styled.div`
+  min-height: 100vh;
 `;
 const Title = styled.div`
   font-size: ${({ theme }) => theme.size.md};
@@ -81,7 +83,7 @@ const Divider = styled.div`
   background: ${({ theme }) => theme.color.natural200};
 `;
 const Content = styled.div`
-  margin-top: 20px;
+  margin-top: 30px;
   text-align: center;
 `;
 const Prompt = styled.div`
@@ -101,13 +103,13 @@ const SelectReview = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: 30px;
   margin-top: 40px;
-  margin-left: 25px;
-  margin-right: 25px;
+  width: 100%;
+  pad: 0 0;
 `;
 
 const BeeCard = styled.div<{ $active: boolean }>`
-  width: 125px;
-  height: 125px;
+  width: 100%;
+  height: 156.5px;
   padding: 24px 0;
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   background: ${({ $active, theme }) =>
@@ -118,11 +120,12 @@ const BeeCard = styled.div<{ $active: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 `;
 
 const BeeImage = styled.img`
-  width: 55px;
-  height: 55px;
+  width: 80px;
+  height: 80px;
 `;
 const Label = styled.div<{ $active: boolean }>`
   margin-top: 12px;
@@ -130,22 +133,6 @@ const Label = styled.div<{ $active: boolean }>`
   font-weight: ${({ theme }) => theme.weight.medium};
   color: ${({ $active, theme }) =>
     $active ? theme.color.main : theme.color.subText3};
-`;
-
-const SubmitButton = styled.button`
-  width: 100%;
-  background-color: ${({ theme }) => theme.color.main};
-  color: ${({ theme }) => theme.color.white};
-  font-size: ${({ theme }) => theme.size.md};
-  height: 48px;
-  border-radius: ${({ theme }) => theme.borderRadius.sm};
-  border: none;
-  font-weight: ${({ theme }) => theme.weight.medium};
-  position: fixed;
-  width: 330px;
-  transform: translateX(-50%);
-  left: 50%;
-  bottom: 20px;
 `;
 
 export default ReviewPage;
