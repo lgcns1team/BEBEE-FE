@@ -85,6 +85,7 @@ const Divider = styled.div`
 const Content = styled.div`
   margin-top: 30px;
   text-align: center;
+  margin-bottom: 40px;
 `;
 const Prompt = styled.div`
   font-size: ${({ theme }) => theme.size.lg};
