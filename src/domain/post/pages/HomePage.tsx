@@ -78,65 +78,63 @@ const HomePage = () => {
 
   return (
     <Layout>
-      <Wrapper>
-        {/* ---------------- Tabs ---------------- */}
-        <TabBar>
-          {(["전체", "하루 도움", "지속 도움"] as const).map((tab) => (
-            <Tab
-              key={tab}
-              className={activeTab === tab ? "active" : ""}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </Tab>
-          ))}
-        </TabBar>
+      {/* ---------------- Tabs ---------------- */}
+      <TabBar>
+        {(["전체", "하루 도움", "지속 도움"] as const).map((tab) => (
+          <Tab
+            key={tab}
+            className={activeTab === tab ? "active" : ""}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </Tab>
+        ))}
+      </TabBar>
 
-        {/* ---------------- Filters Row ---------------- */}
-        <FilterRow>
-          <FilterButton onClick={() => setIsFilterSheetOpen(true)} />
+      {/* ---------------- Filters Row ---------------- */}
+      <FilterRow>
+        <FilterButton onClick={() => setIsFilterSheetOpen(true)} />
 
-          <SortSelect>
-            <button className="sort-btn" onClick={toggleSort}>
-              {sort || "정렬"}
-              <ChevronDownIcon size={16} />
-            </button>
+        <SortSelect>
+          <button className="sort-btn" onClick={toggleSort}>
+            {sort || "정렬"}
+            <ChevronDownIcon size={16} />
+          </button>
 
-            {isSortOpen && (
-              <div className="dropdown">
-                <span onClick={() => handleSelectSort("최신순")}>최신순</span>
-                <span onClick={() => handleSelectSort("마감순")}>마감순</span>
-              </div>
-            )}
-          </SortSelect>
-          <CheckBoxWrapper>
-            <HiddenCheckbox
-              checked={excludeDone}
-              onChange={(e) => setExcludeDone(e.target.checked)}
-            />
+          {isSortOpen && (
+            <div className="dropdown">
+              <span onClick={() => handleSelectSort("최신순")}>최신순</span>
+              <span onClick={() => handleSelectSort("마감순")}>마감순</span>
+            </div>
+          )}
+        </SortSelect>
+        <CheckBoxWrapper>
+          <HiddenCheckbox
+            checked={excludeDone}
+            onChange={(e) => setExcludeDone(e.target.checked)}
+          />
 
-            <CustomCheckbox $checked={excludeDone}>
-              {excludeDone && <RiCheckLine size={14} />}
-            </CustomCheckbox>
+          <CustomCheckbox $checked={excludeDone}>
+            {excludeDone && <RiCheckLine size={14} />}
+          </CustomCheckbox>
 
-            <span>완료 제외</span>
-          </CheckBoxWrapper>
-        </FilterRow>
+          <span>완료 제외</span>
+        </CheckBoxWrapper>
+      </FilterRow>
 
-        {/* ---------------- Post List ---------------- */}
-        <ListWrapper>
-          {filteredPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </ListWrapper>
+      {/* ---------------- Post List ---------------- */}
+      <ListWrapper>
+        {filteredPosts.map((post) => (
+          <PostCard key={post.id} post={post} />
+        ))}
+      </ListWrapper>
 
-        {/* ---------------- Filter BottomSheet ---------------- */}
-        <FilterBottomSheet
-          isOpen={isFilterSheetOpen}
-          onClose={() => setIsFilterSheetOpen(false)}
-        />
-        <WriteButton />
-      </Wrapper>
+      {/* ---------------- Filter BottomSheet ---------------- */}
+      <FilterBottomSheet
+        isOpen={isFilterSheetOpen}
+        onClose={() => setIsFilterSheetOpen(false)}
+      />
+      <WriteButton />
 
       <NavBar />
     </Layout>
@@ -146,13 +144,6 @@ const HomePage = () => {
 export default HomePage;
 
 /* ---------------- styled-components ---------------- */
-
-const Wrapper = styled.div`
-  max-width: 430px;
-  margin: 0 auto;
-  min-height: 100vh;
-  position: relative;
-`;
 
 const TabBar = styled.div`
   margin-bottom: 20px;

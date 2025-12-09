@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { IoCameraOutline } from "react-icons/io5";
-
+import { IoClose } from "react-icons/io5";
+import { IoIosCamera } from "react-icons/io";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 import GeneralInput from "../../../components/GeneralInput";
@@ -31,21 +31,30 @@ const PostWritePage = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>(
     postData.tags || []
   );
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    postData.image || null
+  const [imagePreviews, setImagePreviews] = useState<string[]>(
+    postData.image ? [postData.image] : []
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 이미지 선택 핸들러
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && imagePreviews.length < 3) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        setImagePreviews((prev) => [...prev, reader.result as string]);
       };
       reader.readAsDataURL(file);
     }
+    // input 초기화하여 같은 파일도 다시 선택 가능하도록
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  // 이미지 삭제 핸들러
+  const handleImageRemove = (index: number) => {
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   // 이미지 업로드 버튼 클릭
@@ -67,7 +76,7 @@ const PostWritePage = () => {
       ...postData,
       title,
       tags: selectedTags,
-      image: imagePreview || undefined,
+      image: imagePreviews[0] || undefined,
     });
 
     // 선택된 타입에 따라 페이지 이동
@@ -102,10 +111,12 @@ const PostWritePage = () => {
   return (
     <Layout>
       <Header title="게시글 작성" onBack={() => navigate("/")} />
+      {/* 헬프타입 선택 */}
       <Container>
-        {/* 헬프타입 선택 */}
         <FieldSet>
-          <ModalLabel>어떤 도움이 필요하세요 ?</ModalLabel>
+          <ModalLabel>
+            어떤 도움이 필요하세요 ?<RequiredMark>*</RequiredMark>
+          </ModalLabel>
           <HelpTypeContainer>
             <HelpTypeButton
               $selected={helpType === "day"}
@@ -149,16 +160,26 @@ const PostWritePage = () => {
             픽드랍 장소, 요청 물품 등의 사진은 도우미의 수행에 도움이 돼요.
           </HelpTypeExample>
           <ImageUploadWrapper>
-            <ImageUploadButton type="button" onClick={handleImageClick}>
-              {imagePreview ? (
-                <ImagePreview src={imagePreview} alt="미리보기" />
-              ) : (
-                <ImagePlaceholder>
-                  <IoCameraOutline size={24} />
-                  <ImagePlaceholderText>사진 추가</ImagePlaceholderText>
-                </ImagePlaceholder>
+            <ImageList>
+              {imagePreviews.length < 3 && (
+                <ImageUploadButton type="button" onClick={handleImageClick}>
+                  <ImagePlaceholder>
+                    <IoIosCamera size={30} />
+                    <ImagePlaceholderText>
+                      {imagePreviews.length}/3
+                    </ImagePlaceholderText>
+                  </ImagePlaceholder>
+                </ImageUploadButton>
               )}
-            </ImageUploadButton>
+              {imagePreviews.map((preview, index) => (
+                <ImageItem key={index}>
+                  <ImagePreview src={preview} alt={`미리보기 ${index + 1}`} />
+                  <DeleteButton onClick={() => handleImageRemove(index)}>
+                    <IoClose size={14} />
+                  </DeleteButton>
+                </ImageItem>
+              ))}
+            </ImageList>
             <HiddenInput
               ref={fileInputRef}
               type="file"
@@ -174,11 +195,14 @@ const PostWritePage = () => {
           placeholder="제목을 입력해주세요"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          required
         />
 
         {/* HelpTag 선택 */}
         <FieldSet>
-          <ModalLabel>도움 유형</ModalLabel>
+          <ModalLabel>
+            도움 유형<RequiredMark>*</RequiredMark>
+          </ModalLabel>
           <Row>
             {HELP_TAGS.map((tag) => (
               <Badge
@@ -193,6 +217,7 @@ const PostWritePage = () => {
         </FieldSet>
 
         {/* 다음 버튼 */}
+
         <BaseLongButton
           label="다음"
           onClick={handleNext}
@@ -208,13 +233,17 @@ export default PostWritePage;
 // Styled-components
 const Container = styled.div`
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
 `;
 
 const FieldSet = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-top: 2.5rem;
 `;
 
 const ModalLabel = styled.label`
@@ -243,6 +272,11 @@ const HelpTypeButton = styled.button<{ $selected: boolean }>`
   align-items: center;
   justify-content: space-between;
   transition: all 0.2s ease;
+`;
+
+const RequiredMark = styled.span`
+  margin-left: 4px;
+  color: ${({ theme }) => theme.color.red500};
 `;
 
 const HelpTypeContent = styled.div`
@@ -315,36 +349,80 @@ const ImageUploadWrapper = styled.div`
   width: 100%;
 `;
 
-const ImageUploadButton = styled.button`
-  width: 100%;
+const ImageList = styled.div`
+  display: flex;
+  height: 100px;
+
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const ImageItem = styled.div`
+  position: relative;
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+`;
+
+const ImagePreview = styled.img`
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: ${({ theme }) => theme.borderRadius.md};
   border: 0.5px solid ${({ theme }) => theme.color.subText3};
+`;
+
+const DeleteButton = styled.button`
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: ${({ theme }) => theme.color.text};
+  color: ${({ theme }) => theme.color.white};
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 1;
+`;
+
+const ImageUploadButton = styled.button`
+  width: 80px;
+  height: 80px;
+  border: 0.5px solid ${({ theme }) => theme.color.natural50};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   background-color: ${({ theme }) => theme.color.white};
   cursor: pointer;
   overflow: hidden;
   padding: 0;
-`;
-
-const ImagePreview = styled.img`
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
+  flex-shrink: 0;
 `;
 
 const ImagePlaceholder = styled.div`
-  width: 100%;
-  height: 200px;
+  width: 80px;
+  height: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 4px;
   color: ${({ theme }) => theme.color.subText2};
   background-color: ${({ theme }) => theme.color.natural50};
 `;
 
 const ImagePlaceholderText = styled.span`
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: 10px;
   color: ${({ theme }) => theme.color.subText2};
 `;
 

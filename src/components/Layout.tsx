@@ -13,6 +13,9 @@ const Layout = ({ children }: LayoutProps) => {
 const Wrapper = styled.div`
   width: 100%;
   max-width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   padding: 0 16px 16px 16px;
   box-sizing: border-box;
 `;

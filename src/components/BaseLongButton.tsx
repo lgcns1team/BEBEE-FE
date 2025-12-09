@@ -9,14 +9,25 @@ interface BaseButtonProps {
 
 const BaseLongButton = ({ label, onClick, disabled }: BaseButtonProps) => {
   return (
-    <StyledButton onClick={onClick} disabled={disabled}>
-      {label}
-    </StyledButton>
+    <ButtonArea>
+      <StyledButton onClick={onClick} disabled={disabled}>
+        {label}
+      </StyledButton>
+    </ButtonArea>
   );
 };
 
+export default BaseLongButton;
+
+const ButtonArea = styled.div`
+  width: 100%;
+  padding: 32px 0;
+  margin-top: auto;
+`;
+
 const StyledButton = styled.button`
   width: 100%;
+
   background-color: ${({ theme }) => theme.color.main};
   color: ${({ theme }) => theme.color.white};
   padding: 14px 0;
@@ -25,10 +36,7 @@ const StyledButton = styled.button`
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
   cursor: pointer;
-  margin-top: 1.5rem;
   &:active {
     background-color: ${({ theme }) => theme.color.main};
   }
 `;
-
-export default BaseLongButton;

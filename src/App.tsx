@@ -13,7 +13,8 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import "./App.css";
-
+import DayHelpWrite from "./domain/post/components/write/DayHelpWrite";
+import LongHelpWrite from "./domain/post/components/write/LongHelpWrite";
 
 function App() {
   return (
@@ -29,8 +30,8 @@ function App() {
 
           {/* 게시글 작성 */}
           <Route path="/post/write" element={<PostWritePage />} />
-          <Route path="/post/write/day" element={<PostWritePage />} />
-          <Route path="/post/write/long" element={<PostWritePage />} />
+          <Route path="/post/write/day" element={<DayHelpWrite />} />
+          <Route path="/post/write/long" element={<LongHelpWrite />} />
 
           {/*채팅*/}
           <Route path="/chat" element={<ChatListPage />} />
@@ -44,7 +45,7 @@ function App() {
 
           {/* 매칭 */}
           <Route path="/match" element={<MatchingPage />} />
-          
+
           {/* 리뷰 */}
           <Route path="/review" element={<ReviewPage />} />
         </Routes>
