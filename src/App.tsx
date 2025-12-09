@@ -5,12 +5,15 @@ import PostDetailPage from "./domain/post/pages/PostDetailPage";
 import ChatListPage from "./domain/chat/pages/ChatListPage";
 import MatchFormPage from "./domain/chat/pages/MatchFormPage";
 import ChatRoomPage from "./domain/chat/pages/ChatRoomPage";
+import MatchingPage from "./domain/matching/pages/MatchingPage";
+import ReviewPage from "./domain/review/pages/ReviewPage";
+import PostWritePage from "./domain/post/pages/PostWritePage";
+
 import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import "./App.css";
-import MatchingPage from "./domain/matching/pages/MatchingPage";
-import ReviewPage from "./domain/review/pages/ReviewPage";
+
 
 function App() {
   return (
@@ -24,6 +27,11 @@ function App() {
           {/* 게시글 상세 */}
           <Route path="/post/:id" element={<PostDetailPage />} />
 
+          {/* 게시글 작성 */}
+          <Route path="/post/write" element={<PostWritePage />} />
+          <Route path="/post/write/day" element={<PostWritePage />} />
+          <Route path="/post/write/long" element={<PostWritePage />} />
+
           {/*채팅*/}
           <Route path="/chat" element={<ChatListPage />} />
           <Route path="/chat/:chatId" element={<ChatRoomPage />} />
@@ -36,6 +44,7 @@ function App() {
 
           {/* 매칭 */}
           <Route path="/match" element={<MatchingPage />} />
+          
           {/* 리뷰 */}
           <Route path="/review" element={<ReviewPage />} />
         </Routes>
