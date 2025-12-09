@@ -1,20 +1,22 @@
-import React from "react";
 import styled from "styled-components";
 import { AnimatePresence, motion } from "framer-motion";
 import HoneyRange from "./HoneyRange";
 import { useFilterStore } from "../../../../store/useFilterStore";
 import Layout from "../../../../components/Layout";
 import Badge from "../../../../components/Badge";
+import { HELP_TAGS } from "../../../../constants/helpTags";
+import { DISABILITY_TYPES } from "../../../../constants/disabilityTypes";
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
+
 // 메인 페이지 바텀 시트
 const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
   const {
     regions,
     removeRegion,
-    addRegion,
 
     selectedHelpTypes,
     toggleHelpType,
@@ -96,16 +98,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                   </Header>
 
                   <Row>
-                    {[
-                      "외출 동행",
-                      "방문 목욕",
-                      "방문 간호",
-                      "가사 지원",
-                      "정서적 지원",
-                      "식사 도움",
-                      "학습 지원",
-                      "기타",
-                    ].map((label) => (
+                    {HELP_TAGS.map((label) => (
                       <Badge
                         key={label}
                         $active={selectedHelpTypes.includes(label)}
@@ -145,14 +138,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                   <Label>장애 유형</Label>
 
                   <Row>
-                    {[
-                      "지체장애",
-                      "시각장애",
-                      "청각장애",
-                      "발달장애",
-                      "내부기관장애",
-                      "기타장애",
-                    ].map((v) => (
+                    {DISABILITY_TYPES.map((v) => (
                       <Badge
                         key={v}
                         $active={disability === v}

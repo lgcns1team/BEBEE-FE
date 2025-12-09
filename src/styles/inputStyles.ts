@@ -11,7 +11,7 @@ export const FieldSet = styled.div`
 
 export const InputLabel = styled.label`
   font-size: ${({ theme }) => theme.size.lg};
-  font-weight: ${({ theme }) => theme.weight.medium};
+  font-weight: ${({ theme }) => theme.weight.bold};
   color: ${({ theme }) => theme.color.text};
 `;
 
