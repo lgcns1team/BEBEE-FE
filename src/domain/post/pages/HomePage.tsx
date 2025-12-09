@@ -11,7 +11,7 @@ import { RiCheckLine } from "react-icons/ri";
 
 import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
-import WriteButton from "../../../components/WriteButton";
+import WriteButton from "../components/common/WriteButton";
 
 const HomePage = () => {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
@@ -136,9 +136,9 @@ const HomePage = () => {
           onClose={() => setIsFilterSheetOpen(false)}
         />
         <WriteButton />
-      </Wrapper>
 
-      <NavBar />
+        <NavBar />
+      </Wrapper>
     </Layout>
   );
 };
@@ -148,10 +148,7 @@ export default HomePage;
 /* ---------------- styled-components ---------------- */
 
 const Wrapper = styled.div`
-  max-width: 430px;
-  margin: 0 auto;
   min-height: 100vh;
-  position: relative;
 `;
 
 const TabBar = styled.div`
@@ -245,7 +242,7 @@ const CustomCheckbox = styled.div<{ $checked: boolean }>`
 `;
 
 const ListWrapper = styled.div`
-  padding-top: 110px;
+  padding-top: 120px;
   padding-bottom: 40px;
 `;
 

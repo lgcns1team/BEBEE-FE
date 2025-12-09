@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const WriteButton = () => {
   const navigate = useNavigate();
   const goWritePage = () => {
-    navigate("");
+    navigate("/post/write");
   };
   return (
     <Button>

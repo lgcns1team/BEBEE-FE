@@ -6,3 +6,8 @@ export const DISABILITY_TYPES = [
   "내부기관장애",
   "기타장애",
 ] as const;
+
+
+
+
+
