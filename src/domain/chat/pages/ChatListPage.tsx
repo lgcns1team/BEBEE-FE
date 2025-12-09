@@ -155,7 +155,7 @@ const ChatListPage = () => {
   return (
     <ChatContainer>
       <Layout>
-        <Header title="채팅" onBack={() => navigate(-1)} />
+        <Header title="채팅" onBack={() => navigate("/")} />
         <ChatList>
           {mockChats.map((chat) => (
             <ChatItem

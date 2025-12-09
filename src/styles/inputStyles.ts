@@ -6,12 +6,12 @@ export const FieldSet = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-bottom: 2.5rem;
+  margin-top: 2.5rem;
 `;
 
 export const InputLabel = styled.label`
   font-size: ${({ theme }) => theme.size.lg};
-  font-weight: ${({ theme }) => theme.weight.medium};
+  font-weight: ${({ theme }) => theme.weight.bold};
   color: ${({ theme }) => theme.color.text};
 `;
 

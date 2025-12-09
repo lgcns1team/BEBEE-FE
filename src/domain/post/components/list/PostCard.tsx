@@ -94,15 +94,6 @@ const HoneyRow = styled.div`
   margin-bottom: 8px;
 `;
 
-// const DoneBadge = styled.div`
-//   font-size: ${({ theme }) => theme.size.sm};
-//   padding: 3px 7px;
-//   color: ${({ theme }) => theme.color.red500};
-//   border: 0.5px solid ${({ theme }) => theme.color.red500};
-//   background-color: ${({ theme }) => theme.color.red50};
-//   border-radius: ${({ theme }) => theme.borderRadius.xsm};
-// `;
-
 const Title = styled.div`
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};

@@ -63,9 +63,11 @@ const Container = styled.header`
   height: 73px;
   display: flex;
   align-items: center;
-  position: relative;
+  position: sticky;
+  top: 0;
   box-sizing: border-box;
-  margin-bottom: 16px;
+  background-color: ${({ theme }) => theme.color.white};
+  z-index: 1000;
 `;
 
 const Left = styled.div`

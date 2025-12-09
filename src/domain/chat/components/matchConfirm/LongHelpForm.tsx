@@ -23,6 +23,7 @@ interface WeekSchedule {
 const DAYS = ["월", "화", "수", "목", "금", "토", "일"];
 
 const LongHelpForm = ({ editedPost, updateField }: LongHelpProps) => {
+  const required = true;
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
     editedPost.periodStart || null,
     editedPost.periodEnd || null,
@@ -104,7 +105,9 @@ const LongHelpForm = ({ editedPost, updateField }: LongHelpProps) => {
       <DatePickerGlobalStyle />
       {/* 도움 기간 */}
       <FieldSet>
-        <ModalLabel>도움 기간</ModalLabel>
+        <ModalLabel>
+          도움 기간{required && <RequiredMark>*</RequiredMark>}
+        </ModalLabel>
         <DateInputWrapper>
           <CalendarIconWrapper onClick={handlePeriodIconClick}>
             <CiCalendar size={20} />
@@ -123,7 +126,9 @@ const LongHelpForm = ({ editedPost, updateField }: LongHelpProps) => {
 
       {/* 도움 요일 및 시간 */}
       <FieldSet>
-        <ModalLabel>도움 요일 및 시간</ModalLabel>
+        <ModalLabel>
+          도움 요일 및 시간{required && <RequiredMark>*</RequiredMark>}
+        </ModalLabel>
 
         {/* 추가된 스케줄 목록 */}
         {weeks.map((week, index) => (
@@ -246,7 +251,7 @@ const FieldSet = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 `;
 
 const ModalLabel = styled.label`
@@ -254,7 +259,10 @@ const ModalLabel = styled.label`
   font-weight: ${({ theme }) => theme.weight.medium};
   color: ${({ theme }) => theme.color.text};
 `;
-
+const RequiredMark = styled.span`
+  margin-left: 4px;
+  color: ${({ theme }) => theme.color.red500};
+`;
 const ModalInput = styled.input<{ $editable?: boolean }>`
   width: 100%;
   font-size: ${({ theme }) => theme.size.md};
