@@ -65,7 +65,7 @@ const Container = styled.header`
   align-items: center;
   position: relative;
   box-sizing: border-box;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 `;
 
 const Left = styled.div`

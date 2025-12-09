@@ -155,11 +155,16 @@ const Wrapper = styled.div`
 `;
 
 const TabBar = styled.div`
+  margin-bottom: 20px;
+  position: fixed;
   display: flex;
   gap: 32px;
   padding-top: 12px;
   padding-bottom: 0;
   border-bottom: 0.5px solid #d4d4d8;
+  z-index: 90;
+  background-color: white;
+  width: 343px;
 `;
 
 const Tab = styled.div`
@@ -188,11 +193,16 @@ const Tab = styled.div`
 `;
 
 const FilterRow = styled.div`
+  z-index: 90;
+  position: fixed;
+  margin-top: 45px;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding-top: 20px;
+  background-color: white;
+  justify-content: space-between;
+  width: 343px;
 `;
 const ChevronDownIcon = styled(IoChevronDown)`
   color: ${({ theme }) => theme.color.subText2};
@@ -235,6 +245,7 @@ const CustomCheckbox = styled.div<{ $checked: boolean }>`
 `;
 
 const ListWrapper = styled.div`
+  padding-top: 110px;
   padding-bottom: 40px;
 `;
 

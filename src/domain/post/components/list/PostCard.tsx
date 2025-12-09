@@ -6,6 +6,7 @@ import { FiCalendar } from "react-icons/fi";
 import { FiMapPin } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import HelpTag from "../../../../components/HelpTag";
+import OneDayBadge from "../../../../components/OneDayBadge";
 
 interface Props {
   post: Post;
@@ -20,7 +21,7 @@ const PostCard = ({ post }: Props) => {
           <Title>{post.title}</Title>
           <RightTop>
             {post.category === "하루 도움" && (
-              <Category>{post.category}</Category>
+              <OneDayBadge>{post.category}</OneDayBadge>
             )}
           </RightTop>
         </TopArea>
@@ -60,10 +61,11 @@ const Card = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 16px 0px;
+  padding-top: 4px;
+  padding-bottom: 16px;
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural100};
   background: ${({ theme }) => theme.color.white};
-  margin-bottom: 8px;
+  margin-bottom: 18px;
 `;
 
 const Content = styled.div`
@@ -82,15 +84,6 @@ const RightTop = styled.div`
   display: flex;
   gap: 6px;
   align-items: center;
-`;
-
-const Category = styled.div`
-  font-size: ${({ theme }) => theme.size.sm};
-  background: ${({ theme }) => theme.color.subColor2};
-  padding: 4px 8px;
-  border: 0.5px solid ${({ theme }) => theme.color.main};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  color: ${({ theme }) => theme.color.text};
 `;
 
 const HoneyRow = styled.div`

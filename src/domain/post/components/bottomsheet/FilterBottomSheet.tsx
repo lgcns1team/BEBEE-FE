@@ -270,26 +270,6 @@ const Row = styled.div`
   margin-top: 10px;
 `;
 
-// const Chip = styled.button<{ $active?: boolean }>`
-//   padding: 6px 12px;
-//   border-radius: ${({ theme }) => theme.borderRadius.lg};
-//   background: ${({ $active, theme }) =>
-//     $active ? theme.color.subColor2 : theme.color.natural100};
-
-//   color: ${({ $active, theme }) =>
-//     $active ? theme.color.main : theme.color.subText2};
-
-//   border: 0.5px solid
-//     ${({ $active, theme }) =>
-//       $active ? theme.color.main : theme.color.natural100};
-
-//   font-size: ${({ theme }) => theme.size.sm};
-
-//   appearance: none;
-//   outline: none;
-//   -webkit-tap-highlight-color: transparent;
-// `;
-
 const RegionChipRow = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -356,7 +336,6 @@ const GenderTab = styled.button<{ $active?: boolean }>`
 `;
 
 const DayChip = styled.button<{ $active?: boolean }>`
-  /* padding: 8px 14px; */
   border-radius: 50%;
   width: 32px;
   height: 32px;
