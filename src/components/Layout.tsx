@@ -13,7 +13,7 @@ const Layout = ({ children }: LayoutProps) => {
 const Wrapper = styled.div`
   width: 100%;
   max-width: 100%;
-  padding: 0 16px;
+  padding: 0 16px 16px 16px;
   box-sizing: border-box;
 `;
 

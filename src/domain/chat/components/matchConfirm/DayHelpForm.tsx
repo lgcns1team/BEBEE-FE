@@ -20,7 +20,7 @@ const DayHelpForm = ({ editedPost, updateField }: DailyHelpFormProps) => {
   const datePickerInputRef = useRef<HTMLInputElement>(null);
   const startTimeInputRef = useRef<HTMLInputElement>(null);
   const endTimeInputRef = useRef<HTMLInputElement>(null);
-
+  const required = true;
   /** 날짜 */
   const handleCalendarIconClick = () => {
     datePickerInputRef.current?.click();
@@ -51,7 +51,9 @@ const DayHelpForm = ({ editedPost, updateField }: DailyHelpFormProps) => {
     <>
       <DatePickerGlobalStyle />
       <FieldSet>
-        <ModalLabel>도움 날짜</ModalLabel>
+        <ModalLabel>
+          도움 날짜 {required && <RequiredMark>*</RequiredMark>}
+        </ModalLabel>
         <DateInputWrapper>
           <CalendarIconWrapper onClick={handleCalendarIconClick}>
             <CiCalendar size={20} />
@@ -68,7 +70,9 @@ const DayHelpForm = ({ editedPost, updateField }: DailyHelpFormProps) => {
       </FieldSet>
 
       <FieldSet>
-        <ModalLabel>도움 시간</ModalLabel>
+        <ModalLabel>
+          도움 시간 {required && <RequiredMark>*</RequiredMark>}
+        </ModalLabel>
         <TimeWrapper>
           <TimeInputWrapper>
             <DatePicker
@@ -124,6 +128,10 @@ const ModalLabel = styled.label`
   font-size: ${({ theme }) => theme.size.lg};
   font-weight: ${({ theme }) => theme.weight.medium};
   color: ${({ theme }) => theme.color.text};
+`;
+const RequiredMark = styled.span`
+  margin-left: 4px;
+  color: ${({ theme }) => theme.color.red500};
 `;
 
 const ModalInput = styled.input<{ $editable?: boolean }>`
