@@ -11,6 +11,7 @@ import theme from "./styles/theme";
 import "./App.css";
 import MatchingPage from "./domain/matching/pages/MatchingPage";
 import ReviewPage from "./domain/review/pages/ReviewPage";
+import ProfilePage from "./domain/profile/pages/ProfilePage";
 
 function App() {
   return (
@@ -38,6 +39,8 @@ function App() {
           <Route path="/match" element={<MatchingPage />} />
           {/* 리뷰 */}
           <Route path="/review" element={<ReviewPage />} />
+          {/* 프로필 */}
+          <Route path="profile" element={<ProfilePage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

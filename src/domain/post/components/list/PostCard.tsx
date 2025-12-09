@@ -7,7 +7,7 @@ import { FiMapPin } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import HelpTag from "../../../../components/HelpTag";
 import OneDayBadge from "../../../../components/OneDayBadge";
-
+import DoneBadge from "../../../../components/DoneBadge";
 interface Props {
   post: Post;
 }
@@ -94,14 +94,14 @@ const HoneyRow = styled.div`
   margin-bottom: 8px;
 `;
 
-const DoneBadge = styled.div`
-  font-size: ${({ theme }) => theme.size.sm};
-  padding: 3px 7px;
-  color: ${({ theme }) => theme.color.red500};
-  border: 0.5px solid ${({ theme }) => theme.color.red500};
-  background-color: ${({ theme }) => theme.color.red50};
-  border-radius: ${({ theme }) => theme.borderRadius.xsm};
-`;
+// const DoneBadge = styled.div`
+//   font-size: ${({ theme }) => theme.size.sm};
+//   padding: 3px 7px;
+//   color: ${({ theme }) => theme.color.red500};
+//   border: 0.5px solid ${({ theme }) => theme.color.red500};
+//   background-color: ${({ theme }) => theme.color.red50};
+//   border-radius: ${({ theme }) => theme.borderRadius.xsm};
+// `;
 
 const Title = styled.div`
   font-size: ${({ theme }) => theme.size.md};

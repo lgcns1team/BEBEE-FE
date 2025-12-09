@@ -12,7 +12,9 @@ import Header from "../../../components/Header";
 const PostDetailPage = () => {
   const navigate = useNavigate();
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
-
+  const goProfile = () => {
+    navigate("/profile");
+  };
   return (
     <Layout>
       <Wrapper>
@@ -44,7 +46,7 @@ const PostDetailPage = () => {
               alt="user profile"
             />
             <UserInfo>
-              <UserName>박원</UserName>
+              <UserName onClick={goProfile}>박원</UserName>
               <UserAddress>갈현 제2동</UserAddress>
             </UserInfo>
           </UserLeft>
@@ -175,6 +177,7 @@ const UserInfo = styled.div`
 const UserName = styled.div`
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
+  cursor: pointer;
 `;
 
 const UserAddress = styled.div`
