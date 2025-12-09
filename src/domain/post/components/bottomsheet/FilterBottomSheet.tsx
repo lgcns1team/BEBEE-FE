@@ -42,7 +42,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
   };
 
   return (
-    <Layout>
+    <>
       <AnimatePresence>
         {isOpen && (
           <>
@@ -182,7 +182,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
           </>
         )}
       </AnimatePresence>
-    </Layout>
+    </>
   );
 };
 

@@ -15,8 +15,9 @@ interface Props {
 
 //  게시물 상세 보기 내
 const ActionSheetModal = ({ isOpen, onClose }: Props) => {
+  if (!isOpen) return null;
   return (
-    <Layout>
+    <>
       <AnimatePresence>
         {isOpen && (
           <>
@@ -76,7 +77,7 @@ const ActionSheetModal = ({ isOpen, onClose }: Props) => {
           </>
         )}
       </AnimatePresence>
-    </Layout>
+    </>
   );
 };
 

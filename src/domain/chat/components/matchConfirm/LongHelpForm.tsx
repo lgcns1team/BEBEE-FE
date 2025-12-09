@@ -251,7 +251,7 @@ const FieldSet = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-bottom: 2.5rem;
+  margin-top: 2.5rem;
 `;
 
 const ModalLabel = styled.label`

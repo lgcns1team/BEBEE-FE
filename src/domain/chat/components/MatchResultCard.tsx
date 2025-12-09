@@ -52,7 +52,7 @@ const Card = styled.div`
   gap: 16px;
   /*세로선*/
   border-left: 3px solid ${({ theme }) => theme.color.main};
-  padding-left: 12px; /* 내용이 선에 붙지 않도록 */
+  padding-left: 24px; /* 내용이 선에 붙지 않도록 */
 `;
 
 const Content = styled.div`
@@ -64,6 +64,7 @@ const Content = styled.div`
 const Header = styled.div`
   display: flex;
   align-items: flex-start;
+  justify-content: flex-start;
   flex-direction: column;
   gap: 10px;
   margin-bottom: 2rem;
