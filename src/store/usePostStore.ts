@@ -10,8 +10,8 @@ export interface Post {
   done: boolean; // 매칭 완료 여부
   tags: string[];
   image?: string;
-  startTime: Date;
-  endTime: Date;
+  // startTime: Date;
+  // endTime: Date;
 }
 
 export interface WeekSchedule {

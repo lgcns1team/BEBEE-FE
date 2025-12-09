@@ -13,6 +13,7 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import "./App.css";
+import ProfilePage from "./domain/profile/pages/ProfilePage";
 import DayHelpWrite from "./domain/post/components/write/DayHelpWrite";
 import LongHelpWrite from "./domain/post/components/write/LongHelpWrite";
 
@@ -48,6 +49,8 @@ function App() {
 
           {/* 리뷰 */}
           <Route path="/review" element={<ReviewPage />} />
+          {/* 프로필 */}
+          <Route path="profile" element={<ProfilePage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
