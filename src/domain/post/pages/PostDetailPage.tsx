@@ -45,7 +45,6 @@ const PostDetailPage = () => {
             alt="user profile"
           />
           <UserInfo>
-            <UserName>박원</UserName>
             <UserName onClick={goProfile}>박원</UserName>
             <UserAddress>갈현 제2동</UserAddress>
           </UserInfo>
