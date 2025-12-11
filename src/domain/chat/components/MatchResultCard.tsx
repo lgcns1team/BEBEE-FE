@@ -4,7 +4,7 @@ import chatLight from "../../../assets/images/chat-light.png";
 import MatchFailCard from "./MatchFailCard";
 import MatchSuccessCard from "./MatchSuccessCard";
 
-const MatchResultCard = ({ addMessage }) => {
+const MatchResultCard = ([addMessage]) => {
   return (
     <Card>
       <Content>
@@ -28,13 +28,9 @@ const MatchResultCard = ({ addMessage }) => {
         </Info>
       </Content>
       <ButtonWrapper>
-        <RefusalButton onClick={() => addMessage(<MatchFailCard />)}>
-          거절
-        </RefusalButton>
+        <RefusalButton onClick={addMessage}>거절</RefusalButton>
 
-        <AcceptButton onClick={() => addMessage(<MatchSuccessCard />)}>
-          수락
-        </AcceptButton>
+        <AcceptButton onClick={addMessage}>수락</AcceptButton>
       </ButtonWrapper>
     </Card>
   );
