@@ -9,6 +9,7 @@ import type { MatchPost } from "../components/matchConfirm/matchPost";
 import GeneralInput from "../../../components/GeneralInput";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
+import HelpTagDropDown from "../../../components/HelpTagDropDown";
 
 // 목업 데이터
 const MOCK_POST: MatchPost = {
@@ -32,6 +33,7 @@ const MatchFormPage = () => {
   const { chatId } = useParams();
   const navigate = useNavigate();
   const [editedPost, setEditedPost] = useState<MatchPost>(MOCK_POST);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const updateField = <K extends keyof MatchPost>(
     key: K,
@@ -79,42 +81,43 @@ const MatchFormPage = () => {
   };
 
   return (
-    <>
+    <Layout>
+      <Header title="매칭 확인서" onBack={() => navigate(-1)} />
       {/* === 공통 필드 === */}
-      <Layout>
-        <Header title="매칭 확인서" onBack={() => navigate(-1)} />
+      <GeneralInput value={typeLabelMap[editedPost.type]} disabled />
 
-        <GeneralInput value={typeLabelMap[editedPost.type]} disabled />
+      <GeneralInput
+        inputLabel="제목"
+        value={editedPost.title}
+        disabled
+        required
+      />
+      <HelpTagDropDown
+        selectedTags={selectedTags}
+        onTagsChange={setSelectedTags}
+      />
 
-        <GeneralInput
-          inputLabel="제목"
-          value={editedPost.title}
-          disabled
-          required
-        />
+      {/* === 하루도움 필드 === */}
+      {editedPost.type === "day" ? (
+        <DayHelpForm editedPost={editedPost} updateField={updateField} />
+      ) : (
+        <LongHelpForm editedPost={editedPost} updateField={updateField} />
+      )}
 
-        {/* === 하루도움 필드 === */}
-        {editedPost.type === "day" ? (
-          <DayHelpForm editedPost={editedPost} updateField={updateField} />
-        ) : (
-          <LongHelpForm editedPost={editedPost} updateField={updateField} />
-        )}
+      <GeneralInput
+        inputLabel="1회 제공 꿀"
+        value={editedPost.reward.toString()}
+        required
+      />
 
-        <GeneralInput
-          inputLabel="1회 제공 꿀"
-          value={editedPost.reward.toString()}
-          required
-        />
+      <LocationInput
+        inputLabel="만남 장소"
+        value={editedPost.location || ""}
+        required
+      />
 
-        <LocationInput
-          inputLabel="만남 장소"
-          value={editedPost.location || ""}
-          required
-        />
-
-        <BaseLongButton label="확인" onClick={handleConfirm} />
-      </Layout>
-    </>
+      <BaseLongButton label="확인" onClick={handleConfirm} />
+    </Layout>
   );
 };
 
