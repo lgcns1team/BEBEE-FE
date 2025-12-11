@@ -16,7 +16,7 @@ import "./App.css";
 import ProfilePage from "./domain/profile/pages/ProfilePage";
 import DayHelpWrite from "./domain/post/components/write/DayHelpWrite";
 import LongHelpWrite from "./domain/post/components/write/LongHelpWrite";
-
+import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -47,6 +47,8 @@ function App() {
           {/* 매칭 */}
           <Route path="/match" element={<MatchingPage />} />
 
+          {/* 매칭 확인서 */}
+          <Route path="/match-info/:infoId" element={<MatchingInfoPage />} />
           {/* 리뷰 */}
           <Route path="/review" element={<ReviewPage />} />
           {/* 프로필 */}

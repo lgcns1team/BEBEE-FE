@@ -18,8 +18,11 @@ const MatchingPostCard = ({ post }: Props) => {
   const goReview = () => {
     navigate("/review");
   };
+  const goMatchingInfo = () => {
+    navigate(`/match-info/${post.id}`);
+  };
   return (
-    <Card>
+    <Card onClick={goMatchingInfo}>
       <Left>
         <TitleRow>
           <Title>{post.title}</Title>
