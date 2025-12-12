@@ -60,7 +60,7 @@ const HelpInfo = ({
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 12px;
 `;
 
 const Row = styled.div`
@@ -70,19 +70,19 @@ const Row = styled.div`
 
 const Label = styled.div`
   width: 80px;
-  font-size: ${({ theme }) => theme.size.sm};
+  font-size: ${({ theme }) => theme.size.md};
   color: ${({ theme }) => theme.color.subText2};
 `;
 
 const Value = styled.div`
   flex: 1;
-  font-size: ${({ theme }) => theme.size.sm};
+  font-size: ${({ theme }) => theme.size.md};
   color: ${({ theme }) => theme.color.text};
   line-height: 1.4;
 `;
 const Detail = styled.span`
   flex: 1;
-  font-size: ${({ theme }) => theme.size.sm};
+  font-size: ${({ theme }) => theme.size.md};
   color: ${({ theme }) => theme.color.subText2};
   line-height: 1.4;
 `;
