@@ -6,7 +6,7 @@ type SnapType = keyof typeof SNAP_POINTS;
 export default function useMapBottomSheet() {
   const sheet = useRef<HTMLDivElement>(null);
   const content = useRef<HTMLDivElement>(null);
-  const [sheetY, setSheetY] = useState(0); // px 단위로 저장
+  const [sheetY, setSheetY] = useState<number | null>(null);
   const [snap, setSnap] = useState<SnapType>("HALF");
 
   const applyTransform = (snapKey: SnapKey) => {

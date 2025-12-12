@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import MapBottomSheetRange from "./MapBottomSheetRange";
 
 interface Props {
-  onApply: () => void;
+  onApply: (radius: number) => void;
   onClose: () => void;
   role: "USER" | "HELPER";
 }
 
 const MapBottomSheetModalRadius = ({ onApply, onClose, role }: Props) => {
+  const [radius, setRadius] = useState(1);
   return (
     <Panel onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
@@ -16,23 +18,24 @@ const MapBottomSheetModalRadius = ({ onApply, onClose, role }: Props) => {
           <SubTitle>최대 5km까지 1km 단위로 조정할 수 있어요.</SubTitle>
 
           <Info>
-            내 위치 반경 <span>1km</span>의{" "}
+            내 위치 반경 <span>{radius}km</span>의{" "}
             {role === "HELPER" ? "게시글" : "도우미"}
           </Info>
 
           <SliderWrapper>
-            <Track>
-              <Filled />
-            </Track>
-
             <LabelRow>
-              <Label>1km</Label>
-              <Label>5km</Label>
+              <MapBottomSheetRange radius={radius} onChangeRadius={setRadius} />
             </LabelRow>
           </SliderWrapper>
         </ContentBox>
 
-        <ApplyButton onClick={onApply}>적용하기</ApplyButton>
+        <ApplyButton
+          onClick={() => {
+            onApply(radius);
+          }}
+        >
+          적용하기
+        </ApplyButton>
       </ModalContainer>
     </Panel>
   );
@@ -99,30 +102,10 @@ const SliderWrapper = styled.div`
   width: 100%;
 `;
 
-const Track = styled.div`
-  position: relative;
-  width: 100%;
-  height: 8px;
-  background: ${({ theme }) => theme.color.natural50};
-  border-radius: 10px;
-  overflow: hidden;
-`;
-
-const Filled = styled.div`
-  width: 40%;
-  height: 100%;
-  background: ${({ theme }) => theme.color.main};
-`;
-
 const LabelRow = styled.div`
   display: flex;
   justify-content: space-between;
   margin-top: 6px;
-`;
-
-const Label = styled.span`
-  font-size: ${({ theme }) => theme.size.sm};
-  color: ${({ theme }) => theme.color.subText3};
 `;
 
 const ApplyButton = styled.button`
