@@ -14,7 +14,7 @@ import MapBottomSheetModalRadius from "./MapBottomSheetModalRadius";
 
 import Flower from "../../../../../assets/images/flower.svg";
 import { IoMapOutline } from "react-icons/io5";
-import List from "../../../../../assets/images/list.svg";
+import { BsList } from "react-icons/bs";
 
 function MapHelperBottomSheet() {
   const { sheet, content, snap, updateSnap, sheetY } = useMapBottomSheet();
@@ -106,7 +106,7 @@ function MapHelperBottomSheet() {
             transition={{ duration: 0.25 }}
           >
             <GoList>
-              <ListImage src={List} />
+              <BsList size={20} color="#FFBE00" />
               목록보기
             </GoList>
           </GoListButton>
@@ -136,17 +136,16 @@ const Wrapper = styled(motion.div)`
 `;
 
 const CurrentLocation = styled.div`
-  position: fixed;
-  left: 10%;
-  transform: translateX(-50%);
+  position: sticky;
   width: 35px;
   height: 35px;
+  margin-left: 16px;
   background: ${({ theme }) => theme.color.white};
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 300;
+  z-index: 5;
 `;
 
 const Button = styled.div`
@@ -247,9 +246,4 @@ const GoList = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-`;
-
-const ListImage = styled.img`
-  width: 15px;
-  height: 15px;
 `;
