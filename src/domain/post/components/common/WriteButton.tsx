@@ -7,9 +7,9 @@ const WriteButton = () => {
     navigate("/post/write");
   };
   return (
-    <Button>
+    <Button onClick={goWritePage}>
       <ButtonInner>
-        <IoAdd size={20} onClick={goWritePage} />
+        <IoAdd size={20} />
         <span>글쓰기</span>
       </ButtonInner>
     </Button>

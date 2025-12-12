@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import type { Post } from "../../../../../store/useMapPostStore";
+import type { Post } from "../../../../../store/useMapUserPostStore";
 import HelpTag from "../../../../../components/HelpTag";
 import { FaDroplet } from "react-icons/fa6";
 interface Props {

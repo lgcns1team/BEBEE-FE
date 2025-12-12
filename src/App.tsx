@@ -16,6 +16,9 @@ import "./App.css";
 import ProfilePage from "./domain/profile/pages/ProfilePage";
 import DayHelpWrite from "./domain/post/components/write/DayHelpWrite";
 import LongHelpWrite from "./domain/post/components/write/LongHelpWrite";
+import MapUserPage from "./domain/map/pages/MapUserPage";
+import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
+import MapHelperPage from "./domain/map/pages/MapHelperPage";
 import MapPage from "./domain/map/pages/MapPage";
 function App() {
   return (
@@ -42,11 +45,15 @@ function App() {
           {/* <Route path="/mypage" element={<MyPage />} /> */}
 
           {/*동네지도*/}
-          <Route path="/map" element={<MapPage />} />
+          <Route path="/map" element={<MapHelperPage />} />
+          <Route path="/map/user" element={<MapUserPage />} />
+          <Route path="/map/helper" element={<MapHelperPage />} />
 
           {/* 매칭 */}
           <Route path="/match" element={<MatchingPage />} />
 
+          {/* 매칭 확인서 */}
+          <Route path="/match-info/:infoId" element={<MatchingInfoPage />} />
           {/* 리뷰 */}
           <Route path="/review" element={<ReviewPage />} />
           {/* 프로필 */}

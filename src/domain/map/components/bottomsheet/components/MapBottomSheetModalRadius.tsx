@@ -4,9 +4,10 @@ import styled from "styled-components";
 interface Props {
   onApply: () => void;
   onClose: () => void;
+  role: "USER" | "HELPER";
 }
 
-const MapBottomSheetModalRadius = ({ onApply, onClose }: Props) => {
+const MapBottomSheetModalRadius = ({ onApply, onClose, role }: Props) => {
   return (
     <Panel onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
@@ -15,7 +16,8 @@ const MapBottomSheetModalRadius = ({ onApply, onClose }: Props) => {
           <SubTitle>최대 5km까지 1km 단위로 조정할 수 있어요.</SubTitle>
 
           <Info>
-            내 위치 반경 <span>1km</span>의 도우미
+            내 위치 반경 <span>1km</span>의{" "}
+            {role === "HELPER" ? "게시글" : "도우미"}
           </Info>
 
           <SliderWrapper>

@@ -3,17 +3,11 @@
 import React from "react";
 import styled from "styled-components";
 import { AnimatePresence, motion } from "framer-motion";
-import { IoWarningOutline } from "react-icons/io5";
-import { RiShieldUserLine } from "react-icons/ri";
-import { BsPencil } from "react-icons/bs";
-import { IoTrashOutline } from "react-icons/io5";
-// import Layout from "../../../../components/Layout";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
 
-//  게시물 상세 보기 내
 const ActionSheetModal = ({ isOpen, onClose }: Props) => {
   if (!isOpen) return null;
   return (
@@ -37,38 +31,16 @@ const ActionSheetModal = ({ isOpen, onClose }: Props) => {
               <Panel>
                 <MenuList>
                   <Item>
-                    <IconWrapper>
-                      <IoWarningOutline size={18} />
-                    </IconWrapper>
+                    <span>매칭 취소하기</span>
+                  </Item>
+
+                  <Divider />
+
+                  <Item>
                     <span>신고하기</span>
                   </Item>
 
                   <Divider />
-
-                  <Item>
-                    <IconWrapper>
-                      <RiShieldUserLine size={18} />
-                    </IconWrapper>
-                    <span>이 사용자의 글 보지 않기</span>
-                  </Item>
-
-                  <Divider />
-
-                  <Item>
-                    <IconWrapper>
-                      <PencilIcon size={18} />
-                    </IconWrapper>
-                    <BlueText>수정하기</BlueText>
-                  </Item>
-
-                  <Divider />
-
-                  <Item>
-                    <IconWrapper>
-                      <TrashIcon size={18} />
-                    </IconWrapper>
-                    <RedText>삭제하기</RedText>
-                  </Item>
                 </MenuList>
 
                 <CloseButton onClick={onClose}>닫기</CloseButton>
@@ -125,35 +97,10 @@ const Item = styled.div`
   cursor: pointer;
 `;
 
-const IconWrapper = styled.div`
-  width: 24px;
-  display: flex;
-  justify-content: center;
-  margin-right: 10px;
-`;
-const PencilIcon = styled(BsPencil)`
-  color: ${({ theme }) => theme.color.blue500};
-`;
-const TrashIcon = styled(IoTrashOutline)`
-  color: ${({ theme }) => theme.color.red500};
-`;
-
 const Divider = styled.div`
   height: 1px;
   background: ${({ theme }) => theme.color.natural200};
   margin-left: 18px;
-`;
-
-const BlueText = styled.span`
-  color: ${({ theme }) => theme.color.blue500};
-  font-weight: ${({ theme }) => theme.weight.medium};
-  font-size: ${({ theme }) => theme.size.md};
-`;
-
-const RedText = styled.span`
-  color: ${({ theme }) => theme.color.red500};
-  font-weight: ${({ theme }) => theme.weight.medium};
-  font-size: ${({ theme }) => theme.size.md};
 `;
 
 const CloseButton = styled.button`

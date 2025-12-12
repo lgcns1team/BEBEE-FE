@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { AnimatePresence, motion } from "framer-motion";
 import useMapBottomSheet from "../hooks/useMapBottomSheet";
 import MapBottomSheetHeader from "./MapBottomSheetHeader";
-import MapBottomSheetContent from "./MapBottomSheetContent";
+import MapBottomSheetContent from "./MapUserBottomSheetContent";
 import MapBottomSheetButton from "./MapBottomSheetButton";
 
 import { BiCurrentLocation } from "react-icons/bi";
@@ -40,6 +40,7 @@ function MapBottomSheet() {
         <MapBottomSheetModalRadius
           onClose={() => setOpenModalRadius(false)}
           onApply={() => setOpenModalRadius(false)}
+          role="USER"
         />
       )}
 
@@ -224,7 +225,7 @@ const GoMap = styled.div`
 const GoListButton = styled(motion.button)`
   position: absolute;
   bottom: 100px;
-  left: 30%;
+  left: 35%;
   transform: translateX(-50%);
   width: 120px;
   height: 42px;

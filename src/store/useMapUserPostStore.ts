@@ -13,7 +13,7 @@ interface PostState {
   posts: Post[];
 }
 
-export const useMapPostStore = create<PostState>(() => ({
+export const useMapUserPostStore = create<PostState>(() => ({
   posts: [
     {
       id: 1,
