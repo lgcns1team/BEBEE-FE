@@ -35,7 +35,7 @@ const Wrapper = styled.div`
 const MatchingDate = styled.div`
   color: ${({ theme }) => theme.color.text};
   font-weight: ${({ theme }) => theme.weight.bold};
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.lg};
   margin-left: 10px;
   margin-right: 20px;
 `;
@@ -49,8 +49,8 @@ const MatchingInfo = styled.div`
 const MatchingStatus = styled.div`
   color: ${({ theme }) => theme.color.text};
   font-weight: ${({ theme }) => theme.weight.bold};
-  font-size: ${({ theme }) => theme.size.md};
-  margin-bottom: 12px;
+  font-size: ${({ theme }) => theme.size.lg};
+  margin-bottom: 20px;
 `;
 
 export default LongHelpInfo;
