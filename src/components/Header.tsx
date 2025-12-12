@@ -63,6 +63,7 @@ const Container = styled.header`
   height: 73px;
   display: flex;
   align-items: center;
+
   position: sticky;
   box-sizing: border-box;
   background-color: ${({ theme }) => theme.color.white};
@@ -97,6 +98,7 @@ const HeaderTitleBox = styled.div`
   transform: translateX(-50%);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   white-space: nowrap;
 `;
@@ -115,5 +117,5 @@ const SubTitle = styled.div`
   padding: 2px 6px;
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   border: 0.5px solid ${({ theme }) => theme.color.main};
-  margin: 0;
+  margin-left: 5px;
 `;
