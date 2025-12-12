@@ -16,7 +16,10 @@ import "./App.css";
 import ProfilePage from "./domain/profile/pages/ProfilePage";
 import DayHelpWrite from "./domain/post/components/write/DayHelpWrite";
 import LongHelpWrite from "./domain/post/components/write/LongHelpWrite";
+import MapUserPage from "./domain/map/pages/MapUserPage";
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
+import MapHelperPage from "./domain/map/pages/MapHelperPage";
+import MapPage from "./domain/map/pages/MapPage";
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -42,7 +45,9 @@ function App() {
           {/* <Route path="/mypage" element={<MyPage />} /> */}
 
           {/*동네지도*/}
-          {/* <Route path="/map" element={<MapPage />} /> */}
+          <Route path="/map" element={<MapHelperPage />} />
+          <Route path="/map/user" element={<MapUserPage />} />
+          <Route path="/map/helper" element={<MapHelperPage />} />
 
           {/* 매칭 */}
           <Route path="/match" element={<MatchingPage />} />

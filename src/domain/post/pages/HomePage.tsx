@@ -12,13 +12,17 @@ import { RiCheckLine } from "react-icons/ri";
 import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
 import WriteButton from "../components/common/WriteButton";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
-
+  const navigate = useNavigate();
   const toggleSort = () => setIsSortOpen((prev) => !prev);
 
+  // const goWrite = () => {
+  //   navigate("/post/write");
+  // };
   const handleSelectSort = (value: string) => {
     setSort(value);
     setIsSortOpen(false);
