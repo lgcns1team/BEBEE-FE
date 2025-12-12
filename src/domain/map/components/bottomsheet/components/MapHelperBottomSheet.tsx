@@ -20,7 +20,7 @@ function MapHelperBottomSheet() {
   const { sheet, content, snap, updateSnap, sheetY } = useMapBottomSheet();
   const [openModalLoacation, setOpenModalLocation] = useState(false);
   const [openModalRadius, setOpenModalRadius] = useState(false);
-
+  const [radius, setRadius] = useState(1);
   const handleGoMap = () => {
     updateSnap("HALF");
   };
@@ -39,13 +39,20 @@ function MapHelperBottomSheet() {
       {openModalRadius && (
         <MapBottomSheetModalRadius
           onClose={() => setOpenModalRadius(false)}
-          onApply={() => setOpenModalRadius(false)}
+          onApply={(nextRadius) => {
+            setRadius(nextRadius);
+            setOpenModalRadius(false);
+          }}
           role="HELPER"
         />
       )}
 
       {(snap === "HALF" || snap === "MIN") && (
-        <CurrentLocation style={{ top: `${sheetY - 60}px` }}>
+        <CurrentLocation
+          style={{
+            top: sheetY !== null ? `${sheetY - 60}px` : `calc(100vh - 460px)`,
+          }}
+        >
           <BiCurrentLocation size={20} />
         </CurrentLocation>
       )}
@@ -60,7 +67,7 @@ function MapHelperBottomSheet() {
             </MapBottomSheetButton>
 
             <MapBottomSheetButton onClick={() => setOpenModalRadius(true)}>
-              반경 1km
+              반경 {radius}km
             </MapBottomSheetButton>
           </Button>
         </FixedArea>

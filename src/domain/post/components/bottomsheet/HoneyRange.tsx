@@ -1,155 +1,129 @@
-import styled from "styled-components";
-import { useRef, useState } from "react";
-import { useFilterStore } from "../../../../store/useFilterStore";
+import * as React from "react";
+import Box from "@mui/material/Box";
+import Slider from "@mui/material/Slider";
 
-const MAX_VALUE = 1000;
+const marks = [
+  {
+    value: 0,
+    label: "0",
+  },
+  {
+    value: 100,
+    label: "",
+  },
+  {
+    value: 200,
+    label: "",
+  },
+  {
+    value: 300,
+    label: "",
+  },
+  {
+    value: 400,
+    label: "",
+  },
+  {
+    value: 500,
+    label: "500",
+  },
+  {
+    value: 600,
+    label: "",
+  },
+  {
+    value: 700,
+    label: "",
+  },
+  {
+    value: 800,
+    label: "",
+  },
+  {
+    value: 900,
+    label: "",
+  },
+  {
+    value: 1000,
+    label: "1000+",
+  },
+];
 
-//  메인 페이지 바텀시트 내 회당 획득 꿀 범위 조절
-const HoneyRange = () => {
-  const { honeyRange, setHoneyRange } = useFilterStore();
-  const trackRef = useRef<HTMLDivElement>(null);
-  const [dragging, setDragging] = useState<"min" | "max" | null>(null);
+function valuetext(value: number) {
+  return `${value}`;
+}
 
-  /** 공통 위치 업데이트 */
-  const updatePosition = (clientX: number) => {
-    if (!trackRef.current || !dragging) return;
+export default function RangeSlider() {
+  const [value, setValue] = React.useState<number[]>([200, 500]);
+  const minDistance = 100;
 
-    const rect = trackRef.current.getBoundingClientRect();
-    let percent = (clientX - rect.left) / rect.width;
+  const handleChange = (_: Event, newValue: number | number[]) => {
+    if (!Array.isArray(newValue)) return;
 
-    percent = Math.max(0, Math.min(1, percent));
-    const value = Math.round(percent * MAX_VALUE);
+    const [min, max] = newValue;
+    if (max - min < minDistance) return;
 
-    if (dragging === "min" && value < honeyRange[1]) {
-      setHoneyRange([value, honeyRange[1]]);
-    }
-    if (dragging === "max" && value > honeyRange[0]) {
-      setHoneyRange([honeyRange[0], value]);
-    }
+    setValue(newValue);
   };
-
-  /** 마우스 이동 */
-  const onMouseMove = (e: MouseEvent) => updatePosition(e.clientX);
-
-  /** 터치 이동 */
-  const onTouchMove = (e: TouchEvent) => updatePosition(e.touches[0].clientX);
-
-  /** 드래그 종료 */
-  const stopDrag = () => {
-    setDragging(null);
-    document.removeEventListener("mousemove", onMouseMove);
-    document.removeEventListener("mouseup", stopDrag);
-    document.removeEventListener("touchmove", onTouchMove);
-    document.removeEventListener("touchend", stopDrag);
-  };
-
-  /** 드래그 시작 (마우스) */
-  const startMouseDrag = (type: "min" | "max") => {
-    setDragging(type);
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", stopDrag);
-  };
-
-  /** 드래그 시작 (터치) */
-  const startTouchDrag = (type: "min" | "max") => {
-    setDragging(type);
-    document.addEventListener("touchmove", onTouchMove);
-    document.addEventListener("touchend", stopDrag);
-  };
-
-  /** %로 변환된 위치 계산 */
-  const leftPercent = (honeyRange[0] / MAX_VALUE) * 100;
-  const rightPercent = (honeyRange[1] / MAX_VALUE) * 100;
-
   return (
-    <Section>
-      <Title>회당 획득 꿀</Title>
+    <Box sx={{ width: 340 }}>
+      <Slider
+        value={value}
+        onChange={handleChange}
+        step={100}
+        marks={marks}
+        min={0}
+        max={1000}
+        disableSwap
+        valueLabelDisplay="on"
+        valueLabelFormat={(v) => (v === 1000 ? "1000+" : v)}
+        sx={{
+          color: "#FFBE00",
+          height: 6,
 
-      <SliderWrapper>
-        <Track ref={trackRef}>
-          {/* active bar */}
-          <ActiveBar
-            style={{
-              left: `${leftPercent}%`,
-              width: `${rightPercent - leftPercent}%`,
-            }}
-          />
+          "& .MuiSlider-valueLabel": {
+            background: "transparent",
+            color: "#FFBE00",
+            fontWeight: 400,
+            fontSize: "12px",
+            top: 20,
+            transform: "translateY(0)",
+          },
 
-          {/* min handle */}
-          <Handle
-            style={{ left: `${leftPercent}%` }}
-            onMouseDown={() => startMouseDrag("min")}
-            onTouchStart={() => startTouchDrag("min")}
-          />
+          "& .MuiSlider-track": {
+            border: "none",
+          },
 
-          {/* max handle */}
-          <Handle
-            style={{ left: `${rightPercent}%` }}
-            onMouseDown={() => startMouseDrag("max")}
-            onTouchStart={() => startTouchDrag("max")}
-          />
-        </Track>
+          "& .MuiSlider-rail": {
+            background: "#F5F5F5",
+          },
 
-        <Scale>
-          <span>0</span>
-          <span>200</span>
-          <span>500</span>
-          <span>1000+</span>
-        </Scale>
-      </SliderWrapper>
-    </Section>
+          "& .MuiSlider-mark": {
+            display: "none",
+          },
+
+          "& .MuiSlider-thumb": {
+            width: 15,
+            height: 15,
+            backgroundColor: "#FFBE00",
+            boxShadow: "none",
+            border: "1px solid #FFFFFF",
+
+            "&.Mui-active": { boxShadow: "none" },
+            "&.Mui-focusVisible": { boxShadow: "none" },
+          },
+
+          "& .MuiSlider-markLabel": {
+            fontSize: "12px",
+            color: "#A1A1A1",
+          },
+
+          "& .MuiSlider-markLabelActive": {
+            color: "#FFBE00",
+            fontWeight: 600,
+          },
+        }}
+      />
+    </Box>
   );
-};
-
-export default HoneyRange;
-
-/* ---------------- styled-components ---------------- */
-
-const Section = styled.div`
-  margin-bottom: 24px;
-`;
-
-const Title = styled.div`
-  font-size: ${({ theme }) => theme.size.md};
-  font-weight: ${({ theme }) => theme.weight.bold};
-  margin-bottom: 12px;
-`;
-
-const SliderWrapper = styled.div`
-  width: 100%;
-`;
-
-const Track = styled.div`
-  position: relative;
-  height: 8px;
-  background: ${({ theme }) => theme.color.natural100};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-`;
-
-const ActiveBar = styled.div`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  background: ${({ theme }) => theme.color.main};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-`;
-
-const Handle = styled.div`
-  position: absolute;
-  top: 50%;
-  width: 18px;
-  height: 18px;
-  background: ${({ theme }) => theme.color.main};
-  border-radius: 50%;
-  border: 3px solid white;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-`;
-
-const Scale = styled.div`
-  margin-top: 6px;
-  display: flex;
-  justify-content: space-between;
-  font-size: ${({ theme }) => theme.size.sm};
-  color: ${({ theme }) => theme.color.main};
-`;
+}

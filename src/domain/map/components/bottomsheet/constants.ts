@@ -9,8 +9,8 @@ export const pxToRem = (px: number) => px / 16;
  */
 export const SNAP_POINTS = {
   FULL: pxToRem(0), // 약 5rem 정도 위치
-  HALF: pxToRem(375), // 중간 지점
-  MIN: pxToRem(650), // 아래 peek 지점
+  HALF: pxToRem(330), // 중간 지점
+  MIN: pxToRem(610), // 아래 peek 지점
 } as const;
 
 export type SnapKey = keyof typeof SNAP_POINTS;

@@ -131,6 +131,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                 </Section>
 
                 {/* 🍯 회당 획득 꿀 */}
+                <Label>회당 획득 꿀</Label>
                 <HoneyRange />
 
                 {/* 장애 유형 */}
