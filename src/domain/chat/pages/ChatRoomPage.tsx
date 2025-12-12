@@ -2,58 +2,56 @@ import React, { useState, useRef, useEffect } from "react";
 import styled, { css } from "styled-components";
 
 import ChatRoomCard from "../components/ChatRoomCard";
-import { useMockChatStore } from "../../../store/useMockStore"; // 경로가 맞는지 꼭 확인하세요!
+//import { useMockChatStore } from "../../../store/useMockStore";
+import { useSocketStore } from "../../../store/useSocketStore";
 import Layout from "../../../components/Layout";
 import { FaArrowCircleUp } from "react-icons/fa";
 const ChatRoom = () => {
   // 1. 스토어에서 데이터와 추가 함수 가져오기
-  const { messages, addMessage } = useMockChatStore();
-
+  //const { messages, addMessage } = useMockChatStore();
+  const { messages, connect, disconnect, sendMessage, connected } =
+    useSocketStore();
   const [inputValue, setInputValue] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null); // 스크롤 바닥 감지
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // ★ 중요: 내 ID 설정 (스토어의 가짜 데이터와 맞춰야 함)
-  const myMemberId = 1;
+  // 테스트용 설정 (토큰 1 = 내 ID 1)
+  const MY_MEMBER_ID = 1;
+  const RECEIVER_ID = 2;
 
-  // 2. 메시지가 추가될 때마다 스크롤을 맨 아래로 내림
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
+  // 1. 페이지 진입 시 소켓 연결
   useEffect(() => {
-    scrollToBottom();
+    connect();
+    return () => disconnect(); // 나갈 때 연결 해제
+  }, []);
+
+  // 2. 메시지 추가 시 스크롤 하단 이동
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 3. 메시지 전송 로직
+  // 전송 핸들러
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
-
-    // 가짜 메시지 객체 생성
-    const newMessage = {
-      id: Date.now(),
-      senderId: myMemberId, // 내가 보낸 걸로 표시
-      textContent: inputValue,
-      createdAt: new Date().toISOString(),
-      messageType: "TALK",
-    };
-
-    addMessage(newMessage); // 스토어 업데이트 (화면에 바로 반영됨)
-    setInputValue(""); // 입력창 비우기
+    sendMessage(RECEIVER_ID, inputValue);
+    setInputValue("");
   };
-
-  // 엔터키 전송 (한글 중복 입력 방지)
+  console.log("메시지 목록:", messages);
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      if (e.nativeEvent.isComposing) return;
+    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
-  // 시간 포맷팅 (예: 오후 2:30)
-  const formatTime = (isoString: string) => {
-    const date = new Date(isoString);
-    return date.toLocaleTimeString("ko-KR", {
+  // UTC를 KST로 변환
+  const convertKST = (utcString: string) => {
+    const date = new Date(utcString);
+    const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+    return kstDate;
+  };
+  //시간 포맷팅
+  const formatTime = (kstDate: Date) => {
+    return kstDate.toLocaleTimeString("ko-KR", {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -65,16 +63,24 @@ const ChatRoom = () => {
       {/* 메시지 리스트 영역 */}
       <MessageList>
         {messages.map((msg, index) => {
-          const isMe = msg.senderId === myMemberId;
+          const isMe = msg.senderId === MY_MEMBER_ID;
           return (
             <MessageRow key={msg.id || index} $isMe={isMe}>
               {/* 내 메시지일 때 시간: 왼쪽 */}
-              {isMe && <MessageTime>{formatTime(msg.createdAt)}</MessageTime>}
+              {isMe && (
+                <MessageTime>
+                  {formatTime(convertKST(msg.createdAt))}
+                </MessageTime>
+              )}
 
               <MessageBubble $isMe={isMe}>{msg.textContent}</MessageBubble>
 
               {/* 상대방 메시지일 때 시간: 오른쪽 */}
-              {!isMe && <MessageTime>{formatTime(msg.createdAt)}</MessageTime>}
+              {!isMe && (
+                <MessageTime>
+                  {formatTime(convertKST(msg.createdAt))}
+                </MessageTime>
+              )}
             </MessageRow>
           );
         })}
@@ -105,7 +111,7 @@ export default ChatRoom;
 const MessageList = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 20px 0;
 
   &::-webkit-scrollbar {
     width: 4px;
@@ -183,3 +189,6 @@ const SendButton = styled.button`
   border: none;
   background: none;
 `;
+function scrollToBottom() {
+  throw new Error("Function not implemented.");
+}

@@ -16,9 +16,10 @@ const ChatRoomCard = () => {
   return (
     <>
       <Header
-        title="채팅"
+        title="박위"
         subTitle="47.3당도"
         onBack={() => navigate("/chat")}
+        showRight
       />
       <ChatHeader>
         <HeaderTop>
@@ -43,7 +44,7 @@ const ChatRoomCard = () => {
 
 const ChatHeader = styled.div`
   width: 100%;
-  padding: 20px 20px;
+  padding: 20px 0;
   color: ${({ theme }) => theme.color.text};
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural200};
 `;

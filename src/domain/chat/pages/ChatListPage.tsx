@@ -198,6 +198,7 @@ const ChatContainer = styled.div`
 const ChatList = styled.div`
   overflow-y: auto;
   height: calc(100vh - 73px);
+  padding-bottom: 70px;
 `;
 
 const ChatItem = styled.div`
