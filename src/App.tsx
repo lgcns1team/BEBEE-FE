@@ -20,6 +20,7 @@ import MapUserPage from "./domain/map/pages/MapUserPage";
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
 import MapPage from "./domain/map/pages/MapPage";
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -43,7 +44,6 @@ function App() {
           <Route path="/chat/:chatId/match" element={<MatchFormPage />} />
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
-
           {/*동네지도*/}
           <Route path="/map" element={<MapHelperPage />} />
           <Route path="/map/user" element={<MapUserPage />} />
