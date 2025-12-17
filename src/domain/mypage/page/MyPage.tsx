@@ -1,15 +1,32 @@
 {
-  /*
-<렌더링 구조>
-- role에 따라 다른 마이페이지 컴포넌트를 렌더링합니다.
+  /* import Header from "../../../components/Header";
+import DisabledMyPage from "./DisabledMyPage";
+import HelperMyPage from "./HelperMyPage";
+import { useNavigate } from "react-router-dom";
 
-const { role } = useUserStore(); // role: 'DISABLED', 'HELPER'
+const MY_PAGE_BY_ROLE = {
+  DISABLED: DisabledMyPage,
+  HELPER: HelperMyPage,
+} as const;
 
-if (role === "DISABLED") {
-  return <DisabledMypage />;
-}
-if (role === "HELPER") {
-  return <HelperMypage />;
-}
+const MyPage = () => {
+  const navigate = useNavigate();
+ const { role } = useUserStore();
+
+ const RoleMyPage = role ? MY_PAGE_BY_ROLE[role] : null;
+
+  if (!RoleMyPage) {
+    return null; // 또는 에러 페이지 / fallback UI
+  }
+
+  return (
+    <>
+      <Header title="마이페이지" />
+      <RoleMyPage />
+    </>
+  );
+};
+
+export default MyPage;
 */
 }

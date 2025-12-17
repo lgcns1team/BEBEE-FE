@@ -20,6 +20,8 @@ import MapUserPage from "./domain/map/pages/MapUserPage";
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
 import MapPage from "./domain/map/pages/MapPage";
+import DisabledMyPage from "./domain/mypage/page/DisabledMyPage";
+import HelperMyPage from "./domain/mypage/page/HelperMyPage";
 
 function App() {
   return (
@@ -44,6 +46,10 @@ function App() {
           <Route path="/chat/:chatId/match" element={<MatchFormPage />} />
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
+          {/*테스트*/}
+          <Route path="/mypage-1" element={<DisabledMyPage />} />
+          <Route path="/mypage-2" element={<HelperMyPage />} />
+
           {/*동네지도*/}
           <Route path="/map" element={<MapHelperPage />} />
           <Route path="/map/user" element={<MapUserPage />} />

@@ -13,7 +13,7 @@ import HelpTagDropDown from "../../../components/HelpTagDropDown";
 
 // 목업 데이터
 const MOCK_POST: MatchPost = {
-  type: "day",
+  type: "long",
   title: "마트 장봐주실 분 구해요",
   reward: 15000,
   location: "서울시 강남구 역삼동",
