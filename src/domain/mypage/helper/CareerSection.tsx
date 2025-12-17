@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { useState } from "react";
-<<<<<<< Updated upstream
 import AddButton from "../../../components/AddButton";
 import {
   ResumContainer,
@@ -10,14 +9,9 @@ import {
   ResumeYear,
   ResumeTitle,
 } from "../style/MyPageSTyle";
-const CareerSection = () => {
-  const [activeTab, setActiveTab] = useState("이수증");
-  //const navigate = useNavigate();
-=======
-const CareerSection = () => {
-  const [activeTab, setActiveTab] = useState("이수증");
 
->>>>>>> Stashed changes
+const CareerSection = () => {
+  const [activeTab, setActiveTab] = useState("이수증");
   const resumes = [
     {
       id: 1,
