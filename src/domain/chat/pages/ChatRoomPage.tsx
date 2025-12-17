@@ -32,6 +32,7 @@ const ChatRoom = () => {
   // 전송 핸들러
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
+    console.log("handleSendMessage receiverId:", RECEIVER_ID);
     sendMessage(RECEIVER_ID, inputValue);
     setInputValue("");
   };

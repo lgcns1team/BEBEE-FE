@@ -9,9 +9,9 @@ import {
   ResumeYear,
   ResumeTitle,
 } from "../style/MyPageSTyle";
+
 const CareerSection = () => {
   const [activeTab, setActiveTab] = useState("이수증");
-  //const navigate = useNavigate();
   const resumes = [
     {
       id: 1,
