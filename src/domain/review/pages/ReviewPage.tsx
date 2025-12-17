@@ -28,44 +28,40 @@ const ReviewPage = () => {
   ];
   return (
     <Layout>
-      <Wrapper>
-        <Header title="리뷰 보내기" onBack={() => navigate(-1)} />
-        <Title>아자아자 화이팅!</Title>
-        <TagWrapper>
-          <HelpTag>이동지원</HelpTag>
-          <HelpTag>의료동행</HelpTag>
-        </TagWrapper>
+      <Header title="리뷰 보내기" onBack={() => navigate(-1)} />
+      <Title>아자아자 화이팅!</Title>
+      <TagWrapper>
+        <HelpTag>이동지원</HelpTag>
+        <HelpTag>의료동행</HelpTag>
+      </TagWrapper>
 
-        <Divider />
-        <Content>
-          <Prompt>화이팅님과의 동행은 어떠셨나요?</Prompt>
-          <Info>상대방은 어떤 리뷰를 남겼는지 알 수 없어요.</Info>
-          <SelectReview>
-            {bees.map((bee) => (
-              <BeeCard
-                key={bee.id}
-                $active={selected === bee.id}
-                onClick={() => setSelected(bee.id)}
-              >
-                <BeeImage
-                  src={selected === bee.id ? bee.color : bee.black}
-                  alt="bee"
-                />
-                <Label $active={selected === bee.id}>
-                  {["별로예요", "보통이에요", "좋아요", "최고예요"][bee.id - 1]}
-                </Label>
-              </BeeCard>
-            ))}
-          </SelectReview>
-        </Content>
-        <BaseLongButton onClick={ReviewSubmit} label="리뷰 보내기" />
-      </Wrapper>
+      <Divider />
+      <Content>
+        <Prompt>화이팅님과의 동행은 어떠셨나요?</Prompt>
+        <Info>상대방은 어떤 리뷰를 남겼는지 알 수 없어요.</Info>
+        <SelectReview>
+          {bees.map((bee) => (
+            <BeeCard
+              key={bee.id}
+              $active={selected === bee.id}
+              onClick={() => setSelected(bee.id)}
+            >
+              <BeeImage
+                src={selected === bee.id ? bee.color : bee.black}
+                alt="bee"
+              />
+              <Label $active={selected === bee.id}>
+                {["별로예요", "보통이에요", "좋아요", "최고예요"][bee.id - 1]}
+              </Label>
+            </BeeCard>
+          ))}
+        </SelectReview>
+      </Content>
+      <BaseLongButton onClick={ReviewSubmit} label="리뷰 보내기" />
     </Layout>
   );
 };
-const Wrapper = styled.div`
-  min-height: 100vh;
-`;
+
 const Title = styled.div`
   font-size: ${({ theme }) => theme.size.md};
   color: ${({ theme }) => theme.color.text};

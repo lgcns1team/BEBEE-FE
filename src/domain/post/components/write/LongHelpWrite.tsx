@@ -10,13 +10,21 @@ import { IoIosArrowDown } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { TbMinusVertical } from "react-icons/tb";
 
-// store에서 import
+import AddButton from "../../../../components/AddButton";
 import { usePostStore } from "../../../../store/usePostStore";
 import Layout from "../../../../components/Layout";
 import Header from "../../../../components/Header";
 import GeneralInput from "../../../../components/GeneralInput";
 import LocationInput from "../../../../components/LocationInput";
 import BaseLongButton from "../../../../components/BaseLongButton";
+
+import {
+  FieldSet,
+  ModalLabel,
+  ModalInput,
+  RequiredMark,
+} from "../../../../styles/FieldSetStyle";
+
 interface WeekSchedule {
   day: string;
   start: Date | null;
@@ -221,7 +229,7 @@ const LongHelpWrite = () => {
             </ButtonGroup>
           </AddScheduleBox>
         ) : (
-          <AddButton onClick={handleAddScheduleClick}>+ 추가</AddButton>
+          <AddButton onClick={handleAddScheduleClick} />
         )}
       </FieldSet>
       <GeneralInput
@@ -242,38 +250,7 @@ const LongHelpWrite = () => {
 export default LongHelpWrite;
 
 // Styled-components
-const FieldSet = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 2.5rem;
-`;
 
-const ModalLabel = styled.label`
-  font-size: ${({ theme }) => theme.size.lg};
-  font-weight: ${({ theme }) => theme.weight.medium};
-  color: ${({ theme }) => theme.color.text};
-`;
-
-const ModalInput = styled.input<{ $editable?: boolean }>`
-  width: 100%;
-  font-size: ${({ theme }) => theme.size.md};
-  padding: 1rem;
-  border: 0.5px solid ${({ theme }) => theme.color.subText3};
-  border-radius: 8px;
-  background-color: ${({ $editable, theme }) =>
-    $editable ? theme.color.white : theme.color.natural100};
-  color: ${({ theme }) => theme.color.text};
-
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.color.main};
-  }
-`;
-const RequiredMark = styled.span`
-  margin-left: 4px;
-  color: ${({ theme }) => theme.color.red500};
-`;
 const DateInputWrapper = styled.div`
   position: relative;
   width: 100%;
@@ -439,24 +416,6 @@ const TimeSeparator = styled.span`
   font-size: ${({ theme }) => theme.size.md};
   color: ${({ theme }) => theme.color.subText2};
   margin: 0 0.25rem;
-`;
-
-const AddButton = styled.button`
-  width: 100%;
-  padding: 1rem;
-  border: 0.5px dashed ${({ theme }) => theme.color.subText3};
-  border-radius: 8px;
-  background-color: ${({ theme }) => theme.color.natural50};
-  color: ${({ theme }) => theme.color.subText2};
-  font-size: ${({ theme }) => theme.size.md};
-  font-weight: ${({ theme }) => theme.weight.medium};
-  cursor: pointer;
-
-  &:active {
-    border-color: ${({ theme }) => theme.color.main};
-    color: ${({ theme }) => theme.color.main};
-    background-color: ${({ theme }) => theme.color.subColor2};
-  }
 `;
 
 const ButtonGroup = styled.div`

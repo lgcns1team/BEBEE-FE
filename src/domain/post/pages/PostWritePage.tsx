@@ -109,9 +109,10 @@ const PostWritePage = () => {
   }
 
   return (
-    <Layout>
+    <ScrollWrapper>
       <Header title="게시글 작성" onBack={() => navigate("/")} />
       {/* 헬프타입 선택 */}
+
       <Container>
         <FieldSet>
           <ModalLabel>
@@ -217,24 +218,30 @@ const PostWritePage = () => {
         </FieldSet>
 
         {/* 다음 버튼 */}
-
-        <BaseLongButton
-          label="다음"
-          onClick={handleNext}
-          disabled={!title || selectedTags.length === 0}
-        />
       </Container>
-    </Layout>
+      <BaseLongButton
+        label="다음"
+        onClick={handleNext}
+        disabled={!title || selectedTags.length === 0}
+      />
+    </ScrollWrapper>
   );
 };
 
 export default PostWritePage;
 
 // Styled-components
-const Container = styled.div`
+const ScrollWrapper = styled.div`
   width: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  display: flex;
+  padding: 0 16px 16px 16px;
+  background-color: ${({ theme }) => theme.color.white};
+`;
+const Container = styled.div`
   flex: 1;
   overflow-y: auto;
 `;
