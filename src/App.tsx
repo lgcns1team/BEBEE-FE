@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./domain/post/pages/HomePage";
 import PostDetailPage from "./domain/post/pages/PostDetailPage";
 import ChatListPage from "./domain/chat/pages/ChatListPage";
-import MatchConfirmModal from "./domain/chat/components/matchModal/DayHelpForm";
+import MatchFormPage from "./domain/chat/pages/MatchFormPage";
 import ChatRoomPage from "./domain/chat/pages/ChatRoomPage";
 import MatchingPage from "./domain/matching/pages/MatchingPage";
 import ReviewPage from "./domain/review/pages/ReviewPage";
@@ -20,6 +20,9 @@ import MapUserPage from "./domain/map/pages/MapUserPage";
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
 import MapPage from "./domain/map/pages/MapPage";
+import DisabledMyPage from "./domain/mypage/page/DisabledMyPage";
+import HelperMyPage from "./domain/mypage/page/HelperMyPage";
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -34,13 +37,13 @@ function App() {
 
           {/* 게시글 작성 */}
           <Route path="/post/write" element={<PostWritePage />} />
-          <Route path="/post/write/day" element={<PostWritePage />} />
-          <Route path="/post/write/long" element={<PostWritePage />} />
+          <Route path="/post/write/day" element={<DayHelpWrite />} />
+          <Route path="/post/write/long" element={<LongHelpWrite />} />
 
           {/*채팅*/}
           <Route path="/chat" element={<ChatListPage />} />
           <Route path="/chat/:chatId" element={<ChatRoomPage />} />
-
+          <Route path="/chat/:chatId/match" element={<MatchFormPage />} />
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
           {/*테스트*/}
@@ -48,10 +51,19 @@ function App() {
           <Route path="/mypage-2" element={<HelperMyPage />} />
 
           {/*동네지도*/}
-          {/* <Route path="/map" element={<MapPage />} /> */}
+          <Route path="/map" element={<MapHelperPage />} />
+          <Route path="/map/user" element={<MapUserPage />} />
+          <Route path="/map/helper" element={<MapHelperPage />} />
 
-          {/*매칭*/}
-          {/* <Route path="/match" element={<MatchConfirmModal />} /> */}
+          {/* 매칭 */}
+          <Route path="/match" element={<MatchingPage />} />
+
+          {/* 매칭 확인서 */}
+          <Route path="/match-info/:infoId" element={<MatchingInfoPage />} />
+          {/* 리뷰 */}
+          <Route path="/review" element={<ReviewPage />} />
+          {/* 프로필 */}
+          <Route path="profile" element={<ProfilePage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
