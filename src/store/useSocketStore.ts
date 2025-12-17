@@ -95,7 +95,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     }
 
     const payload = {
-      senderId: MY_MEMBER_ID,
       receiverId: receiverId,
       type: "TEXT",
       textContent: text,
