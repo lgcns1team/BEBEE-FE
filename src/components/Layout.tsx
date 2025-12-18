@@ -1,16 +1,17 @@
-//양옆 공간 고정 레이아웃 컴포넌트
-//사용법: <Layout>자식컴포넌트</Layout> -> Header도 마진 설정 안해놨기 때문에 포함!
-//<Layout><Header/></Layout> <Layout><어쩌구컴포넌트/></Layout> 구조도 가능
+//props으로 bg 넘기면 natural50 배경색 적용
 import type { ReactNode } from "react";
 import styled from "styled-components";
 
 interface LayoutProps {
   children: ReactNode;
+  bg?: boolean;
 }
-const Layout = ({ children }: LayoutProps) => {
-  return <Wrapper>{children}</Wrapper>;
+
+const Layout = ({ children, bg }: LayoutProps) => {
+  return <Wrapper bg={bg}>{children}</Wrapper>;
 };
-const Wrapper = styled.div`
+
+const Wrapper = styled.div<{ bg?: boolean }>`
   width: 100%;
   max-width: 100%;
   min-height: 100vh;
@@ -18,7 +19,8 @@ const Wrapper = styled.div`
   flex-direction: column;
   padding: 0 16px 16px 16px;
   box-sizing: border-box;
-  background-color: ${({ theme }) => theme.color.white};
+  background-color: ${({ bg, theme }) =>
+    bg ? theme.color.natural50 : theme.color.white};
 `;
 
 export default Layout;
