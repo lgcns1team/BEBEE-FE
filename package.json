@@ -25,6 +25,7 @@
     "react-datepicker": "^8.10.0",
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",
+    "react-kakao-maps-sdk": "^1.2.0",
     "react-range": "^1.10.0",
     "react-router-dom": "^7.9.6",
     "sockjs-client": "^1.6.1",

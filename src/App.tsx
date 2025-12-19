@@ -45,7 +45,7 @@ function App() {
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
           {/*동네지도*/}
-          <Route path="/map" element={<MapHelperPage />} />
+          <Route path="/map" element={<MapUserPage />} />
           <Route path="/map/user" element={<MapUserPage />} />
           <Route path="/map/helper" element={<MapHelperPage />} />
 

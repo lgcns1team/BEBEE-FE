@@ -5,9 +5,13 @@ import { BiCurrentLocation } from "react-icons/bi";
 
 interface Props {
   onClose: () => void;
+  onClickCurrentLocation: () => void;
 }
 
-const MapBottomSheetModalLocation = ({ onClose }: Props) => {
+const MapBottomSheetModalLocation = ({
+  onClose,
+  onClickCurrentLocation,
+}: Props) => {
   return (
     <Overlay onClick={onClose}>
       <Wrapper onClick={(e) => e.stopPropagation()}>
@@ -20,7 +24,12 @@ const MapBottomSheetModalLocation = ({ onClose }: Props) => {
             <SubName>서울시 중구 장충동</SubName>
           </HomeRight>
         </Home>
-        <Current>
+        <Current
+          onClick={() => {
+            onClickCurrentLocation();
+            onClose();
+          }}
+        >
           <BiCurrentLocation size={22} />
           현재 위치
         </Current>
@@ -32,6 +41,7 @@ const MapBottomSheetModalLocation = ({ onClose }: Props) => {
 export default MapBottomSheetModalLocation;
 
 const Overlay = styled.div`
+  pointer-events: auto;
   position: fixed;
   top: 0;
   left: 0;
