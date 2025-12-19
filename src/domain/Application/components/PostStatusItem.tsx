@@ -1,58 +1,118 @@
 import styled from "styled-components";
-import { MdPeopleAlt } from "react-icons/md";
-import { FaHeart } from "react-icons/fa";
+import { BsFillPatchCheckFill } from "react-icons/bs";
+import { FiCalendar, FiMapPin } from "react-icons/fi";
+
 // Card 데이터 타입
+interface PostStatusItemProps {
+  excludeDone?: boolean;
+}
 interface CardData {
   id: number;
   title: string;
+  locate: string;
+  date: string;
   supporters: number;
-  left: number;
+  share: number;
+  deadline: string;
+  completed: boolean;
+  helpTags: string[];
 }
 
 const mockCardList: CardData[] = [
   {
     id: 1,
     title: "마라톤 보조 구합니다",
-    supporters: 5,
-    left: 0,
+    locate: "장충동",
+    date: "11월 30일 (화)",
+    supporters: 12,
+    share: 5,
+    deadline: "D-3",
+    completed: false,
+    helpTags: ["외출 동행", "기타 지원"],
+  },
+  {
+    id: 1,
+    title: "마라톤 보조 구합니다",
+    locate: "장충동",
+    date: "월요일, 수요일, 금요일",
+    supporters: 12,
+    share: 5,
+    deadline: "D-3",
+    completed: true,
+    helpTags: ["외출 동행", "기타 지원"],
   },
   {
     id: 2,
-    title: "반찬 주 1회 조리",
-    supporters: 5,
-    left: 2,
+    title: "마라톤 보조 구합니다",
+    locate: "장충동",
+    date: "월요일, 금요일",
+    supporters: 12,
+    share: 5,
+    deadline: "D-3",
+    completed: false,
+    helpTags: ["외출 동행", "기타 지원"],
   },
   {
-    id: 3,
-    title: "4살 여아와 수화로 대화",
-    supporters: 23,
-    left: 0,
+    id: 4,
+    title: "마라톤 보조 구합니다",
+    locate: "장충동",
+    date: "3월 3일 (금)",
+    supporters: 12,
+    share: 5,
+    deadline: "D-3",
+    completed: true,
+    helpTags: ["외출 동행", "기타 지원"],
   },
 ];
 
-const PostStatusItem = () => {
+const PostStatusItem = ({ excludeDone }: PostStatusItemProps) => {
+  const filteredItems = excludeDone
+    ? mockCardList.filter((item) => !item.completed)
+    : mockCardList;
   return (
     <Container>
-      {mockCardList.map((data) => (
-        <CardWrapper key={data.id}>
-          <CardTitle>{data.title}</CardTitle>
+      {/* 카드 */}
+      {filteredItems.map((item) => (
+        <Card key={item.id}>
+          <TagRow>
+            <StatusBadge completed={item.completed}>
+              <CheckIcon completed={item.completed} />
+              <span>{item.completed ? "매칭 완료" : "진행 중"}</span>
+            </StatusBadge>
 
-          <StatRow>
-            <StatRowLabel>
-              <MdPeopleAlt size={20} color="#8EC5FF" />
-              지원자 수
-            </StatRowLabel>
-            <StatRowValue>{data.supporters}명</StatRowValue>
-          </StatRow>
+            <HelpTag>
+              <SubTag>{item.helpTags[0]}</SubTag>
+              <SubTag>{item.helpTags[1]}</SubTag>
+            </HelpTag>
+          </TagRow>
+          <div>
+            <CardTitle>{item.title}</CardTitle>
 
-          <StatRow>
-            <StatRowLabel>
-              <FaHeart size={20} color="#FFA2A2" />
-              나눔
-            </StatRowLabel>
-            <StatRowValue>{data.left}명</StatRowValue>
-          </StatRow>
-        </CardWrapper>
+            <InfoRow>
+              <InfoItem>
+                <FiMapPin />
+                <span>{item.locate}</span>
+              </InfoItem>
+              <InfoItem>
+                <FiCalendar />
+                <span>{item.date}</span>
+              </InfoItem>
+            </InfoRow>
+          </div>
+          <BottomBox>
+            <BottomItem>
+              지원자 <em>{item.supporters}</em>
+            </BottomItem>
+            <Line />
+            <BottomItem>
+              나눔 <em>{item.share}</em>
+            </BottomItem>
+            <Line />{" "}
+            <BottomItem>
+              마감<em>{item.deadline}</em>
+            </BottomItem>
+          </BottomBox>
+        </Card>
       ))}
     </Container>
   );
@@ -63,41 +123,103 @@ export default PostStatusItem;
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
   width: 100%;
+  background-color: ${({ theme }) => theme.color.natural50};
 `;
 
-const CardWrapper = styled.div`
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-`;
-
-const CardTitle = styled.div`
-  font-size: ${({ theme }) => theme.size.md};
-  margin-bottom: 24px;
-`;
-
-const StatRow = styled.div`
+const Card = styled.div`
+  background-color: ${({ theme }) => theme.color.white};
+  padding: 16px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+  flex-direction: column;
+  gap: 20px;
+`;
 
-  &:last-child {
-    margin-bottom: 0;
+const TagRow = styled.div`
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+`;
+const StatusBadge = styled.div<{ completed?: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: ${({ completed, theme }) =>
+    completed ? theme.color.natural100 : theme.color.subColor2};
+
+  span {
+    color: ${({ completed, theme }) =>
+      completed ? theme.color.subText3 : theme.color.main};
   }
 `;
 
-const StatRowLabel = styled.div`
+const CheckIcon = styled(BsFillPatchCheckFill)<{ completed?: boolean }>`
+  font-size: 16px;
+  color: ${({ completed, theme }) =>
+    completed ? theme.color.subText3 : theme.color.main};
+`;
+
+const HelpTag = styled.span`
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: ${({ theme }) => theme.size.md};
+  gap: 4px;
+`;
+
+const SubTag = styled.span`
+  font-size: ${({ theme }) => theme.size.sm};
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid ${({ theme }) => theme.color.natural200};
   color: ${({ theme }) => theme.color.subText2};
 `;
 
-const StatRowValue = styled.div`
+const CardTitle = styled.h2`
   font-size: ${({ theme }) => theme.size.md};
-  color: ${({ theme }) => theme.color.text};
+  margin-bottom: 12px;
+`;
+
+const InfoRow = styled.div`
+  display: flex;
+  gap: 14px;
+  font-size: ${({ theme }) => theme.size.sm};
+  color: ${({ theme }) => theme.color.subText2};
+`;
+
+const InfoItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  svg {
+    font-size: 14px;
+  }
+`;
+
+const BottomBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+`;
+
+const BottomItem = styled.div`
+  em {
+    color: ${({ theme }) => theme.color.main};
+    font-style: normal;
+    margin-left: 4px;
+  }
+`;
+
+const Line = styled.div`
+  width: 1px;
+  height: 14px;
+  background: #eee;
 `;

@@ -18,7 +18,7 @@ import { FiMoreVertical } from "react-icons/fi";
 interface HeaderProps {
   title?: string;
   subTitle?: string;
-  onBack: () => void;
+  onBack?: () => void;
   onRightClick?: () => void;
   showRight?: boolean;
   bg?: boolean;

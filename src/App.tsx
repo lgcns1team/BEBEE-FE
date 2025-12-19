@@ -65,8 +65,8 @@ function App() {
           {/* 프로필 */}
           <Route path="profile" element={<ProfilePage />} />
           {/* 포인트 테스트 */}
-          <Route path="point" element={<ApplicateLandingPage />} />
-          <Route path="status" element={<ApplicateStatusPage />} />
+          <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
+          <Route path="applicate-status" element={<ApplicateStatusPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
