@@ -17,14 +17,14 @@ const Wrapper = styled.div`
   border-top-right-radius: ${({ theme }) => theme.borderRadius.md};
   position: relative;
   padding-top: 16px;
-  padding-bottom: 4px;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
   background-color: ${({ theme }) => theme.color.white};
 `;
-
 const Handle = styled.div`
   width: 34px;
   height: 4px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   background-color: #d0d0d0;
-  margin: auto;
+  margin: 0 auto;
 `;

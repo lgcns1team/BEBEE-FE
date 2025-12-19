@@ -44,6 +44,7 @@ const MapBottomSheetModalRadius = ({ onApply, onClose, role }: Props) => {
 export default MapBottomSheetModalRadius;
 
 const Panel = styled.div`
+  pointer-events: auto;
   position: fixed;
   top: 0;
   left: 0;

@@ -16,11 +16,23 @@ import Speaker from "../../../../../assets/images/speaker.png";
 import { IoMapOutline } from "react-icons/io5";
 import List from "../../../../../assets/images/list.svg";
 
-function MapBottomSheet() {
+interface Props {
+  onClickCurrentLocation: () => void;
+  locationLabel: string;
+  radius: number;
+  onChangeRadius: (r: number) => void;
+}
+
+function MapBottomSheet({
+  onClickCurrentLocation,
+  locationLabel,
+  radius,
+  onChangeRadius,
+}: Props) {
   const { sheet, content, snap, updateSnap, sheetY } = useMapBottomSheet();
   const [openModalLoacation, setOpenModalLocation] = useState(false);
   const [openModalRadius, setOpenModalRadius] = useState(false);
-  const [radius, setRadius] = useState(1);
+
   const handleGoMap = () => {
     updateSnap("HALF");
   };
@@ -33,6 +45,7 @@ function MapBottomSheet() {
       {openModalLoacation && (
         <MapBottomSheetModalLocation
           onClose={() => setOpenModalLocation(false)}
+          onClickCurrentLocation={onClickCurrentLocation}
         />
       )}
 
@@ -40,7 +53,7 @@ function MapBottomSheet() {
         <MapBottomSheetModalRadius
           onClose={() => setOpenModalRadius(false)}
           onApply={(nextRadius) => {
-            setRadius(nextRadius);
+            onChangeRadius(nextRadius);
             setOpenModalRadius(false);
           }}
           role="USER"
@@ -49,6 +62,7 @@ function MapBottomSheet() {
 
       {(snap === "HALF" || snap === "MIN") && (
         <CurrentLocation
+          onClick={onClickCurrentLocation}
           style={{
             top: sheetY !== null ? `${sheetY - 60}px` : `calc(100vh - 460px)`,
           }}
@@ -63,7 +77,7 @@ function MapBottomSheet() {
           <Button>
             <MapBottomSheetButton onClick={() => setOpenModalLocation(true)}>
               <BiCurrentLocation size={12} />
-              장충동
+              {locationLabel}
             </MapBottomSheetButton>
 
             <MapBottomSheetButton onClick={() => setOpenModalRadius(true)}>
@@ -126,6 +140,7 @@ function MapBottomSheet() {
 export default MapBottomSheet;
 
 const Wrapper = styled(motion.div)`
+  pointer-events: auto;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -143,6 +158,7 @@ const Wrapper = styled(motion.div)`
 `;
 
 const CurrentLocation = styled.div`
+  pointer-events: auto;
   position: sticky;
   left: 10%;
   transform: translateX(-50%);
@@ -203,6 +219,7 @@ const InfoLeft = styled.div`
 `;
 
 const GoMapButton = styled(motion.button)`
+  pointer-events: auto;
   position: absolute;
   bottom: 100px;
   left: 30%;
@@ -230,6 +247,7 @@ const GoMap = styled.div`
 `;
 
 const GoListButton = styled(motion.button)`
+  pointer-events: auto;
   position: absolute;
   bottom: 100px;
   left: 35%;

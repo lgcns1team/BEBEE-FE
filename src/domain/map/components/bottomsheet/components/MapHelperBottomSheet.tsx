@@ -16,11 +16,23 @@ import Flower from "../../../../../assets/images/flower.svg";
 import { IoMapOutline } from "react-icons/io5";
 import { BsList } from "react-icons/bs";
 
-function MapHelperBottomSheet() {
+interface Props {
+  onClickCurrentLocation: () => void;
+  locationLabel: string;
+  radius: number;
+  onChangeRadius: (r: number) => void;
+}
+
+function MapHelperBottomSheet({
+  onClickCurrentLocation,
+  locationLabel,
+  radius,
+  onChangeRadius,
+}: Props) {
   const { sheet, content, snap, updateSnap, sheetY } = useMapBottomSheet();
   const [openModalLoacation, setOpenModalLocation] = useState(false);
   const [openModalRadius, setOpenModalRadius] = useState(false);
-  const [radius, setRadius] = useState(1);
+
   const handleGoMap = () => {
     updateSnap("HALF");
   };
@@ -33,6 +45,7 @@ function MapHelperBottomSheet() {
       {openModalLoacation && (
         <MapBottomSheetModalLocation
           onClose={() => setOpenModalLocation(false)}
+          onClickCurrentLocation={onClickCurrentLocation}
         />
       )}
 
@@ -40,15 +53,15 @@ function MapHelperBottomSheet() {
         <MapBottomSheetModalRadius
           onClose={() => setOpenModalRadius(false)}
           onApply={(nextRadius) => {
-            setRadius(nextRadius);
+            onChangeRadius(nextRadius);
             setOpenModalRadius(false);
           }}
           role="HELPER"
         />
       )}
-
       {(snap === "HALF" || snap === "MIN") && (
         <CurrentLocation
+          onClick={onClickCurrentLocation}
           style={{
             top: sheetY !== null ? `${sheetY - 60}px` : `calc(100vh - 460px)`,
           }}
@@ -56,14 +69,14 @@ function MapHelperBottomSheet() {
           <BiCurrentLocation size={20} />
         </CurrentLocation>
       )}
-
       <Wrapper ref={sheet}>
         <MapBottomSheetHeader />
+
         <FixedArea>
           <Button>
             <MapBottomSheetButton onClick={() => setOpenModalLocation(true)}>
               <BiCurrentLocation size={12} />
-              장충동
+              {locationLabel}
             </MapBottomSheetButton>
 
             <MapBottomSheetButton onClick={() => setOpenModalRadius(true)}>
@@ -126,6 +139,7 @@ function MapHelperBottomSheet() {
 export default MapHelperBottomSheet;
 
 const Wrapper = styled(motion.div)`
+  pointer-events: auto;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -142,7 +156,8 @@ const Wrapper = styled(motion.div)`
   will-change: transform;
 `;
 
-const CurrentLocation = styled.div`
+const CurrentLocation = styled.button`
+  pointer-events: auto;
   position: sticky;
   width: 35px;
   height: 35px;
@@ -153,6 +168,7 @@ const CurrentLocation = styled.div`
   justify-content: center;
   align-items: center;
   z-index: 5;
+  border: none;
 `;
 
 const Button = styled.div`
@@ -165,8 +181,9 @@ const Button = styled.div`
 const FixedArea = styled.div`
   background: ${({ theme }) => theme.color.white};
   z-index: 10;
-  padding: 12px 16px 0;
+  padding: 0 16px 0;
   flex-shrink: 0;
+  margin-top: 0;
 `;
 
 const ScrollArea = styled.div`
@@ -229,6 +246,7 @@ const GoMap = styled.div`
 `;
 
 const GoListButton = styled(motion.button)`
+  pointer-events: auto;
   position: absolute;
   bottom: 100px;
   left: 35%;

@@ -1,26 +1,62 @@
-import React from "react";
-import TestBasePage from "./TestBasePage";
-import MapHelperBottomSheet from "../components/bottomsheet/components/MapHelperBottomSheet";
-
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Header from "../../../components/Header";
 import styled from "styled-components";
+import Header from "../../../components/Header";
+import MapBasePage from "./MapBasePage";
+import MapHelperBottomSheet from "../components/bottomsheet/components/MapHelperBottomSheet";
 
 const pxToRem = (px: number) => `${px / 16}rem`;
 const HEADER_HEIGHT_REM = pxToRem(73);
 
 const MapHelperPage = () => {
   const navigate = useNavigate();
+  const [center, setCenter] = useState({ lat: 33.450701, lng: 126.570667 });
+  const [locationLabel, setLocationLabel] = useState("장충동");
+  const [radiusKm, setRadiusKm] = useState(1);
+  const mapRef = useRef<kakao.maps.Map | null>(null);
+
+  const moveToCurrentLocation = useCallback(() => {
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const nextCenter = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+      };
+
+      setCenter(nextCenter);
+      setLocationLabel("현재 위치");
+      if (mapRef.current) {
+        mapRef.current.setCenter(
+          new kakao.maps.LatLng(nextCenter.lat, nextCenter.lng)
+        );
+      }
+    });
+  }, []);
+
+  /** 최초 진입 시 현재 위치 */
+  useEffect(() => {
+    moveToCurrentLocation();
+  }, [moveToCurrentLocation]);
+
   return (
     <Container>
       <HeaderWrapper>
         <Header title="동네지도" onBack={() => navigate(-1)} />
       </HeaderWrapper>
+
       <Content>
-        <TestBasePage />
+        <MapBasePage center={center} radius={radiusKm * 1000} />
       </Content>
 
-      <MapHelperBottomSheet />
+      <BottomSheetWrapper>
+        <MapHelperBottomSheet
+          onClickCurrentLocation={moveToCurrentLocation}
+          locationLabel={locationLabel}
+          radius={radiusKm}
+          onChangeRadius={setRadiusKm}
+        />
+      </BottomSheetWrapper>
     </Container>
   );
 };
@@ -47,4 +83,13 @@ const Content = styled.div`
   left: 0;
   width: 100%;
   height: calc(100vh - ${HEADER_HEIGHT_REM});
+`;
+
+const BottomSheetWrapper = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  pointer-events: none;
 `;

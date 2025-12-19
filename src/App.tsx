@@ -51,7 +51,7 @@ function App() {
           <Route path="/mypage-2" element={<HelperMyPage />} />
 
           {/*동네지도*/}
-          <Route path="/map" element={<MapHelperPage />} />
+          <Route path="/map" element={<MapUserPage />} />
           <Route path="/map/user" element={<MapUserPage />} />
           <Route path="/map/helper" element={<MapHelperPage />} />
 
