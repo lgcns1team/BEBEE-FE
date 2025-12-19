@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 interface BaseButtonProps {
   label: string;
-  onClick: () => void;
+  onClick?: () => void;
   disabled?: boolean;
 }
 
@@ -21,13 +21,14 @@ export default BaseLongButton;
 
 const ButtonArea = styled.div`
   width: 100%;
-  padding: 32px 0;
+  padding-top: 16px;
   margin-top: auto;
+  position: sticky;
+  z-index: 800;
 `;
 
 const StyledButton = styled.button`
   width: 100%;
-
   background-color: ${({ theme }) => theme.color.main};
   color: ${({ theme }) => theme.color.white};
   padding: 14px 0;

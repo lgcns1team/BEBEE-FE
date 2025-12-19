@@ -19,8 +19,10 @@ import LongHelpWrite from "./domain/post/components/write/LongHelpWrite";
 import MapUserPage from "./domain/map/pages/MapUserPage";
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
-import MapPage from "./domain/map/pages/MapPage";
-
+import DisabledMyPage from "./domain/mypage/page/DisabledMyPage";
+import HelperMyPage from "./domain/mypage/page/HelperMyPage";
+import ApplicateLandingPage from "./domain/Application/page/ApplicateLandingPage";
+import ApplicateStatusPage from "./domain/Application/page/ApplicateStatusPage";
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -44,6 +46,10 @@ function App() {
           <Route path="/chat/:chatId/match" element={<MatchFormPage />} />
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
+          {/*테스트*/}
+          <Route path="/mypage-1" element={<DisabledMyPage />} />
+          <Route path="/mypage-2" element={<HelperMyPage />} />
+
           {/*동네지도*/}
           <Route path="/map" element={<MapUserPage />} />
           <Route path="/map/user" element={<MapUserPage />} />
@@ -58,6 +64,9 @@ function App() {
           <Route path="/review" element={<ReviewPage />} />
           {/* 프로필 */}
           <Route path="profile" element={<ProfilePage />} />
+          {/* 포인트 테스트 */}
+          <Route path="point" element={<ApplicateLandingPage />} />
+          <Route path="status" element={<ApplicateStatusPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

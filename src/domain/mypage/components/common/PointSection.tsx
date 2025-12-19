@@ -2,8 +2,6 @@
 //DISABLED (장애인)	충전	포인트 충전 페이지로 이동
 // HELPER (도우미)	인출	포인트 인출 페이지로 이동
 
-import { AiOutlineLogout, AiOutlineUnorderedList } from "react-icons/ai";
-import { PiReceipt } from "react-icons/pi";
 import styled from "styled-components";
 const PointSection = () => {
   return (
@@ -12,16 +10,9 @@ const PointSection = () => {
         <Title>비비 포인트</Title>
         <Point>1,235꿀</Point>
       </PointWrapper>
-      <DividerRow />
       <PaymentWrapper>
-        <Withdraw>
-          <AiOutlineLogout size={16} /> <span>인출</span>
-        </Withdraw>
-        <DividerColumn />
-        <History>
-          <PiReceipt size={20} />
-          <span>이용 내역</span>
-        </History>
+        <ReceiptButton>내역</ReceiptButton>
+        <PayButton>인출</PayButton>
       </PaymentWrapper>
     </PaymentContainer>
   );
@@ -33,10 +24,15 @@ const PaymentContainer = styled.div`
   width: 100%;
   background-color: ${({ theme }) => theme.color.white};
   padding: 0 16px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 `;
 const PointWrapper = styled.div`
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   padding: 16px 0;
 `;
 const Title = styled.div`
@@ -48,33 +44,29 @@ const Point = styled.div`
   color: ${({ theme }) => theme.color.text};
 `;
 
-const DividerRow = styled.div`
-  width: 100%;
-  height: 0.5px;
-  background: ${({ theme }) => theme.color.natural200};
-`;
-
 const PaymentWrapper = styled.div`
+  height: 60px;
   display: flex;
+  flex-direction: row;
+  align-content: center;
+  justify-content: center;
   padding: 16px 0;
-  gap: 12px;
-  align-items: center;
+  gap: 6px;
 `;
 
-const Withdraw = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
+const PayButton = styled.button`
+  padding: 0px 16px;
+  background-color: ${({ theme }) => theme.color.main};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border: 0.5px solid ${({ theme }) => theme.color.main};
+  font-size: ${({ theme }) => theme.size.sm};
+  color: ${({ theme }) => theme.color.white};
 `;
-
-const DividerColumn = styled.div`
-  background: ${({ theme }) => theme.color.natural200};
-  height: 16px;
-  width: 0.5px;
-`;
-
-const History = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
+const ReceiptButton = styled.button`
+  padding: 0px 16px;
+  background-color: ${({ theme }) => theme.color.white};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border: 0.5px solid ${({ theme }) => theme.color.subText3};
+  font-size: ${({ theme }) => theme.size.sm};
+  color: ${({ theme }) => theme.color.text};
 `;

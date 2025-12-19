@@ -21,6 +21,7 @@ interface HeaderProps {
   onBack: () => void;
   onRightClick?: () => void;
   showRight?: boolean;
+  bg?: boolean;
 }
 
 const Header = ({
@@ -29,9 +30,10 @@ const Header = ({
   onBack,
   onRightClick,
   showRight,
+  bg,
 }: HeaderProps) => {
   return (
-    <Container>
+    <Container bg={bg}>
       {/* 왼쪽: 항상 노출 */}
       <Left onClick={onBack}>
         <IoChevronBack size={25} />
@@ -58,7 +60,7 @@ const Header = ({
 export default Header;
 
 // ---------- styled ----------
-const Container = styled.header`
+const Container = styled.header<{ bg?: boolean }>`
   width: 100%;
   height: 73px;
   display: flex;
@@ -66,7 +68,8 @@ const Container = styled.header`
 
   position: sticky;
   box-sizing: border-box;
-  background-color: ${({ theme }) => theme.color.white};
+  background-color: ${({ bg, theme }) =>
+    bg ? theme.color.natural50 : theme.color.white};
   z-index: 800;
 `;
 

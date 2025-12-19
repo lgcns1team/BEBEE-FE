@@ -7,12 +7,12 @@ import { useState, useEffect } from "react";
 import FilterButton from "../components/list/FilterButton";
 import FilterBottomSheet from "../components/bottomsheet/FilterBottomSheet";
 import { IoChevronDown } from "react-icons/io5";
-import { RiCheckLine } from "react-icons/ri";
 
 import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
 import WriteButton from "../components/common/WriteButton";
 import { useNavigate } from "react-router-dom";
+import { Checkbox } from "../../../components/Checkbox";
 
 const HomePage = () => {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
@@ -113,18 +113,11 @@ const HomePage = () => {
               </div>
             )}
           </SortSelect>
-          <CheckBoxWrapper>
-            <HiddenCheckbox
-              checked={excludeDone}
-              onChange={(e) => setExcludeDone(e.target.checked)}
-            />
-
-            <CustomCheckbox $checked={excludeDone}>
-              {excludeDone && <RiCheckLine size={14} />}
-            </CustomCheckbox>
-
-            <span>완료 제외</span>
-          </CheckBoxWrapper>
+          <Checkbox
+            checked={excludeDone}
+            onChange={setExcludeDone}
+            label="완료 제외"
+          />
         </FilterRow>
 
         {/* ---------------- Post List ---------------- */}
@@ -207,42 +200,6 @@ const FilterRow = styled.div`
 `;
 const ChevronDownIcon = styled(IoChevronDown)`
   color: ${({ theme }) => theme.color.subText2};
-`;
-
-const CheckBoxWrapper = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  margin-left: auto;
-
-  span {
-    font-size: ${({ theme }) => theme.size.sm};
-    color: ${({ theme }) => theme.color.subText2};
-  }
-`;
-
-const HiddenCheckbox = styled.input.attrs({ type: "checkbox" })`
-  display: none; /* 실제 체크박스 숨김 */
-`;
-
-const CustomCheckbox = styled.div<{ $checked: boolean }>`
-  width: 16px;
-  height: 16px;
-  border-radius: ${({ theme }) => theme.borderRadius.sm};
-  border: 0.5px solid
-    ${({ theme, $checked }) =>
-      $checked ? theme.color.main : theme.color.subText3};
-
-  background: ${({ theme, $checked }) =>
-    $checked ? theme.color.main : theme.color.white};
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: ${({ theme }) => theme.color.white};
-
-  transition: 0.15s ease-in-out;
 `;
 
 const ListWrapper = styled.div`
