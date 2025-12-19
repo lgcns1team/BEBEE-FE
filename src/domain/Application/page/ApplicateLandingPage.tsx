@@ -1,22 +1,30 @@
+import { useNavigate } from "react-router-dom";
 import styeld from "styled-components";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
-import { useNavigate } from "react-router-dom";
+
 import bee_letter from "../../../assets/images/bee-letter.png";
 import BaseLongButton from "../../../components/BaseLongButton";
+import { MdPeopleAlt } from "react-icons/md";
+import { FaHeart } from "react-icons/fa";
+import { BsFillPatchCheckFill } from "react-icons/bs";
+// Card 데이터 타입
 
 const infoList = [
   {
-    num: 1,
+    id: 1,
     text: "도우미의 프로필 정보를 확인할 수 있어요",
+    icon: <MdPeopleAlt size={20} color="#8EC5FF" />,
   },
   {
-    num: 2,
+    id: 2,
     text: "내가 선택한 도우미와 채팅이 가능해요",
+    icon: <FaHeart size={20} color="#FFA2A2" />,
   },
   {
-    num: 3,
-    text: "나눔을 신청한 도우미를 확인해요",
+    id: 3,
+    text: "매칭이 완료되면 뱃지가 비활성화돼요",
+    icon: <BsFillPatchCheckFill size={20} color="#FFBE00" />,
   },
 ];
 
@@ -37,8 +45,8 @@ const PointLandingPage = () => {
         {/* 정보 리스트 */}
         <InformationList>
           {infoList.map((info) => (
-            <InfoItem key={info.num}>
-              <Number>{info.num}</Number>
+            <InfoItem key={info.id}>
+              <Icon>{info.icon}</Icon>
               <Text>{info.text}</Text>
             </InfoItem>
           ))}
@@ -46,7 +54,7 @@ const PointLandingPage = () => {
       </Wrapper>
       <BaseLongButton
         label="지원자 보러가기"
-        onClick={() => navigate("/status")}
+        onClick={() => navigate("/applicate-status")}
       />
     </Layout>
   );
@@ -97,17 +105,14 @@ const InfoItem = styeld.li`
     font-size: ${({ theme }) => theme.size.md};
     
 `;
-const Number = styeld.span`
+const Icon = styeld.span`
     display: flex;
     justify-content: center;
     align-items: center;
     width: 30px;
     height: 30px;   
     padding: 5px;
-    border: 1px solid ${({ theme }) => theme.color.subColor2} ;
-    border-radius: ${({ theme }) => theme.borderRadius.md};
-    background-color: ${({ theme }) => theme.color.subColor2} ;
-    color: ${({ theme }) => theme.color.main} ;
+   
 `;
 const Text = styeld.span`
     color: ${({ theme }) => theme.color.text} ;

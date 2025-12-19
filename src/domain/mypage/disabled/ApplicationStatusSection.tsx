@@ -1,7 +1,9 @@
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import BaseLongButton from "../../../components/BaseLongButton";
 import application from "../../../assets/images/application.png";
 const ApplicationStatusSection = () => {
+  const navigate = useNavigate();
   return (
     <Container>
       <Box>
@@ -14,7 +16,10 @@ const ApplicationStatusSection = () => {
           <ImgContainer></ImgContainer>
         </Info>
 
-        <BaseLongButton label="보러가기"></BaseLongButton>
+        <BaseLongButton
+          onClick={() => navigate("/applicate-landing")}
+          label="보러가기"
+        ></BaseLongButton>
       </Box>
     </Container>
   );

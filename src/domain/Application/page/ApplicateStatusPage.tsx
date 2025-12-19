@@ -1,71 +1,100 @@
 import styled from "styled-components";
-import Layout from "../../../components/Layout";
-import PostStatusItem from "../components/PostStatusItem";
-import Header from "../../../components/Header";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import Header from "../../../components/Header";
+import PostStatusItem from "../components/PostStatusItem";
+import { Checkbox } from "../../../components/Checkbox";
 const ApplicateStatusPage = () => {
-  const navigate = useNavigate();
+  const [excludeDone, setExcludeDone] = useState(false);
 
+  const navigate = useNavigate();
   return (
-    <Layout bg>
-      <Header bg onBack={() => navigate(-1)} title="지원 현황" />
-      <Container>
-        <Box>
-          <SectionTitle>전체 지원 현황</SectionTitle>
-          <TotalSection>
-            <TotalItem>
-              <span>지원자 수</span>
-              <TotalCount>21명</TotalCount>
-            </TotalItem>
-            <TotalItem>
-              <span>나늠</span>
-              <TotalCount>4명</TotalCount>
-            </TotalItem>
-          </TotalSection>
-        </Box>
-        <Box>
-          <SectionTitle>지원 확인하기</SectionTitle>
-          <PostStatusItem />
-        </Box>
-      </Container>
-    </Layout>
+    <Container>
+      <Section1>
+        <Header onBack={() => navigate("/mypage-1")} title="지원 현황" />
+        <SummaryBox>
+          <SummaryItem>
+            <span>지원자</span>
+            <strong>21</strong>
+          </SummaryItem>
+          <Divider />
+          <SummaryItem>
+            <span>나눔</span>
+            <strong>2</strong>
+          </SummaryItem>
+        </SummaryBox>
+      </Section1>
+      <Section2>
+        <ExcludeDone>
+          <Checkbox
+            checked={excludeDone}
+            onChange={setExcludeDone}
+            label="완료 제외"
+          />
+        </ExcludeDone>
+        <PostStatusItem excludeDone={excludeDone} />
+      </Section2>
+    </Container>
   );
 };
 
 export default ApplicateStatusPage;
-
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-`;
-const Box = styled.div`
+  width: 100%;
+  min-height: 100vh;
+  background-color: ${({ theme }) => theme.color.natural50};
   display: flex;
   flex-direction: column;
   gap: 16px;
 `;
-const SectionTitle = styled.h2`
-  font-size: ${({ theme }) => theme.size.lg};
-  font-weight: ${({ theme }) => theme.weight.bold};
-`;
-const TotalSection = styled.div`
-  width: 100%;
-  display: flex;
-  gap: 16px;
-`;
-const TotalItem = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  justify-content: flex-start;
+const Section1 = styled.div`
+  padding: 0 16px 16px 16px;
   background-color: ${({ theme }) => theme.color.white};
-  border: 1px solid ${({ theme }) => theme.color.white};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  padding: 24px;
 `;
-const TotalCount = styled.span`
-  font-size: ${({ theme }) => theme.size.lg};
-  font-weight: ${({ theme }) => theme.weight.bold};
+const Section2 = styled.div`
+  padding: 16px 0;
+  background-color: ${({ theme }) => theme.color.white};
+`;
+
+const SummaryBox = styled.div`
+  display: flex;
+  border-top: 1px solid ${({ theme }) => theme.color.natural200};
+  border-bottom: 1px solid ${({ theme }) => theme.color.natural200};
+  overflow: hidden;
+  background-color: ${({ theme }) => theme.color.white};
+  padding: 16px 0;
+`;
+
+const SummaryItem = styled.div`
+  flex: 1;
+  padding: 16px 0;
+  text-align: center;
+
+  span {
+    display: block;
+    font-size: ${({ theme }) => theme.size.md};
+    margin-bottom: 4px;
+  }
+
+  strong {
+    font-size: ${({ theme }) => theme.size.md};
+    color: ${({ theme }) => theme.color.main};
+  }
+`;
+
+const Divider = styled.div`
+  width: 1px;
+  background: #eee;
+`;
+
+const ExcludeDone = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: ${({ theme }) => theme.color.subText2};
+  justify-content: flex-end;
+  margin-bottom: 12px;
+  border-bottom: 1px solid ${({ theme }) => theme.color.natural200};
+  padding: 0px 16px 16px 0px;
 `;
