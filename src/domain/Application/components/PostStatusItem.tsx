@@ -1,10 +1,13 @@
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import { BsFillPatchCheckFill } from "react-icons/bs";
 import { FiCalendar, FiMapPin } from "react-icons/fi";
 
 // Card 데이터 타입
 interface PostStatusItemProps {
   excludeDone?: boolean;
+  id: number;
+  title: string;
 }
 interface CardData {
   id: number;
@@ -32,7 +35,7 @@ const mockCardList: CardData[] = [
   },
   {
     id: 1,
-    title: "마라톤 보조 구합니다",
+    title: "제목이 생각이 안나요",
     locate: "장충동",
     date: "월요일, 수요일, 금요일",
     supporters: 12,
@@ -43,7 +46,7 @@ const mockCardList: CardData[] = [
   },
   {
     id: 2,
-    title: "마라톤 보조 구합니다",
+    title: "으아악",
     locate: "장충동",
     date: "월요일, 금요일",
     supporters: 12,
@@ -66,14 +69,24 @@ const mockCardList: CardData[] = [
 ];
 
 const PostStatusItem = ({ excludeDone }: PostStatusItemProps) => {
+  const navigate = useNavigate();
   const filteredItems = excludeDone
     ? mockCardList.filter((item) => !item.completed)
     : mockCardList;
+
+  // 클릭 시 해당 아이템의 id와 title을 인자로 받음
+  const goToApplicant = (id: number, title: string) => {
+    navigate(`/applicant/${id}`, {
+      state: {
+        headerTitle: title, // 전달받은 title을 state로 넘김
+      },
+    });
+  };
   return (
     <Container>
       {/* 카드 */}
       {filteredItems.map((item) => (
-        <Card key={item.id}>
+        <Card key={item.id} onClick={() => goToApplicant(item.id, item.title)}>
           <TagRow>
             <StatusBadge completed={item.completed}>
               <CheckIcon completed={item.completed} />

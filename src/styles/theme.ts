@@ -5,6 +5,7 @@
 /*fontsize*/
 const theme = {
   size: {
+    xl: "24px", //회욱낙입, 랜딩 페이지에서 쓰이는 크기
     lg: "20px", // figma 기준 14 ~ 16 (제목,헤더)
     md: "16px", //figma 기준 12 (본문)
     sm: "12px", //figma 기준 10 이하 (뱃지, 부가 회색 텍스트)

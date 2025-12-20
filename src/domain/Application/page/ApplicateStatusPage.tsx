@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import Header from "../../../components/Header";
 import PostStatusItem from "../components/PostStatusItem";
 import { Checkbox } from "../../../components/Checkbox";
+
 const ApplicateStatusPage = () => {
   const [excludeDone, setExcludeDone] = useState(false);
-
   const navigate = useNavigate();
   return (
     <Container>
