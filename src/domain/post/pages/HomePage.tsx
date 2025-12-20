@@ -13,7 +13,7 @@ import NavBar from "../../../components/NavBar";
 import WriteButton from "../components/common/WriteButton";
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "../../../components/Checkbox";
-
+import { postMockData } from "../mock/post.mock";
 const HomePage = () => {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -39,38 +39,7 @@ const HomePage = () => {
 
   /** 더미 데이터 */
   useEffect(() => {
-    setPosts([
-      {
-        id: 1,
-        title: "상체 운동 PT해주실 분 구합니다",
-        location: "장충동",
-        date: "11월 30일 (화)",
-        honey: 300,
-        category: "하루 도움",
-        done: false,
-        tags: ["이동 지원", "생활 지원"],
-      },
-      {
-        id: 2,
-        title: "굿모닝 마트에서 한우 육회 1++",
-        location: "장충동",
-        date: "11월 30일 (화)",
-        honey: 200,
-        category: "하루 도움",
-        done: true,
-        tags: ["생활 지원"],
-      },
-      {
-        id: 3,
-        title: "굿모닝 마트에서 한우 육회 1++",
-        location: "장충동",
-        date: "월요일, 수요일",
-        honey: 200,
-        category: "지속 도움",
-        done: true,
-        tags: ["생활 지원"],
-      },
-    ]);
+    setPosts(postMockData);
   }, [setPosts]);
 
   /** 필터된 게시글 */

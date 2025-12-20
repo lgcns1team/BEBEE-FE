@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { postMockData } from "../domain/post/mock/post.mock";
 
 export interface Post {
   id: number;
@@ -55,7 +56,7 @@ const initialPostData: PostData = {
 };
 
 export const usePostStore = create<PostState>((set) => ({
-  posts: [],
+  posts: postMockData,
   setPosts: (data) => set({ posts: data }),
   postData: initialPostData,
   setPostData: (data) =>
