@@ -3,6 +3,7 @@ import "styled-components";
 declare module "styled-components" {
   export interface DefaultTheme {
     size: {
+      xl: string;
       lg: string;
       md: string;
       sm: string;

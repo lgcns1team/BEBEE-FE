@@ -8,6 +8,7 @@ onRightClick ? 더보기 클릭시 실행할 함수 : 없음
   onBack={() => navigate(-1)}
   showRight
   onRightClick={() => setOpen(true)}
+  bg -> 배경색 natural50 적용
 />
 */
 

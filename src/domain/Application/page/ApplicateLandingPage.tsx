@@ -1,8 +1,12 @@
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { letterVariants } from "../animation/letterVariants";
+
 import styeld from "styled-components";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 
+import letter from "../../../assets/images/letter.png";
 import bee_letter from "../../../assets/images/bee-letter.png";
 import BaseLongButton from "../../../components/BaseLongButton";
 import { MdPeopleAlt } from "react-icons/md";
@@ -30,6 +34,7 @@ const infoList = [
 
 const PointLandingPage = () => {
   const navigate = useNavigate();
+  const LETTER_COUNT = 5;
   return (
     <Layout>
       <Header onBack={() => navigate(-1)} />
@@ -41,7 +46,56 @@ const PointLandingPage = () => {
           </span>
           <span>기다리고 있어요</span>
         </HiConatiner>
-        <ImgContainer></ImgContainer>
+        <ImgContainer
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "300px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <LeftArea>
+            {Array.from({ length: LETTER_COUNT }).map((_, i) => (
+              <motion.img
+                key={i}
+                src={letter}
+                custom={i}
+                variants={letterVariants}
+                initial="hidden"
+                animate="visible"
+                style={{
+                  position: "absolute",
+                  right: 0, // 기준점 고정
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: 30,
+                  pointerEvents: "none",
+                }}
+              />
+            ))}
+          </LeftArea>
+
+          <RightArea>
+            {" "}
+            {/* 꿀벌 */}
+            <motion.img
+              src={bee_letter}
+              alt="꿀벌"
+              animate={{
+                y: [0, -12, 0],
+                rotate: [-2, 2, -2],
+                scale: [1, 1.03, 1],
+              }}
+              transition={{
+                duration: 1.8,
+                ease: "easeInOut",
+              }}
+              style={{ width: "200px", height: "200px" }}
+            />
+          </RightArea>
+        </ImgContainer>
         {/* 정보 리스트 */}
         <InformationList>
           {infoList.map((info) => (
@@ -72,7 +126,8 @@ const HiConatiner = styeld.div`
     width: fit-content;
     display: flex;
     flex-direction: column;
-    font-size: ${({ theme }) => theme.size.lg};
+    gap:8px;
+    font-size: ${({ theme }) => theme.size.xl};
     color: ${({ theme }) => theme.color.text};
     font-weight: ${({ theme }) => theme.weight.bold};
     padding-top: 16px;
@@ -81,13 +136,24 @@ const HiConatiner = styeld.div`
 
 const ImgContainer = styeld.div`
     width: 100%;
-    height: 280px;
-    background-image: url(${bee_letter});
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `;
 
+const LeftArea = styeld.div`
+  flex: 1;
+  position: relative;
+
+`;
+
+const RightArea = styeld.div`
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+`;
 const InformationList = styeld.ol`
     width: 100%;
     display: flex;
