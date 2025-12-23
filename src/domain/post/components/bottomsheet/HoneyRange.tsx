@@ -2,6 +2,11 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Slider from "@mui/material/Slider";
 
+interface HoneyRangeProps {
+  value: number[];
+  onChange: (value: number[]) => void;
+}
+
 const marks = [
   {
     value: 0,
@@ -53,8 +58,8 @@ function valuetext(value: number) {
   return `${value}`;
 }
 
-export default function RangeSlider() {
-  const [value, setValue] = React.useState<number[]>([200, 500]);
+export default function HoneyRange({ value, onChange }: HoneyRangeProps) {
+  // const [value, setValue] = React.useState<number[]>([200, 500]);
   const minDistance = 100;
 
   const handleChange = (_: Event, newValue: number | number[]) => {
@@ -63,7 +68,7 @@ export default function RangeSlider() {
     const [min, max] = newValue;
     if (max - min < minDistance) return;
 
-    setValue(newValue);
+    onChange(newValue);
   };
   return (
     <Box sx={{ width: 340 }}>
@@ -75,7 +80,7 @@ export default function RangeSlider() {
         min={0}
         max={1000}
         disableSwap
-        valueLabelDisplay="on"
+        valueLabelDisplay="auto"
         valueLabelFormat={(v) => (v === 1000 ? "1000+" : v)}
         sx={{
           color: "#FFBE00",
@@ -86,7 +91,7 @@ export default function RangeSlider() {
             color: "#FFBE00",
             fontWeight: 400,
             fontSize: "12px",
-            top: 20,
+            top: 21,
             transform: "translateY(0)",
           },
 

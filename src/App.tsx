@@ -23,6 +23,8 @@ import DisabledMyPage from "./domain/mypage/page/DisabledMyPage";
 import HelperMyPage from "./domain/mypage/page/HelperMyPage";
 import ApplicateLandingPage from "./domain/Application/page/ApplicateLandingPage";
 import ApplicateStatusPage from "./domain/Application/page/ApplicateStatusPage";
+import ApplicantPage from "./domain/Application/page/ApplicantPage";
+import MyProfilePage from "./domain/mypage/page/MyProfilePage";
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -46,6 +48,7 @@ function App() {
           <Route path="/chat/:chatId/match" element={<MatchFormPage />} />
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
+          <Route path="/mypage" element={<MyProfilePage />} />
           {/*테스트*/}
           <Route path="/mypage-1" element={<DisabledMyPage />} />
           <Route path="/mypage-2" element={<HelperMyPage />} />
@@ -64,9 +67,10 @@ function App() {
           <Route path="/review" element={<ReviewPage />} />
           {/* 프로필 */}
           <Route path="profile" element={<ProfilePage />} />
-          {/* 포인트 테스트 */}
+          {/*  테스트 */}
           <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
           <Route path="applicate-status" element={<ApplicateStatusPage />} />
+          <Route path="/applicant/:id" element={<ApplicantPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

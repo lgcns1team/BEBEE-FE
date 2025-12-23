@@ -9,7 +9,7 @@ const MyProfilePage = () => {
   const navigate = useNavigate();
   return (
     <Container>
-      <Header title="프로필" onBack={() => navigate(-1)} />
+      <Header title="프로필" onBack={() => navigate(-1)} bg />
       <ProfileWrapper>
         <Top>
           <ProfileImage src={Image} />

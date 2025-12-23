@@ -1,10 +1,8 @@
-// src/components/PostCard.tsx
+// src/components/MatchingPostCard.tsx
 import styled from "styled-components";
-import { FiCalendar } from "react-icons/fi";
-import { BsPencil } from "react-icons/bs";
-import { BsChat } from "react-icons/bs";
-import type { Post } from "../../../../store/useMatchPostStore";
-import { FiMapPin } from "react-icons/fi";
+import { FiCalendar, FiMapPin } from "react-icons/fi";
+import { BsPencil, BsChat } from "react-icons/bs";
+import type { Post } from "../../../../store/usePostStore";
 import HelpTag from "../../../../components/HelpTag";
 import OneDayBadge from "../../../../components/OneDayBadge";
 import { useNavigate } from "react-router-dom";
@@ -15,53 +13,61 @@ interface Props {
 
 const MatchingPostCard = ({ post }: Props) => {
   const navigate = useNavigate();
-  const goReview = () => {
-    navigate("/review");
-  };
-  const goMatchingInfo = () => {
-    navigate(`/match-info/${post.id}`);
-  };
+
+  const goReview = () => navigate("/review");
+  const goMatchingInfo = () => navigate(`/match-info/${post.id}`);
+
   return (
     <Card onClick={goMatchingInfo}>
-      <Left>
-        <TitleRow>
-          <Title>{post.title}</Title>
+      {/* ---------- Top ---------- */}
+      <TopArea>
+        <Title>{post.title}</Title>
+        {post.category === "하루 도움" && <OneDayBadge>하루 도움</OneDayBadge>}
+      </TopArea>
 
-          {post.category === "하루 도움" && (
-            <OneDayBadge>하루 도움</OneDayBadge>
-          )}
-        </TitleRow>
-        <User>{post.user}</User>
+      {/* ---------- Bottom ---------- */}
+      <BottomArea>
+        {/* 왼쪽 정보 */}
+        <BottomLeft>
+          <User>{post.user}</User>
 
-        <Row>
-          <MapPinIcon size={16} />
-          <Info>{post.location}</Info>
-        </Row>
+          <InfoLine>
+            <MapPinIcon size={16} />
+            <InfoText>{post.location}</InfoText>
+          </InfoLine>
 
-        <Row>
-          <CalendarIcon size={16} />
-          <Info>{post.date}</Info>
-        </Row>
+          <InfoLine>
+            <CalendarIcon size={16} />
+            {post.dates?.map((date) => (
+              <InfoText key={date}>{date}</InfoText>
+            ))}
+          </InfoLine>
 
-        <TagRow>
-          {post.tags.map((tag) => (
-            <HelpTag key={tag}>{tag}</HelpTag>
-          ))}
-        </TagRow>
-      </Left>
+          <TagRow>
+            {post.tags.map((tag) => (
+              <HelpTag key={tag}>{tag}</HelpTag>
+            ))}
+          </TagRow>
+        </BottomLeft>
 
-      {post.image && (
-        <Thumbnail>
-          <img src={post.image} />
-        </Thumbnail>
-      )}
+        {/* 오른쪽 이미지 */}
+        {post.image && (
+          <BottomRight>
+            <Thumbnail>
+              <img src={post.image} alt="thumbnail" />
+            </Thumbnail>
+          </BottomRight>
+        )}
+      </BottomArea>
 
+      {/* ---------- Buttons ---------- */}
       <BottomBar>
         <BottomInner>
           <ChatButton>
             <BsChat size={12} />
             <span>채팅하기</span>
           </ChatButton>
+
           {post.done ? (
             <ReviewButton onClick={goReview}>
               <BsPencil size={12} />
@@ -81,28 +87,36 @@ export default MatchingPostCard;
 /* ---------------- styled ---------------- */
 
 const Card = styled.div`
-  position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
-
   padding-bottom: 16px;
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural100};
   background: ${({ theme }) => theme.color.white};
-  margin-bottom: 8px;
 `;
 
-const TitleRow = styled.div`
+const TopArea = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
 
-const Left = styled.div`
+const BottomArea = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+`;
+
+const BottomLeft = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 6px;
+`;
+
+const BottomRight = styled.div`
+  flex-shrink: 0;
 `;
 
 const Title = styled.div`
@@ -111,24 +125,20 @@ const Title = styled.div`
 `;
 
 const User = styled.div`
-  color: ${({ theme }) => theme.color.text};
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
-  margin-top: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 `;
 
-const Row = styled.div`
+const InfoLine = styled.div`
   display: flex;
   gap: 6px;
   align-items: center;
-  margin-bottom: 4px;
 `;
 
-const Info = styled.div`
+const InfoText = styled.span`
   font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.subText2};
-  font-weight: ${({ theme }) => theme.weight.regular};
 `;
 
 const MapPinIcon = styled(FiMapPin)`
@@ -144,7 +154,7 @@ const TagRow = styled.div`
   gap: 8px;
   margin-top: 6px;
 `;
-// 아직 사진 있는 버전 구현 X
+
 const Thumbnail = styled.div`
   width: 80px;
   height: 80px;
@@ -159,13 +169,10 @@ const Thumbnail = styled.div`
 `;
 
 const BottomBar = styled.div`
-  display: flex;
-  justify-content: center;
-  padding: 4px 0 0;
+  padding-top: 8px;
 `;
 
 const BottomInner = styled.div`
-  width: 100%;
   display: flex;
   gap: 12px;
 `;
@@ -176,35 +183,24 @@ const ChatButton = styled.button`
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   border: 0.5px solid ${({ theme }) => theme.color.natural200};
   background: ${({ theme }) => theme.color.white};
-  font-size: ${({ theme }) => theme.size.md};
-  font-weight: ${({ theme }) => theme.weight.regular};
   span {
-    margin-left: 6px;
+    margin-left: 4px;
   }
 `;
 
 const DoneButton = styled.button`
   flex: 2;
   height: 40px;
-
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   background: ${({ theme }) => theme.color.main};
   color: ${({ theme }) => theme.color.white};
-  font-size: ${({ theme }) => theme.size.md};
   border: none;
-  font-weight: ${({ theme }) => theme.weight.regular};
+  span {
+    margin-left: 4px;
+  }
 `;
 
-const ReviewButton = styled.button`
-  flex: 2;
-  height: 40px;
-  border-radius: ${({ theme }) => theme.borderRadius.sm};
+const ReviewButton = styled(DoneButton)`
   background: ${({ theme }) => theme.color.natural100};
   color: ${({ theme }) => theme.color.text};
-  font-size: ${({ theme }) => theme.size.md};
-  border: none;
-  font-weight: ${({ theme }) => theme.weight.regular};
-  span {
-    margin-left: 6px;
-  }
 `;

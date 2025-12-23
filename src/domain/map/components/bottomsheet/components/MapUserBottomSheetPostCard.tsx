@@ -1,32 +1,34 @@
 import React from "react";
 import styled from "styled-components";
-import type { Post } from "../../../../../store/useMapUserPostStore";
+import type { HelperProfile } from "../../../../../store/useHelperProfileStore";
+import type { Post } from "../../../../../store/usePostStore";
 import HelpTag from "../../../../../components/HelpTag";
 import { FaDroplet } from "react-icons/fa6";
 interface Props {
-  post: Post;
+  post?: Post;
+  profile?: HelperProfile;
 }
 
-const MapBottomSheetPostCard = ({ post }: Props) => {
+const MapBottomSheetPostCard = ({ profile, post }: Props) => {
   return (
     <Card>
       <Content>
         <Row>
-          <Title>{post.name}</Title>
+          <Title>{profile?.name}</Title>
 
           <Honey>
             <IconWrapper>
               <FaDroplet />
             </IconWrapper>
-            <span>{post.honey}</span>
+            <span>{post?.honey}</span>
           </Honey>
         </Row>
         <Row>
-          <Gender>{post.gender} ·&nbsp;&nbsp;</Gender>
-          <Age>{post.age}</Age>
+          <Gender>{profile?.gender} ·&nbsp;&nbsp;</Gender>
+          <Age>{profile?.age}</Age>
         </Row>
         <TagWrapper>
-          {post.tags.map((tag) => (
+          {post?.tags.map((tag) => (
             <HelpTag key={tag}>{tag}</HelpTag>
           ))}
         </TagWrapper>

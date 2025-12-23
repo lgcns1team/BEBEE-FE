@@ -36,7 +36,7 @@ const PointWrapper = styled.div`
   padding: 16px 0;
 `;
 const Title = styled.div`
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.text};
 `;
 const Point = styled.div`

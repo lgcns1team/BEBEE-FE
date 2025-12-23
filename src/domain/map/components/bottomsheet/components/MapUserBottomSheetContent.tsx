@@ -1,14 +1,18 @@
 import React from "react";
 import MapBottomSheetPostCard from "./MapUserBottomSheetPostCard";
-import { useMapUserPostStore } from "../../../../../store/useMapUserPostStore";
-
+import { useHelperProfileStore } from "../../../../../store/useHelperProfileStore";
+import { usePostStore } from "../../../../../store/usePostStore";
 const MapUserBottomSheetContent = () => {
-  const { posts } = useMapUserPostStore();
-
+  const profiles = useHelperProfileStore((state) => state.profiles);
+  const posts = usePostStore((state) => state.posts);
   return (
     <>
-      {posts.map((post) => (
-        <MapBottomSheetPostCard key={post.id} post={post} />
+      {profiles.map((profile, index) => (
+        <MapBottomSheetPostCard
+          key={profile.name + index}
+          profile={profile}
+          post={posts[index]}
+        />
       ))}
     </>
   );

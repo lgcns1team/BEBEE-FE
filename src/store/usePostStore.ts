@@ -5,12 +5,19 @@ export interface Post {
   id: number;
   title: string;
   location: string;
-  date: string;
-  honey: number;
-  category: string; // 하루 도움 / 지속 도움
-  done: boolean; // 매칭 완료 여부
+  dates?: string[];
+  honey?: number;
+  category?: string; // 하루 도움 / 지속 도움
+  done?: boolean; // 매칭 완료 여부
   tags: string[];
   image?: string;
+  user?: string;
+  description?: string;
+  // 하루도움
+  time?: string;
+  // 지속도움
+  schedule?: string[];
+  detailPlace?: string;
   // startTime: Date;
   // endTime: Date;
 }
@@ -28,7 +35,7 @@ export interface PostData {
   image?: string;
 
   // 하루 도움용
-  date?: Date | null;
+  oneDayDate?: Date | null;
   startTime?: Date | null;
   endTime?: Date | null;
 
@@ -47,7 +54,7 @@ interface PostState {
 }
 
 const initialPostData: PostData = {
-  date: null,
+  oneDayDate: null,
   startTime: null,
   endTime: null,
   periodStart: null,
