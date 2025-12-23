@@ -54,12 +54,9 @@ const marks = [
   },
 ];
 
-function valuetext(value: number) {
-  return `${value}`;
-}
+const HIDE_LABEL_VALUES = [0, 500, 1000];
 
-export default function HoneyRange({ value, onChange }: HoneyRangeProps) {
-  // const [value, setValue] = React.useState<number[]>([200, 500]);
+export default function RangeSlider({ value, onChange }: HoneyRangeProps) {
   const minDistance = 100;
 
   const handleChange = (_: Event, newValue: number | number[]) => {
@@ -71,7 +68,7 @@ export default function HoneyRange({ value, onChange }: HoneyRangeProps) {
     onChange(newValue);
   };
   return (
-    <Box sx={{ width: 340 }}>
+    <Box sx={{ width: 330 }}>
       <Slider
         value={value}
         onChange={handleChange}
@@ -80,8 +77,12 @@ export default function HoneyRange({ value, onChange }: HoneyRangeProps) {
         min={0}
         max={1000}
         disableSwap
-        valueLabelDisplay="auto"
-        valueLabelFormat={(v) => (v === 1000 ? "1000+" : v)}
+        valueLabelDisplay="on"
+        valueLabelFormat={(v) => {
+          if (HIDE_LABEL_VALUES.includes(v)) return "";
+
+          return v === 1000 ? "1000+" : v;
+        }}
         sx={{
           color: "#FFBE00",
           height: 6,
@@ -91,8 +92,8 @@ export default function HoneyRange({ value, onChange }: HoneyRangeProps) {
             color: "#FFBE00",
             fontWeight: 400,
             fontSize: "12px",
-            top: 21,
-            transform: "translateY(0)",
+            top: "50%",
+            transform: "translate(0%,53%)",
           },
 
           "& .MuiSlider-track": {
