@@ -5,7 +5,7 @@ import Image from "../../../assets/images/helptag-bee.png";
 import HoneyBadge from "../../../components/HoneyBadge";
 import MyPageInfoRow from "../components/common/list/MyPageInfoRow";
 // 활발한 꽃잎, 친절한 꿀벌만 조건부 렌더링 필요
-const MyProfilePage = () => {
+const ProfileInfoPage = () => {
   const navigate = useNavigate();
   return (
     <Container>
@@ -38,7 +38,7 @@ const MyProfilePage = () => {
   );
 };
 
-export default MyProfilePage;
+export default ProfileInfoPage;
 
 const Container = styled.div`
   width: 100%;

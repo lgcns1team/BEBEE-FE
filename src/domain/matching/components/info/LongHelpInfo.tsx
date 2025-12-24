@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import HelpInfo from "./HelpInfo";
-import type { MatchInfo } from "../../../../store/useMatchInfoStore";
+import type { Post } from "../../../../store/usePostStore";
 import MatchingProfile from "./MatchingProfile";
-const LongHelpInfo = ({ info }: { info: MatchInfo }) => {
+const LongHelpInfo = ({ post }: { post: Post }) => {
   return (
     <>
       <MatchingDate>2025.12.10</MatchingDate>
@@ -11,13 +11,13 @@ const LongHelpInfo = ({ info }: { info: MatchInfo }) => {
         <MatchingStatus>매칭 완료</MatchingStatus>
         <MatchingInfo>
           <HelpInfo
-            type={info.type}
-            date={info.date}
-            time={info.time}
-            schedule={info.schedule}
-            honey={info.honey}
-            place={info.place}
-            detailPlace={info.detailPlace}
+            category={post.category}
+            date={post.dates ?? []}
+            time={post.time}
+            schedule={post.schedule}
+            honey={post.honey ?? 0}
+            location={post.location}
+            detailPlace={post.detailPlace ?? ""}
           />
         </MatchingInfo>
       </Wrapper>
