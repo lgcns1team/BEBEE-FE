@@ -1,183 +1,116 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect, useCallback, useRef } from "react";
 import styled from "styled-components";
-
+import { useNavigate } from "react-router-dom";
+import { chatApi } from "../api/chatApi";
+import { useChatStore } from "../store/useChatStore";
+import { useChatHandler } from "../../../hooks/useChatHandler";
+import { formatChatTime } from "../utils/date";
 /* Components */
 import Header from "../../../components/Header";
 import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
 
-/*임시 이미지 API연동 시 제거*/
-import mock1 from "@/assets/images/review-bee1.png";
-import mock2 from "@/assets/images/review-bee2.png";
-import mock3 from "@/assets/images/review-bee3.png";
-import mock4 from "@/assets/images/review-bee4.png";
-
-interface Chat {
-  chatId: number;
-  userName: string;
-  userNickname: string;
-  userImage: string;
-  sweetness: number;
-  lastMessage: string;
-  timestamp: string;
-  unreadCount: number;
-  postTitle: string;
-  postDate: string;
-  postCategory: string[];
-  postType: "one-time" | "long-term";
-  postHoney: number | "나눔";
-  postLocation: string;
-}
-
-// 모의 데이터
-const mockChats: Chat[] = [
-  {
-    chatId: 1,
-    userName: "박위",
-    userNickname: "냠냠쩝쩝",
-    userImage: mock1,
-
-    sweetness: 47.3,
-    lastMessage: "너무 좋은데요 ? 꿀벌씨 짱 ~",
-    timestamp: "오후 9:35",
-    unreadCount: 0,
-    postTitle: "마라톤 보조해주실 분 구합니다",
-    postDate: "11월 30일 (화)",
-    postCategory: ["생활 지원", "이동 지원"],
-    postType: "one-time",
-    postHoney: 30000,
-    postLocation: "서울시 은평구 우성아파트",
-  },
-  {
-    chatId: 2,
-    userName: "김민지",
-    userNickname: "미식탐정",
-    userImage: mock2,
-    sweetness: 48.5,
-    lastMessage: "그 식당이 입구에 턱이 있어서 못 들어가요 ㅠㅠ",
-    timestamp: "어제",
-    unreadCount: 2,
-    postTitle: "맛집 동행해주세요 제발",
-    postDate: "11월 28일 (목)",
-    postCategory: ["의료 동행"],
-    postType: "one-time",
-    postHoney: 25000,
-    postLocation: "서울시 강남구 은평세브란스",
-  },
-  {
-    chatId: 3,
-    userName: "이준호",
-    userNickname: "미식탐정",
-    userImage: mock3,
-    sweetness: 46.8,
-    lastMessage: "그 식당이 입구에 턱이 있어서 못 들어가요 ㅠㅠ",
-    timestamp: "12월 27일",
-    unreadCount: 0,
-    postTitle: "맛집 동행해주세요 제발",
-    postDate: "매주 월,목",
-    postCategory: ["이동 지원"],
-    postType: "long-term",
-    postHoney: 50000,
-    postLocation: "서울시 송파구 잠실동",
-  },
-  {
-    chatId: 4,
-    userName: "최서연",
-    userNickname: "미식탐정",
-    userImage: mock4,
-    sweetness: 49.2,
-    lastMessage: "그 식당이 입구에 턱이 ",
-    timestamp: "12월 27일",
-    unreadCount: 0,
-    postTitle: "맛집 동행해주세요 제발",
-    postDate: "11월 29일 (수)",
-    postCategory: ["의료 동행"],
-    postType: "one-time",
-    postHoney: "나눔",
-    postLocation: "서울시 마포구 상암동",
-  },
-  {
-    chatId: 5,
-    userName: "박지민",
-    userNickname: "미식탐정",
-    userImage: mock3,
-    sweetness: 47.1,
-    lastMessage: "제가 할말이 만아효 할말이 왕 많아서 길이를 ..,",
-    timestamp: "12월 27일",
-    unreadCount: 0,
-    postTitle: "맛집 동행해주세요 제발",
-    postDate: "11월 29일 (수)",
-    postCategory: ["의료 동행"],
-    postType: "one-time",
-    postHoney: "나눔",
-    postLocation: "서울시 마포구 상암동",
-  },
-  {
-    chatId: 6,
-    userName: "박지민",
-    userNickname: "미식탐정",
-    userImage: mock4,
-    sweetness: 47.1,
-    lastMessage: "제가 할말이 만아효 할말이 왕 많아서 길이를 ..,",
-    timestamp: "12월 27일",
-    unreadCount: 0,
-    postTitle: "맛집 동행해주세요 제발",
-    postDate: "11월 29일 (수)",
-    postCategory: ["의료 동행"],
-    postType: "one-time",
-    postHoney: "나눔",
-    postLocation: "서울시 마포구 상암동",
-  },
-  {
-    chatId: 7,
-    userName: "박지민",
-    userNickname: "미식탐정",
-    userImage: mock3,
-    sweetness: 47.1,
-    lastMessage: "제가 할말이 만아효 할말이 왕 많아서 길이를 ..,",
-    timestamp: "12월 27일",
-    unreadCount: 0,
-    postTitle: "맛집 동행해주세요 제발",
-    postDate: "11월 29일 (수)",
-    postCategory: ["의료 동행"],
-    postType: "one-time",
-    postHoney: "나눔",
-    postLocation: "서울시 마포구 상암동",
-  },
-];
-
 const ChatListPage = () => {
+  const { chatrooms, hasNext, nextChatroomId, setChatrooms } = useChatStore();
+  const { handleChatOpen } = useChatHandler();
   const navigate = useNavigate();
+  // 로딩 상태 관리 (선택 사항)
 
-  const handleClickChat = (chatId: number) => {
-    navigate(`/chat/${chatId}`);
-  };
+  const MY_ID = 100; // 실제로는 로그인한 유저 ID 사용
+
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  // 데이터 불러오기 함수 (useCallback으로 감싸서 무한 루프 방지)
+  const fetchList = useCallback(
+    async (isMore = false) => {
+      try {
+        // 더 불러오기일 때는 nextChatroomId 사용, 처음일 때는 undefined
+        const lastId = isMore ? nextChatroomId : undefined;
+        const data = await chatApi.getChatRoomList(MY_ID, lastId);
+
+        setChatrooms(data, isMore);
+        console.log(data);
+      } catch (error) {
+        console.error("채팅 목록 로드 실패:", error);
+      }
+    },
+    [nextChatroomId, setChatrooms]
+  );
+
+  // 1. 초기 로드
+  useEffect(() => {
+    fetchList(false);
+  }, []);
+
+  // 2. 무한 스크롤 관찰자(Observer) 설정
+  useEffect(() => {
+    // 불러올 데이터가 없으면 관찰 중단
+    if (!hasNext || !observerTarget.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // 타겟 요소가 화면에 들어오면(isIntersecting) 다음 데이터 호출
+        if (entries[0].isIntersecting) {
+          fetchList(true);
+        }
+      },
+      { threshold: 1.0 } // 요소가 100% 다 보였을 때 실행
+    );
+
+    observer.observe(observerTarget.current);
+
+    // 클린업: 컴포넌트 언마운트 시 관찰 중단
+    return () => observer.disconnect();
+  }, [hasNext, fetchList]);
   return (
     <ChatContainer>
       <Layout>
         <Header title="채팅" onBack={() => navigate("/")} />
         <ChatList>
-          {mockChats.map((chat) => (
-            <ChatItem
-              key={chat.chatId}
-              onClick={() => handleClickChat(chat.chatId)}
-            >
-              <ProfileImage src={chat.userImage} />
-              <ChatInfo>
-                <ChatFirstRow>
-                  <Nickname>{chat.userNickname}</Nickname>
-                  <ChatLastTime>{chat.timestamp}</ChatLastTime>
-                </ChatFirstRow>
-                <PostTitle>{chat.postTitle}</PostTitle>
-                <ChatLastRow>
-                  <LastMessage>{chat.lastMessage}</LastMessage>
-                  {chat.unreadCount > 0 && (
-                    <UnreadBadge>{chat.unreadCount}</UnreadBadge>
-                  )}
-                </ChatLastRow>
-              </ChatInfo>
-            </ChatItem>
-          ))}
+          {chatrooms?.length > 0 ? (
+            chatrooms.map((room) => (
+              <ChatItem
+                key={room.chatroomId}
+                onClick={() =>
+                  handleChatOpen(MY_ID, {
+                    chatroomId: "791458418405204700",
+                  })
+                }
+              >
+                <ProfileImage
+                  src={room.otherProfileImageUrl}
+                  alt={room.otherNickname}
+                />
+                <ChatInfo>
+                  <ChatFirstRow>
+                    <Nickname>{room.otherNickname}</Nickname>
+                    {/* updatedAt 오타 수정 */}
+                    <ChatLastTime>
+                      {formatChatTime(room.updatedAt)}
+                    </ChatLastTime>
+                  </ChatFirstRow>
+
+                  <PostTitle>{room.title}</PostTitle>
+                  {/*
+                  <ChatLastRow>
+                    <LastMessage>{chat.lastMessage}</LastMessage>
+                    {chat.unreadCount > 0 && (
+                      <UnreadBadge>{chat.unreadCount}</UnreadBadge>
+                    )}
+                  </ChatLastRow>*/}
+                </ChatInfo>
+              </ChatItem>
+            )) // map 종료
+          ) : (
+            // 데이터가 없을 때의 처리가 필요합니다 (삼항 연산자 : 부분)
+            <EmptyState>진행 중인 채팅이 없습니다.</EmptyState>
+          )}
+          {/* 무한 스크롤 타겟: 이 요소가 보이면 다음 페이지를 불러옵니다 */}
+          {hasNext && (
+            <ObserverTarget ref={observerTarget}>
+              <LoadingText>목록을 불러오는 중...</LoadingText>
+            </ObserverTarget>
+          )}
         </ChatList>
       </Layout>
       <NavBar />
@@ -274,4 +207,47 @@ const UnreadBadge = styled.div`
   justify-content: center;
   align-items: center;
   font-weight: ${({ theme }) => theme.weight.regular};
+`;
+
+const EmptyState = styled.div``;
+const ObserverTarget = styled.div`
+  width: 100%;
+  height: 50px; /* 감지 영역 높이 */
+  display: flex;
+  align-items: center; /* 수직 중앙 정렬 */
+  justify-content: center; /* 수평 중앙 정렬 */
+  margin: 10px 0; /* 위아래 여백 */
+  background-color: transparent; /* 평소엔 투명하게 */
+`;
+
+const LoadingText = styled.span`
+  font-size: 14px;
+  color: ${({ theme }) => theme.color?.subText2 || "#999999"};
+  font-weight: 500;
+
+  /* 로딩 중임을 알리는 간단한 애니메이션 효과 (선택사항) */
+  &::after {
+    content: "...";
+    display: inline-block;
+    width: 12px;
+    text-align: left;
+    animation: dots 1.5s steps(4, end) infinite;
+  }
+
+  @keyframes dots {
+    0%,
+    20% {
+      content: "";
+    }
+    40% {
+      content: ".";
+    }
+    60% {
+      content: "..";
+    }
+    80%,
+    100% {
+      content: "...";
+    }
+  }
 `;

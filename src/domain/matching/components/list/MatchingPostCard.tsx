@@ -7,12 +7,43 @@ import HelpTag from "../../../../components/HelpTag";
 import OneDayBadge from "../../../../components/OneDayBadge";
 import { useNavigate } from "react-router-dom";
 
+//hook
+import { useChatHandler } from "../../../../hooks/useChatHandler";
+
 interface Props {
   post: Post;
 }
 
 const MatchingPostCard = ({ post }: Props) => {
   const navigate = useNavigate();
+  const goReview = () => {
+    navigate("/review");
+  };
+  const goMatchingInfo = () => {
+    navigate(`/match-info/${post.id}`);
+  };
+
+  /* 채팅 관련 */
+  const { handleChatOpen } = useChatHandler();
+
+  const MY_ID = 100;
+
+  const matchingItem = {
+    id: 1,
+    chatroomId: 791458418405204700,
+    partnerNickname: "꿀벌님",
+  };
+
+  const goChatPage = () => {
+    console.log("기존 채팅방 조회 및 이동 시도...");
+    handleChatOpen(MY_ID, { chatroomId: matchingItem.chatroomId });
+  };
+
+  return (
+    <Card onClick={goMatchingInfo}>
+      <Left>
+        <TitleRow>
+          <Title>{post.title}</Title>
 
   const goReview = () => navigate("/review");
   const goMatchingInfo = () => navigate(`/match-info/${post.id}`);
@@ -63,7 +94,7 @@ const MatchingPostCard = ({ post }: Props) => {
       {/* ---------- Buttons ---------- */}
       <BottomBar>
         <BottomInner>
-          <ChatButton>
+          <ChatButton onClick={goChatPage}>
             <BsChat size={12} />
             <span>채팅하기</span>
           </ChatButton>
