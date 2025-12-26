@@ -11,12 +11,26 @@ import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import "./App.css";
 import ProfilePage from "./domain/profile/pages/ProfilePage";
+import DayHelpWrite from "./domain/post/components/write/DayHelpWrite";
+import LongHelpWrite from "./domain/post/components/write/LongHelpWrite";
+
 import MapUserPage from "./domain/map/pages/MapUserPage";
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
 import DisabledMyPage from "./domain/mypage/page/DisabledMyPage";
 import HelperMyPage from "./domain/mypage/page/HelperMyPage";
 import ChatTestPage from "./domain/chat/pages/ChatTestPage";
+import ApplicateLandingPage from "./domain/Application/page/ApplicateLandingPage";
+import ApplicateStatusPage from "./domain/Application/page/ApplicateStatusPage";
+import ApplicantPage from "./domain/Application/page/ApplicantPage";
+import AuthSignUpStep1Page from "./domain/auth/pages/AuthSignUpStep1Page";
+import AuthSignUpStep2Page from "./domain/auth/pages/AuthSignUpStep2Page";
+import AuthSignUpStep3Page from "./domain/auth/pages/AuthSignUpStep3Page";
+import AuthSignUpStep4Page from "./domain/auth/pages/AuthSignUpStep4Page";
+import AuthSignUpStep5Page from "./domain/auth/pages/AuthSignUpStep5Page";
+import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
+import AuthSignUpCompletePage from "./domain/auth/pages/AuthSignUpCompletePage";
+import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 
 function App() {
   return (
@@ -63,6 +77,20 @@ function App() {
           <Route path="/review" element={<ReviewPage />} />
           {/* 프로필 */}
           <Route path="profile" element={<ProfilePage />} />
+          {/*  테스트 */}
+          <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
+          <Route path="applicate-status" element={<ApplicateStatusPage />} />
+          <Route path="/applicant/:id" element={<ApplicantPage />} />
+
+          {/* 회원가입 */}
+          <Route path="/signup/step1" element={<AuthSignUpStep1Page />} />
+          <Route path="/signup/step2" element={<AuthSignUpStep2Page />} />
+          <Route path="/signup/step3" element={<AuthSignUpStep3Page />} />
+          <Route path="/signup/step4" element={<AuthSignUpStep4Page />} />
+          <Route path="/signup/step5" element={<AuthSignUpStep5Page />} />
+          <Route path="/signup/step6" element={<AuthSignUpStep6Page />} />
+          <Route path="/signup/complete" element={<AuthSignUpCompletePage />} />
+
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
