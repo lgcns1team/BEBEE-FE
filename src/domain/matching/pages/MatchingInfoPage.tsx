@@ -12,7 +12,7 @@ const MatchingInfoPage = () => {
   const [isMatchingActionSheetOpen, setIsMatchingActionSheetOpen] =
     useState(false);
   // id에 맞는 매칭 정보 찾기
-  const post = posts.find((item) => item.id === Number(infoId));
+  const post = posts.find((item) => item.postId === Number(infoId));
 
   return (
     <Layout>

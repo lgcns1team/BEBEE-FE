@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useState } from "react";
 import { FiCalendar, FiClock, FiMapPin } from "react-icons/fi";
-import { FaDroplet } from "react-icons/fa6";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { RxIconjarLogo } from "react-icons/rx";
 import ActionSheetModal from "../components/common/ActionSheetModal";
@@ -9,19 +9,55 @@ import HelpTagBee from "../../../assets/images/helptag-bee.png";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 import { usePostStore } from "../../../store/usePostStore";
-import { useDisabledProfileStore } from "../../../store/useDisabledProfileStore";
+import { useUserStore } from "../../../store/useUserStore";
+import BeeImage from "../../../assets/images/bee-letter.png";
 const PostDetailPage = () => {
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  const profile = useDisabledProfileStore((state) => state.profile);
-  const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
-  const goProfile = () => {
-    navigate("/profile");
-  };
+
+  const { postId } = useParams<{ postId: string }>();
+
+  const { disabledProfiles } = useUserStore();
+
+  const postIdNum = Number(postId);
 
   const post = usePostStore((state) =>
-    state.posts.find((p) => p.id === Number(id))
+    state.posts.find((p) => p.postId === postIdNum)
   );
+  const profile = disabledProfiles.find((p) => p.memberId === post?.memberId);
+
+  const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
+
+  const goProfile = () => {
+    navigate(`/profile/disabled/${profile?.memberId}`);
+  };
+
+  const formatDate = (date?: Date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}.${m}.${day}`;
+  };
+
+  const formatHour = (date?: Date) => {
+    if (!date) return "";
+    return `${new Date(date).getHours()}시`;
+  };
+
+  const DAY_KR_MAP: Record<
+    "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN",
+    string
+  > = {
+    MON: "월요일",
+    TUE: "화요일",
+    WED: "수요일",
+    THU: "목요일",
+    FRI: "금요일",
+    SAT: "토요일",
+    SUN: "일요일",
+  };
+
   return (
     <Layout>
       <Container>
@@ -38,8 +74,8 @@ const PostDetailPage = () => {
         {/* ---------------- Category Tags ---------------- */}
         <TagList>
           <HelpBeeImage src={HelpTagBee} alt="bee" />
-          {post?.tags.map((tag) => (
-            <Tag key={tag}>{tag}</Tag>
+          {post?.categoryName.map((category) => (
+            <Tag key={category}>{category}</Tag>
           ))}
         </TagList>
 
@@ -49,16 +85,16 @@ const PostDetailPage = () => {
         {/* ---------------- User Info ---------------- */}
         <UserSection>
           <UserLeft>
-            {profile.image && <UserImage src={profile.image} />}
+            {profile?.profileImageUrl ? (
+              <UserImage src={profile.profileImageUrl} />
+            ) : (
+              <UserImage src={BeeImage} />
+            )}
             <UserInfo>
-              <UserName onClick={goProfile}>{profile.name}</UserName>
-              <UserAddress>{profile.address}</UserAddress>
+              <UserName onClick={goProfile}>{profile?.name}</UserName>
+              <UserAddress>{profile?.addressRoad}</UserAddress>
             </UserInfo>
           </UserLeft>
-
-          <Temperature>
-            {profile.sweetness} <DropletIcon size={16} />
-          </Temperature>
         </UserSection>
 
         <Divider />
@@ -67,30 +103,59 @@ const PostDetailPage = () => {
         <InfoList>
           <InfoItem>
             <RxIconjarLogo size={16} />
-            <span>{post?.honey}꿀</span>
+            <span>{post?.totalHoney}꿀</span>
           </InfoItem>
 
           <InfoItem>
             <FiCalendar size={16} />
-            <span>{post?.dates}</span>
+
+            {/* 하루 도움 */}
+            {post?.type === "하루 도움" && (
+              <span>{formatDate(post.engagementDate)}</span>
+            )}
+
+            {/* 지속 도움 */}
+            {post?.type === "지속 도움" && (
+              <span>
+                {formatDate(post.startDate)} ~ {formatDate(post.endDate)}
+              </span>
+            )}
           </InfoItem>
 
           <InfoItem>
             <FiClock size={16} />
-            <span>{post?.time}</span>
+
+            {/* 하루 도움 */}
+            {post?.type === "하루 도움" && (
+              <span>
+                {formatHour(post.startTime)} ~ {formatHour(post.endTime)}
+              </span>
+            )}
+
+            {/* 지속 도움 */}
+            {post?.type === "지속 도움" && (
+              <TimeColumn>
+                {post.dayOfWeek?.map((schedule) => (
+                  <div key={schedule.dayOfWeek}>
+                    {DAY_KR_MAP[schedule.dayOfWeek]}: {schedule.startTime} ~{" "}
+                    {schedule.endTime}
+                  </div>
+                ))}
+              </TimeColumn>
+            )}
           </InfoItem>
 
           <InfoItem>
             <FiMapPin size={16} />
-            <span>{post?.location}</span>
+            <span>{post?.region}</span>
           </InfoItem>
         </InfoList>
 
         {/* ---------------- Description ---------------- */}
-        <Description>{post?.description}</Description>
+        <Description>{post?.content}</Description>
 
         <ApplicantCount>지원자 수 13</ApplicantCount>
-        {post?.image && <PostImage src={post.image} />}
+        {post?.imageUrl && <PostImage src={post.imageUrl} />}
         {/* ---------------- Bottom Buttons ---------------- */}
         <BottomBar>
           <BottomInner>
@@ -178,18 +243,6 @@ const UserAddress = styled.div`
   color: ${({ theme }) => theme.color.subText2};
 `;
 
-const Temperature = styled.div`
-  font-size: ${({ theme }) => theme.size.md};
-  font-weight: ${({ theme }) => theme.weight.medium};
-  color: ${({ theme }) => theme.color.main};
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 24px;
-`;
-const DropletIcon = styled(FaDroplet)`
-  color: ${({ theme }) => theme.color.main};
-`;
 const Divider = styled.div`
   width: 100%;
   height: 0.5px;
@@ -210,7 +263,11 @@ const InfoItem = styled.div`
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.regular};
 `;
-
+const TimeColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
 const Description = styled.p`
   padding: 16px 0px;
   font-size: ${({ theme }) => theme.size.md};

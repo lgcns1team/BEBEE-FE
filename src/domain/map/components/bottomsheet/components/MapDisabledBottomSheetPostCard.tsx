@@ -1,17 +1,22 @@
 import React from "react";
 import styled from "styled-components";
-import type { HelperProfile } from "../../../../../store/useHelperProfileStore";
+import type { HelperProfile } from "../../../../../store/useUserStore";
 import type { Post } from "../../../../../store/usePostStore";
 import HelpTag from "../../../../../components/HelpTag";
 import { FaDroplet } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 interface Props {
   post?: Post;
-  profile?: HelperProfile;
+  profile: HelperProfile;
 }
 
-const MapBottomSheetPostCard = ({ profile, post }: Props) => {
+const MapDisabledBottomSheetPostCard = ({ profile, post }: Props) => {
+  const navigate = useNavigate();
+  const goProfileInfo = (profileId: number) => {
+    navigate(`/profile/helper/${profileId}`);
+  };
   return (
-    <Card>
+    <Card onClick={() => goProfileInfo(profile.memberId)}>
       <Content>
         <Row>
           <Title>{profile?.name}</Title>
@@ -20,7 +25,7 @@ const MapBottomSheetPostCard = ({ profile, post }: Props) => {
             <IconWrapper>
               <FaDroplet />
             </IconWrapper>
-            <span>{post?.honey}</span>
+            <span>{post?.totalHoney}</span>
           </Honey>
         </Row>
         <Row>
@@ -28,15 +33,15 @@ const MapBottomSheetPostCard = ({ profile, post }: Props) => {
           <Age>{profile?.age}</Age>
         </Row>
         <TagWrapper>
-          {post?.tags.map((tag) => (
-            <HelpTag key={tag}>{tag}</HelpTag>
+          {post?.categoryName.map((category) => (
+            <HelpTag key={category}>{category}</HelpTag>
           ))}
         </TagWrapper>
       </Content>
     </Card>
   );
 };
-export default MapBottomSheetPostCard;
+export default MapDisabledBottomSheetPostCard;
 const Card = styled.div`
   width: 100%;
   display: flex;

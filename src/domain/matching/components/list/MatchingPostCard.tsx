@@ -1,4 +1,3 @@
-// src/components/MatchingPostCard.tsx
 import styled from "styled-components";
 import { FiCalendar, FiMapPin } from "react-icons/fi";
 import { BsPencil, BsChat } from "react-icons/bs";
@@ -6,79 +5,145 @@ import type { Post } from "../../../../store/usePostStore";
 import HelpTag from "../../../../components/HelpTag";
 import OneDayBadge from "../../../../components/OneDayBadge";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import NoticeMessage from "../common/NoticeMessage";
+import { useUserStore } from "../../../../store/useUserStore";
 
 interface Props {
   post: Post;
 }
 
+const DAY_KR_MAP: Record<
+  "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN",
+  string
+> = {
+  MON: "월요일",
+  TUE: "화요일",
+  WED: "수요일",
+  THU: "목요일",
+  FRI: "금요일",
+  SAT: "토요일",
+  SUN: "일요일",
+};
+
+const formatKoreanDate = (date?: Date) => {
+  if (!date) return "";
+
+  const d = new Date(date);
+  const month = d.getMonth() + 1;
+  const day = d.getDate();
+
+  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+  const dayOfWeek = dayNames[d.getDay()];
+
+  return `${month}월 ${day}일 (${dayOfWeek})`;
+};
+
 const MatchingPostCard = ({ post }: Props) => {
   const navigate = useNavigate();
+  const [showNotice, setShowNotice] = useState(false);
+  const [isIncomplete, setIsIncomplete] = useState(false);
+  const { getUserByMemberId } = useUserStore();
 
+  const author = getUserByMemberId(post.memberId);
   const goReview = () => navigate("/review");
-  const goMatchingInfo = () => navigate(`/match-info/${post.id}`);
+  const goMatchingInfo = () => navigate(`/match-info/${post.postId}`);
+  const handleMarkIncomplete = () => {
+    setShowNotice(true);
+  };
+
+  const handleConfirmIncomplete = () => {
+    setShowNotice(false);
+    setIsIncomplete(true);
+  };
 
   return (
-    <Card onClick={goMatchingInfo}>
-      {/* ---------- Top ---------- */}
-      <TopArea>
-        <Title>{post.title}</Title>
-        {post.category === "하루 도움" && <OneDayBadge>하루 도움</OneDayBadge>}
-      </TopArea>
+    <>
+      <Card>
+        {/* ---------- Top ---------- */}
+        <TopArea>
+          <Title onClick={goMatchingInfo}>{post.title}</Title>
+          {post.type === "하루 도움" && <OneDayBadge>하루 도움</OneDayBadge>}
+        </TopArea>
 
-      {/* ---------- Bottom ---------- */}
-      <BottomArea>
-        {/* 왼쪽 정보 */}
-        <BottomLeft>
-          <User>{post.user}</User>
+        {/* ---------- Bottom ---------- */}
+        <BottomArea>
+          {/* 왼쪽 정보 */}
+          <BottomLeft>
+            <User>{author?.name}</User>
 
-          <InfoLine>
-            <MapPinIcon size={16} />
-            <InfoText>{post.location}</InfoText>
-          </InfoLine>
+            <InfoLine>
+              <MapPinIcon size={16} />
+              <InfoText>{post.region}</InfoText>
+            </InfoLine>
 
-          <InfoLine>
-            <CalendarIcon size={16} />
-            {post.dates?.map((date) => (
-              <InfoText key={date}>{date}</InfoText>
-            ))}
-          </InfoLine>
+            <InfoLine>
+              <CalendarIcon size={16} />
 
-          <TagRow>
-            {post.tags.map((tag) => (
-              <HelpTag key={tag}>{tag}</HelpTag>
-            ))}
-          </TagRow>
-        </BottomLeft>
+              {/* 하루 도움 */}
+              {post.type === "하루 도움" && (
+                <InfoText>{formatKoreanDate(post.engagementDate)}</InfoText>
+              )}
 
-        {/* 오른쪽 이미지 */}
-        {post.image && (
-          <BottomRight>
-            <Thumbnail>
-              <img src={post.image} alt="thumbnail" />
-            </Thumbnail>
-          </BottomRight>
-        )}
-      </BottomArea>
+              {/* 지속 도움 */}
+              {post.type === "지속 도움" && (
+                <InfoText>
+                  {post.dayOfWeek
+                    ?.map((schedule) => DAY_KR_MAP[schedule.dayOfWeek])
+                    .join(", ")}
+                </InfoText>
+              )}
+            </InfoLine>
 
-      {/* ---------- Buttons ---------- */}
-      <BottomBar>
-        <BottomInner>
-          <ChatButton>
-            <BsChat size={12} />
-            <span>채팅하기</span>
-          </ChatButton>
+            <TagRow>
+              {post.categoryName.map((category) => (
+                <HelpTag key={category}>{category}</HelpTag>
+              ))}
+            </TagRow>
+          </BottomLeft>
 
-          {post.done ? (
-            <ReviewButton onClick={goReview}>
-              <BsPencil size={12} />
-              <span>리뷰 보내기</span>
-            </ReviewButton>
-          ) : (
-            <DoneButton>활동 완료</DoneButton>
+          {/* 오른쪽 이미지 */}
+          {post.imageUrl && (
+            <BottomRight>
+              <Thumbnail>
+                <img src={post.imageUrl} alt="thumbnail" />
+              </Thumbnail>
+            </BottomRight>
           )}
-        </BottomInner>
-      </BottomBar>
-    </Card>
+        </BottomArea>
+
+        {/* ---------- Buttons ---------- */}
+        <BottomBar>
+          <BottomInner>
+            <ChatButton>
+              <BsChat size={12} />
+              <span>채팅하기</span>
+            </ChatButton>
+
+            {post.status ? (
+              <ReviewButton onClick={goReview}>
+                <BsPencil size={12} />
+                <span>리뷰 보내기</span>
+              </ReviewButton>
+            ) : (
+              <DoneButton
+                disabled={isIncomplete}
+                $inactive={isIncomplete}
+                onClick={handleMarkIncomplete}
+              >
+                활동 미완료
+              </DoneButton>
+            )}
+          </BottomInner>
+        </BottomBar>
+      </Card>
+      {showNotice && (
+        <NoticeMessage
+          onCancel={() => setShowNotice(false)}
+          onConfirm={handleConfirmIncomplete}
+        />
+      )}
+    </>
   );
 };
 
@@ -188,12 +253,14 @@ const ChatButton = styled.button`
   }
 `;
 
-const DoneButton = styled.button`
+const DoneButton = styled.button<{ $inactive?: boolean }>`
   flex: 2;
   height: 40px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
-  background: ${({ theme }) => theme.color.main};
-  color: ${({ theme }) => theme.color.white};
+  background: ${({ $inactive, theme }) =>
+    $inactive ? theme.color.natural200 : theme.color.main};
+  color: ${({ $inactive, theme }) =>
+    $inactive ? theme.color.subText3 : theme.color.white};
   border: none;
   span {
     margin-left: 4px;

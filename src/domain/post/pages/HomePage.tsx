@@ -11,14 +11,13 @@ import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
 import WriteButton from "../components/common/WriteButton";
 import { Checkbox } from "../../../components/Checkbox";
-import { postMockData } from "../mock/post.mock";
+import { postMockData } from "../../../mock/post/post.mock";
 
 type TabType = "전체" | "하루 도움" | "지속 도움";
 
 const HomePage = () => {
   const { posts, setPosts } = usePostStore();
 
-  /** 🔹 local UI state */
   const [activeTab, setActiveTab] = useState<TabType>("전체");
   const [excludeDone, setExcludeDone] = useState(false);
   const [sort, setSort] = useState("");
@@ -32,21 +31,19 @@ const HomePage = () => {
     setIsSortOpen(false);
   };
 
-  /** 더미 데이터 세팅 */
   useEffect(() => {
     setPosts(postMockData);
   }, [setPosts]);
 
-  /** 🔹 필터 + 정렬 */
   const filteredPosts = posts
     .filter((p) => {
-      if (activeTab !== "전체" && p.category !== activeTab) return false;
-      if (excludeDone && p.done) return false;
+      if (activeTab !== "전체" && p.type !== activeTab) return false;
+      if (excludeDone && p.status) return false;
       return true;
     })
     .sort((a, b) => {
-      if (sort === "최신순") return b.id - a.id;
-      if (sort === "마감순") return Number(a.done) - Number(b.done);
+      if (sort === "최신순") return b.postId - a.postId;
+      if (sort === "마감순") return Number(a.status) - Number(b.status);
       return 0;
     });
 
@@ -94,7 +91,7 @@ const HomePage = () => {
         {/* ---------------- Post List ---------------- */}
         <ListWrapper>
           {filteredPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard key={post.postId} post={post} />
           ))}
         </ListWrapper>
 

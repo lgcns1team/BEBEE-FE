@@ -1,0 +1,82 @@
+import type { Post } from "../../store/usePostStore";
+import BeeImage from "../../assets/images/bee-santa.png";
+export const postMockData: Post[] = [
+  {
+    postId: 1,
+    title: "상체 운동 PT해주실 분 구합니다",
+    region: "장충동",
+    engagementDate: new Date(2024, 10, 30),
+    totalHoney: 300,
+    type: "하루 도움",
+    status: false,
+    categoryName: ["이동 지원", "생활 지원"],
+    imageUrl: BeeImage,
+    memberId: 1,
+    startTime: new Date(2024, 10, 30, 11, 0),
+    endTime: new Date(2024, 10, 30, 15, 0),
+    content:
+      "매주 혼자 병원을 가는 게 벅차서 도우미 구합니다. 휠체어가 들어가는 SUV 차량 이상이었으면 좋겠어요. 왕복으로 지원해주셔야 합니다. 왔다갔다 하는 시간 + 진료 보는 시간 총 3시간 정도 걸려요. 신촌동 부근으로 오시면 되고 자세한 주소는 채팅으로 말씀드리겠습니다. 병원은 은평세브란스병원입니다!",
+  },
+  {
+    postId: 2,
+    title: "굿모닝 마트에서 한우 육회 1++",
+    region: "장충동",
+    engagementDate: new Date(2024, 12, 30),
+    totalHoney: 200,
+    type: "하루 도움",
+    status: true,
+    categoryName: ["생활 지원"],
+    imageUrl: BeeImage,
+    memberId: 2,
+    startTime: new Date(2024, 10, 30, 11, 0),
+    endTime: new Date(2024, 10, 30, 15, 0),
+    content:
+      "너무너무 도움이 필요한 상황입니다! 응급 상황이므로 빠른 지원 부탁드립니다!",
+  },
+  {
+    postId: 3,
+    title: "굿모닝 마트에서 한우 육회 1++",
+    region: "장충동",
+    startDate: new Date(2024, 10, 30),
+    endDate: new Date(2024, 10, 30),
+    dayOfWeek: [
+      {
+        dayOfWeek: "MON",
+        startTime: "11:00",
+        endTime: "15:00",
+      },
+      {
+        dayOfWeek: "WED",
+        startTime: "13:00",
+        endTime: "15:00",
+      },
+    ],
+    totalHoney: 200,
+    type: "지속 도움",
+    status: true,
+    categoryName: ["생활 지원"],
+    memberId: 2,
+  },
+  {
+    postId: 4,
+    title: "잠깐 슈퍼에 다녀와 주실 분 구해요!",
+    region: "논현동",
+    dayOfWeek: [
+      {
+        dayOfWeek: "MON",
+        startTime: "11:00",
+        endTime: "15:00",
+      },
+      {
+        dayOfWeek: "TUE",
+        startTime: "13:00",
+        endTime: "15:00",
+      },
+    ],
+    totalHoney: 200,
+    type: "지속 도움",
+    status: true,
+    categoryName: ["생활 지원"],
+    memberId: 3,
+  },
+];

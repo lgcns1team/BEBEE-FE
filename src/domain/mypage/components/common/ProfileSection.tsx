@@ -1,21 +1,31 @@
 import styled from "styled-components";
 import Image from "../../../../assets/images/helptag-bee.png";
-import HoneyBadge from "../../../../components/HoneyBadge";
 import { IoChevronForward } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import { useUserStore } from "../../../../store/useUserStore";
+
 const ProfileSection = () => {
+  const navigate = useNavigate();
+  const { role, disabledProfiles, helperProfiles } = useUserStore();
+  // 일단은 맨 첫번째 유저의 정보 보여줌
+  const profile = role === "DISABLED" ? disabledProfiles[0] : helperProfiles[0];
+
+  const handleClick = () => {
+    if (!profile) return;
+    navigate(`/profile-info/${profile.memberId}`);
+  };
+
   return (
-    <div>
-      <Container>
-        <ProfileWrapper>
-          <ProfileImage src={Image} />
-          <Nickname>응암꿀벌</Nickname>
-          <HoneyBadge>당도 40.5</HoneyBadge>
-        </ProfileWrapper>
-        <GoProfile>
-          <IoChevronForward size={24} color="#A1A1A1" />
-        </GoProfile>
-      </Container>
-    </div>
+    <Container onClick={handleClick}>
+      <ProfileWrapper>
+        <ProfileImage src={profile?.profileImageUrl ?? Image} />
+        <Nickname>{profile?.name ?? "프로필"}</Nickname>
+      </ProfileWrapper>
+
+      <GoProfile>
+        <IoChevronForward size={24} color="#A1A1A1" />
+      </GoProfile>
+    </Container>
   );
 };
 

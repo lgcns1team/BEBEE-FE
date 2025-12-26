@@ -1,0 +1,55 @@
+import React from "react";
+import styled from "styled-components";
+import ReviewBadge from "../../../../components/ReviewBadge";
+import { useUserStore } from "../../../../store/useUserStore";
+
+interface Props {
+  profileId?: number;
+}
+
+const ReceivedReview = ({ profileId }: Props) => {
+  const { role, disabledProfiles, helperProfiles } = useUserStore();
+
+  const profile =
+    role === "DISABLED"
+      ? disabledProfiles.find((p) => p.memberId === profileId)
+      : helperProfiles.find((p) => p.memberId === profileId);
+
+  if (!profile) return null;
+  const items = profile.receivedReviews ?? [];
+
+  return (
+    <Container>
+      <Title>받은 후기</Title>
+
+      <BadgeWrap>
+        {items.map((review, idx) => (
+          <ReviewBadge key={`${review}-${idx}`}>{review}</ReviewBadge>
+        ))}
+      </BadgeWrap>
+    </Container>
+  );
+};
+
+export default ReceivedReview;
+const Container = styled.div`
+  background-color: ${({ theme }) => theme.color.white};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  width: 100%;
+  margin-top: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const Title = styled.div`
+  font-size: ${({ theme }) => theme.size.md};
+  font-weight: ${({ theme }) => theme.weight.bold};
+`;
+
+const BadgeWrap = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;

@@ -2,28 +2,29 @@ import React from "react";
 import styled from "styled-components";
 import DoneBadge from "../../../../components/DoneBadge";
 import Bee from "../../../../assets/images/helptag-bee.png";
+import { usePostStore } from "../../../../store/usePostStore";
 
 interface Props {
-  title: string;
-  honey: number;
-  place: string;
-  done: boolean;
+  id: number;
 }
 
-const ProfileHelpPostCard = ({ title, honey, place, done }: Props) => {
+const ProfileHelpPostCard = ({ id }: Props) => {
+  const post = usePostStore((state) =>
+    state.posts.find((p) => p.postId === id)
+  );
   return (
     <Card>
       <HelpImage src={Bee} alt="image" />
 
       <Content>
-        <Title>{title}</Title>
+        <Title>{post?.title}</Title>
 
         <Row>
-          {done && <Done>매칭 완료</Done>}
-          <Honey>{honey}꿀</Honey>
+          {post?.status && <Done>매칭 완료</Done>}
+          <Honey>{post?.totalHoney}꿀</Honey>
         </Row>
 
-        <Place>{place}</Place>
+        <Place>{post?.region}</Place>
       </Content>
     </Card>
   );
@@ -38,8 +39,6 @@ const Card = styled.div`
   flex-direction: column;
   align-items: center;
 
-  background: ${({ theme }) => theme.color.white};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
   cursor: pointer;
 `;
 
