@@ -1,20 +1,22 @@
-import React from "react";
-import { useTabStore } from "../../../../store/useTabStore";
 import styled from "styled-components";
 import Badge from "../../../../components/Badge";
 
+export type TabType = "전체" | "하루 도움" | "지속 도움";
 const TABS = ["전체", "하루 도움", "지속 도움"] as const;
 
-const Category = () => {
-  const { activeTab, setActiveTab } = useTabStore();
+interface Props {
+  activeTab: TabType;
+  onChange: (tab: TabType) => void;
+}
 
+const Category = ({ activeTab, onChange }: Props) => {
   return (
     <Wrapper>
       {TABS.map((tab) => (
         <Badge
           key={tab}
           $active={activeTab === tab}
-          onClick={() => setActiveTab(tab)}
+          onClick={() => onChange(tab)}
         >
           {tab}
         </Badge>

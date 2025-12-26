@@ -1,21 +1,21 @@
 import React from "react";
 import DayHelpInfo from "./DayHelpInfo";
 import LongHelpInfo from "./LongHelpInfo";
-import type { MatchInfo } from "../../../../store/useMatchInfoStore";
+import type { Post } from "../../../../store/usePostStore";
 
 interface Props {
-  info: MatchInfo;
+  post: Post;
 }
 
-const MatchingInfo = ({ info }: Props) => {
-  if (!info) return null;
+const MatchingInfo = ({ post }: Props) => {
+  if (!post) return null;
 
   return (
     <>
-      {info.type === "하루도움" ? (
-        <DayHelpInfo info={info} />
+      {post.category === "하루 도움" ? (
+        <DayHelpInfo post={post} />
       ) : (
-        <LongHelpInfo info={info} />
+        <LongHelpInfo post={post} />
       )}
     </>
   );

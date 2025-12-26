@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./domain/post/pages/HomePage";
 import PostDetailPage from "./domain/post/pages/PostDetailPage";
@@ -43,6 +42,9 @@ function App() {
 
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
+
+          {/* 타인이 보는 프로필 정보 */}
+          <Route path="/profile-info" element={<ProfileInfoPage />} />
           {/*테스트*/}
           <Route path="/mypage-1" element={<DisabledMyPage />} />
           <Route path="/mypage-2" element={<HelperMyPage />} />

@@ -2,30 +2,30 @@ import React from "react";
 import styled from "styled-components";
 
 interface HelpRowProps {
-  type: "하루도움" | "지속도움";
-  date: string;
+  category?: string;
+  date: string[];
   time?: string;
   schedule?: string[];
-  honey: string;
-  place: string;
+  honey: number;
+  location: string;
   detailPlace: string;
 }
 
 const HelpInfo = ({
-  type,
+  category,
   date,
   time,
   honey,
-  place,
+  location,
   detailPlace,
   schedule,
 }: HelpRowProps) => {
-  const isOneDay = type === "하루도움";
+  const isOneDay = category === "하루도움";
   return (
     <Wrapper>
       <Row>
         <Label>방식</Label>
-        <Value>{type}</Value>
+        <Value>{category}</Value>
       </Row>
 
       <Row>
@@ -50,7 +50,7 @@ const HelpInfo = ({
       <Row>
         <Label>만남 장소</Label>
         <Value>
-          {place} · <Detail>{detailPlace}</Detail>
+          {location} · <Detail>{detailPlace}</Detail>
         </Value>
       </Row>
     </Wrapper>

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import type { Post } from "../../../../../store/useMapHelperPostStore";
+import type { Post } from "../../../../../store/usePostStore";
 import HelpTag from "../../../../../components/HelpTag";
 import { FiCalendar } from "react-icons/fi";
 import { FiMapPin } from "react-icons/fi";
@@ -30,7 +30,7 @@ const MapHelperBottomSheetPostCard = ({ post }: Props) => {
 
         <InfoLine>
           <CalendarIcon size={16} />
-          <InfoText>{post.date}</InfoText>
+          <InfoText>{post.dates}</InfoText>
         </InfoLine>
 
         <TagWrapper>

@@ -29,7 +29,7 @@ const ProfilePage = () => {
 
   return (
     <Wrapper>
-      <Header title="프로필 정보" onBack={() => navigate(-1)} />
+      <Header title="프로필 정보" onBack={() => navigate(-1)} bg />
 
       {/* ----------- 프로필 영역 ----------- */}
       <Info>
