@@ -26,31 +26,41 @@ const PostCard = ({ post }: Props) => {
           </RightTop>
         </TopArea>
 
-        <HoneyRow>
-          {post.done && <DoneBadge>매칭 완료</DoneBadge>}
-          <Honey>{post.honey} 꿀</Honey>
-        </HoneyRow>
+        <BottomArea>
+          {/* 왼쪽 정보 */}
+          <BottomLeft>
+            <HoneyRow>
+              {post.done && <DoneBadge>매칭 완료</DoneBadge>}
+              <Honey>{post.honey} 꿀</Honey>
+            </HoneyRow>
 
-        <InfoLine>
-          <MapPinIcon size={16} />
-          <InfoText>{post.location}</InfoText>
-        </InfoLine>
+            <InfoLine>
+              <MapPinIcon size={16} />
+              <InfoText>{post.location}</InfoText>
+            </InfoLine>
 
-        <InfoLine>
-          <CalendarIcon size={16} />
-          <InfoText>{post.date}</InfoText>
-        </InfoLine>
+            <InfoLine>
+              <CalendarIcon size={16} />
+              {post.dates?.map((date) => (
+                <InfoText key={date}>{date}</InfoText>
+              ))}
+            </InfoLine>
 
-        <TagWrapper>
-          <HelpTag>이동지원</HelpTag>
-        </TagWrapper>
+            <TagWrapper>
+              <HelpTag>이동지원</HelpTag>
+            </TagWrapper>
+          </BottomLeft>
+
+          {/* 오른쪽 이미지 (태그 아래 위치) */}
+          {post.image && (
+            <BottomRight>
+              <Thumbnail>
+                <img src={post.image} alt="thumbnail" />
+              </Thumbnail>
+            </BottomRight>
+          )}
+        </BottomArea>
       </Content>
-
-      {post.image && (
-        <Thumbnail>
-          <img src={post.image} alt="thumbnail" />
-        </Thumbnail>
-      )}
     </Card>
   );
 };
@@ -142,4 +152,19 @@ const Thumbnail = styled.div`
     border-radius: ${({ theme }) => theme.borderRadius.md};
     object-fit: cover;
   }
+`;
+
+const BottomArea = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+`;
+
+const BottomLeft = styled.div`
+  flex: 1;
+`;
+
+const BottomRight = styled.div`
+  flex-shrink: 0;
 `;

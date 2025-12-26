@@ -1,21 +1,18 @@
-// src/domain/matching/pages/MatchingInfoPage.tsx
-
 import React, { useState } from "react";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 import { useNavigate, useParams } from "react-router-dom";
 import MatchingInfo from "../components/info/MatchingInfo";
-import { useMatchInfoStore } from "../../../store/useMatchInfoStore";
 import MatchingActionSheetModal from "../components/common/MatchingActionSheetModal";
-
+import { usePostStore } from "../../../store/usePostStore";
 const MatchingInfoPage = () => {
   const navigate = useNavigate();
   const { infoId } = useParams();
-  const { infos } = useMatchInfoStore();
+  const { posts } = usePostStore();
   const [isMatchingActionSheetOpen, setIsMatchingActionSheetOpen] =
     useState(false);
   // id에 맞는 매칭 정보 찾기
-  const info = infos.find((item) => item.id === Number(infoId));
+  const post = posts.find((item) => item.id === Number(infoId));
 
   return (
     <Layout>
@@ -30,10 +27,10 @@ const MatchingInfoPage = () => {
         onClose={() => setIsMatchingActionSheetOpen(false)}
       />
       {/* 매칭 정보가 없을 경우 */}
-      {!info ? (
+      {!post ? (
         <div>매칭 정보를 불러올 수 없습니다.</div>
       ) : (
-        <MatchingInfo info={info} />
+        <MatchingInfo post={post} />
       )}
     </Layout>
   );

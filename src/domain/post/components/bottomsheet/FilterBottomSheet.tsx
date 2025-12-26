@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
 import HoneyRange from "./HoneyRange";
-import { useFilterStore } from "../../../../store/useFilterStore";
-import Layout from "../../../../components/Layout";
 import Badge from "../../../../components/Badge";
 import { HELP_TAGS } from "../../../../constants/helpTags";
 import { DISABILITY_TYPES } from "../../../../constants/disabilityTypes";
@@ -12,26 +11,42 @@ interface Props {
   onClose: () => void;
 }
 
-// 메인 페이지 바텀 시트
 const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
-  const {
-    regions,
-    removeRegion,
+  /* ---------------- local state ---------------- */
 
-    selectedHelpTypes,
-    toggleHelpType,
+  const [regions, setRegions] = useState<string[]>(["서울 은평구 전체"]);
+  const [selectedHelpTypes, setSelectedHelpTypes] = useState<string[]>([""]);
+  const [gender, setGender] = useState<"남자" | "여자">("여자");
+  const [disability, setDisability] = useState<string>("");
+  const [days, setDays] = useState<string[]>([""]);
+  const [honeyRange, setHoneyRange] = useState<number[]>([200, 500]);
 
-    gender,
-    setGender,
+  /* ---------------- handlers ---------------- */
 
-    disability,
-    setDisability,
+  const removeRegion = (region: string) => {
+    setRegions((prev) => prev.filter((r) => r !== region));
+  };
 
-    days,
-    toggleDay,
+  const toggleHelpType = (label: string) => {
+    setSelectedHelpTypes((prev) =>
+      prev.includes(label) ? prev.filter((t) => t !== label) : [...prev, label]
+    );
+  };
 
-    resetAll,
-  } = useFilterStore();
+  const toggleDay = (day: string) => {
+    setDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
+  const resetAll = () => {
+    setRegions(["서울 은평구 전체"]);
+    setSelectedHelpTypes([""]);
+    setGender("여자");
+    setDisability("");
+    setDays([""]);
+    setHoneyRange([0, 500]);
+  };
 
   const handleAddRegion = () => {
     alert("지역 추가 기능은 아직 구현되지 않았습니다!");
@@ -41,24 +56,26 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
     onClose();
   };
 
-  return (
-    <>
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <Dim
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.4 }}
-              exit={{ opacity: 0 }}
-              onClick={onClose}
-            />
+  /* ---------------- render ---------------- */
 
-            <Sheet
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ duration: 0.3 }}
-            >
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <Dim
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.4 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          />
+
+          <Sheet
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ duration: 0.3 }}
+          >
+            <Container>
               <HandleBarWrapper>
                 <HandleBar />
               </HandleBarWrapper>
@@ -66,7 +83,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
               <Title>맞춤조건 설정</Title>
 
               <Content>
-                {/* 🔶 도움 지역 */}
+                {/* 도움 지역 */}
                 <Section>
                   <Header>
                     <Label>도움 지역</Label>
@@ -93,10 +110,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
 
                 {/* 도움 유형 */}
                 <Section>
-                  <Header>
-                    <Label>도움 유형</Label>
-                  </Header>
-
+                  <Label>도움 유형</Label>
                   <Row>
                     {HELP_TAGS.map((label) => (
                       <Badge
@@ -113,7 +127,6 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                 {/* 성별 */}
                 <Section>
                   <Label>성별</Label>
-
                   <GenderTabs>
                     <GenderTab
                       $active={gender === "남자"}
@@ -130,14 +143,13 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                   </GenderTabs>
                 </Section>
 
-                {/* 🍯 회당 획득 꿀 */}
+                {/* 꿀 범위 */}
                 <Label>회당 획득 꿀</Label>
-                <HoneyRange />
+                <HoneyRange value={honeyRange} onChange={setHoneyRange} />
 
                 {/* 장애 유형 */}
                 <Section>
                   <Label>장애 유형</Label>
-
                   <Row>
                     {DISABILITY_TYPES.map((v) => (
                       <Badge
@@ -151,7 +163,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                   </Row>
                 </Section>
 
-                {/* 도움 요일 */}
+                {/* 요일 */}
                 <Section>
                   <Header>
                     <Label>도움 요일</Label>
@@ -174,21 +186,19 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                 </Section>
               </Content>
 
-              {/* 하단 버튼 */}
               <Buttons>
                 <ResetBtn onClick={resetAll}>초기화</ResetBtn>
                 <SubmitBtn onClick={handleSubmit}>완료</SubmitBtn>
               </Buttons>
-            </Sheet>
-          </>
-        )}
-      </AnimatePresence>
-    </>
+            </Container>
+          </Sheet>
+        </>
+      )}
+    </AnimatePresence>
   );
 };
 
 export default FilterBottomSheet;
-
 /* ---------------- styled-components ---------------- */
 
 const Dim = styled(motion.div)`
@@ -203,14 +213,20 @@ const Sheet = styled(motion.div)`
   left: 0;
   right: 0;
   bottom: 0;
-  max-width: 430px;
-  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  z-index: 101;
+`;
+
+const Container = styled.div`
+  width: 100%;
+  max-width: 375px;
+  max-height: 85vh;
+
   background: ${({ theme }) => theme.color.white};
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
-  z-index: 100;
 
-  max-height: 85vh;
   display: flex;
   flex-direction: column;
 `;

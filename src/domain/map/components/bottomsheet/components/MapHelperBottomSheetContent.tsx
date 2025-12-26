@@ -1,9 +1,9 @@
 import React from "react";
 import MapHelperBottomSheetPostCard from "./MapHelperBottomSheetPostCard";
-import { useMapHelperPostStore } from "../../../../../store/useMapHelperPostStore";
-
+// import { useMapHelperPostStore } from "../../../../../store/useMapHelperPostStore";
+import { usePostStore } from "../../../../../store/usePostStore";
 const MapHelperBottomSheetContent = () => {
-  const { posts } = useMapHelperPostStore();
+  const { posts } = usePostStore();
 
   return (
     <>

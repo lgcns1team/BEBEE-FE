@@ -2,6 +2,11 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Slider from "@mui/material/Slider";
 
+interface HoneyRangeProps {
+  value: number[];
+  onChange: (value: number[]) => void;
+}
+
 const marks = [
   {
     value: 0,
@@ -49,12 +54,9 @@ const marks = [
   },
 ];
 
-function valuetext(value: number) {
-  return `${value}`;
-}
+const HIDE_LABEL_VALUES = [0, 500, 1000];
 
-export default function RangeSlider() {
-  const [value, setValue] = React.useState<number[]>([200, 500]);
+export default function RangeSlider({ value, onChange }: HoneyRangeProps) {
   const minDistance = 100;
 
   const handleChange = (_: Event, newValue: number | number[]) => {
@@ -63,10 +65,10 @@ export default function RangeSlider() {
     const [min, max] = newValue;
     if (max - min < minDistance) return;
 
-    setValue(newValue);
+    onChange(newValue);
   };
   return (
-    <Box sx={{ width: 340 }}>
+    <Box sx={{ width: 330 }}>
       <Slider
         value={value}
         onChange={handleChange}
@@ -76,7 +78,11 @@ export default function RangeSlider() {
         max={1000}
         disableSwap
         valueLabelDisplay="on"
-        valueLabelFormat={(v) => (v === 1000 ? "1000+" : v)}
+        valueLabelFormat={(v) => {
+          if (HIDE_LABEL_VALUES.includes(v)) return "";
+
+          return v === 1000 ? "1000+" : v;
+        }}
         sx={{
           color: "#FFBE00",
           height: 6,
@@ -86,8 +92,8 @@ export default function RangeSlider() {
             color: "#FFBE00",
             fontWeight: 400,
             fontSize: "12px",
-            top: 20,
-            transform: "translateY(0)",
+            top: "50%",
+            transform: "translate(0%,53%)",
           },
 
           "& .MuiSlider-track": {

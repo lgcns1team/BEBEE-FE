@@ -1,9 +1,8 @@
 import styled from "styled-components";
-import PostCard from "../components/list/PostCard";
 import { usePostStore } from "../../../store/usePostStore";
-import { useSortStore } from "../../../store/useSortStore";
 import { useState, useEffect } from "react";
 
+import PostCard from "../components/list/PostCard";
 import FilterButton from "../components/list/FilterButton";
 import FilterBottomSheet from "../components/bottomsheet/FilterBottomSheet";
 import { IoChevronDown } from "react-icons/io5";
@@ -11,74 +10,45 @@ import { IoChevronDown } from "react-icons/io5";
 import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
 import WriteButton from "../components/common/WriteButton";
-import { useNavigate } from "react-router-dom";
 import { Checkbox } from "../../../components/Checkbox";
+import { postMockData } from "../mock/post.mock";
+
+type TabType = "전체" | "하루 도움" | "지속 도움";
 
 const HomePage = () => {
+  const { posts, setPosts } = usePostStore();
+
+  /** 🔹 local UI state */
+  const [activeTab, setActiveTab] = useState<TabType>("전체");
+  const [excludeDone, setExcludeDone] = useState(false);
+  const [sort, setSort] = useState("");
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const navigate = useNavigate();
+
   const toggleSort = () => setIsSortOpen((prev) => !prev);
 
-  // const goWrite = () => {
-  //   navigate("/post/write");
-  // };
   const handleSelectSort = (value: string) => {
     setSort(value);
     setIsSortOpen(false);
   };
-  const { posts, setPosts } = usePostStore();
-  const {
-    sort,
-    activeTab,
-    excludeDone,
-    setSort,
-    setActiveTab,
-    setExcludeDone,
-  } = useSortStore();
 
-  /** 더미 데이터 */
+  /** 더미 데이터 세팅 */
   useEffect(() => {
-    setPosts([
-      {
-        id: 1,
-        title: "상체 운동 PT해주실 분 구합니다",
-        location: "장충동",
-        date: "11월 30일 (화)",
-        honey: 300,
-        category: "하루 도움",
-        done: false,
-        tags: ["이동 지원", "생활 지원"],
-      },
-      {
-        id: 2,
-        title: "굿모닝 마트에서 한우 육회 1++",
-        location: "장충동",
-        date: "11월 30일 (화)",
-        honey: 200,
-        category: "하루 도움",
-        done: true,
-        tags: ["생활 지원"],
-      },
-      {
-        id: 3,
-        title: "굿모닝 마트에서 한우 육회 1++",
-        location: "장충동",
-        date: "월요일, 수요일",
-        honey: 200,
-        category: "지속 도움",
-        done: true,
-        tags: ["생활 지원"],
-      },
-    ]);
+    setPosts(postMockData);
   }, [setPosts]);
 
-  /** 필터된 게시글 */
-  const filteredPosts = posts.filter((p) => {
-    if (activeTab !== "전체" && p.category !== activeTab) return false;
-    if (excludeDone && p.done) return false;
-    return true;
-  });
+  /** 🔹 필터 + 정렬 */
+  const filteredPosts = posts
+    .filter((p) => {
+      if (activeTab !== "전체" && p.category !== activeTab) return false;
+      if (excludeDone && p.done) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sort === "최신순") return b.id - a.id;
+      if (sort === "마감순") return Number(a.done) - Number(b.done);
+      return 0;
+    });
 
   return (
     <Layout>
@@ -96,7 +66,7 @@ const HomePage = () => {
           ))}
         </TabBar>
 
-        {/* ---------------- Filters Row ---------------- */}
+        {/* ---------------- Filter Row ---------------- */}
         <FilterRow>
           <FilterButton onClick={() => setIsFilterSheetOpen(true)} />
 
@@ -113,6 +83,7 @@ const HomePage = () => {
               </div>
             )}
           </SortSelect>
+
           <Checkbox
             checked={excludeDone}
             onChange={setExcludeDone}
@@ -127,13 +98,13 @@ const HomePage = () => {
           ))}
         </ListWrapper>
 
-        {/* ---------------- Filter BottomSheet ---------------- */}
+        {/* ---------------- BottomSheet ---------------- */}
         <FilterBottomSheet
           isOpen={isFilterSheetOpen}
           onClose={() => setIsFilterSheetOpen(false)}
         />
-        <WriteButton />
 
+        <WriteButton />
         <NavBar />
       </Wrapper>
     </Layout>

@@ -7,7 +7,7 @@ import { IoWarningOutline } from "react-icons/io5";
 import { RiShieldUserLine } from "react-icons/ri";
 import { BsPencil } from "react-icons/bs";
 import { IoTrashOutline } from "react-icons/io5";
-// import Layout from "../../../../components/Layout";
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;

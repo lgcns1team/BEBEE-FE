@@ -3,10 +3,9 @@ import { useNavigate } from "react-router-dom";
 import Header from "../../../components/Header";
 import Layout from "../../../components/Layout";
 import PeriodToggle from "../components/common/PeriodToggle";
-import Category from "../components/common/Category";
+import Category, { type TabType } from "../components/common/Category";
 import MatchingPostCard from "../components/list/MatchingPostCard";
-import { useMatchPostStore } from "../../../store/useMatchPostStore";
-import { useTabStore } from "../../../store/useTabStore";
+import { usePostStore } from "../../../store/usePostStore";
 import NavBar from "../../../components/NavBar";
 import styled from "styled-components";
 import MonthlyCalendar from "../components/common/MonthlyCalendar";
@@ -14,14 +13,14 @@ import WeeklyCalendar from "../components/common/WeeklyCalendar";
 
 const MatchingPage = () => {
   const navigate = useNavigate();
-  const { posts } = useMatchPostStore();
-  const { activeTab } = useTabStore();
+  const { posts } = usePostStore();
 
+  const [activeTab, setActiveTab] = useState<TabType>("전체");
   const [period, setPeriod] = useState<"week" | "month">("month");
 
-  const filteredPosts = posts.filter((post) => {
-    if (activeTab === "전체") return true;
-    return post.category === activeTab;
+  const filteredPosts = posts.filter((p) => {
+    if (activeTab !== "전체" && p.category !== activeTab) return false;
+    return true;
   });
 
   return (
@@ -32,7 +31,9 @@ const MatchingPage = () => {
         <StickyBox>
           <PeriodToggle active={period} onChange={setPeriod} />
           {period === "week" ? <WeeklyCalendar /> : <MonthlyCalendar />}
-          <Category />
+
+          {/* ✅ 여기만 props로 연결 */}
+          <Category activeTab={activeTab} onChange={setActiveTab} />
         </StickyBox>
 
         <ScrollArea>
@@ -46,6 +47,8 @@ const MatchingPage = () => {
     </Layout>
   );
 };
+
+export default MatchingPage;
 
 const PageContainer = styled.div`
   display: flex;
@@ -70,5 +73,3 @@ const ScrollArea = styled.div`
     display: none;
   }
 `;
-
-export default MatchingPage;

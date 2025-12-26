@@ -12,7 +12,7 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import "./App.css";
-import ProfilePage from "./domain/profile/pages/ProfilePage";
+import DisabledProfilePage from "./domain/profile/pages/DisabledProfilePage";
 import DayHelpWrite from "./domain/post/components/write/DayHelpWrite";
 import LongHelpWrite from "./domain/post/components/write/LongHelpWrite";
 import MapUserPage from "./domain/map/pages/MapUserPage";
@@ -29,6 +29,7 @@ import AuthSignUpStep3Page from "./domain/auth/pages/AuthSignUpStep3Page";
 import AuthSignUpStep4Page from "./domain/auth/pages/AuthSignUpStep4Page";
 import AuthSignUpStep5Page from "./domain/auth/pages/AuthSignUpStep5Page";
 import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
+import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -52,6 +53,9 @@ function App() {
           <Route path="/chat/:chatId/match" element={<MatchFormPage />} />
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
+
+          {/* 타인이 보는 프로필 정보 */}
+          <Route path="/profile-info" element={<ProfileInfoPage />} />
           {/*테스트*/}
           <Route path="/mypage-1" element={<DisabledMyPage />} />
           <Route path="/mypage-2" element={<HelperMyPage />} />
@@ -69,7 +73,7 @@ function App() {
           {/* 리뷰 */}
           <Route path="/review" element={<ReviewPage />} />
           {/* 프로필 */}
-          <Route path="profile" element={<ProfilePage />} />
+          <Route path="profile" element={<DisabledProfilePage />} />
           {/*  테스트 */}
           <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
           <Route path="applicate-status" element={<ApplicateStatusPage />} />
