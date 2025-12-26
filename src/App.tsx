@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./domain/post/pages/HomePage";
 import PostDetailPage from "./domain/post/pages/PostDetailPage";
@@ -24,7 +23,12 @@ import HelperMyPage from "./domain/mypage/page/HelperMyPage";
 import ApplicateLandingPage from "./domain/Application/page/ApplicateLandingPage";
 import ApplicateStatusPage from "./domain/Application/page/ApplicateStatusPage";
 import ApplicantPage from "./domain/Application/page/ApplicantPage";
-
+import AuthSignUpStep1Page from "./domain/auth/pages/AuthSignUpStep1Page";
+import AuthSignUpStep2Page from "./domain/auth/pages/AuthSignUpStep2Page";
+import AuthSignUpStep3Page from "./domain/auth/pages/AuthSignUpStep3Page";
+import AuthSignUpStep4Page from "./domain/auth/pages/AuthSignUpStep4Page";
+import AuthSignUpStep5Page from "./domain/auth/pages/AuthSignUpStep5Page";
+import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
 import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 function App() {
   return (
@@ -74,6 +78,14 @@ function App() {
           <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
           <Route path="applicate-status" element={<ApplicateStatusPage />} />
           <Route path="/applicant/:id" element={<ApplicantPage />} />
+
+          {/* 회원가입 */}
+          <Route path="/signup/step1" element={<AuthSignUpStep1Page />} />
+          <Route path="/signup/step2" element={<AuthSignUpStep2Page />} />
+          <Route path="/signup/step3" element={<AuthSignUpStep3Page />} />
+          <Route path="/signup/step4" element={<AuthSignUpStep4Page />} />
+          <Route path="/signup/step5" element={<AuthSignUpStep5Page />} />
+          <Route path="/signup/step6" element={<AuthSignUpStep6Page />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
