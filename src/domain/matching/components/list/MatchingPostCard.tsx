@@ -5,70 +5,70 @@ import type { Post } from "../../../../store/usePostStore";
 import HelpTag from "../../../../components/HelpTag";
 import OneDayBadge from "../../../../components/OneDayBadge";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import NoticeMessage from "../common/NoticeMessage";
-import { useUserStore } from "../../../../store/useUserStore";
+
+import { useProfileStore } from "../../../../store/useProfileStore";
+import { useChatHandler } from "../../../../hooks/useChatHandler";
+import { useMatchStore } from "../../store/useMatchStore";
 
 interface Props {
   post: Post;
 }
 
-const DAY_KR_MAP: Record<
-  "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN",
-  string
-> = {
-  MON: "월요일",
-  TUE: "화요일",
-  WED: "수요일",
-  THU: "목요일",
-  FRI: "금요일",
-  SAT: "토요일",
-  SUN: "일요일",
-};
-
-const formatKoreanDate = (date?: Date) => {
-  if (!date) return "";
-
-  const d = new Date(date);
-  const month = d.getMonth() + 1;
-  const day = d.getDate();
-
-  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-  const dayOfWeek = dayNames[d.getDay()];
-
-  return `${month}월 ${day}일 (${dayOfWeek})`;
-};
-
 const MatchingPostCard = ({ post }: Props) => {
   const navigate = useNavigate();
-  const [showNotice, setShowNotice] = useState(false);
-  const [isIncomplete, setIsIncomplete] = useState(false);
-  const { getUserByMemberId } = useUserStore();
 
-  const author = getUserByMemberId(post.memberId);
-  const goReview = () => navigate("/review");
-  const goMatchingInfo = () => navigate(`/match-info/${post.postId}`);
-  const handleMarkIncomplete = () => {
-    setShowNotice(true);
+  const getAgreementByPostId = useMatchStore(
+    (state) => state.getAgreementByPostId
+  );
+  const agreement = getAgreementByPostId(post.postId);
+  const engagementStatus = agreement?.help.engagementStatus;
+  const { getUserByMemberId } = useProfileStore();
+  const author = post.memberId ? getUserByMemberId(post.memberId) : undefined;
+
+  const goMatchingInfo = () => {
+    if (!agreement) return;
+    navigate(`/match-info/${agreement.agreementId}`);
   };
 
-  const handleConfirmIncomplete = () => {
-    setShowNotice(false);
-    setIsIncomplete(true);
+  const goReviewPage = () => {
+    navigate(`/review`);
   };
 
+  const { handleChatOpen } = useChatHandler();
+  const DAY_KR_MAP: Record<
+    "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN",
+    string
+  > = {
+    MON: "월요일",
+    TUE: "화요일",
+    WED: "수요일",
+    THU: "목요일",
+    FRI: "금요일",
+    SAT: "토요일",
+    SUN: "일요일",
+  };
+
+  const formatKoreanDate = (date?: Date) => {
+    if (!date) return "";
+
+    const d = new Date(date);
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+
+    const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+    const dayOfWeek = dayNames[d.getDay()];
+
+    return `${month}월 ${day}일 (${dayOfWeek})`;
+  };
   return (
     <>
       <Card>
-        {/* ---------- Top ---------- */}
         <TopArea>
           <Title onClick={goMatchingInfo}>{post.title}</Title>
           {post.type === "하루 도움" && <OneDayBadge>하루 도움</OneDayBadge>}
         </TopArea>
 
-        {/* ---------- Bottom ---------- */}
         <BottomArea>
-          {/* 왼쪽 정보 */}
           <BottomLeft>
             <User>{author?.name}</User>
 
@@ -84,7 +84,6 @@ const MatchingPostCard = ({ post }: Props) => {
               {post.type === "하루 도움" && (
                 <InfoText>{formatKoreanDate(post.engagementDate)}</InfoText>
               )}
-
               {/* 지속 도움 */}
               {post.type === "지속 도움" && (
                 <InfoText>
@@ -94,15 +93,12 @@ const MatchingPostCard = ({ post }: Props) => {
                 </InfoText>
               )}
             </InfoLine>
-
             <TagRow>
               {post.categoryName.map((category) => (
                 <HelpTag key={category}>{category}</HelpTag>
               ))}
             </TagRow>
           </BottomLeft>
-
-          {/* 오른쪽 이미지 */}
           {post.imageUrl && (
             <BottomRight>
               <Thumbnail>
@@ -112,45 +108,35 @@ const MatchingPostCard = ({ post }: Props) => {
           )}
         </BottomArea>
 
-        {/* ---------- Buttons ---------- */}
         <BottomBar>
           <BottomInner>
-            <ChatButton>
+            <ChatButton
+              onClick={() =>
+                handleChatOpen(100, { chatroomId: agreement?.agreementId })
+              }
+            >
               <BsChat size={12} />
               <span>채팅하기</span>
             </ChatButton>
 
-            {post.status ? (
-              <ReviewButton onClick={goReview}>
-                <BsPencil size={12} />
-                <span>리뷰 보내기</span>
-              </ReviewButton>
-            ) : (
-              <DoneButton
-                disabled={isIncomplete}
-                $inactive={isIncomplete}
-                onClick={handleMarkIncomplete}
-              >
-                활동 미완료
+            {engagementStatus === "COMPLETED" ? (
+              <DoneButton>
+                <span>활동 완료</span>
               </DoneButton>
+            ) : (
+              <ReviewButton onClick={goReviewPage}>
+                <BsPencil size={12} />
+                <span>리뷰 작성하기</span>
+              </ReviewButton>
             )}
           </BottomInner>
         </BottomBar>
       </Card>
-      {showNotice && (
-        <NoticeMessage
-          onCancel={() => setShowNotice(false)}
-          onConfirm={handleConfirmIncomplete}
-        />
-      )}
     </>
   );
 };
 
 export default MatchingPostCard;
-
-/* ---------------- styled ---------------- */
-
 const Card = styled.div`
   display: flex;
   flex-direction: column;
@@ -178,10 +164,6 @@ const BottomLeft = styled.div`
   display: flex;
   flex-direction: column;
   gap: 6px;
-`;
-
-const BottomRight = styled.div`
-  flex-shrink: 0;
 `;
 
 const Title = styled.div`
@@ -241,7 +223,9 @@ const BottomInner = styled.div`
   display: flex;
   gap: 12px;
 `;
-
+const BottomRight = styled.div`
+  flex-shrink: 0;
+`;
 const ChatButton = styled.button`
   flex: 1;
   height: 40px;

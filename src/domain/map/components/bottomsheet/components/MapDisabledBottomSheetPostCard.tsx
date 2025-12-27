@@ -1,6 +1,5 @@
-import React from "react";
 import styled from "styled-components";
-import type { HelperProfile } from "../../../../../store/useUserStore";
+import type { HelperProfile } from "../../../../../store/useProfileStore";
 import type { Post } from "../../../../../store/usePostStore";
 import HelpTag from "../../../../../components/HelpTag";
 import { FaDroplet } from "react-icons/fa6";

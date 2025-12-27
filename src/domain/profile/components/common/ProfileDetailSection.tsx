@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom";
-import { useUserStore } from "../../../../store/useUserStore";
+import { useProfileStore } from "../../../../store/useProfileStore";
 
 import styled from "styled-components";
 const ProfileDetailSection = () => {
   const { profileId } = useParams<{ profileId: string }>();
 
-  const { role, disabledProfiles, helperProfiles } = useUserStore();
+  const { role, disabledProfiles, helperProfiles } = useProfileStore();
 
   const id = Number(profileId);
 
@@ -27,7 +27,7 @@ const ProfileDetailSection = () => {
       <Top>
         <ProfileImage src={profile?.profileImageUrl} />
         <TopRight>
-          <NickName>{profile?.nickname}</NickName>
+          <NickName>{profile?.name}</NickName>
 
           {role === "HELPER" && (
             <>
@@ -116,44 +116,3 @@ const InfoValue = styled.div`
   line-height: 1.4;
   word-break: break-word;
 `;
-
-// const ExperienceSection = styled.div`
-//   background-color: ${({ theme }) => theme.color.white};
-//   border-radius: ${({ theme }) => theme.borderRadius.lg};
-//   width: 100%;
-//   margin-top: 20px;
-//   padding: 20px;
-//   display: flex;
-//   flex-direction: column;
-//   gap: 12px;
-// `;
-
-// const Title = styled.div`
-//   font-size: ${({ theme }) => theme.size.md};
-//   font-weight: ${({ theme }) => theme.weight.bold};
-// `;
-
-// const ExperienceType = styled.div`
-//   font-size: ${({ theme }) => theme.size.sm};
-//   background-color: ${({ theme }) => theme.color.subColor};
-//   border-radius: ${({ theme }) => theme.borderRadius.md};
-//   padding: 8px 12px;
-//   display: flex;
-//   justify-content: space-between;
-// `;
-
-// const ExperienceContent = styled.div`
-//   font-size: ${({ theme }) => theme.size.md};
-// `;
-
-// const ExperienceInfo = styled.div`
-//   font-size: ${({ theme }) => theme.size.sm};
-//   color: ${({ theme }) => theme.color.subText2};
-// `;
-
-// const ExperienceDescription = styled.div`
-//   font-size: ${({ theme }) => theme.size.sm};
-//   border: 1px solid ${({ theme }) => theme.color.main};
-//   border-radius: ${({ theme }) => theme.borderRadius.md};
-//   padding: 12px;
-// `;

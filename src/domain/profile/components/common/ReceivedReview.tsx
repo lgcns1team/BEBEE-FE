@@ -1,14 +1,13 @@
-import React from "react";
 import styled from "styled-components";
 import ReviewBadge from "../../../../components/ReviewBadge";
-import { useUserStore } from "../../../../store/useUserStore";
+import { useProfileStore } from "../../../../store/useProfileStore";
 
 interface Props {
   profileId?: number;
 }
 
 const ReceivedReview = ({ profileId }: Props) => {
-  const { role, disabledProfiles, helperProfiles } = useUserStore();
+  const { role, disabledProfiles, helperProfiles } = useProfileStore();
 
   const profile =
     role === "DISABLED"

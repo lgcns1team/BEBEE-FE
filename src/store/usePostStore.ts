@@ -7,7 +7,6 @@ export interface Post {
   postId: number;
   title: string;
   region: string;
-  detailPlace?: string;
 
   unitHoney?: number;
   totalHoney: number;
@@ -20,7 +19,7 @@ export interface Post {
 
   memberId?: number;
   content?: string;
-
+  agreementId?: number;
   // 하루 도움
   engagementDate?: Date;
   startTime?: Date;

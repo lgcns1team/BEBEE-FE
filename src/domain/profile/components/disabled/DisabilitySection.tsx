@@ -1,12 +1,12 @@
 import styled from "styled-components";
-import { useUserStore } from "../../../../store/useUserStore";
+import { useProfileStore } from "../../../../store/useProfileStore";
 
 interface Props {
   profileId?: number;
 }
 
 const DisabilitySection = ({ profileId }: Props) => {
-  const { disabledProfiles } = useUserStore();
+  const { disabledProfiles } = useProfileStore();
   const profile = disabledProfiles.find((p) => p.memberId === profileId);
   return (
     <Description>

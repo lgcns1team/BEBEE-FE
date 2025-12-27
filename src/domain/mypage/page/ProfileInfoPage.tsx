@@ -1,7 +1,6 @@
-import React from "react";
 import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
-import { useUserStore } from "../../../store/useUserStore";
+import { useProfileStore } from "../../../store/useProfileStore";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 import ReceivedReview from "../../profile/components/common/ReceivedReview";
@@ -9,7 +8,7 @@ const ProfileInfoPage = () => {
   const navigate = useNavigate();
   const { infoId } = useParams<{ infoId: string }>();
 
-  const { role, disabledProfiles, helperProfiles } = useUserStore();
+  const { role, disabledProfiles, helperProfiles } = useProfileStore();
 
   const id = Number(infoId);
 

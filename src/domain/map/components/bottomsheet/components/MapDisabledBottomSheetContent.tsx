@@ -1,9 +1,8 @@
-import React from "react";
 import MapBottomSheetPostCard from "./MapDisabledBottomSheetPostCard";
-import { useUserStore } from "../../../../../store/useUserStore";
+import { useProfileStore } from "../../../../../store/useProfileStore";
 import { usePostStore } from "../../../../../store/usePostStore";
 const MapDisabledBottomSheetContent = () => {
-  const helperProfiles = useUserStore((state) => state.helperProfiles);
+  const helperProfiles = useProfileStore((state) => state.helperProfiles);
   const posts = usePostStore((state) => state.posts);
 
   return (

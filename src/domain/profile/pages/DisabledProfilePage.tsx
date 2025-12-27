@@ -1,9 +1,8 @@
-import React from "react";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 import { useNavigate, useParams } from "react-router-dom";
 import DisabilitySection from "../components/disabled/DisabilitySection";
-import { useUserStore } from "../../../store/useUserStore";
+import { useProfileStore } from "../../../store/useProfileStore";
 import ReceivedReview from "../components/common/ReceivedReview";
 import ProfileHelpPostCard from "../components/disabled/ProfileHelpPostCard";
 import ProfileDetailSection from "../components/common/ProfileDetailSection";
@@ -13,7 +12,7 @@ import styled from "styled-components";
 const DisabledProfilePage = () => {
   const navigate = useNavigate();
   const { profileId } = useParams<{ profileId: string }>();
-  const { disabledProfiles } = useUserStore();
+  const { disabledProfiles } = useProfileStore();
   const id = Number(profileId);
   const profile = disabledProfiles.find((p) => p.memberId === id);
   const posts = usePostStore((state) => state.posts);

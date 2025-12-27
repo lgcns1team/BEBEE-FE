@@ -1,4 +1,7 @@
-import type { DisabledProfile, HelperProfile } from "../../store/useUserStore";
+import type {
+  DisabledProfile,
+  HelperProfile,
+} from "../../store/useProfileStore";
 
 import { postMockData } from "../../mock/post/post.mock";
 import BeeImage from "../../assets/images/bee-santa.png";

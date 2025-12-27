@@ -16,6 +16,7 @@ export const postMockData: Post[] = [
     endTime: new Date(2024, 10, 30, 15, 0),
     content:
       "매주 혼자 병원을 가는 게 벅차서 도우미 구합니다. 휠체어가 들어가는 SUV 차량 이상이었으면 좋겠어요. 왕복으로 지원해주셔야 합니다. 왔다갔다 하는 시간 + 진료 보는 시간 총 3시간 정도 걸려요. 신촌동 부근으로 오시면 되고 자세한 주소는 채팅으로 말씀드리겠습니다. 병원은 은평세브란스병원입니다!",
+    agreementId: 1,
   },
   {
     postId: 2,
@@ -32,6 +33,7 @@ export const postMockData: Post[] = [
     endTime: new Date(2024, 10, 30, 15, 0),
     content:
       "너무너무 도움이 필요한 상황입니다! 응급 상황이므로 빠른 지원 부탁드립니다!",
+    agreementId: 2,
   },
   {
     postId: 3,
@@ -56,6 +58,7 @@ export const postMockData: Post[] = [
     status: true,
     categoryName: ["생활 지원"],
     memberId: 2,
+    agreementId: 3,
   },
   {
     postId: 4,
@@ -78,5 +81,6 @@ export const postMockData: Post[] = [
     status: true,
     categoryName: ["생활 지원"],
     memberId: 3,
+    agreementId: 4,
   },
 ];

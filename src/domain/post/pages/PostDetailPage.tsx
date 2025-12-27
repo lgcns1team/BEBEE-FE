@@ -9,14 +9,14 @@ import HelpTagBee from "../../../assets/images/helptag-bee.png";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 import { usePostStore } from "../../../store/usePostStore";
-import { useUserStore } from "../../../store/useUserStore";
+import { useProfileStore } from "../../../store/useProfileStore";
 import BeeImage from "../../../assets/images/bee-letter.png";
 const PostDetailPage = () => {
   const navigate = useNavigate();
 
   const { postId } = useParams<{ postId: string }>();
 
-  const { disabledProfiles } = useUserStore();
+  const { disabledProfiles } = useProfileStore();
 
   const postIdNum = Number(postId);
 

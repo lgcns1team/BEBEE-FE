@@ -32,7 +32,6 @@ const MatchingPage = () => {
           <PeriodToggle active={period} onChange={setPeriod} />
           {period === "week" ? <WeeklyCalendar /> : <MonthlyCalendar />}
 
-          {/* ✅ 여기만 props로 연결 */}
           <Category activeTab={activeTab} onChange={setActiveTab} />
         </StickyBox>
 

@@ -2,11 +2,11 @@ import styled from "styled-components";
 import Image from "../../../../assets/images/helptag-bee.png";
 import { IoChevronForward } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { useUserStore } from "../../../../store/useUserStore";
+import { useProfileStore } from "../../../../store/useProfileStore";
 
 const ProfileSection = () => {
   const navigate = useNavigate();
-  const { role, disabledProfiles, helperProfiles } = useUserStore();
+  const { role, disabledProfiles, helperProfiles } = useProfileStore();
   // 일단은 맨 첫번째 유저의 정보 보여줌
   const profile = role === "DISABLED" ? disabledProfiles[0] : helperProfiles[0];
 
