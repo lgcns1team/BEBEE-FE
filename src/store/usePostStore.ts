@@ -1,90 +1,74 @@
 import { create } from "zustand";
 import { postMockData } from "../mock/post/post.mock";
 
-/* ---------- types ---------- */
-
 export interface Post {
-  postId: number;
+  id: number;
   title: string;
-  region: string;
-
-  unitHoney?: number;
-  totalHoney: number;
-
-  type: "하루 도움" | "지속 도움";
-  status: boolean; // 매칭 완료 여부
-
-  categoryName: string[];
-  imageUrl?: string;
-
-  memberId?: number;
-  content?: string;
-  agreementId?: number;
-  // 하루 도움
-  engagementDate?: Date;
-  startTime?: Date;
-  endTime?: Date;
-
-  // 지속 도움
-  startDate?: Date;
-  endDate?: Date;
-  dayOfWeek?: Schedule[];
+  location: string;
+  dates?: string[];
+  honey?: number;
+  category?: string; // 하루 도움 / 지속 도움
+  done?: boolean; // 매칭 완료 여부
+  tags: string[];
+  image?: string;
+  user?: string;
+  description?: string;
+  // 하루도움
+  time?: string;
+  // 지속도움
+  schedule?: string[];
+  detailPlace?: string;
+  // startTime: Date;
+  // endTime: Date;
 }
 
-interface Schedule {
-  dayOfWeek: "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN";
-  startTime: string;
-  endTime: string;
+export interface WeekSchedule {
+  day: string;
+  start: Date | null;
+  end: Date | null;
 }
 
 export interface PostData {
-  /* 공통 */
+  // 기본 정보
   title?: string;
-  content?: string;
-  imageUrl?: string;
-  categoryName?: string[];
+  tags?: string[];
+  image?: string;
 
-  /* 하루 도움 */
-  engagementDate?: Date | null;
+  // 하루 도움용
+  oneDayDate?: Date | null;
   startTime?: Date | null;
   endTime?: Date | null;
 
-  /* 지속 도움 */
-  startDate?: Date | null;
-  endDate?: Date | null;
-  dayOfWeek?: Schedule[];
+  // 지속 도움용
+  periodStart: Date | null;
+  periodEnd: Date | null;
+  weeks: WeekSchedule[];
 }
 
 interface PostState {
   posts: Post[];
+  setPosts: (data: Post[]) => void;
   postData: PostData;
-
-  setPosts: (posts: Post[]) => void;
-
   setPostData: (data: PostData | ((prev: PostData) => PostData)) => void;
-
   resetPostData: () => void;
 }
 
 const initialPostData: PostData = {
-  engagementDate: null,
+  oneDayDate: null,
   startTime: null,
   endTime: null,
-  startDate: null,
-  endDate: null,
-  dayOfWeek: [],
+  periodStart: null,
+  periodEnd: null,
+  weeks: [],
 };
 
 export const usePostStore = create<PostState>((set) => ({
   posts: postMockData,
+  setPosts: (data) => set({ posts: data }),
   postData: initialPostData,
-
-  setPosts: (posts) => set({ posts }),
-
   setPostData: (data) =>
     set((state) => ({
       postData: typeof data === "function" ? data(state.postData) : data,
     })),
-
   resetPostData: () => set({ postData: initialPostData }),
 }));

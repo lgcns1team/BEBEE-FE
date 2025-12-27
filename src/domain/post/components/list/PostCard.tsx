@@ -12,42 +12,16 @@ interface Props {
   post: Post;
 }
 
-const DAY_KR_MAP: Record<
-  "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN",
-  string
-> = {
-  MON: "월요일",
-  TUE: "화요일",
-  WED: "수요일",
-  THU: "목요일",
-  FRI: "금요일",
-  SAT: "토요일",
-  SUN: "일요일",
-};
-
-const formatKoreanDate = (date?: Date) => {
-  if (!date) return "";
-
-  const d = new Date(date);
-  const month = d.getMonth() + 1;
-  const day = d.getDate();
-
-  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-  const dayOfWeek = dayNames[d.getDay()];
-
-  return `${month}월 ${day}일 (${dayOfWeek})`;
-};
-
 const PostCard = ({ post }: Props) => {
   const navigate = useNavigate();
   return (
-    <Card onClick={() => navigate(`/post/${post.postId}`)}>
+    <Card onClick={() => navigate(`/post/${post.id}`)}>
       <Content>
         <TopArea>
           <Title>{post.title}</Title>
           <RightTop>
-            {post.type === "하루 도움" && (
-              <OneDayBadge>{post.type}</OneDayBadge>
+            {post.category === "하루 도움" && (
+              <OneDayBadge>{post.category}</OneDayBadge>
             )}
           </RightTop>
         </TopArea>
@@ -56,30 +30,20 @@ const PostCard = ({ post }: Props) => {
           {/* 왼쪽 정보 */}
           <BottomLeft>
             <HoneyRow>
-              {post.status && <DoneBadge>매칭 완료</DoneBadge>}
-              <Honey>{post.totalHoney} 꿀</Honey>
+              {post.done && <DoneBadge>매칭 완료</DoneBadge>}
+              <Honey>{post.honey} 꿀</Honey>
             </HoneyRow>
 
             <InfoLine>
               <MapPinIcon size={16} />
-              <InfoText>{post.region}</InfoText>
+              <InfoText>{post.location}</InfoText>
             </InfoLine>
 
             <InfoLine>
               <CalendarIcon size={16} />
-
-              {/* 하루 도움 */}
-              {post.type === "하루 도움" && (
-                <InfoText>{formatKoreanDate(post.engagementDate)}</InfoText>
-              )}
-              {/* 지속 도움 */}
-              {post.type === "지속 도움" && (
-                <InfoText>
-                  {post.dayOfWeek
-                    ?.map((schedule) => DAY_KR_MAP[schedule.dayOfWeek])
-                    .join(", ")}
-                </InfoText>
-              )}
+              {post.dates?.map((date) => (
+                <InfoText key={date}>{date}</InfoText>
+              ))}
             </InfoLine>
 
             <TagWrapper>
@@ -88,10 +52,10 @@ const PostCard = ({ post }: Props) => {
           </BottomLeft>
 
           {/* 오른쪽 이미지 (태그 아래 위치) */}
-          {post.imageUrl && (
+          {post.image && (
             <BottomRight>
               <Thumbnail>
-                <img src={post.imageUrl} alt="thumbnail" />
+                <img src={post.image} alt="thumbnail" />
               </Thumbnail>
             </BottomRight>
           )}

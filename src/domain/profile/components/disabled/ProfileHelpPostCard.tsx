@@ -1,4 +1,3 @@
-import React from "react";
 import styled from "styled-components";
 import DoneBadge from "../../../../components/DoneBadge";
 import Bee from "../../../../assets/images/helptag-bee.png";
@@ -9,9 +8,7 @@ interface Props {
 }
 
 const ProfileHelpPostCard = ({ id }: Props) => {
-  const post = usePostStore((state) =>
-    state.posts.find((p) => p.postId === id)
-  );
+  const post = usePostStore((state) => state.posts.find((p) => p.id === id));
   return (
     <Card>
       <HelpImage src={Bee} alt="image" />
@@ -20,11 +17,11 @@ const ProfileHelpPostCard = ({ id }: Props) => {
         <Title>{post?.title}</Title>
 
         <Row>
-          {post?.status && <Done>매칭 완료</Done>}
-          <Honey>{post?.totalHoney}꿀</Honey>
+          {post?.done && <Done>매칭 완료</Done>}
+          <Honey>{post?.honey}꿀</Honey>
         </Row>
 
-        <Place>{post?.region}</Place>
+        <Place>{post?.location}</Place>
       </Content>
     </Card>
   );

@@ -63,7 +63,7 @@ interface ProfileStore {
 }
 
 export const useProfileStore = create<ProfileStore>((set, get) => ({
-  role: "HELPER",
+  role: "DISABLED",
 
   disabledProfiles: disabledProfileMockData,
   helperProfiles: helperProfileMockData,

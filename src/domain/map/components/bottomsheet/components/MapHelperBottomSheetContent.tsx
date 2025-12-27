@@ -7,7 +7,7 @@ const MapHelperBottomSheetContent = () => {
   return (
     <>
       {posts.map((post) => (
-        <MapHelperBottomSheetPostCard key={post.postId} post={post} />
+        <MapHelperBottomSheetPostCard key={post.id} post={post} />
       ))}
     </>
   );

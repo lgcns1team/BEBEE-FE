@@ -36,7 +36,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
 
           {/* 게시글 상세 */}
-          <Route path="/post/:postId" element={<PostDetailPage />} />
+          <Route path="/post/:id" element={<PostDetailPage />} />
 
           {/* 게시글 작성 */}
           <Route path="/post/write" element={<PostWritePage />} />
@@ -59,7 +59,7 @@ function App() {
           {/* <Route path="/mypage-2" element={<HelperMyPage />} /> */}
           <Route path="/mypage" element={<HelperMyPage />} />
           {/*동네지도*/}
-          <Route path="/map" element={<MapDisabledPage />} />
+          <Route path="/map" element={<MapHelperPage />} />
           <Route path="/map/disabled" element={<MapDisabledPage />} />
           <Route path="/map/helper" element={<MapHelperPage />} />
 

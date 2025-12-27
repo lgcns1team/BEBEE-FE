@@ -14,48 +14,21 @@ import BeeImage from "../../../assets/images/bee-letter.png";
 const PostDetailPage = () => {
   const navigate = useNavigate();
 
-  const { postId } = useParams<{ postId: string }>();
+  const { id } = useParams<{ id: string }>();
 
   const { disabledProfiles } = useProfileStore();
 
-  const postIdNum = Number(postId);
+  const postIdNum = Number(id);
 
   const post = usePostStore((state) =>
-    state.posts.find((p) => p.postId === postIdNum)
+    state.posts.find((p) => p.id === postIdNum)
   );
-  const profile = disabledProfiles.find((p) => p.memberId === post?.memberId);
+  const profile = disabledProfiles.find((p) => p.memberId === post?.id);
 
   const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
 
   const goProfile = () => {
     navigate(`/profile/disabled/${profile?.memberId}`);
-  };
-
-  const formatDate = (date?: Date) => {
-    if (!date) return "";
-    const d = new Date(date);
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}.${m}.${day}`;
-  };
-
-  const formatHour = (date?: Date) => {
-    if (!date) return "";
-    return `${new Date(date).getHours()}시`;
-  };
-
-  const DAY_KR_MAP: Record<
-    "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN",
-    string
-  > = {
-    MON: "월요일",
-    TUE: "화요일",
-    WED: "수요일",
-    THU: "목요일",
-    FRI: "금요일",
-    SAT: "토요일",
-    SUN: "일요일",
   };
 
   return (
@@ -74,8 +47,8 @@ const PostDetailPage = () => {
         {/* ---------------- Category Tags ---------------- */}
         <TagList>
           <HelpBeeImage src={HelpTagBee} alt="bee" />
-          {post?.categoryName.map((category) => (
-            <Tag key={category}>{category}</Tag>
+          {post?.tags.map((tag) => (
+            <Tag key={tag}>{tag}</Tag>
           ))}
         </TagList>
 
@@ -103,59 +76,29 @@ const PostDetailPage = () => {
         <InfoList>
           <InfoItem>
             <RxIconjarLogo size={16} />
-            <span>{post?.totalHoney}꿀</span>
+            <span>{post?.honey}꿀</span>
           </InfoItem>
 
           <InfoItem>
             <FiCalendar size={16} />
-
-            {/* 하루 도움 */}
-            {post?.type === "하루 도움" && (
-              <span>{formatDate(post.engagementDate)}</span>
-            )}
-
-            {/* 지속 도움 */}
-            {post?.type === "지속 도움" && (
-              <span>
-                {formatDate(post.startDate)} ~ {formatDate(post.endDate)}
-              </span>
-            )}
+            <span>{post?.dates}</span>
           </InfoItem>
 
           <InfoItem>
             <FiClock size={16} />
-
-            {/* 하루 도움 */}
-            {post?.type === "하루 도움" && (
-              <span>
-                {formatHour(post.startTime)} ~ {formatHour(post.endTime)}
-              </span>
-            )}
-
-            {/* 지속 도움 */}
-            {post?.type === "지속 도움" && (
-              <TimeColumn>
-                {post.dayOfWeek?.map((schedule) => (
-                  <div key={schedule.dayOfWeek}>
-                    {DAY_KR_MAP[schedule.dayOfWeek]}: {schedule.startTime} ~{" "}
-                    {schedule.endTime}
-                  </div>
-                ))}
-              </TimeColumn>
-            )}
+            <span>{post?.time}</span>
           </InfoItem>
 
           <InfoItem>
             <FiMapPin size={16} />
-            <span>{post?.region}</span>
+            <span>{post?.location}</span>
           </InfoItem>
         </InfoList>
-
         {/* ---------------- Description ---------------- */}
-        <Description>{post?.content}</Description>
+        <Description>{post?.description}</Description>
 
         <ApplicantCount>지원자 수 13</ApplicantCount>
-        {post?.imageUrl && <PostImage src={post.imageUrl} />}
+        {post?.image && <PostImage src={post.image} />}
         {/* ---------------- Bottom Buttons ---------------- */}
         <BottomBar>
           <BottomInner>
@@ -263,11 +206,7 @@ const InfoItem = styled.div`
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.regular};
 `;
-const TimeColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
+
 const Description = styled.p`
   padding: 16px 0px;
   font-size: ${({ theme }) => theme.size.md};

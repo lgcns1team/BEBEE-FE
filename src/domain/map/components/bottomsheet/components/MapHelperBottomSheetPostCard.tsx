@@ -1,4 +1,3 @@
-import React from "react";
 import styled from "styled-components";
 import type { Post } from "../../../../../store/usePostStore";
 import HelpTag from "../../../../../components/HelpTag";
@@ -11,71 +10,38 @@ interface Props {
   post: Post;
 }
 
-const DAY_KR_MAP: Record<
-  "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN",
-  string
-> = {
-  MON: "월요일",
-  TUE: "화요일",
-  WED: "수요일",
-  THU: "목요일",
-  FRI: "금요일",
-  SAT: "토요일",
-  SUN: "일요일",
-};
-
-const formatKoreanDate = (date?: Date) => {
-  if (!date) return "";
-
-  const d = new Date(date);
-  const month = d.getMonth() + 1;
-  const day = d.getDate();
-
-  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-  const dayOfWeek = dayNames[d.getDay()];
-
-  return `${month}월 ${day}일 (${dayOfWeek})`;
-};
-
 const MapHelperBottomSheetPostCard = ({ post }: Props) => {
   const navigate = useNavigate();
   return (
-    <Card onClick={() => navigate(`/post/${post.postId}`)}>
+    <Card onClick={() => navigate(`/post/${post.id}`)}>
       <Content>
         <TopArea>
           <Title>{post.title}</Title>
           <RightTop>
-            {post.type === "하루 도움" && (
-              <OneDayBadge>{post.type}</OneDayBadge>
+            {post.category === "하루 도움" && (
+              <OneDayBadge>{post.category}</OneDayBadge>
             )}
           </RightTop>
         </TopArea>
 
         <InfoLine>
           <MapPinIcon size={16} />
-          <InfoText>{post.region}</InfoText>
+          <InfoText>{post.location}</InfoText>
+        </InfoLine>
+
+        <InfoLine>
+          <MapPinIcon size={16} />
+          <InfoText>{post.location}</InfoText>
         </InfoLine>
 
         <InfoLine>
           <CalendarIcon size={16} />
-
-          {/* 하루 도움 */}
-          {post.type === "하루 도움" && (
-            <InfoText>{formatKoreanDate(post.engagementDate)}</InfoText>
-          )}
-          {/* 지속 도움 */}
-          {post.type === "지속 도움" && (
-            <InfoText>
-              {post.dayOfWeek
-                ?.map((schedule) => DAY_KR_MAP[schedule.dayOfWeek])
-                .join(", ")}
-            </InfoText>
-          )}
+          <InfoText>{post.dates}</InfoText>
         </InfoLine>
 
         <TagWrapper>
-          {post.categoryName.map((category) => (
-            <HelpTag key={category}>{category}</HelpTag>
+          {post.tags.map((tag) => (
+            <HelpTag key={tag}>{tag}</HelpTag>
           ))}
         </TagWrapper>
       </Content>

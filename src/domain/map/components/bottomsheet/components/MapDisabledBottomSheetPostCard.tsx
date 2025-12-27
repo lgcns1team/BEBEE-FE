@@ -24,7 +24,7 @@ const MapDisabledBottomSheetPostCard = ({ profile, post }: Props) => {
             <IconWrapper>
               <FaDroplet />
             </IconWrapper>
-            <span>{post?.totalHoney}</span>
+            <span>{post?.honey}</span>
           </Honey>
         </Row>
         <Row>
@@ -32,8 +32,8 @@ const MapDisabledBottomSheetPostCard = ({ profile, post }: Props) => {
           <Age>{profile?.age}</Age>
         </Row>
         <TagWrapper>
-          {post?.categoryName.map((category) => (
-            <HelpTag key={category}>{category}</HelpTag>
+          {post?.tags.map((tag) => (
+            <HelpTag key={tag}>{tag}</HelpTag>
           ))}
         </TagWrapper>
       </Content>

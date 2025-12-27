@@ -20,10 +20,10 @@ const MatchingPostCard = ({ post }: Props) => {
   const getAgreementByPostId = useMatchStore(
     (state) => state.getAgreementByPostId
   );
-  const agreement = getAgreementByPostId(post.postId);
+  const agreement = getAgreementByPostId(post.id);
   const engagementStatus = agreement?.help.engagementStatus;
   const { getUserByMemberId } = useProfileStore();
-  const author = post.memberId ? getUserByMemberId(post.memberId) : undefined;
+  const author = post.id ? getUserByMemberId(post.id) : undefined;
 
   const goMatchingInfo = () => {
     if (!agreement) return;
@@ -35,74 +35,46 @@ const MatchingPostCard = ({ post }: Props) => {
   };
 
   const { handleChatOpen } = useChatHandler();
-  const DAY_KR_MAP: Record<
-    "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN",
-    string
-  > = {
-    MON: "월요일",
-    TUE: "화요일",
-    WED: "수요일",
-    THU: "목요일",
-    FRI: "금요일",
-    SAT: "토요일",
-    SUN: "일요일",
-  };
 
-  const formatKoreanDate = (date?: Date) => {
-    if (!date) return "";
-
-    const d = new Date(date);
-    const month = d.getMonth() + 1;
-    const day = d.getDate();
-
-    const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-    const dayOfWeek = dayNames[d.getDay()];
-
-    return `${month}월 ${day}일 (${dayOfWeek})`;
-  };
   return (
     <>
       <Card>
         <TopArea>
           <Title onClick={goMatchingInfo}>{post.title}</Title>
-          {post.type === "하루 도움" && <OneDayBadge>하루 도움</OneDayBadge>}
+          {post.category === "하루 도움" && (
+            <OneDayBadge>하루 도움</OneDayBadge>
+          )}
         </TopArea>
 
         <BottomArea>
+          {/* 왼쪽 정보 */}
           <BottomLeft>
-            <User>{author?.name}</User>
+            <User>{post.user}</User>
 
             <InfoLine>
               <MapPinIcon size={16} />
-              <InfoText>{post.region}</InfoText>
+              <InfoText>{post.location}</InfoText>
             </InfoLine>
 
             <InfoLine>
               <CalendarIcon size={16} />
-
-              {/* 하루 도움 */}
-              {post.type === "하루 도움" && (
-                <InfoText>{formatKoreanDate(post.engagementDate)}</InfoText>
-              )}
-              {/* 지속 도움 */}
-              {post.type === "지속 도움" && (
-                <InfoText>
-                  {post.dayOfWeek
-                    ?.map((schedule) => DAY_KR_MAP[schedule.dayOfWeek])
-                    .join(", ")}
-                </InfoText>
-              )}
+              {post.dates?.map((date) => (
+                <InfoText key={date}>{date}</InfoText>
+              ))}
             </InfoLine>
+
             <TagRow>
-              {post.categoryName.map((category) => (
-                <HelpTag key={category}>{category}</HelpTag>
+              {post.tags.map((tag) => (
+                <HelpTag key={tag}>{tag}</HelpTag>
               ))}
             </TagRow>
           </BottomLeft>
-          {post.imageUrl && (
+
+          {/* 오른쪽 이미지 */}
+          {post.image && (
             <BottomRight>
               <Thumbnail>
-                <img src={post.imageUrl} alt="thumbnail" />
+                <img src={post.image} alt="thumbnail" />
               </Thumbnail>
             </BottomRight>
           )}

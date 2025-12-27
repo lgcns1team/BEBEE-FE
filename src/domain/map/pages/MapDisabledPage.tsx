@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import MapDisabledBottomSheet from "../components/bottomsheet/components/MapDisabledBottomSheet";
 import MapBasePage from "./MapBasePage";

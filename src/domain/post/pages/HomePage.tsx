@@ -37,13 +37,13 @@ const HomePage = () => {
 
   const filteredPosts = posts
     .filter((p) => {
-      if (activeTab !== "전체" && p.type !== activeTab) return false;
-      if (excludeDone && p.status) return false;
+      if (activeTab !== "전체" && p.category !== activeTab) return false;
+      if (excludeDone && p.done) return false;
       return true;
     })
     .sort((a, b) => {
-      if (sort === "최신순") return b.postId - a.postId;
-      if (sort === "마감순") return Number(a.status) - Number(b.status);
+      if (sort === "최신순") return b.id - a.id;
+      if (sort === "마감순") return Number(a.done) - Number(b.done);
       return 0;
     });
 
@@ -91,7 +91,7 @@ const HomePage = () => {
         {/* ---------------- Post List ---------------- */}
         <ListWrapper>
           {filteredPosts.map((post) => (
-            <PostCard key={post.postId} post={post} />
+            <PostCard key={post.id} post={post} />
           ))}
         </ListWrapper>
 

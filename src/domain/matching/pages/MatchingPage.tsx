@@ -19,7 +19,7 @@ const MatchingPage = () => {
   const [period, setPeriod] = useState<"week" | "month">("month");
 
   const filteredPosts = posts.filter((p) => {
-    if (activeTab !== "전체" && p.type !== activeTab) return false;
+    if (activeTab !== "전체" && p.category !== activeTab) return false;
     return true;
   });
 
@@ -37,7 +37,7 @@ const MatchingPage = () => {
 
         <ScrollArea>
           {filteredPosts.map((post) => (
-            <MatchingPostCard key={post.postId} post={post} />
+            <MatchingPostCard key={post.id} post={post} />
           ))}
         </ScrollArea>
 
