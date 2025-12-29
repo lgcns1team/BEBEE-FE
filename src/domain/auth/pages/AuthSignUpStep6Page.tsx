@@ -31,6 +31,9 @@ const AuthSignUpStep6Page = () => {
         memberId,
         setMemberId,
         reset,
+        helpTypes,
+        disabilityType,
+        disabilityDescription,
     } = store;
 
     const [isLoading, setIsLoading] = useState(true);
@@ -94,8 +97,6 @@ const AuthSignUpStep6Page = () => {
 
         if (isSubmitting) return;
         setIsSubmitting(true);
-        // ... (이후 동일)
-
         try {
             let currentMemberId = memberId;
 
@@ -114,6 +115,9 @@ const AuthSignUpStep6Page = () => {
                     latitude,
                     longitude,
                     districtCode,
+                    helpTypes,
+                    disabilityType,
+                    disabilityDescription,
                 };
 
                 const signUpRes = await signUpUser(signUpParams);
