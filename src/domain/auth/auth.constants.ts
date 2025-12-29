@@ -3,6 +3,7 @@ export const AUTH_API_URLS = {
   SIGN_UP: '/auth/signup',
   REISSUE: '/auth/reissue',
   LOGOUT: '/auth/logout',
+  GET_MY_INFO: '/api/test/me',
 } as const;
 
 export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

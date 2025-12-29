@@ -7,13 +7,13 @@ import PasswordInput from "../components/PasswordInput";
 import BaseLongButton from "../../../components/BaseLongButton";
 import logoIcon from "../../../assets/images/icon.png";
 import logoText from "../../../assets/images/application.png";
-import { loginUser } from "../../../api/authApi";
+import { loginUser, getMyInfo } from "../../../api/authApi";
 import { useUserStore } from "../../../store/useUserStore";
 import type { LoginRequest } from "../auth.types";
 
 const AuthLoginPage = () => {
     const navigate = useNavigate();
-    const { setAccessToken } = useUserStore();
+    const { setAccessToken, setUser } = useUserStore();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -29,6 +29,14 @@ const AuthLoginPage = () => {
             // Access Token을 Zustand store에 저장 (메모리)
             // Refresh Token은 HttpOnly 쿠키로 자동 저장됨
             setAccessToken(response.accessToken);
+
+            // 내 정보 조회하여 Store에 저장
+            const myInfo = await getMyInfo();
+            // 백엔드 응답(role: string)을 프론트엔드 타입('DISABLED' | 'HELPER' | 'ADMIN')으로 단언
+            setUser({
+                ...myInfo,
+                role: myInfo.role as 'DISABLED' | 'HELPER' | 'ADMIN'
+            });
 
             // 로그인 성공 시 메인 페이지로 이동
             alert("로그인 성공!");
