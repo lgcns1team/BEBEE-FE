@@ -1,8 +1,8 @@
 import axios, { type InternalAxiosRequestConfig, type AxiosResponse, type AxiosError } from 'axios';
 
 export const instance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8083/api',
-    timeout: 5000,
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8083',
+    timeout: 30000, // 30초
     headers: {
         'Content-Type': 'application/json',
     },

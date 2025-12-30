@@ -29,6 +29,9 @@ interface SignUpFormData {
 
     // Step 5: 문서
     uploadedFile: File | null;
+
+    // 가입 완료 후 생성된 ID (재업로드 시 필요)
+    memberId: string | null;
 }
 
 interface SignUpFormActions {
@@ -48,6 +51,7 @@ interface SignUpFormActions {
     setHelpTypes: (helpTypes: string[]) => void;
     setDisabilityInfo: (type: string, description: string) => void;
     setUploadedFile: (file: File | null) => void;
+    setMemberId: (id: string) => void;
     reset: () => void;
 }
 
@@ -68,6 +72,7 @@ const initialState: SignUpFormData = {
     disabilityType: "",
     disabilityDescription: "",
     uploadedFile: null,
+    memberId: null,
 };
 
 export const useAuthSignUpForm = create<SignUpFormData & SignUpFormActions>(
@@ -86,6 +91,8 @@ export const useAuthSignUpForm = create<SignUpFormData & SignUpFormActions>(
             set({ disabilityType: type, disabilityDescription: description }),
 
         setUploadedFile: (file) => set({ uploadedFile: file }),
+
+        setMemberId: (memberId) => set({ memberId }),
 
         reset: () => set(initialState),
     })
