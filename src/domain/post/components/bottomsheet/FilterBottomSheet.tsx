@@ -3,8 +3,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import HoneyRange from "./HoneyRange";
 import Badge from "../../../../components/Badge";
-import { HELP_TAGS } from "../../../../constants/helpTags";
+import { HELP_TAG_LIST } from "../../../../constants/helpTags";
 import { DISABILITY_TYPES } from "../../../../constants/disabilityTypes";
+import { id } from "date-fns/locale";
 
 interface Props {
   isOpen: boolean;
@@ -112,14 +113,9 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                 <Section>
                   <Label>도움 유형</Label>
                   <Row>
-                    {HELP_TAGS.map((label) => (
-                      <Badge
-                        key={label}
-                        $active={selectedHelpTypes.includes(label)}
-                        onClick={() => toggleHelpType(label)}
-                      >
-                        {label}
-                      </Badge>
+                    {" "}
+                    {HELP_TAG_LIST.map((tag) => (
+                      <Badge key={tag.id}>{tag.name}</Badge>
                     ))}
                   </Row>
                 </Section>

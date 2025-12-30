@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { HELP_TAGS } from "../constants/helpTags";
 import { IoIosArrowDown } from "react-icons/io";
+import { HELP_TAG_LIST } from "../constants/helpTags";
+
 interface TagFilterProps {
-  selectedTags: string[];
-  onTagsChange: (tags: string[]) => void;
+  selectedTags: number[]; // ID(숫자) 배열
+  onTagsChange: (tags: number[]) => void;
 }
 
 const TagFilter: React.FC<TagFilterProps> = ({
@@ -13,65 +14,80 @@ const TagFilter: React.FC<TagFilterProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleTagToggle = (tag: string) => {
-    if (selectedTags.includes(tag)) {
-      onTagsChange(selectedTags.filter((t) => t !== tag));
+  const handleTagToggle = (id: number) => {
+    // ID가 이미 있으면 제거, 없으면 추가
+    if (selectedTags.includes(id)) {
+      onTagsChange(selectedTags.filter((tagId) => tagId !== id));
     } else {
-      onTagsChange([...selectedTags, tag]);
+      onTagsChange([...selectedTags, id]);
     }
-  };
-
-  const handleTagRemove = (tag: string) => {
-    onTagsChange(selectedTags.filter((t) => t !== tag));
   };
 
   return (
     <Container>
-      <Title>주요 도움 유형</Title>
+      <Title id="tag-label">주요 도움 유형</Title>
 
       <DropdownWrapper>
-        <DropdownButton onClick={() => setIsOpen(!isOpen)}>
-          <TagsContainer>
-            {selectedTags.map((tag) => (
-              <Tag key={tag}>
-                {tag}
-                <RemoveButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleTagRemove(tag);
-                  }}
-                >
-                  ×
-                </RemoveButton>
-              </Tag>
-            ))}
+        <DropdownButton
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          aria-labelledby="tag-label"
+        >
+          <TagsContainer aria-live="polite">
+            {selectedTags.length === 0 && (
+              <Placeholder>태그를 선택해주세요</Placeholder>
+            )}
+            {selectedTags.map((id) => {
+              // 선택된 ID에 해당하는 이름을 리스트에서 찾음
+              const tag = HELP_TAG_LIST.find((item) => item.id === id);
+              return (
+                <Tag key={id}>
+                  {tag?.name}
+                  <RemoveButton
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTagToggle(id);
+                    }}
+                    aria-label={`${tag?.name} 제거`}
+                  >
+                    ×
+                  </RemoveButton>
+                </Tag>
+              );
+            })}
           </TagsContainer>
           <TypeIconWrapper>
-            <IoIosArrowDown size={20} />
+            <IoIosArrowDown size={20} aria-hidden="true" />
           </TypeIconWrapper>
         </DropdownButton>
 
         {isOpen && (
-          <DropdownList>
-            {HELP_TAGS.map((tag) => (
-              <DropdownItem
-                key={tag}
-                onClick={() => handleTagToggle(tag)}
-                isSelected={selectedTags.includes(tag)}
-              >
-                <Checkbox isSelected={selectedTags.includes(tag)}>
-                  {selectedTags.includes(tag) && "✓"}
-                </Checkbox>
-                {tag}
-              </DropdownItem>
-            ))}
+          <DropdownList role="listbox">
+            {HELP_TAG_LIST.map((tag) => {
+              const isSelected = selectedTags.includes(tag.id);
+              return (
+                <DropdownItem
+                  key={tag.id}
+                  role="option"
+                  aria-selected={isSelected}
+                  onClick={() => handleTagToggle(tag.id)}
+                  isSelected={isSelected}
+                >
+                  <Checkbox isSelected={isSelected} aria-hidden="true">
+                    {isSelected && "✓"}
+                  </Checkbox>
+                  {tag.name}
+                </DropdownItem>
+              );
+            })}
           </DropdownList>
         )}
       </DropdownWrapper>
     </Container>
   );
 };
-
 export default TagFilter;
 
 const Container = styled.div`
@@ -198,4 +214,8 @@ const Checkbox = styled.div<{ isSelected: boolean }>`
   font-size: 14px;
   font-weight: bold;
   transition: all 0.2s;
+`;
+const Placeholder = styled.span`
+  color: ${({ theme }) => theme.color.natural200};
+  font-size: ${({ theme }) => theme.size.md};
 `;

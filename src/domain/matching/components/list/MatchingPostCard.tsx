@@ -30,7 +30,7 @@ const MatchingPostCard = ({ post }: Props) => {
 
   const matchingItem = {
     id: 1,
-    chatroomId: 791458418405204700,
+    chatroomId: "791458418405204700",
     partnerNickname: "꿀벌님",
   };
 
@@ -38,15 +38,6 @@ const MatchingPostCard = ({ post }: Props) => {
     console.log("기존 채팅방 조회 및 이동 시도...");
     handleChatOpen(MY_ID, { chatroomId: matchingItem.chatroomId });
   };
-
-  return (
-    <Card onClick={goMatchingInfo}>
-      <Left>
-        <TitleRow>
-          <Title>{post.title}</Title>
-
-  const goReview = () => navigate("/review");
-  const goMatchingInfo = () => navigate(`/match-info/${post.id}`);
 
   return (
     <Card onClick={goMatchingInfo}>

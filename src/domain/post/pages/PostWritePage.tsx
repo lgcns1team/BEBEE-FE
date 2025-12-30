@@ -13,7 +13,7 @@ import LongHelpWrite from "../components/write/LongHelpWrite";
 import dayHelpImg from "../../../assets/images/day-help.png";
 import longHelpImg from "../../../assets/images/long-help.png";
 import { usePostStore } from "../../../store/usePostStore";
-import { HELP_TAGS } from "../../../constants/helpTags";
+import { HELP_TAG_LIST } from "../../../constants/helpTags";
 
 type HelpType = "day" | "long";
 
@@ -205,13 +205,13 @@ const PostWritePage = () => {
             도움 유형<RequiredMark>*</RequiredMark>
           </ModalLabel>
           <Row>
-            {HELP_TAGS.map((tag) => (
+            {HELP_TAG_LIST.map((tag) => (
               <Badge
-                key={tag}
-                $active={selectedTags.includes(tag)}
-                onClick={() => handleTagClick(tag)}
+                key={tag.id}
+                $active={selectedTags.includes(tag.name)}
+                onClick={() => handleTagClick(tag.name)}
               >
-                {tag}
+                {tag.name}
               </Badge>
             ))}
           </Row>
