@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 //hook
 import { useChatHandler } from "../../../../hooks/useChatHandler";
+import { useMatchStore } from "../../store/useMatchStore";
 
 interface Props {
   post: Post;
@@ -16,12 +17,20 @@ interface Props {
 
 const MatchingPostCard = ({ post }: Props) => {
   const navigate = useNavigate();
-  const goReview = () => {
-    navigate("/review");
-  };
   const goMatchingInfo = () => {
-    navigate(`/match-info/${post.id}`);
+    if (!agreement) return;
+    navigate(`/match-info/${agreement.agreementId}`);
   };
+
+  const goReviewPage = () => {
+    navigate(`/review`);
+  };
+
+  const getAgreementByPostId = useMatchStore(
+    (state) => state.getAgreementByPostId
+  );
+  const agreement = getAgreementByPostId(post.id);
+  const engagementStatus = agreement?.help.engagementStatus;
 
   /* 채팅 관련 */
   const { handleChatOpen } = useChatHandler();
@@ -40,19 +49,10 @@ const MatchingPostCard = ({ post }: Props) => {
   };
 
   return (
-    <Card onClick={goMatchingInfo}>
-      <Left>
-        <TitleRow>
-          <Title>{post.title}</Title>
-
-  const goReview = () => navigate("/review");
-  const goMatchingInfo = () => navigate(`/match-info/${post.id}`);
-
-  return (
-    <Card onClick={goMatchingInfo}>
+    <Card>
       {/* ---------- Top ---------- */}
       <TopArea>
-        <Title>{post.title}</Title>
+        <Title onClick={goMatchingInfo}>{post.title}</Title>
         {post.category === "하루 도움" && <OneDayBadge>하루 도움</OneDayBadge>}
       </TopArea>
 
@@ -99,13 +99,15 @@ const MatchingPostCard = ({ post }: Props) => {
             <span>채팅하기</span>
           </ChatButton>
 
-          {post.done ? (
-            <ReviewButton onClick={goReview}>
-              <BsPencil size={12} />
-              <span>리뷰 보내기</span>
-            </ReviewButton>
+          {engagementStatus === "COMPLETED" ? (
+            <DoneButton>
+              <span>활동 완료</span>
+            </DoneButton>
           ) : (
-            <DoneButton>활동 완료</DoneButton>
+            <ReviewButton onClick={goReviewPage}>
+              <BsPencil size={12} />
+              <span>리뷰 작성하기</span>
+            </ReviewButton>
           )}
         </BottomInner>
       </BottomBar>

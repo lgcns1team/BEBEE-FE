@@ -1,4 +1,3 @@
-import React from "react";
 import Bee from "../../../../assets/images/helptag-bee.png";
 import styled from "styled-components";
 import { SlArrowRight } from "react-icons/sl";
