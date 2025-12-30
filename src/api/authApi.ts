@@ -31,9 +31,8 @@ export const reissueToken = async () => {
     return response.data;
 };
 
-// 내 정보 조회 API
-export const getMyInfo = async (): Promise<MyInfoResponse> => {
-    const response = await instance.get('/test/me');
+export const getMyInfo = async () => {
+    const response = await instance.get<MyInfoResponse>(AUTH_API_URLS.GET_MY_INFO);
     return response.data;
 };
 
