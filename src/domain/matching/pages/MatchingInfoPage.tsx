@@ -19,6 +19,9 @@ const MatchingInfoPage = () => {
 
   return (
     <Layout>
+      <span className="sr-only">
+        매칭 확인서 페이지 입니다. 확정된 매칭 확인서를 확인할 수 있습니다.
+      </span>
       <Header
         title="매칭 확인서"
         showBack
@@ -30,6 +33,7 @@ const MatchingInfoPage = () => {
       <MatchingActionSheetModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
+        aria-label="매칭 취소하기 및 신고하기"
       />
 
       {!engagement ? (

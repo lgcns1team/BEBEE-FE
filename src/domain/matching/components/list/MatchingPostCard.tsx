@@ -44,7 +44,7 @@ const MatchingPostCard = ({ engagement }: Props) => {
 
   const matchingItem = {
     id: 1,
-    chatroomId: 791458418405204700,
+    chatroomId: "791458418405204700",
     partnerNickname: "꿀벌님",
   };
 
@@ -57,7 +57,9 @@ const MatchingPostCard = ({ engagement }: Props) => {
     <Card>
       {/* ---------- Top ---------- */}
       <TopArea>
-        <Title onClick={goMatchingInfo}>{engagement.title}</Title>
+        <Title onClick={goMatchingInfo} aria-label="매칭된 도움의 제목">
+          {engagement.title}
+        </Title>
         {engagement.type === "DAY" && <OneDayBadge>하루 도움</OneDayBadge>}
       </TopArea>
 
@@ -65,16 +67,18 @@ const MatchingPostCard = ({ engagement }: Props) => {
       <BottomArea>
         {/* 왼쪽 정보 */}
         <BottomLeft>
-          <User>{engagement.disabled.nickname}</User>
+          <User aria-label="장애인의 닉네임">
+            {engagement.disabled.nickname}
+          </User>
 
           <InfoLine>
-            <MapPinIcon size={16} />
-            <InfoText>{engagement.region}</InfoText>
+            <MapPinIcon size={16} aria-label="활동 지역 아이콘" />
+            <InfoText aria-label="활동 지역">{engagement.region}</InfoText>
           </InfoLine>
 
           <InfoLine>
-            <CalendarIcon size={16} />
-            <InfoText>
+            <CalendarIcon size={16} aria-label="날짜 아이콘" />
+            <InfoText aria-label="활동 날짜">
               {engagement.type === "DAY" && (
                 <>
                   {formatDateWithDay(
@@ -99,7 +103,7 @@ const MatchingPostCard = ({ engagement }: Props) => {
 
           <TagRow>
             {engagement.helpCategories.map((category) => (
-              <HelpTag key={category.helpCategoryId}>
+              <HelpTag key={category.helpCategoryId} aria-label="활동 카테고리">
                 {category.helpCategoryName}
               </HelpTag>
             ))}
@@ -110,7 +114,7 @@ const MatchingPostCard = ({ engagement }: Props) => {
         {engagement.thumbnailImageUrl && (
           <BottomRight>
             <Thumbnail>
-              <img src={engagement.thumbnailImageUrl} alt="thumbnail" />
+              <img src={engagement.thumbnailImageUrl} alt="활동 관련 이미지" />
             </Thumbnail>
           </BottomRight>
         )}
@@ -119,17 +123,20 @@ const MatchingPostCard = ({ engagement }: Props) => {
       {/* ---------- Buttons ---------- */}
       <BottomBar>
         <BottomInner>
-          <ChatButton onClick={goChatPage}>
+          <ChatButton onClick={goChatPage} aria-label="채팅하기로 이동합니다.">
             <BsChat size={12} />
             <span>채팅하기</span>
           </ChatButton>
 
           {isCompleted ? (
-            <DoneButton>
+            <DoneButton aria-label="활동이 완료 되었다면 홛동 완료 버튼을 눌러주세요">
               <span>활동 완료</span>
             </DoneButton>
           ) : (
-            <ReviewButton onClick={goReviewPage}>
+            <ReviewButton
+              onClick={goReviewPage}
+              aria-label="리뷰를 작성하려면 리뷰 작성하기 버튼을 눌러주세요"
+            >
               <BsPencil size={12} />
               <span>리뷰 작성하기</span>
             </ReviewButton>

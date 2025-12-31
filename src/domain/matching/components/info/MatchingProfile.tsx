@@ -1,20 +1,31 @@
-import Bee from "../../../../assets/images/helptag-bee.png";
 import styled from "styled-components";
 import { SlArrowRight } from "react-icons/sl";
-const MatchingProfile = () => {
+import type { Engagement } from "../../../../types/match";
+interface Props {
+  engagement: Engagement;
+}
+
+const MatchingProfile = ({ engagement }: Props) => {
+  const gender = engagement.helper.gender === "MALE" ? "남성" : "여성";
   return (
     <Wrapper>
       <Left>
-        <ProfileImage src={Bee} />
+        <ProfileImage
+          src={engagement.helper.profileImageUrl}
+          alt="사용자 프로필 사진"
+        />
 
         <InfoBox>
-          <Name></Name>
-          <SubInfo>남성&nbsp;&nbsp;·&nbsp;&nbsp;나이 비공개</SubInfo>
+          <Name aria-label="닉네임">{engagement.helper.nickname}</Name>
+          <SubInfo aria-label="성별 및 나이">
+            {gender}&nbsp;&nbsp;·&nbsp;&nbsp;
+            {engagement.helper.ageGroup}대
+          </SubInfo>
         </InfoBox>
       </Left>
 
       <ArrowWrapper>
-        <SlArrowRight size={18} color="#000" />
+        <SlArrowRight size={18} color="#000" aria-label="프로필 정보로 이동" />
       </ArrowWrapper>
     </Wrapper>
   );

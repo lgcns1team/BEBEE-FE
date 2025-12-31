@@ -100,6 +100,9 @@ const WeeklyCalendar = ({ onSelectDate, markedDates }: Props) => {
 
   return (
     <Wrapper>
+      <span className="sr-only">
+        한 주 보기 입니다. 달력 내 날짜를 클릭하여 매칭 정보를 확인해 보세요.
+      </span>
       <ScrollContainer ref={scrollRef} onScroll={handleScroll}>
         {dates.map((d) => {
           const dateKey = formatDate(d);

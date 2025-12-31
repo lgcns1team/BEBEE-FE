@@ -1,13 +1,12 @@
 import styled from "styled-components";
 import { IoAdd } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
-const WriteButton = () => {
-  const navigate = useNavigate();
-  const goWritePage = () => {
-    navigate("/post/write");
-  };
+
+interface WriteProps {
+  onClick: () => void;
+}
+const WriteButton = ({ onClick }: WriteProps) => {
   return (
-    <Button onClick={goWritePage}>
+    <Button onClick={onClick}>
       <ButtonInner>
         <IoAdd size={20} />
         <span>글쓰기</span>

@@ -1,61 +1,98 @@
 import styled from "styled-components";
-import type { Post } from "../../../../store/usePostStore";
-
-import { FiCalendar } from "react-icons/fi";
-
-import { FiMapPin } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import type { PostItem } from "../../../../types/post.type";
+import { FiCalendar, FiMapPin } from "react-icons/fi";
 import HelpTag from "../../../../components/HelpTag";
 import OneDayBadge from "../../../../components/OneDayBadge";
 import DoneBadge from "../../../../components/DoneBadge";
-interface Props {
-  post: Post;
+
+interface PostCardProps {
+  post: PostItem;
 }
 
-const PostCard = ({ post }: Props) => {
-  const navigate = useNavigate();
+// 요일 변환용 맵
+const DAY_MAP: Record<string, string> = {
+  MONDAY: "월",
+  TUESDAY: "화",
+  WEDNESDAY: "수",
+  THURSDAY: "목",
+  FRIDAY: "금",
+  SATURDAY: "토",
+  SUNDAY: "일",
+};
+
+const PostCard = ({ post }: PostCardProps) => {
+  const isDay = post.helpType === "DAY";
+
+  // 날짜/요일 포맷팅 로직
+  const getScheduleText = () => {
+    if (isDay && post.date) {
+      // DAY: "11월 30일 (화)" 형식
+      const dateObj = new Date(post.date);
+      const month = dateObj.getMonth() + 1;
+      const day = dateObj.getDate();
+      const dayName = DAY_MAP[post.dayOfWeeks[0]] || "";
+      return `${month}월 ${day}일 (${dayName})`;
+    }
+    // TERM: "월요일, 수요일, 목요일" 형식
+    return post.dayOfWeeks.map((d) => `${DAY_MAP[d]}요일`).join(", ");
+  };
+
   return (
-    <Card onClick={() => navigate(`/post/${post.id}`)}>
+    <Card>
       <Content>
         <TopArea>
           <Title>{post.title}</Title>
           <RightTop>
-            {post.category === "하루 도움" && (
-              <OneDayBadge>{post.category}</OneDayBadge>
-            )}
+            {/* 정기 도움일 경우 다른 배지를 쓰거나 비워둘 수 있습니다 */}
+            {isDay && <OneDayBadge>하루 도움</OneDayBadge>}
           </RightTop>
         </TopArea>
 
         <BottomArea>
-          {/* 왼쪽 정보 */}
           <BottomLeft>
             <HoneyRow>
-              {post.done && <DoneBadge>매칭 완료</DoneBadge>}
-              <Honey>{post.honey} 꿀</Honey>
+              {/* DAY 타입이면서 매칭 완료 상태일 때만 배지 노출 */}
+              {isDay && post.isMatched && <DoneBadge>매칭 완료</DoneBadge>}
+              <Honey>
+                {post.unitHoney.toLocaleString()} 꿀
+                {/* TERM 타입일 경우 회당/총액 정보 추가 노출 */}
+                {!isDay && (
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: "normal",
+                      color: "#8E8E8E",
+                      marginLeft: "4px",
+                    }}
+                  >
+                    /회 (총 {post.totalHoney.toLocaleString()} 꿀)
+                  </span>
+                )}
+              </Honey>
             </HoneyRow>
 
             <InfoLine>
               <MapPinIcon size={16} />
-              <InfoText>{post.location}</InfoText>
+              {/* 지역명에서 동네 이름만 추출 (예: '장충동') */}
+              <InfoText>{post.legalDongName.split(" ").pop()}</InfoText>
             </InfoLine>
 
             <InfoLine>
               <CalendarIcon size={16} />
-              {post.dates?.map((date) => (
-                <InfoText key={date}>{date}</InfoText>
-              ))}
+              <InfoText>{getScheduleText()}</InfoText>
             </InfoLine>
 
             <TagWrapper>
-              <HelpTag>이동지원</HelpTag>
+              {post.helpCategories.map((cat, index) => (
+                <HelpTag key={index}>{cat}</HelpTag>
+              ))}
             </TagWrapper>
           </BottomLeft>
 
-          {/* 오른쪽 이미지 (태그 아래 위치) */}
-          {post.image && (
+          {post.imageUrl && (
             <BottomRight>
               <Thumbnail>
-                <img src={post.image} alt="thumbnail" />
+                <img src={post.imageUrl} alt={post.title} />
               </Thumbnail>
             </BottomRight>
           )}

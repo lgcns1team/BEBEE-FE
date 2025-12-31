@@ -8,10 +8,14 @@ interface Props {
 const PeriodToggle = ({ active, onChange }: Props) => {
   return (
     <Wrapper>
+      <span className="sr-only">
+        한 달 보기와 한 주 보기 중 선택할 수 있습니다.
+      </span>
       <ToggleButton
         $active={active === "week"}
         position="left"
         onClick={() => onChange("week")}
+        aria-label="한 주 보기 버튼"
       >
         한 주 보기
       </ToggleButton>
@@ -19,6 +23,7 @@ const PeriodToggle = ({ active, onChange }: Props) => {
         $active={active === "month"}
         position="right"
         onClick={() => onChange("month")}
+        aria-label="한 달 보기 버튼"
       >
         한 달 보기
       </ToggleButton>

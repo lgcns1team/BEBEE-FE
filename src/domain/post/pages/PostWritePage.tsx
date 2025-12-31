@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { IoClose } from "react-icons/io5";
 import { IoIosCamera } from "react-icons/io";
@@ -12,101 +12,115 @@ import DayHelpWrite from "../components/write/DayHelpWrite";
 import LongHelpWrite from "../components/write/LongHelpWrite";
 import dayHelpImg from "../../../assets/images/day-help.png";
 import longHelpImg from "../../../assets/images/long-help.png";
-import { usePostStore } from "../../../store/usePostStore";
-import { HELP_TAGS } from "../../../constants/helpTags";
-
-type HelpType = "day" | "long";
-
+import { HELP_TAG_LIST } from "../../../constants/helpTags";
+import type { PostCreateReqDTO } from "../../../types/post.type";
+import {
+  FieldSet,
+  ModalLabel,
+  RequiredMark,
+} from "../../../styles/FieldSetStyle";
 const PostWritePage = () => {
   const navigate = useNavigate();
-  const { type } = useParams<{ type?: string }>();
-  const isDetailPage = type === "day" || type === "long";
-  const [helpType, setHelpType] = useState<HelpType>(
-    (type === "day" || type === "long" ? type : "day") as HelpType
-  );
-  const { postData, setPostData } = usePostStore();
-
-  // 기본 정보 입력 페이지용 state
-  const [title, setTitle] = useState(postData.title || "");
-  const [selectedTags, setSelectedTags] = useState<string[]>(
-    postData.tags || []
-  );
-  const [imagePreviews, setImagePreviews] = useState<string[]>(
-    postData.image ? [postData.image] : []
-  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 이미지 선택 핸들러
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && imagePreviews.length < 3) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews((prev) => [...prev, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
-    }
-    // input 초기화하여 같은 파일도 다시 선택 가능하도록
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+  /* ---------------- 1. 상태 객체화 (Tip A) ---------------- */
+  const [isDetailPage, setIsDetailPage] = useState(false);
+  const [formData, setFormData] = useState<Partial<PostCreateReqDTO>>({
+    postType: undefined,
+    title: "",
+    helpCategoryIds: [],
+    postImages: [],
+    // 초기값 세팅 (필수 파람 에러 방지용)
+    unitHoney: 0,
+    totalHoney: 0,
+    schedules: [],
+  });
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  /* ---------------- 2. 공통 업데이트 핸들러 ---------------- */
+  // field 이름을 키로 사용하여 값을 업데이트하는 함수
+  const updateField = (updates: Partial<PostCreateReqDTO>) => {
+    setFormData((prev) => ({ ...prev, ...updates }));
   };
 
-  // 이미지 삭제 핸들러
-  const handleImageRemove = (index: number) => {
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  const handleTagClick = (id: number) => {
+    const currentIds = formData.helpCategoryIds || [];
+    const newIds = currentIds.includes(id)
+      ? currentIds.filter((t) => t !== id)
+      : [...currentIds, id];
+    updateField({ helpCategoryIds: newIds });
   };
 
-  // 이미지 업로드 버튼 클릭
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  // 태그 선택/해제
-  const handleTagClick = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
-  };
-
-  // 다음 버튼 클릭
+  /* ---------------- 3. 상세 페이지 전환 ---------------- */
   const handleNext = () => {
-    // postData에 기본 정보 저장
-    setPostData({
-      ...postData,
-      title,
-      tags: selectedTags,
-      image: imagePreviews[0] || undefined,
-    });
-
-    // 선택된 타입에 따라 페이지 이동
-    if (helpType === "day") {
-      navigate("/post/write/day");
-    } else {
-      navigate("/post/write/long");
+    if (!formData.title) {
+      alert("제목을 입력해주세요!");
+      return;
     }
-  };
+    if (!formData.helpCategoryIds || formData.helpCategoryIds.length === 0) {
+      alert("도움 유형을 최소 하나 선택해주세요!");
+      return;
+    }
 
+    setIsDetailPage(true);
+  };
   if (isDetailPage) {
     return (
       <Layout>
         <Header
-          title={helpType === "day" ? "하루 도움 작성" : "지속 도움 작성"}
-          onBack={() => navigate("/post/write")}
+          title={
+            formData.postType === "DAY" ? "하루 도움 작성" : "지속 도움 작성"
+          }
+          onBack={() => setIsDetailPage(false)}
         />
         <Container>
-          <FormContainer>
-            <FormWrapper $show={helpType === "day"} key="day">
-              <DayHelpWrite />
-            </FormWrapper>
-            <FormWrapper $show={helpType === "long"} key="long">
-              <LongHelpWrite />
-            </FormWrapper>
-          </FormContainer>
+          {/* 자식에게 객체와 업데이트 함수만 전달 */}
+          {formData.postType === "DAY" ? (
+            <DayHelpWrite formData={formData} updateField={updateField} />
+          ) : (
+            <LongHelpWrite formData={formData} updateField={updateField} />
+          )}
         </Container>
       </Layout>
     );
   }
+  /* ---------------- 이미지 선택 핸들러 ---------------- */
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const fileArray = Array.from(files);
+
+    // 최대 3장 제한 체크
+    if (imagePreviews.length + fileArray.length > 3) {
+      alert("사진은 최대 3장까지 업로드 가능합니다.");
+      return;
+    }
+
+    // A. 미리보기 생성 (UI용)
+    const newPreviews = fileArray.map((file) => URL.createObjectURL(file));
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
+
+    // B. 서버 업로드 (실제 구현 시 API 호출)
+    // 예시: const uploadedUrls = await uploadImagesToServer(fileArray);
+    const mockUrls = fileArray.map(
+      (_, i) => `https://server-storage.com/image${Date.now() + i}.jpg`
+    );
+
+    // C. formData 업데이트 (Tip A 방식)
+    updateField({
+      postImages: [...(formData.postImages || []), ...mockUrls],
+    });
+  };
+
+  /* ---------------- 이미지 삭제 핸들러 ---------------- */
+  const handleImageRemove = (index: number) => {
+    // 미리보기 삭제
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+
+    // formData에서 실제 URL 삭제
+    const newPostImages = formData.postImages?.filter((_, i) => i !== index);
+    updateField({ postImages: newPostImages });
+  };
 
   return (
     <ScrollWrapper>
@@ -119,38 +133,28 @@ const PostWritePage = () => {
             어떤 도움이 필요하세요 ?<RequiredMark>*</RequiredMark>
           </ModalLabel>
           <HelpTypeContainer>
-            <HelpTypeButton
-              $selected={helpType === "day"}
-              onClick={() => setHelpType("day")}
-            >
-              <HelpTypeContent>
-                <ImgWrapper src={dayHelpImg} alt="하루 도움" />
-
-                <HelpTypeInfo>
-                  <HelpTypeTitle>하루 도움</HelpTypeTitle>
-                  <HelpTypeExample>
-                    예) 11월 7일 이동 보조, 당일 도움, 급구
-                  </HelpTypeExample>
-                </HelpTypeInfo>
-              </HelpTypeContent>
-              <RadioButton $selected={helpType === "day"} />
-            </HelpTypeButton>
-
-            <HelpTypeButton
-              $selected={helpType === "long"}
-              onClick={() => setHelpType("long")}
-            >
-              <HelpTypeContent>
-                <ImgWrapper src={longHelpImg} alt="지속 도움" />
-                <HelpTypeInfo>
-                  <HelpTypeTitle>지속 도움</HelpTypeTitle>
-                  <HelpTypeExample>
-                    예) 매주 화요일, 수요일 병원 동행
-                  </HelpTypeExample>
-                </HelpTypeInfo>
-              </HelpTypeContent>
-              <RadioButton $selected={helpType === "long"} />
-            </HelpTypeButton>
+            {(["DAY", "TERM"] as const).map((type) => (
+              <HelpTypeButton
+                key={type}
+                $selected={formData.postType === type}
+                onClick={() => updateField({ postType: type })}
+              >
+                <HelpTypeContent>
+                  <ImgWrapper src={type === "DAY" ? dayHelpImg : longHelpImg} />
+                  <HelpTypeInfo>
+                    <HelpTypeTitle>
+                      {type === "DAY" ? "하루 도움" : "지속 도움"}
+                    </HelpTypeTitle>
+                    <HelpTypeExample>
+                      {type === "DAY"
+                        ? "예) 11월 7일 이동 보조"
+                        : "예) 매주 화요일 병원 동행"}
+                    </HelpTypeExample>
+                  </HelpTypeInfo>
+                </HelpTypeContent>
+                <RadioButton $selected={formData.postType === type} />
+              </HelpTypeButton>
+            ))}
           </HelpTypeContainer>
         </FieldSet>
 
@@ -163,7 +167,10 @@ const PostWritePage = () => {
           <ImageUploadWrapper>
             <ImageList>
               {imagePreviews.length < 3 && (
-                <ImageUploadButton type="button" onClick={handleImageClick}>
+                <ImageUploadButton
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <ImagePlaceholder>
                     <IoIosCamera size={30} />
                     <ImagePlaceholderText>
@@ -194,8 +201,8 @@ const PostWritePage = () => {
         <GeneralInput
           inputLabel="제목"
           placeholder="제목을 입력해주세요"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={formData.title}
+          onChange={(e) => updateField({ title: e.target.value })}
           required
         />
 
@@ -205,24 +212,34 @@ const PostWritePage = () => {
             도움 유형<RequiredMark>*</RequiredMark>
           </ModalLabel>
           <Row>
-            {HELP_TAGS.map((tag) => (
+            {HELP_TAG_LIST.map((tag) => (
               <Badge
-                key={tag}
-                $active={selectedTags.includes(tag)}
-                onClick={() => handleTagClick(tag)}
+                key={tag.id}
+                $active={formData.helpCategoryIds?.includes(tag.id)}
+                onClick={() => handleTagClick(tag.id)}
               >
-                {tag}
+                {tag.name}
               </Badge>
             ))}
           </Row>
         </FieldSet>
-
+        {/* 상세 내용 */}
+        <FieldSet>
+          <ModalLabel>
+            상세 내용<RequiredMark>*</RequiredMark>
+          </ModalLabel>
+          <TextArea
+            placeholder="도움이 필요한 내용을 자세히 적어주세요."
+            value={formData.content || ""}
+            onChange={(e) => updateField({ content: e.target.value })}
+          />
+        </FieldSet>
         {/* 다음 버튼 */}
       </Container>
       <BaseLongButton
         label="다음"
         onClick={handleNext}
-        disabled={!title || selectedTags.length === 0}
+        disabled={!formData.title || formData.helpCategoryIds?.length === 0}
       />
     </ScrollWrapper>
   );
@@ -246,19 +263,6 @@ const Container = styled.div`
   overflow-y: auto;
 `;
 
-const FieldSet = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 2.5rem;
-`;
-
-const ModalLabel = styled.label`
-  font-size: ${({ theme }) => theme.size.lg};
-  font-weight: ${({ theme }) => theme.weight.bold};
-  color: ${({ theme }) => theme.color.text};
-`;
-
 const HelpTypeContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -279,11 +283,6 @@ const HelpTypeButton = styled.button<{ $selected: boolean }>`
   align-items: center;
   justify-content: space-between;
   transition: all 0.2s ease;
-`;
-
-const RequiredMark = styled.span`
-  margin-left: 4px;
-  color: ${({ theme }) => theme.color.red500};
 `;
 
 const HelpTypeContent = styled.div`
@@ -459,4 +458,18 @@ const Row = styled.div`
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 10px;
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  min-height: 150px;
+  padding: 1rem;
+  border: 1px solid ${({ theme }) => theme.color.subColor};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  font-family: inherit;
+  resize: none;
+  &:focus {
+    outline: none;
+    border-color: ${({ theme }) => theme.color.main};
+  }
 `;

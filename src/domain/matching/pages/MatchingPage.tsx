@@ -50,6 +50,9 @@ const MatchingPage = () => {
   return (
     <Layout>
       <PageContainer>
+        <span className="sr-only">
+          활동 관리 페이지 입니다. 매칭된 활동 목록을 확인할 수 있습니다.
+        </span>
         <Header title="활동 관리" />
 
         <StickyBox>

@@ -1,23 +1,29 @@
 import styled from "styled-components";
+import { usePostStore } from "../../../../store/usePostStore";
+import type { HelpType } from "../../../../types/post.type";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import HoneyRange from "./HoneyRange";
 import Badge from "../../../../components/Badge";
-import { HELP_TAGS } from "../../../../constants/helpTags";
+import { HELP_TAG_LIST } from "../../../../constants/helpTags";
 import { DISABILITY_TYPES } from "../../../../constants/disabilityTypes";
 
-interface Props {
+import { SERVER_MAPPING } from "../../../../types/post.type";
+interface FilterBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
+const FilterBottomSheet = ({ isOpen, onClose }: FilterBottomSheetProps) => {
+  const { setFilters, fetchPosts, resetFilters } = usePostStore();
   /* ---------------- local state ---------------- */
 
-  const [regions, setRegions] = useState<string[]>(["서울 은평구 전체"]);
-  const [selectedHelpTypes, setSelectedHelpTypes] = useState<string[]>([""]);
+  const [regions, setRegions] = useState<string[]>([""]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [gender, setGender] = useState<"남자" | "여자">("여자");
-  const [disability, setDisability] = useState<string>("");
+  const [selectedDisabilityIds, setSelectedDisabilityIds] = useState<number[]>(
+    []
+  );
   const [days, setDays] = useState<string[]>([""]);
   const [honeyRange, setHoneyRange] = useState<number[]>([200, 500]);
 
@@ -26,36 +32,41 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
   const removeRegion = (region: string) => {
     setRegions((prev) => prev.filter((r) => r !== region));
   };
-
-  const toggleHelpType = (label: string) => {
-    setSelectedHelpTypes((prev) =>
-      prev.includes(label) ? prev.filter((t) => t !== label) : [...prev, label]
+  const toggleItem = (id: any, state: any[], setState: any) => {
+    setState(
+      state.includes(id) ? state.filter((i) => i !== id) : [...state, id]
     );
   };
 
-  const toggleDay = (day: string) => {
-    setDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-  };
-
-  const resetAll = () => {
+  const handleReset = () => {
     setRegions(["서울 은평구 전체"]);
-    setSelectedHelpTypes([""]);
+    setSelectedCategoryIds([]);
     setGender("여자");
-    setDisability("");
-    setDays([""]);
-    setHoneyRange([0, 500]);
-  };
-
-  const handleAddRegion = () => {
-    alert("지역 추가 기능은 아직 구현되지 않았습니다!");
+    setSelectedDisabilityIds([]);
+    setDays([]);
+    setHoneyRange([0, 1000]);
+    resetFilters();
   };
 
   const handleSubmit = () => {
+    // 서버 reqDTO 형식으로 변환
+    const reqDTO = {
+      legalDongCodes: regions, // 실제 연동 시 코드로 변환 필요
+      helpCategories: selectedCategoryIds,
+      gender: SERVER_MAPPING.GENDER[gender],
+      minHoney: honeyRange[0],
+      maxHoney: honeyRange[1],
+      // 다중 선택 시 첫 번째 ID만 혹은 배열로 (서버 협의 필요)
+      disabilityCategoryId: selectedDisabilityIds,
+      days: days.map(
+        (d) => SERVER_MAPPING.DAYS[d as keyof typeof SERVER_MAPPING.DAYS]
+      ),
+    };
+
+    setFilters(reqDTO);
+    fetchPosts(true);
     onClose();
   };
-
   /* ---------------- render ---------------- */
 
   return (
@@ -103,7 +114,9 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                     ))}
                   </RegionChipRow>
 
-                  <AddRegionBtn onClick={handleAddRegion}>
+                  <AddRegionBtn
+                    onClick={() => alert("지역 선택 API 연결 예정")}
+                  >
                     <Plus>＋</Plus> 추가하기
                   </AddRegionBtn>
                 </Section>
@@ -112,13 +125,20 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                 <Section>
                   <Label>도움 유형</Label>
                   <Row>
-                    {HELP_TAGS.map((label) => (
+                    {" "}
+                    {HELP_TAG_LIST.map((tag) => (
                       <Badge
-                        key={label}
-                        $active={selectedHelpTypes.includes(label)}
-                        onClick={() => toggleHelpType(label)}
+                        key={tag.id}
+                        $active={selectedCategoryIds.includes(tag.id)}
+                        onClick={() =>
+                          toggleItem(
+                            tag.id,
+                            selectedCategoryIds,
+                            setSelectedCategoryIds
+                          )
+                        }
                       >
-                        {label}
+                        {tag.name}
                       </Badge>
                     ))}
                   </Row>
@@ -151,13 +171,19 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                 <Section>
                   <Label>장애 유형</Label>
                   <Row>
-                    {DISABILITY_TYPES.map((v) => (
+                    {DISABILITY_TYPES.map((type) => (
                       <Badge
-                        key={v}
-                        $active={disability === v}
-                        onClick={() => setDisability(v)}
+                        key={type.id}
+                        $active={selectedDisabilityIds.includes(type.id)}
+                        onClick={() =>
+                          toggleItem(
+                            type.id,
+                            selectedDisabilityIds,
+                            setSelectedDisabilityIds
+                          )
+                        }
                       >
-                        {v}
+                        {type.name}
                       </Badge>
                     ))}
                   </Row>
@@ -177,7 +203,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
                       <DayChip
                         key={d}
                         $active={days.includes(d)}
-                        onClick={() => toggleDay(d)}
+                        onClick={() => toggleItem(d, days, setDays)}
                       >
                         {d}
                       </DayChip>
@@ -187,7 +213,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: Props) => {
               </Content>
 
               <Buttons>
-                <ResetBtn onClick={resetAll}>초기화</ResetBtn>
+                <ResetBtn onClick={handleReset}>초기화</ResetBtn>
                 <SubmitBtn onClick={handleSubmit}>완료</SubmitBtn>
               </Buttons>
             </Container>

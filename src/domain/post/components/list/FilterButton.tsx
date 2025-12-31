@@ -1,11 +1,11 @@
 import styled from "styled-components";
 import { FiChevronDown } from "react-icons/fi";
 //
-interface Props {
+interface FilterProps {
   onClick: () => void;
 }
 
-const FilterButton = ({ onClick }: Props) => {
+const FilterButton = ({ onClick }: FilterProps) => {
   return (
     <Button onClick={onClick}>
       <span>필터</span>

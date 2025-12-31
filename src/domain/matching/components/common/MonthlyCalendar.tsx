@@ -44,6 +44,9 @@ const MonthlyCalendar = ({
 
   return (
     <StyledWrapper>
+      <span className="sr-only">
+        한 달 보기 입니다. 달력 내 날짜를 클릭하여 매칭 정보를 확인해 보세요.
+      </span>
       <DatePicker
         inline
         locale={ko}
@@ -77,11 +80,19 @@ const CustomHeader = ({
       </DateText>
 
       <ArrowGroup>
-        <ArrowButton type="button" aria-label="이전 달" onClick={decreaseMonth}>
+        <ArrowButton
+          type="button"
+          aria-label="이전 달로 이동"
+          onClick={decreaseMonth}
+        >
           <GoChevronLeft size={20} />
         </ArrowButton>
 
-        <ArrowButton type="button" aria-label="다음 달" onClick={increaseMonth}>
+        <ArrowButton
+          type="button"
+          aria-label="다음 달로 이동"
+          onClick={increaseMonth}
+        >
           <GoChevronRight size={20} />
         </ArrowButton>
       </ArrowGroup>

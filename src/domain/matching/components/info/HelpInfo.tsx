@@ -36,13 +36,13 @@ const HelpInfo = ({ engagement }: Props) => {
     <Wrapper>
       {/* 방식 */}
       <Row>
-        <Label>방식</Label>
+        <Label aria-label="도움의 종류">방식</Label>
         <Value>{isOneDay ? "하루 도움" : "지속 도움"}</Value>
       </Row>
 
       {/* 날짜 */}
       <Row>
-        <Label>날짜</Label>
+        <Label aria-label="도움 날짜">날짜</Label>
         <Value>
           {isOneDay ? (
             formatDate((engagement.engagementTime as DayEngagementTime).date)
@@ -62,7 +62,9 @@ const HelpInfo = ({ engagement }: Props) => {
 
       {/* 시간 / 일정 */}
       <Row>
-        <Label>{isOneDay ? "시간" : "일시"}</Label>
+        <Label aria-label="활동 시간 및 일정">
+          {isOneDay ? "시간" : "일시"}
+        </Label>
         <Value>
           {isOneDay ? (
             <>
@@ -96,9 +98,11 @@ const HelpInfo = ({ engagement }: Props) => {
         <Label>제공 꿀</Label>
 
         {isOneDay ? (
-          <Value>{engagement.totalHoney}꿀</Value>
+          <Value aria-label="활동 완료 시 제공되는 꿀">
+            {engagement.totalHoney}꿀
+          </Value>
         ) : (
-          <Value>
+          <Value aria-label="활동 완료 시 제공되는 꿀">
             {engagement.unitHoney}꿀/회 (총{engagement.totalHoney}꿀)
           </Value>
         )}
@@ -106,7 +110,7 @@ const HelpInfo = ({ engagement }: Props) => {
 
       {/* 장소 */}
       <Row>
-        <Label>만남 장소</Label>
+        <Label aria-label="활동 시 만남 장소">만남 장소</Label>
         <Value>{engagement.region}</Value>
       </Row>
     </Wrapper>

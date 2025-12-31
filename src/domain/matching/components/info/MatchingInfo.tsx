@@ -20,7 +20,7 @@ const MatchingInfo = ({ engagement }: Props) => {
   const isOneDay = engagement.type === "DAY";
   return (
     <>
-      <MatchingDate>
+      <MatchingDate aria-label="활동이 진행되는 날짜">
         {isOneDay ? (
           formatDate((engagement.engagementTime as DayEngagementTime).date)
         ) : (
@@ -41,7 +41,7 @@ const MatchingInfo = ({ engagement }: Props) => {
         <HelpInfo engagement={engagement} />
       </Wrapper>
 
-      <MatchingProfile />
+      <MatchingProfile engagement={engagement} />
     </>
   );
 };
