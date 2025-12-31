@@ -1,8 +1,8 @@
+import type { PostItem } from "./../types/post.type";
 import { create } from "zustand";
 
 import { disabledProfileMockData } from "../mock/profile/profile.mock";
 import { postMockData } from "../mock/post/post.mock";
-import type { Post } from "./usePostStore";
 import { helperProfileMockData } from "../mock/profile/profile.mock";
 /* ---------- types ---------- */
 
@@ -20,7 +20,7 @@ export interface DisabledProfile {
   introduction?: string;
   disabilityType?: string;
   description?: string;
-  helpRequestPost?: Post[];
+  helpRequestPost?: PostItem[];
   receivedReviews?: string[];
 }
 
@@ -44,7 +44,7 @@ interface ProfileStore {
 
   disabledProfiles: DisabledProfile[];
   helperProfiles: HelperProfile[];
-  post: Post[];
+  post: PostItem[];
 
   getProfiles: () => DisabledProfile[] | HelperProfile[];
 

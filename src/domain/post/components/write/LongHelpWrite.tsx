@@ -1,6 +1,5 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { forwardRef } from "react";
-import { useNavigate } from "react-router-dom";
 import styled, { createGlobalStyle } from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -36,13 +35,8 @@ import { SERVER_MAPPING, DAY_OF_WEEK_MAP } from "../../../../types/post.type";
 const DAYS_FROM_MAPPING = Object.keys(SERVER_MAPPING.DAYS);
 
 const LongHelpWrite = ({ formData, updateField }: DayProps) => {
-  const {
-    utils,
-    addSchedule,
-    removeSchedule,
-    handleSubmit,
-    handleTermRangeChange,
-  } = usePostWrite(formData, updateField);
+  const { utils, removeSchedule, handleSubmit, handleTermRangeChange } =
+    usePostWrite(formData, updateField);
 
   // --- 로컬 상태 (일시적인 입력 관리) ---
   const [isAddingSchedule, setIsAddingSchedule] = useState(false);
@@ -228,7 +222,7 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
         onSelect={(loc) =>
           updateField({
             region: loc.address,
-            legalDongCode: loc.code,
+
             latitude: loc.lat,
             longitude: loc.lng,
           })

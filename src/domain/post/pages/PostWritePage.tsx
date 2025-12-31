@@ -71,6 +71,7 @@ const PostWritePage = () => {
             formData.postType === "DAY" ? "하루 도움 작성" : "지속 도움 작성"
           }
           onBack={() => setIsDetailPage(false)}
+          showBack
         />
         <Container>
           {/* 자식에게 객체와 업데이트 함수만 전달 */}
@@ -124,7 +125,7 @@ const PostWritePage = () => {
 
   return (
     <ScrollWrapper>
-      <Header title="게시글 작성" onBack={() => navigate("/")} />
+      <Header title="게시글 작성" onBack={() => navigate("/")} showBack />
       {/* 헬프타입 선택 */}
 
       <Container>
@@ -436,23 +437,6 @@ const HiddenInput = styled.input`
   display: none;
 `;
 
-const FormContainer = styled.div`
-  position: relative;
-  width: 100%;
-  min-height: 200px;
-`;
-
-const FormWrapper = styled.div<{ $show: boolean }>`
-  position: ${({ $show }) => ($show ? "relative" : "absolute")};
-  top: 0;
-  left: 0;
-  width: 100%;
-  opacity: ${({ $show }) => ($show ? 1 : 0)};
-  transform: ${({ $show }) => ($show ? "translateY(0)" : "translateY(-10px)")};
-  pointer-events: ${({ $show }) => ($show ? "auto" : "none")};
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: ${({ $show }) => ($show ? 1 : 0)};
-`;
 const Row = styled.div`
   display: flex;
   flex-wrap: wrap;
