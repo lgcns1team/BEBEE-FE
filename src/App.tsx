@@ -55,11 +55,11 @@ function App() {
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
 
-          {/* 타인이 보는 프로필 정보 */}
-          <Route path="/profile-info" element={<ProfileInfoPage />} />
-          {/*테스트*/}
-          <Route path="/mypage-1" element={<DisabledMyPage />} />
-          <Route path="/mypage-2" element={<HelperMyPage />} />
+          {/* 마이페이지에서 보는 프로필 정보 */}
+          <Route path="/profile-info/:infoId" element={<ProfileInfoPage />} />
+
+          {/* 마이페이지 */}
+          <Route path="/mypage" element={<DisabledMyPage />} />
 
           {/*동네지도*/}
           <Route path="/map" element={<MapUserPage />} />
@@ -70,7 +70,10 @@ function App() {
           <Route path="/match" element={<MatchingPage />} />
 
           {/* 매칭 확인서 */}
-          <Route path="/match-info/:infoId" element={<MatchingInfoPage />} />
+          <Route
+            path="/match-info/:agreementId"
+            element={<MatchingInfoPage />}
+          />
           {/* 리뷰 */}
           <Route path="/review" element={<ReviewPage />} />
           {/*  테스트 */}

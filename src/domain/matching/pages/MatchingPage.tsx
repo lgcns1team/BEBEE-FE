@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 import Header from "../../../components/Header";
 import Layout from "../../../components/Layout";
 import PeriodToggle from "../components/common/PeriodToggle";
@@ -12,7 +12,6 @@ import MonthlyCalendar from "../components/common/MonthlyCalendar";
 import WeeklyCalendar from "../components/common/WeeklyCalendar";
 
 const MatchingPage = () => {
-  const navigate = useNavigate();
   const { posts } = usePostStore();
 
   const [activeTab, setActiveTab] = useState<TabType>("전체");
@@ -26,13 +25,12 @@ const MatchingPage = () => {
   return (
     <Layout>
       <PageContainer>
-        <Header title="매칭 현황" onBack={() => navigate(-1)} />
+        <Header title="매칭 현황" />
 
         <StickyBox>
           <PeriodToggle active={period} onChange={setPeriod} />
           {period === "week" ? <WeeklyCalendar /> : <MonthlyCalendar />}
 
-          {/* ✅ 여기만 props로 연결 */}
           <Category activeTab={activeTab} onChange={setActiveTab} />
         </StickyBox>
 

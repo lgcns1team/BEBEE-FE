@@ -52,11 +52,15 @@ const AuthSignUpStep2Page = () => {
             // 중복 체크 API 호출
             try {
                 const isDuplicated = await checkEmail(email);
+                console.log('이메일 중복 체크 결과:', isDuplicated, typeof isDuplicated);
                 if (isDuplicated) {
                     newErrors.email = "이미 사용 중인 이메일입니다.";
+                    alert("이미 사용 중인 이메일입니다. 다른 이메일을 입력해주세요.");
                 }
             } catch (error) {
                 console.error("이메일 중복 체크 실패:", error);
+                newErrors.email = "이메일 중복 체크에 실패했습니다.";
+                alert("이메일 중복 체크에 실패했습니다. 다시 시도해주세요.");
             }
         }
 

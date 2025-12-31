@@ -11,7 +11,7 @@ const Layout = ({ children, bg }: LayoutProps) => {
   return <Wrapper bg={bg}>{children}</Wrapper>;
 };
 
-const Wrapper = styled.div<{ bg?: boolean }>`
+const Wrapper = styled.main<{ bg?: boolean }>`
   width: 100%;
   max-width: 100%;
   min-height: 100vh;

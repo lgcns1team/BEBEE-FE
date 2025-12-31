@@ -1,5 +1,5 @@
-import type { Post } from "../../../store/usePostStore";
-import BeeImage from "../../../assets/images/bee-santa.png";
+import type { Post } from "../../store/usePostStore";
+import BeeImage from "../../../src/assets/images/bee-santa.png";
 export const postMockData: Post[] = [
   {
     id: 1,

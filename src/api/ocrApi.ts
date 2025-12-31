@@ -10,6 +10,7 @@ export const extractOcr = async (file: File, role: string): Promise<OcrResult> =
         headers: {
             'Content-Type': 'multipart/form-data',
         },
+        timeout: 30000, // 30초
     });
     return response.data;
 };

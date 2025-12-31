@@ -4,7 +4,6 @@ import styled from "styled-components";
 import Layout from "../../../components/Layout";
 import BaseLongButton from "../../../components/BaseLongButton";
 import Badge from "../../../components/Badge";
-import GeneralInput from "../../../components/GeneralInput";
 import AuthSignUpHeader from "../components/AuthSignUpHeader";
 import {
     FieldSet,
@@ -12,24 +11,14 @@ import {
     RequiredMark,
 } from "../../../styles/FieldSetStyle";
 import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
-
-// TODO: 실제 도움 태그는 constants에서 가져오기
-const HELP_TAGS = [
-    "외출동행",
-    "방문목욕",
-    "방문간호",
-    "가사지원",
-    "기타생활지원",
-    "정서적 지원",
-    "학습지원",
-    "식사도움",
-];
+import { HELP_TAGS } from "../../../constants/helpTags";
+import { DISABILITY_TYPES } from "../../../constants/disabilityTypes";
 
 const AuthSignUpStep4Page = () => {
     const navigate = useNavigate();
     const { role, setHelpTypes, setDisabilityInfo } = useAuthSignUpForm();
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
-    const [disabilityType, setDisabilityType] = useState("");
+    const [selectedDisabilityType, setSelectedDisabilityType] = useState("");
     const [disabilityDescription, setDisabilityDescription] = useState("");
 
     const handleTagClick = (tag: string) => {
@@ -38,12 +27,16 @@ const AuthSignUpStep4Page = () => {
         );
     };
 
+    const handleDisabilityTypeClick = (type: string) => {
+        setSelectedDisabilityType(type);
+    };
+
     const handleNext = () => {
         // Zustand store에 저장
         if (role === "HELPER") {
             setHelpTypes(selectedTags);
         } else {
-            setDisabilityInfo(disabilityType, disabilityDescription);
+            setDisabilityInfo(selectedDisabilityType, disabilityDescription);
         }
         navigate("/signup/step5");
     };
@@ -51,7 +44,7 @@ const AuthSignUpStep4Page = () => {
     const isFormValid =
         role === "HELPER"
             ? selectedTags.length > 0
-            : disabilityType !== "" && disabilityDescription !== "";
+            : selectedDisabilityType !== "" && disabilityDescription !== "";
 
     return (
         <Layout>
@@ -84,13 +77,22 @@ const AuthSignUpStep4Page = () => {
                     ) : (
                         // 장애인: 장애 정보 입력
                         <>
-                            <GeneralInput
-                                inputLabel="장애 유형"
-                                placeholder="예: 지체장애, 시각장애 등"
-                                value={disabilityType}
-                                onChange={(e) => setDisabilityType(e.target.value)}
-                                required
-                            />
+                            <FieldSet>
+                                <ModalLabel>
+                                    장애 유형<RequiredMark>*</RequiredMark>
+                                </ModalLabel>
+                                <Row>
+                                    {DISABILITY_TYPES.map((type) => (
+                                        <Badge
+                                            key={type}
+                                            $active={selectedDisabilityType === type}
+                                            onClick={() => handleDisabilityTypeClick(type)}
+                                        >
+                                            {type}
+                                        </Badge>
+                                    ))}
+                                </Row>
+                            </FieldSet>
 
                             <FieldSet>
                                 <ModalLabel>

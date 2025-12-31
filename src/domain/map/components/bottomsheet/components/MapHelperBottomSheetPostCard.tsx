@@ -1,18 +1,19 @@
-import React from "react";
 import styled from "styled-components";
 import type { Post } from "../../../../../store/usePostStore";
 import HelpTag from "../../../../../components/HelpTag";
 import { FiCalendar } from "react-icons/fi";
 import { FiMapPin } from "react-icons/fi";
 import OneDayBadge from "../../../../../components/OneDayBadge";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   post: Post;
 }
 
 const MapHelperBottomSheetPostCard = ({ post }: Props) => {
+  const navigate = useNavigate();
   return (
-    <Card>
+    <Card onClick={() => navigate(`/post/${post.id}`)}>
       <Content>
         <TopArea>
           <Title>{post.title}</Title>
@@ -22,6 +23,11 @@ const MapHelperBottomSheetPostCard = ({ post }: Props) => {
             )}
           </RightTop>
         </TopArea>
+
+        <InfoLine>
+          <MapPinIcon size={16} />
+          <InfoText>{post.location}</InfoText>
+        </InfoLine>
 
         <InfoLine>
           <MapPinIcon size={16} />

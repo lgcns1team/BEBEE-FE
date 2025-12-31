@@ -1,4 +1,3 @@
-import React from "react";
 import MapHelperBottomSheetPostCard from "./MapHelperBottomSheetPostCard";
 // import { useMapHelperPostStore } from "../../../../../store/useMapHelperPostStore";
 import { usePostStore } from "../../../../../store/usePostStore";

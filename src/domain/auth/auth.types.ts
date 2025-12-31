@@ -25,6 +25,13 @@ export interface SignUpRequest {
   latitude: number;
   longitude: number;
   districtCode: string;
+
+  // HELPER용: 도움 유형 목록
+  helpTypes?: string[];
+
+  // DISABLED용: 장애 유형 및 설명
+  disabilityType?: string;
+  disabilityDescription?: string;
 }
 
 export interface OcrResult {
