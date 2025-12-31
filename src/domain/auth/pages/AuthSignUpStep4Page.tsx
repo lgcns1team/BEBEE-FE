@@ -11,8 +11,8 @@ import {
   RequiredMark,
 } from "../../../styles/FieldSetStyle";
 import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
-import { HELP_TAGS } from "../../../constants/helpTags";
-import { DISABILITY_TYPE } from "../../../constants/disabilityTypes";
+import { HELP_TAG_NAMES } from "../../../constants/helpTags";
+import { DISABILITY_TYPES } from "../../../constants/disabilityTypes";
 
 const AuthSignUpStep4Page = () => {
   const navigate = useNavigate();
@@ -63,7 +63,7 @@ const AuthSignUpStep4Page = () => {
                 <RequiredMark>*</RequiredMark>
               </ModalLabel>
               <Row>
-                {HELP_TAGS.map((tag) => (
+                {HELP_TAG_NAMES.map((tag) => (
                   <Badge
                     key={tag}
                     $active={selectedTags.includes(tag)}
@@ -82,7 +82,7 @@ const AuthSignUpStep4Page = () => {
                   장애 유형<RequiredMark>*</RequiredMark>
                 </ModalLabel>
                 <Row>
-                  {DISABILITY_TYPE.map((type) => (
+                  {DISABILITY_TYPES.map((type) => (
                     <Badge
                       key={type}
                       $active={selectedDisabilityType === type}

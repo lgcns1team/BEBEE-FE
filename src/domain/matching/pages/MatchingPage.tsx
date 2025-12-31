@@ -1,42 +1,83 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Header from "../../../components/Header";
 import Layout from "../../../components/Layout";
 import PeriodToggle from "../components/common/PeriodToggle";
 import Category, { type TabType } from "../components/common/Category";
 import MatchingPostCard from "../components/list/MatchingPostCard";
-import { usePostStore } from "../../../store/usePostStore";
+
 import NavBar from "../../../components/NavBar";
 import styled from "styled-components";
 import MonthlyCalendar from "../components/common/MonthlyCalendar";
 import WeeklyCalendar from "../components/common/WeeklyCalendar";
+import { useMatchStore } from "../store/useMatchStore";
+import { getEngagements } from "../../../api/engagementApi";
+import { getEngagementDateSet } from "../utils/engagementDates";
+
+const MEMBER_ID = "100";
 
 const MatchingPage = () => {
-  const { posts } = usePostStore();
+  const { engagements, setEngagements } = useMatchStore();
 
   const [activeTab, setActiveTab] = useState<TabType>("전체");
   const [period, setPeriod] = useState<"week" | "month">("month");
-
-  const filteredPosts = posts.filter((p) => {
-    if (activeTab !== "전체" && p.category !== activeTab) return false;
-    return true;
-  });
+  const [selectedDate, setSelectedDate] = useState("2025-12-30");
+  const [engagementDates, setEngagementDates] = useState<Set<string>>(
+    new Set()
+  );
+  useEffect(() => {
+    const types: ("DAY" | "TERM")[] =
+      activeTab === "전체"
+        ? ["DAY", "TERM"]
+        : activeTab === "하루 도움"
+        ? ["DAY"]
+        : ["TERM"];
+    Promise.all(
+      types.map((type) =>
+        getEngagements({
+          memberId: MEMBER_ID,
+          date: selectedDate,
+          engagementType: type,
+        })
+      )
+    ).then((responses) => {
+      const merged = responses.flatMap((res) => res.data.matches);
+      setEngagements(merged);
+      setEngagementDates(getEngagementDateSet(merged));
+    });
+  }, [activeTab, selectedDate]);
 
   return (
     <Layout>
       <PageContainer>
-        <Header title="매칭 현황" />
+        <span className="sr-only">
+          활동 관리 페이지 입니다. 매칭된 활동 목록을 확인할 수 있습니다.
+        </span>
+        <Header title="활동 관리" />
 
         <StickyBox>
           <PeriodToggle active={period} onChange={setPeriod} />
-          {period === "week" ? <WeeklyCalendar /> : <MonthlyCalendar />}
+          {period === "week" ? (
+            <WeeklyCalendar
+              onSelectDate={(date) => setSelectedDate(date)}
+              markedDates={engagementDates}
+            />
+          ) : (
+            <MonthlyCalendar
+              onSelectDate={(date) => setSelectedDate(date)}
+              markedDates={engagementDates}
+            />
+          )}
 
           <Category activeTab={activeTab} onChange={setActiveTab} />
         </StickyBox>
 
         <ScrollArea>
-          {filteredPosts.map((post) => (
-            <MatchingPostCard key={post.id} post={post} />
+          {engagements.map((engagement) => (
+            <MatchingPostCard
+              key={engagement.agreementId}
+              engagement={engagement}
+            />
           ))}
         </ScrollArea>
 

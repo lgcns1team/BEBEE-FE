@@ -12,6 +12,10 @@ interface Props {
 const Category = ({ activeTab, onChange }: Props) => {
   return (
     <Wrapper>
+      <span className="sr-only">
+        도움의 종류를 골라 필터링 할 수 있습니다. 전체, 하루도움, 지속도움 중
+        선택할 수 있습니다.
+      </span>
       {TABS.map((tab) => (
         <Badge
           key={tab}

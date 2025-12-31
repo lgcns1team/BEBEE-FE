@@ -41,7 +41,7 @@ const Header = ({
 
       {showBack && (
         <Left onClick={onBack}>
-          <IoChevronBack size={25} />
+          <IoChevronBack size={25} aria-label="뒤로 가기" />
         </Left>
       )}
       {/* 타이틀 영역 */}

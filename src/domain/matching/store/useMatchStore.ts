@@ -1,18 +1,22 @@
 import { create } from "zustand";
-import { agreementMockData } from "../mock/match.mock";
-import type { Agreement } from "../match.types";
+import type { Engagement } from "../../../types/match.type";
 
 interface MatchState {
-  agreements: Agreement[];
-  getAgreementById: (id: number) => Agreement | undefined;
-  getAgreementByPostId: (postId: number) => Agreement | undefined;
+  engagements: Engagement[];
+  setEngagements: (data: Engagement[]) => void;
+  clearEngagements: () => void;
+  getEngagementById: (agreementId: string) => Engagement | undefined;
 }
 
 export const useMatchStore = create<MatchState>()((set, get) => ({
-  agreements: agreementMockData,
-
-  getAgreementById: (id) => get().agreements.find((a) => a.agreementId === id),
-
-  getAgreementByPostId: (postId) =>
-    get().agreements.find((a) => a.postId === postId),
+  engagements: [],
+  setEngagements: (data) => {
+    set({ engagements: data });
+  },
+  clearEngagements: () => {
+    set({ engagements: [] });
+  },
+  getEngagementById: (agreementId) => {
+    return get().engagements.find((e) => e.agreementId === agreementId);
+  },
 }));
