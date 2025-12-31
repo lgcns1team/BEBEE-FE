@@ -126,7 +126,6 @@ const DayHelpWrite = ({ formData, updateField }: DayProps) => {
         onSelect={(location) =>
           updateField({
             region: location.address,
-            legalDongCode: location.code,
             latitude: location.lat,
             longitude: location.lng,
           })

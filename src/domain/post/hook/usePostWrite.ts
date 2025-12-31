@@ -7,7 +7,7 @@ import {
   type Schedule,
   SERVER_MAPPING,
 } from "../../../types/post.type";
-import { postApi } from "../../../api/postApi";
+import { postApi } from "../../../api/postApi.1";
 import { calculateTotalOccurrences } from "../util/totalHoney";
 
 export const usePostWrite = (
@@ -167,7 +167,7 @@ export const usePostWrite = (
     }
 
     try {
-      await postApi.createPost("1", formData as PostCreateReqDTO);
+      await postApi.createPost("100", formData as PostCreateReqDTO);
       alert("게시글 작성이 완료되었습니다.");
       navigate("/");
     } catch (error) {

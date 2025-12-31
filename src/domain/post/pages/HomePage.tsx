@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { usePostStore } from "../../../store/usePostStore";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import PostCard from "../components/list/PostCard";
 import FilterButton from "../components/list/FilterButton";
@@ -15,44 +15,61 @@ import { Checkbox } from "../../../components/Checkbox";
 const HomePage = () => {
   const navigate = useNavigate();
 
-  // 1. 스토어 상태 및 액션 가져오기
-  const { posts, fetchPosts, filters, setFilters, isLoading } = usePostStore();
-
-  // 2. 로컬 UI 상태 (정렬, 드롭다운 등)
+  // 1. Store에서 필요한 상태와 액션들을 구조 분해 할당
+  // 이제 filters라는 통객체가 아니라 type, isMatched, reqDTO로 분리되어 있습니다.
+  const {
+    posts,
+    hasNext,
+    isLoading,
+    isLoadingMore,
+    error,
+    type,
+    isMatched,
+    fetchPosts,
+    fetchMorePosts,
+    setType,
+    setIsMatched,
+  } = usePostStore();
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sort, setSort] = useState("최신순");
-
-  // 3. 초기 데이터 로드
+  const observerTarget = useRef<HTMLDivElement>(null);
+  // 2. 초기 데이터 로드 (필터 빈 값 상태로 요청)
   useEffect(() => {
-    fetchPosts(true);
+    fetchPosts();
   }, []);
 
-  // 4. 상단 탭 필터 (전체/일회성/정기적)
-  const handleApplyTab = (type: HelpType | "ALL") => {
-    setFilters({
-      ...filters,
-      type: type === "ALL" ? undefined : type,
-    });
-    fetchPosts(true);
+  // 2. 무한 스크롤 구현
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // 화면에 관찰 대상이 보이고, 다음 페이지가 있고, 로딩 중이 아닐 때
+        if (entries[0].isIntersecting && hasNext && !isLoadingMore) {
+          fetchMorePosts();
+        }
+      },
+      { threshold: 0.1 } // 10%만 보여도 트리거
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [hasNext, isLoadingMore, fetchMorePosts]);
+
+  // 3. 탭 클릭 핸들러 (전체/일회성/정기적)
+  const handleTypeChange = (newType: HelpType | undefined) => {
+    setType(newType);
   };
 
-  // 5. "완료 제외" 체크박스 핸들러
-  // 체크 시: 매칭 전만 보기 (isMatched: false), 체크 해제 시: 전체 보기 (isMatched: null)
-  const handleExcludeDoneChange = (checked: boolean) => {
-    setFilters({
-      ...filters,
-      isMatched: checked ? false : null,
-    });
-    fetchPosts(true);
-  };
-
-  // 6. 정렬 관련 핸들러
-  const toggleSort = () => setIsSortOpen(!isSortOpen);
-  const handleSelectSort = (label: string) => {
-    setSort(label);
-    setIsSortOpen(false);
-    // 필요 시 fetchPosts(true) 호출하여 서버 정렬 요청 가능
+  // 4. 매칭 완료 여부 버튼 클릭 핸들러
+  const handleMatchedChange = (matched: boolean | undefined) => {
+    setIsMatched(matched);
   };
 
   return (
@@ -60,18 +77,19 @@ const HomePage = () => {
       <Wrapper>
         {/* ---------------- Tabs ---------------- */}
         <TabBar>
-          <Tab $active={!filters.type} onClick={() => handleApplyTab("ALL")}>
+          {/* filters.type 대신 Store의 type 상태를 직접 사용 */}
+          <Tab
+            $active={type === undefined}
+            onClick={() => handleTypeChange(undefined)}
+          >
             전체
           </Tab>
-          <Tab
-            $active={filters.type === "DAY"}
-            onClick={() => handleApplyTab("DAY")}
-          >
+          <Tab $active={type === "DAY"} onClick={() => handleTypeChange("DAY")}>
             하루 도움
           </Tab>
           <Tab
-            $active={filters.type === "TERM"}
-            onClick={() => handleApplyTab("TERM")}
+            $active={type === "TERM"}
+            onClick={() => handleTypeChange("TERM")}
           >
             장기 도움
           </Tab>
@@ -82,21 +100,26 @@ const HomePage = () => {
           <FilterButton onClick={() => setIsFilterSheetOpen(true)} />
 
           <SortSelect>
-            <button className="sort-btn" onClick={toggleSort}>
+            <button
+              className="sort-btn"
+              onClick={() => setIsSortOpen(!isSortOpen)}
+            >
               {sort}
               <ChevronDownIcon size={16} />
             </button>
 
-            {isSortOpen && (
+            {/* {isSortOpen && (
               <div className="dropdown">
                 <span onClick={() => handleSelectSort("최신순")}>최신순</span>
                 <span onClick={() => handleSelectSort("마감순")}>마감순</span>
               </div>
-            )}
+            )}*/}
           </SortSelect>
+
           <Checkbox
-            checked={filters.isMatched === false}
-            onChange={handleExcludeDoneChange}
+            // isMatched가 false일 때만 체크된 상태로 표시
+            checked={isMatched === false}
+            onChange={handleMatchedChange}
             label="완료 제외"
           />
         </FilterRow>
@@ -116,9 +139,13 @@ const HomePage = () => {
           {!isLoading && posts.length === 0 && (
             <span>조건에 맞는 게시글이 없습니다.</span>
           )}
+
+          {/* 추가 기능: 무한 스크롤 대신 '더보기' 버튼을 쓴다면 */}
+          {/* {hasNext && !isLoading && <button onClick={() => fetchPosts(false)}>더보기</button>} */}
         </ListWrapper>
 
         {/* ---------------- BottomSheet ---------------- */}
+        {/* reqDTO 등의 상세 필터는 이 컴포넌트 내부에서 setReqDTO를 사용하도록 구성됩니다. */}
         <FilterBottomSheet
           isOpen={isFilterSheetOpen}
           onClose={() => setIsFilterSheetOpen(false)}
@@ -130,9 +157,7 @@ const HomePage = () => {
     </Layout>
   );
 };
-
 export default HomePage;
-
 /* ---------------- styled-components ---------------- */
 
 const Wrapper = styled.div`

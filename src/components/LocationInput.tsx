@@ -6,7 +6,7 @@ import {
   LocationInputWrapper,
   InputBox,
 } from "../styles/inputStyles";
-import styled from "styled-components"; // 리스트 스타일링용
+import styled from "styled-components";
 
 interface LocationInputProps {
   inputLabel?: string;
