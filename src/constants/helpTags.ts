@@ -16,3 +16,15 @@ export const HELP_TAG_LIST = HELP_TAG_NAMES.map((name, index) => ({
 }));
 
 export type HelpTagType = (typeof HELP_TAG_LIST)[number];
+
+//용재님 용
+export const HELP_TAGS = [
+  "외출 동행",
+  "방문 목욕",
+  "방문 간호",
+  "가사 지원",
+  "정서적 지원",
+  "식사 도움",
+  "학습 지원",
+  "기타 지원",
+];
