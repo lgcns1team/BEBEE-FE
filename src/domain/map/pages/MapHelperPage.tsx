@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Header from "../../../components/Header";
@@ -42,7 +42,7 @@ const MapHelperPage = () => {
   return (
     <Container>
       <HeaderWrapper>
-        <Header title="동네지도" onBack={() => navigate(-1)} />
+        <Header title="동네지도" showBack onBack={() => navigate(-1)} />
       </HeaderWrapper>
 
       <Content>

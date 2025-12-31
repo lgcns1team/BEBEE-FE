@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import MapUserBottomSheet from "../components/bottomsheet/components/MapUserBottomSheet";
+import MapDisabledBottomSheet from "../components/bottomsheet/components/MapDisabledBottomSheet";
 import MapBasePage from "./MapBasePage";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../components/Header";
@@ -9,7 +9,7 @@ import styled from "styled-components";
 const pxToRem = (px: number) => `${px / 16}rem`;
 const HEADER_HEIGHT_REM = pxToRem(73);
 
-const MapUserPage = () => {
+const MapDisabledPage = () => {
   const navigate = useNavigate();
   const [center, setCenter] = useState({ lat: 33.450701, lng: 126.570667 });
   const [locationLabel, setLocationLabel] = useState("장충동");
@@ -43,7 +43,7 @@ const MapUserPage = () => {
   return (
     <Container>
       <HeaderWrapper>
-        <Header title="동네지도" onBack={() => navigate(-1)} />
+        <Header title="동네지도" showBack onBack={() => navigate(-1)} />
       </HeaderWrapper>
 
       <Content>
@@ -51,7 +51,7 @@ const MapUserPage = () => {
       </Content>
 
       <BottomSheetWrapper>
-        <MapUserBottomSheet
+        <MapDisabledBottomSheet
           onClickCurrentLocation={moveToCurrentLocation}
           locationLabel={locationLabel}
           radius={radiusKm}
@@ -62,7 +62,7 @@ const MapUserPage = () => {
   );
 };
 
-export default MapUserPage;
+export default MapDisabledPage;
 
 const Container = styled.div`
   background-color: ${({ theme }) => theme.color.white};

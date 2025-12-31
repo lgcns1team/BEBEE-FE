@@ -1,36 +1,44 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 import { useNavigate, useParams } from "react-router-dom";
 import MatchingInfo from "../components/info/MatchingInfo";
 import MatchingActionSheetModal from "../components/common/MatchingActionSheetModal";
-import { usePostStore } from "../../../store/usePostStore";
+import { useMatchStore } from "../store/useMatchStore";
+
 const MatchingInfoPage = () => {
   const navigate = useNavigate();
-  const { infoId } = useParams();
-  const { posts } = usePostStore();
-  const [isMatchingActionSheetOpen, setIsMatchingActionSheetOpen] =
-    useState(false);
-  // id에 맞는 매칭 정보 찾기
-  const post = posts.find((item) => item.id === Number(infoId));
+  const { agreementId: agreementIdParam } = useParams<{
+    agreementId: string;
+  }>();
+
+  const agreementId = Number(agreementIdParam);
+  const getAgreementById = useMatchStore((state) => state.getAgreementById);
+  const agreement = getAgreementById(agreementId);
+
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Layout>
       <Header
         title="매칭 확인서"
+        showBack
         onBack={() => navigate(-1)}
         showRight
-        onRightClick={() => setIsMatchingActionSheetOpen(true)}
+        onRightClick={() => setIsOpen(true)}
       />
+
       <MatchingActionSheetModal
-        isOpen={isMatchingActionSheetOpen}
-        onClose={() => setIsMatchingActionSheetOpen(false)}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
       />
-      {/* 매칭 정보가 없을 경우 */}
-      {!post ? (
-        <div>매칭 정보를 불러올 수 없습니다.</div>
+
+      {!agreement ? (
+        <div style={{ padding: 40, textAlign: "center" }}>
+          매칭 정보를 불러올 수 없습니다.
+        </div>
       ) : (
-        <MatchingInfo post={post} />
+        <MatchingInfo help={agreement.help} />
       )}
     </Layout>
   );

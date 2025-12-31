@@ -19,6 +19,7 @@ import { FiMoreVertical } from "react-icons/fi";
 interface HeaderProps {
   title?: string;
   subTitle?: string;
+  showBack?: boolean;
   onBack?: () => void;
   onRightClick?: () => void;
   showRight?: boolean;
@@ -28,6 +29,7 @@ interface HeaderProps {
 const Header = ({
   title,
   subTitle,
+  showBack,
   onBack,
   onRightClick,
   showRight,
@@ -36,10 +38,12 @@ const Header = ({
   return (
     <Container bg={bg}>
       {/* 왼쪽: 항상 노출 */}
-      <Left onClick={onBack}>
-        <IoChevronBack size={25} />
-      </Left>
 
+      {showBack && (
+        <Left onClick={onBack}>
+          <IoChevronBack size={25} />
+        </Left>
+      )}
       {/* 타이틀 영역 */}
       {(title || subTitle) && (
         <HeaderTitleBox>

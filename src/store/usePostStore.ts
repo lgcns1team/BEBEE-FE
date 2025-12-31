@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { postMockData } from "../domain/post/mock/post.mock";
+import { postMockData } from "../mock/post/post.mock";
 
 export interface Post {
   id: number;

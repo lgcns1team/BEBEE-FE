@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useState } from "react";
 import { FiCalendar, FiClock, FiMapPin } from "react-icons/fi";
-import { FaDroplet } from "react-icons/fa6";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { RxIconjarLogo } from "react-icons/rx";
 import ActionSheetModal from "../components/common/ActionSheetModal";
@@ -9,19 +9,28 @@ import HelpTagBee from "../../../assets/images/helptag-bee.png";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 import { usePostStore } from "../../../store/usePostStore";
-import { useDisabledProfileStore } from "../../../store/useDisabledProfileStore";
+import { useProfileStore } from "../../../store/useProfileStore";
+import BeeImage from "../../../assets/images/bee-letter.png";
 const PostDetailPage = () => {
   const navigate = useNavigate();
+
   const { id } = useParams<{ id: string }>();
-  const profile = useDisabledProfileStore((state) => state.profile);
-  const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
-  const goProfile = () => {
-    navigate("/profile");
-  };
+
+  const { disabledProfiles } = useProfileStore();
+
+  const postIdNum = Number(id);
 
   const post = usePostStore((state) =>
-    state.posts.find((p) => p.id === Number(id))
+    state.posts.find((p) => p.id === postIdNum)
   );
+  const profile = disabledProfiles.find((p) => p.memberId === post?.id);
+
+  const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
+
+  const goProfile = () => {
+    navigate(`/profile/disabled/${profile?.memberId}`);
+  };
+
   return (
     <Layout>
       <Container>
@@ -30,6 +39,7 @@ const PostDetailPage = () => {
           onBack={() => navigate(-1)}
           showRight
           onRightClick={() => setIsActionSheetOpen(true)}
+          showBack
         />
         <ActionSheetModal
           isOpen={isActionSheetOpen}
@@ -49,16 +59,16 @@ const PostDetailPage = () => {
         {/* ---------------- User Info ---------------- */}
         <UserSection>
           <UserLeft>
-            {profile.image && <UserImage src={profile.image} />}
+            {profile?.profileImageUrl ? (
+              <UserImage src={profile.profileImageUrl} />
+            ) : (
+              <UserImage src={BeeImage} />
+            )}
             <UserInfo>
-              <UserName onClick={goProfile}>{profile.name}</UserName>
-              <UserAddress>{profile.address}</UserAddress>
+              <UserName onClick={goProfile}>{profile?.name}</UserName>
+              <UserAddress>{profile?.addressRoad}</UserAddress>
             </UserInfo>
           </UserLeft>
-
-          <Temperature>
-            {profile.sweetness} <DropletIcon size={16} />
-          </Temperature>
         </UserSection>
 
         <Divider />
@@ -85,7 +95,6 @@ const PostDetailPage = () => {
             <span>{post?.location}</span>
           </InfoItem>
         </InfoList>
-
         {/* ---------------- Description ---------------- */}
         <Description>{post?.description}</Description>
 
@@ -178,18 +187,6 @@ const UserAddress = styled.div`
   color: ${({ theme }) => theme.color.subText2};
 `;
 
-const Temperature = styled.div`
-  font-size: ${({ theme }) => theme.size.md};
-  font-weight: ${({ theme }) => theme.weight.medium};
-  color: ${({ theme }) => theme.color.main};
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 24px;
-`;
-const DropletIcon = styled(FaDroplet)`
-  color: ${({ theme }) => theme.color.main};
-`;
 const Divider = styled.div`
   width: 100%;
   height: 0.5px;

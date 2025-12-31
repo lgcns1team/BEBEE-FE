@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 
 import { AnimatePresence, motion } from "framer-motion";
 import useMapBottomSheet from "../hooks/useMapBottomSheet";
 import MapBottomSheetHeader from "./MapBottomSheetHeader";
-import MapBottomSheetContent from "./MapUserBottomSheetContent";
+import MapBottomSheetContent from "./MapDisabledBottomSheetContent";
 import MapBottomSheetButton from "./MapBottomSheetButton";
 
 import { BiCurrentLocation } from "react-icons/bi";
@@ -23,7 +23,7 @@ interface Props {
   onChangeRadius: (r: number) => void;
 }
 
-function MapBottomSheet({
+function MapDisabledBottomSheet({
   onClickCurrentLocation,
   locationLabel,
   radius,
@@ -137,7 +137,7 @@ function MapBottomSheet({
   );
 }
 
-export default MapBottomSheet;
+export default MapDisabledBottomSheet;
 
 const Wrapper = styled(motion.div)`
   pointer-events: auto;

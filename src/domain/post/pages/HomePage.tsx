@@ -11,14 +11,13 @@ import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
 import WriteButton from "../components/common/WriteButton";
 import { Checkbox } from "../../../components/Checkbox";
-import { postMockData } from "../mock/post.mock";
+import { postMockData } from "../../../mock/post/post.mock";
 
 type TabType = "전체" | "하루 도움" | "지속 도움";
 
 const HomePage = () => {
   const { posts, setPosts } = usePostStore();
 
-  /** 🔹 local UI state */
   const [activeTab, setActiveTab] = useState<TabType>("전체");
   const [excludeDone, setExcludeDone] = useState(false);
   const [sort, setSort] = useState("");
@@ -32,12 +31,10 @@ const HomePage = () => {
     setIsSortOpen(false);
   };
 
-  /** 더미 데이터 세팅 */
   useEffect(() => {
     setPosts(postMockData);
   }, [setPosts]);
 
-  /** 🔹 필터 + 정렬 */
   const filteredPosts = posts
     .filter((p) => {
       if (activeTab !== "전체" && p.category !== activeTab) return false;
