@@ -49,8 +49,8 @@ function App() {
 
           {/*채팅*/}
           <Route path="/chat" element={<ChatListPage />} />
-          <Route path="/chat/:chatId" element={<ChatRoomPage />} />
-          <Route path="/chat/:chatId/match" element={<MatchFormPage />} />
+          <Route path="/chat/:chatroomId" element={<ChatRoomPage />} />
+          <Route path="/chat/:chatroomId/match" element={<MatchFormPage />} />
           <Route path="chat-test" element={<ChatTestPage />} />
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
