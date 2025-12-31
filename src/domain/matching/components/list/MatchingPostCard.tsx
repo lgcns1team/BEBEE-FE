@@ -39,7 +39,7 @@ const MatchingPostCard = ({ post }: Props) => {
 
   const matchingItem = {
     id: 1,
-    chatroomId: 791458418405204700,
+    chatroomId: "791458418405204700",
     partnerNickname: "꿀벌님",
   };
 

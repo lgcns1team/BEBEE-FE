@@ -1,100 +1,81 @@
 import { styled, createGlobalStyle } from "styled-components";
-import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { forwardRef } from "react";
+import { useRef, forwardRef } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/locale";
-
+import { parse } from "date-fns";
 import { CiCalendar } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
 
-// store
-import { usePostStore } from "../../../../store/usePostStore";
 import Layout from "../../../../components/Layout";
-import Header from "../../../../components/Header";
 import GeneralInput from "../../../../components/GeneralInput";
 import LocationInput from "../../../../components/LocationInput";
 import BaseLongButton from "../../../../components/BaseLongButton";
-
+import { type PostCreateReqDTO } from "../../../../types/post.type";
 import {
   FieldSet,
   ModalLabel,
   ModalInput,
   RequiredMark,
 } from "../../../../styles/FieldSetStyle";
-const DayHelpWrite = () => {
-  const { postData, setPostData } = usePostStore();
+import { usePostWrite } from "../../hook/usePostWrite";
+interface DayProps {
+  formData: Partial<PostCreateReqDTO>;
+  updateField: (updates: Partial<PostCreateReqDTO>) => void;
+}
 
+const DayHelpWrite = ({ formData, updateField }: DayProps) => {
   const datePickerInputRef = useRef<HTMLInputElement>(null);
   const startTimeInputRef = useRef<HTMLInputElement>(null);
   const endTimeInputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
-  /** 날짜 아이콘 클릭 */
-  const handleCalendarIconClick = () => {
-    datePickerInputRef.current?.click();
-  };
+  const { handleDayDateChange, handleDayTimeChange, handleSubmit } =
+    usePostWrite(formData, updateField);
 
-  /** 날짜 변경 */
-  const handleDateChange = (date: Date | null) => {
-    setPostData({ ...postData, date });
-  };
-
-  /** 시간 아이콘 클릭 */
-  const handleStartTimeIconClick = () => {
-    startTimeInputRef.current?.click();
-  };
-
-  const handleEndTimeIconClick = () => {
-    endTimeInputRef.current?.click();
-  };
-
-  /** 시간 변경 */
-  const handleStartTimeChange = (time: Date | null) => {
-    setPostData({ ...postData, startTime: time });
-  };
-
-  const handleEndTimeChange = (time: Date | null) => {
-    setPostData({ ...postData, endTime: time });
-  };
+  /* ---------------- 3. Picker 표시용 데이터 변환 ---------------- */
+  const selectedDate = formData.date ? new Date(formData.date) : null;
+  const selectedStartTime = formData.schedules?.[0]?.startTime
+    ? parse(formData.schedules[0].startTime, "HH:mm:ss", new Date())
+    : null;
+  const selectedEndTime = formData.schedules?.[0]?.endTime
+    ? parse(formData.schedules[0].endTime, "HH:mm:ss", new Date())
+    : null;
 
   return (
     <Layout>
-      <Header title="게시글 작성" onBack={() => navigate(-1)} />
       <DatePickerGlobalStyle />
 
-      {/* 날짜 */}
+      {/* 날짜 선택 */}
       <FieldSet>
         <ModalLabel>
           도움 날짜<RequiredMark>*</RequiredMark>
         </ModalLabel>
         <DateInputWrapper>
-          <CalendarIconWrapper onClick={handleCalendarIconClick}>
+          <CalendarIconWrapper
+            onClick={() => datePickerInputRef.current?.focus()}
+          >
             <CiCalendar size={20} />
           </CalendarIconWrapper>
-
           <DatePicker
-            selected={postData.date}
-            onChange={handleDateChange}
+            selected={selectedDate}
+            onChange={handleDayDateChange}
             dateFormat="yyyy.MM.dd"
             locale={ko}
+            minDate={new Date()}
             customInput={<StyledDateInput ref={datePickerInputRef} readOnly />}
           />
         </DateInputWrapper>
       </FieldSet>
 
-      {/* 시간 */}
+      {/* 시간 선택 */}
       <FieldSet>
         <ModalLabel>
           도움 시간<RequiredMark>*</RequiredMark>
         </ModalLabel>
-
         <TimeWrapper>
-          {/* 시작 */}
           <TimeInputWrapper>
             <DatePicker
-              selected={postData.startTime}
-              onChange={handleStartTimeChange}
+              selected={selectedStartTime}
+              onChange={(time) => handleDayTimeChange("startTime", time)}
               showTimeSelect
               showTimeSelectOnly
               timeIntervals={30}
@@ -102,18 +83,15 @@ const DayHelpWrite = () => {
               locale={ko}
               customInput={<StyledTimeInput ref={startTimeInputRef} readOnly />}
             />
-            <TimeIconWrapper onClick={handleStartTimeIconClick}>
+            <TimeIconWrapper onClick={() => startTimeInputRef.current?.focus()}>
               <IoIosArrowDown size={20} />
             </TimeIconWrapper>
           </TimeInputWrapper>
-
           <TimeSeparator>~</TimeSeparator>
-
-          {/* 종료 */}
           <TimeInputWrapper>
             <DatePicker
-              selected={postData.endTime}
-              onChange={handleEndTimeChange}
+              selected={selectedEndTime}
+              onChange={(time) => handleDayTimeChange("endTime", time)}
               showTimeSelect
               showTimeSelectOnly
               timeIntervals={30}
@@ -121,30 +99,57 @@ const DayHelpWrite = () => {
               locale={ko}
               customInput={<StyledTimeInput ref={endTimeInputRef} readOnly />}
             />
-            <TimeIconWrapper onClick={handleEndTimeIconClick}>
+            <TimeIconWrapper onClick={() => endTimeInputRef.current?.focus()}>
               <IoIosArrowDown size={20} />
             </TimeIconWrapper>
           </TimeInputWrapper>
         </TimeWrapper>
       </FieldSet>
+
+      {/* 꿀 보상 */}
       <GeneralInput
-        inputLabel="1회 제공 꿀"
-        placeholder="1회 도움에 지급할 꿀을 입력해주세요."
+        inputLabel="제공할 꿀"
+        placeholder="지급할 꿀을 입력해주세요."
+        value={formData.unitHoney || ""}
+        onChange={(e) => {
+          const val = Number(e.target.value);
+          updateField({ unitHoney: val, totalHoney: val }); // DAY는 단발성이므로 동일
+        }}
         required
       />
+
+      {/* 장소 입력 */}
       <LocationInput
         inputLabel="만남 장소"
-        infoText="게시글에는 행정동만 표시되니 안심하세요."
+        infoText="행정동 단위까지만 공개되니 안심하세요."
+        value={formData.region || ""}
+        onSelect={(location) =>
+          updateField({
+            region: location.address,
+            legalDongCode: location.code,
+            latitude: location.lat,
+            longitude: location.lng,
+          })
+        }
         required
       />
-      <BaseLongButton label="작성 완료" onClick={() => navigate("/")} />
+      <div
+        style={{
+          backgroundColor: "#f0f0f0",
+          padding: "10px",
+          marginTop: "20px",
+          fontSize: "12px",
+        }}
+      >
+        <strong>[데이터 확인용]</strong>
+        <pre>{JSON.stringify(formData, null, 2)}</pre>
+      </div>
+      <BaseLongButton label="작성 완료" onClick={handleSubmit} />
     </Layout>
   );
 };
 
 export default DayHelpWrite;
-
-// Styled-components
 
 const TimeWrapper = styled.div`
   display: flex;

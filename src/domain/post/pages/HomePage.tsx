@@ -1,66 +1,80 @@
 import styled from "styled-components";
 import { usePostStore } from "../../../store/usePostStore";
 import { useState, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
 import PostCard from "../components/list/PostCard";
 import FilterButton from "../components/list/FilterButton";
 import FilterBottomSheet from "../components/bottomsheet/FilterBottomSheet";
 import { IoChevronDown } from "react-icons/io5";
-
+import type { HelpType } from "../../../types/post.type";
 import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
 import WriteButton from "../components/common/WriteButton";
 import { Checkbox } from "../../../components/Checkbox";
-import { postMockData } from "../../../mock/post/post.mock";
-
-type TabType = "전체" | "하루 도움" | "지속 도움";
 
 const HomePage = () => {
-  const { posts, setPosts } = usePostStore();
+  const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<TabType>("전체");
-  const [excludeDone, setExcludeDone] = useState(false);
-  const [sort, setSort] = useState("");
+  // 1. 스토어 상태 및 액션 가져오기
+  const { posts, fetchPosts, filters, setFilters, isLoading } = usePostStore();
+
+  // 2. 로컬 UI 상태 (정렬, 드롭다운 등)
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [sort, setSort] = useState("최신순");
 
-  const toggleSort = () => setIsSortOpen((prev) => !prev);
+  // 3. 초기 데이터 로드
+  useEffect(() => {
+    fetchPosts(true);
+  }, []);
 
-  const handleSelectSort = (value: string) => {
-    setSort(value);
-    setIsSortOpen(false);
+  // 4. 상단 탭 필터 (전체/일회성/정기적)
+  const handleApplyTab = (type: HelpType | "ALL") => {
+    setFilters({
+      ...filters,
+      type: type === "ALL" ? undefined : type,
+    });
+    fetchPosts(true);
   };
 
-  useEffect(() => {
-    setPosts(postMockData);
-  }, [setPosts]);
-
-  const filteredPosts = posts
-    .filter((p) => {
-      if (activeTab !== "전체" && p.category !== activeTab) return false;
-      if (excludeDone && p.done) return false;
-      return true;
-    })
-    .sort((a, b) => {
-      if (sort === "최신순") return b.id - a.id;
-      if (sort === "마감순") return Number(a.done) - Number(b.done);
-      return 0;
+  // 5. "완료 제외" 체크박스 핸들러
+  // 체크 시: 매칭 전만 보기 (isMatched: false), 체크 해제 시: 전체 보기 (isMatched: null)
+  const handleExcludeDoneChange = (checked: boolean) => {
+    setFilters({
+      ...filters,
+      isMatched: checked ? false : null,
     });
+    fetchPosts(true);
+  };
+
+  // 6. 정렬 관련 핸들러
+  const toggleSort = () => setIsSortOpen(!isSortOpen);
+  const handleSelectSort = (label: string) => {
+    setSort(label);
+    setIsSortOpen(false);
+    // 필요 시 fetchPosts(true) 호출하여 서버 정렬 요청 가능
+  };
 
   return (
     <Layout>
       <Wrapper>
         {/* ---------------- Tabs ---------------- */}
         <TabBar>
-          {(["전체", "하루 도움", "지속 도움"] as const).map((tab) => (
-            <Tab
-              key={tab}
-              className={activeTab === tab ? "active" : ""}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </Tab>
-          ))}
+          <Tab $active={!filters.type} onClick={() => handleApplyTab("ALL")}>
+            전체
+          </Tab>
+          <Tab
+            $active={filters.type === "DAY"}
+            onClick={() => handleApplyTab("DAY")}
+          >
+            하루 도움
+          </Tab>
+          <Tab
+            $active={filters.type === "TERM"}
+            onClick={() => handleApplyTab("TERM")}
+          >
+            장기 도움
+          </Tab>
         </TabBar>
 
         {/* ---------------- Filter Row ---------------- */}
@@ -69,7 +83,7 @@ const HomePage = () => {
 
           <SortSelect>
             <button className="sort-btn" onClick={toggleSort}>
-              {sort || "정렬"}
+              {sort}
               <ChevronDownIcon size={16} />
             </button>
 
@@ -80,19 +94,28 @@ const HomePage = () => {
               </div>
             )}
           </SortSelect>
-
           <Checkbox
-            checked={excludeDone}
-            onChange={setExcludeDone}
+            checked={filters.isMatched === false}
+            onChange={handleExcludeDoneChange}
             label="완료 제외"
           />
         </FilterRow>
 
         {/* ---------------- Post List ---------------- */}
         <ListWrapper>
-          {filteredPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
+          {posts.map((post) => (
+            <div
+              key={post.postId}
+              onClick={() => navigate(`/post/${post.postId}`)}
+            >
+              <PostCard post={post} />
+            </div>
           ))}
+
+          {isLoading && <span>불러오는 중...</span>}
+          {!isLoading && posts.length === 0 && (
+            <span>조건에 맞는 게시글이 없습니다.</span>
+          )}
         </ListWrapper>
 
         {/* ---------------- BottomSheet ---------------- */}
@@ -101,7 +124,7 @@ const HomePage = () => {
           onClose={() => setIsFilterSheetOpen(false)}
         />
 
-        <WriteButton />
+        <WriteButton onClick={() => navigate("post/write")} />
         <NavBar />
       </Wrapper>
     </Layout>
@@ -129,14 +152,15 @@ const TabBar = styled.div`
   width: 343px;
 `;
 
-const Tab = styled.div`
+const Tab = styled.button<{ $active?: boolean }>`
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
   color: ${({ theme }) => theme.color.subText2};
   padding-bottom: 10px;
   cursor: pointer;
   position: relative;
-
+  border: none;
+  background-color: ${({ theme }) => theme.color.white};
   &.active {
     color: ${({ theme }) => theme.color.text};
     font-weight: ${({ theme }) => theme.weight.medium};
