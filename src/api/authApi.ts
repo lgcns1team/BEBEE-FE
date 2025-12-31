@@ -4,7 +4,7 @@ import type { LoginRequest, SignUpRequest } from '../domain/auth/auth.types';
 
 // 백엔드 /api/test/me 응답 타입
 export interface MyInfoResponse {
-    memberId: number;
+    memberId: string;
     email: string;
     name: string;
     nickname: string;

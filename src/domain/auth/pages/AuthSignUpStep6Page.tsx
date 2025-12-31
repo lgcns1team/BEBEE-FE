@@ -90,11 +90,6 @@ const AuthSignUpStep6Page = () => {
     const isMismatch = isNameMismatch || isBirthMismatch;
 
     const handleNext = async () => {
-        if (isMismatch) {
-            navigate("/signup/step5");
-            return;
-        }
-
         if (isSubmitting) return;
         setIsSubmitting(true);
         try {
@@ -129,7 +124,12 @@ const AuthSignUpStep6Page = () => {
 
             // 2. 문서 업로드 및 분석
             if (uploadedFile && currentMemberId) {
-                const uploadRes = await uploadDocument(currentMemberId, uploadedFile);
+                // 역할에 따른 문서 ID (DB에서 조회된 실제 ID)
+                const docId = role === 'HELPER'
+                    ? '792274275608892023' // 활동지원사 교육 이수증
+                    : '792307139217580755'; // 장애인 복지카드
+
+                const uploadRes = await uploadDocument(currentMemberId, uploadedFile, docId);
                 const systemFlag = uploadRes.systemFlag;
 
                 if (systemFlag === "HIGH") {
@@ -226,8 +226,8 @@ const AuthSignUpStep6Page = () => {
 
                     {isMismatch ? (
                         <WarningBox>
-                            <InfoText style={{ fontWeight: 700, color: '#d32f2f' }}>⚠️ 정보가 일치하지 않습니다.</InfoText>
-                            <InfoText>서류를 다시 확인하거나 선명한 사진을 올려주세요.</InfoText>
+                            <InfoText style={{ fontWeight: 700, color: '#d32f2f' }}>📋 정보가 완벽히 일치하지 않습니다.</InfoText>
+                            <InfoText>OCR 인식 결과가 다를 경우, 관리자가 직접 확인 후 승인해 드릴 예정입니다. 그대로 진행하셔도 좋습니다.</InfoText>
                         </WarningBox>
                     ) : (
                         <InfoBox>
@@ -238,9 +238,9 @@ const AuthSignUpStep6Page = () => {
                 </ScrollArea>
 
                 <BaseLongButton
-                    label={isMismatch ? "서류 다시 업로드하기" : (isSubmitting ? "처리 중..." : "가입 완료")}
+                    label={isSubmitting ? "처리 중..." : "가입 완료"}
                     onClick={handleNext}
-                    disabled={(isSubmitting || isLoading) && !isMismatch}
+                    disabled={isSubmitting || isLoading}
                 />
             </PageContainer>
         </Layout>

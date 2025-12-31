@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 // 백엔드 /api/test/me 응답 구조
 interface User {
-    memberId: number;
+    memberId: string;
     email: string;
     name: string;
     nickname: string;
