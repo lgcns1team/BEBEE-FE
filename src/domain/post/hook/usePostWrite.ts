@@ -7,7 +7,7 @@ import {
   type Schedule,
   SERVER_MAPPING,
 } from "../../../types/post.type";
-import { postApi } from "../../../api/postApi.1";
+import { postApi } from "../../../api/postApi";
 import { calculateTotalOccurrences } from "../util/totalHoney";
 
 export const usePostWrite = (

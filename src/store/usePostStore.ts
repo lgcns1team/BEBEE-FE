@@ -1,7 +1,7 @@
 // store.ts
 import { create } from "zustand";
 import type { PostItem, PostsGetReqDTO, HelpType } from "../types/post.type";
-import { postApi } from "../api/postApi.1";
+import { postApi } from "../api/postApi";
 
 interface Post {
   // 데이터
