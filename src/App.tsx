@@ -71,7 +71,7 @@ function App() {
           <Route path="/map/helper" element={<MapHelperPage />} />
 
           {/* 매칭 */}
-          <Route path="/match" element={<MatchingPage />} />
+          <Route path="/engagements" element={<MatchingPage />} />
 
           {/* 매칭 확인서 */}
           <Route

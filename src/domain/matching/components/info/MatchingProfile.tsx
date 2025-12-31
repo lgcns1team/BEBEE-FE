@@ -8,7 +8,7 @@ const MatchingProfile = () => {
         <ProfileImage src={Bee} />
 
         <InfoBox>
-          <Name>냠냠쩝쩝</Name>
+          <Name></Name>
           <SubInfo>남성&nbsp;&nbsp;·&nbsp;&nbsp;나이 비공개</SubInfo>
         </InfoBox>
       </Left>

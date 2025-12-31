@@ -1,27 +1,44 @@
 import styled from "styled-components";
 import HelpInfo from "./HelpInfo";
 import MatchingProfile from "./MatchingProfile";
-import type { MatchingHelp } from "../../match.types";
+import type {
+  DayEngagementTime,
+  Engagement,
+  TermEngagementTime,
+} from "../../../../types/match";
 
-const formatDate = (date: Date) =>
-  `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+const formatDate = (date: string) => {
+  const d = new Date(date);
+  return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
+};
 
 interface Props {
-  help: MatchingHelp;
+  engagement: Engagement;
 }
 
-const MatchingInfo = ({ help }: Props) => {
+const MatchingInfo = ({ engagement }: Props) => {
+  const isOneDay = engagement.type === "DAY";
   return (
     <>
       <MatchingDate>
-        {help.type === "하루 도움"
-          ? formatDate(help.engagementDate)
-          : `${formatDate(help.startDate)} ~ ${formatDate(help.endDate)}`}
+        {isOneDay ? (
+          formatDate((engagement.engagementTime as DayEngagementTime).date)
+        ) : (
+          <>
+            {formatDate(
+              (engagement.engagementTime as TermEngagementTime).startDate
+            )}
+            {" ~ "}
+            {formatDate(
+              (engagement.engagementTime as TermEngagementTime).endDate
+            )}
+          </>
+        )}
       </MatchingDate>
 
       <Wrapper>
         <Status>매칭 완료</Status>
-        <HelpInfo help={help} />
+        <HelpInfo engagement={engagement} />
       </Wrapper>
 
       <MatchingProfile />

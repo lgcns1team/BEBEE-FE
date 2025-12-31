@@ -2,35 +2,40 @@
 import styled from "styled-components";
 import { FiCalendar, FiMapPin } from "react-icons/fi";
 import { BsPencil, BsChat } from "react-icons/bs";
-import type { Post } from "../../../../store/usePostStore";
+
 import HelpTag from "../../../../components/HelpTag";
 import OneDayBadge from "../../../../components/OneDayBadge";
 import { useNavigate } from "react-router-dom";
 
 //hook
 import { useChatHandler } from "../../../../hooks/useChatHandler";
-import { useMatchStore } from "../../store/useMatchStore";
+
+import type { Engagement } from "../../../../types/match";
+import { formatDateWithDay } from "../../utils/dateFormat";
+import type {
+  DayEngagementTime,
+  TermEngagementTime,
+} from "../../../../types/match";
 
 interface Props {
-  post: Post;
+  engagement: Engagement;
 }
 
-const MatchingPostCard = ({ post }: Props) => {
+const MatchingPostCard = ({ engagement }: Props) => {
   const navigate = useNavigate();
+
+  const isCompleted =
+    engagement.type === "DAY"
+      ? engagement.isDayComplete
+      : engagement.isTermComplete;
   const goMatchingInfo = () => {
-    if (!agreement) return;
-    navigate(`/match-info/${agreement.agreementId}`);
+    if (!engagement) return;
+    navigate(`/match-info/${engagement.agreementId}`);
   };
 
   const goReviewPage = () => {
     navigate(`/review`);
   };
-
-  const getAgreementByPostId = useMatchStore(
-    (state) => state.getAgreementByPostId
-  );
-  const agreement = getAgreementByPostId(post.id);
-  const engagementStatus = agreement?.help.engagementStatus;
 
   /* 채팅 관련 */
   const { handleChatOpen } = useChatHandler();
@@ -52,40 +57,60 @@ const MatchingPostCard = ({ post }: Props) => {
     <Card>
       {/* ---------- Top ---------- */}
       <TopArea>
-        <Title onClick={goMatchingInfo}>{post.title}</Title>
-        {post.category === "하루 도움" && <OneDayBadge>하루 도움</OneDayBadge>}
+        <Title onClick={goMatchingInfo}>{engagement.title}</Title>
+        {engagement.type === "DAY" && <OneDayBadge>하루 도움</OneDayBadge>}
       </TopArea>
 
       {/* ---------- Bottom ---------- */}
       <BottomArea>
         {/* 왼쪽 정보 */}
         <BottomLeft>
-          <User>{post.user}</User>
+          <User>{engagement.disabled.nickname}</User>
 
           <InfoLine>
             <MapPinIcon size={16} />
-            <InfoText>{post.location}</InfoText>
+            <InfoText>{engagement.region}</InfoText>
           </InfoLine>
 
           <InfoLine>
             <CalendarIcon size={16} />
-            {post.dates?.map((date) => (
-              <InfoText key={date}>{date}</InfoText>
-            ))}
+            <InfoText>
+              {engagement.type === "DAY" && (
+                <>
+                  {formatDateWithDay(
+                    (engagement.engagementTime as DayEngagementTime).date
+                  )}
+                </>
+              )}
+
+              {engagement.type === "TERM" && (
+                <>
+                  {formatDateWithDay(
+                    (engagement.engagementTime as TermEngagementTime).startDate
+                  )}
+                  {" ~ "}
+                  {formatDateWithDay(
+                    (engagement.engagementTime as TermEngagementTime).endDate
+                  )}
+                </>
+              )}
+            </InfoText>
           </InfoLine>
 
           <TagRow>
-            {post.tags.map((tag) => (
-              <HelpTag key={tag}>{tag}</HelpTag>
+            {engagement.helpCategories.map((category) => (
+              <HelpTag key={category.helpCategoryId}>
+                {category.helpCategoryName}
+              </HelpTag>
             ))}
           </TagRow>
         </BottomLeft>
 
         {/* 오른쪽 이미지 */}
-        {post.image && (
+        {engagement.thumbnailImageUrl && (
           <BottomRight>
             <Thumbnail>
-              <img src={post.image} alt="thumbnail" />
+              <img src={engagement.thumbnailImageUrl} alt="thumbnail" />
             </Thumbnail>
           </BottomRight>
         )}
@@ -99,7 +124,7 @@ const MatchingPostCard = ({ post }: Props) => {
             <span>채팅하기</span>
           </ChatButton>
 
-          {engagementStatus === "COMPLETED" ? (
+          {isCompleted ? (
             <DoneButton>
               <span>활동 완료</span>
             </DoneButton>

@@ -8,13 +8,12 @@ import { useMatchStore } from "../store/useMatchStore";
 
 const MatchingInfoPage = () => {
   const navigate = useNavigate();
-  const { agreementId: agreementIdParam } = useParams<{
+  const { agreementId } = useParams<{
     agreementId: string;
   }>();
 
-  const agreementId = Number(agreementIdParam);
-  const getAgreementById = useMatchStore((state) => state.getAgreementById);
-  const agreement = getAgreementById(agreementId);
+  const getEngagementById = useMatchStore((state) => state.getEngagementById);
+  const engagement = agreementId ? getEngagementById(agreementId) : undefined;
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -33,12 +32,12 @@ const MatchingInfoPage = () => {
         onClose={() => setIsOpen(false)}
       />
 
-      {!agreement ? (
+      {!engagement ? (
         <div style={{ padding: 40, textAlign: "center" }}>
           매칭 정보를 불러올 수 없습니다.
         </div>
       ) : (
-        <MatchingInfo help={agreement.help} />
+        <MatchingInfo engagement={engagement} />
       )}
     </Layout>
   );

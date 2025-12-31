@@ -1,56 +1,62 @@
 import styled from "styled-components";
-import type { MatchingHelp } from "../../match.types";
+import type {
+  Engagement,
+  DayEngagementTime,
+  TermEngagementTime,
+} from "../../../../types/match";
 
 /* 요일 한글 매핑 */
-const DAY_KR_MAP: Record<
-  "MON" | "TUE" | "WED" | "THU" | "FRI" | "SAT" | "SUN",
-  string
-> = {
-  MON: "월요일",
-  TUE: "화요일",
-  WED: "수요일",
-  THU: "목요일",
-  FRI: "금요일",
-  SAT: "토요일",
-  SUN: "일요일",
+const DAY_KR_MAP: Record<string, string> = {
+  MONDAY: "월요일",
+  TUESDAY: "화요일",
+  WEDNESDAY: "수요일",
+  THURSDAY: "목요일",
+  FRIDAY: "금요일",
+  SATURDAY: "토요일",
+  SUNDAY: "일요일",
 };
 
 /* 날짜 포맷: YYYY.MM.DD */
-const formatDate = (date: Date) => {
+const formatDate = (date: string) => {
   const d = new Date(date);
   return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
 };
 
 /* 시간 포맷: HH:MM */
-const formatTime = (date: Date) => {
-  const d = new Date(date);
-  const h = d.getHours().toString().padStart(2, "0");
-  const m = d.getMinutes().toString().padStart(2, "0");
-  return `${h}:${m}`;
-};
+const formatTime = (time: string) => time.slice(0, 5);
 
 interface Props {
-  help: MatchingHelp;
+  engagement: Engagement;
 }
 
-const HelpInfo = ({ help }: Props) => {
-  const isOneDay = help.type === "하루 도움";
+const HelpInfo = ({ engagement }: Props) => {
+  const isOneDay = engagement.type === "DAY";
 
   return (
     <Wrapper>
       {/* 방식 */}
       <Row>
         <Label>방식</Label>
-        <Value>{help.type}</Value>
+        <Value>{isOneDay ? "하루 도움" : "지속 도움"}</Value>
       </Row>
 
       {/* 날짜 */}
       <Row>
         <Label>날짜</Label>
         <Value>
-          {isOneDay
-            ? formatDate(help.engagementDate)
-            : `${formatDate(help.startDate)} ~ ${formatDate(help.endDate)}`}
+          {isOneDay ? (
+            formatDate((engagement.engagementTime as DayEngagementTime).date)
+          ) : (
+            <>
+              {formatDate(
+                (engagement.engagementTime as TermEngagementTime).startDate
+              )}
+              {" ~ "}
+              {formatDate(
+                (engagement.engagementTime as TermEngagementTime).endDate
+              )}
+            </>
+          )}
         </Value>
       </Row>
 
@@ -59,17 +65,27 @@ const HelpInfo = ({ help }: Props) => {
         <Label>{isOneDay ? "시간" : "일시"}</Label>
         <Value>
           {isOneDay ? (
-            `${formatTime(help.time.startTime)} ~ ${formatTime(
-              help.time.endTime
-            )}`
+            <>
+              {formatTime(
+                (engagement.engagementTime as DayEngagementTime).schedule
+                  .startTime
+              )}
+              {" ~ "}
+              {formatTime(
+                (engagement.engagementTime as DayEngagementTime).schedule
+                  .endTime
+              )}
+            </>
           ) : (
             <ScheduleList>
-              {help.dayOfWeek?.map((item) => (
-                <ScheduleItem key={item.dayOfWeek}>
-                  {DAY_KR_MAP[item.dayOfWeek]} · {item.startTime} ~{" "}
-                  {item.endTime}
-                </ScheduleItem>
-              ))}
+              {(engagement.engagementTime as TermEngagementTime).schedules.map(
+                (item, idx) => (
+                  <ScheduleItem key={idx}>
+                    {DAY_KR_MAP[item.dayOfWeek]} · {formatTime(item.startTime)}{" "}
+                    ~ {formatTime(item.endTime)}
+                  </ScheduleItem>
+                )
+              )}
             </ScheduleList>
           )}
         </Value>
@@ -78,20 +94,26 @@ const HelpInfo = ({ help }: Props) => {
       {/* 제공 꿀 */}
       <Row>
         <Label>제공 꿀</Label>
-        <Value>{help.totalHoney}꿀</Value>
+
+        {isOneDay ? (
+          <Value>{engagement.totalHoney}꿀</Value>
+        ) : (
+          <Value>
+            {engagement.unitHoney}꿀/회 (총{engagement.totalHoney}꿀)
+          </Value>
+        )}
       </Row>
 
       {/* 장소 */}
       <Row>
         <Label>만남 장소</Label>
-        <Value>{help.region}</Value>
+        <Value>{engagement.region}</Value>
       </Row>
     </Wrapper>
   );
 };
 
 export default HelpInfo;
-
 /* ---------------- styled ---------------- */
 
 const Wrapper = styled.div`

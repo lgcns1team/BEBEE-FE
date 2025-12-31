@@ -1,53 +1,123 @@
-import type { Agreement } from "../match.types";
+import type { Engagement } from "../../../types/match";
 
-export const agreementMockData: Agreement[] = [
+export const engagementMockData: Engagement[] = [
+  /* ======================
+     하루 도움 (DAY)
+  ====================== */
   {
-    agreementId: 1,
-    postId: 1,
-    helperId: 1,
-    disabledId: 1,
+    agreementId: "1",
+    postId: "1",
+    title: "병원 동행 도우미 구해요",
+    thumbnailImageUrl: undefined,
 
-    help: {
-      agreementId: 1,
-      postId: 1,
-      type: "하루 도움",
-      totalHoney: 120,
-      region: "서울시 강남구 역삼동",
-      engagementDate: new Date("2025-11-30"),
-      time: {
-        startTime: new Date("2025-11-30T11:00:00"),
-        endTime: new Date("2025-11-30T15:00:00"),
-      },
-      engagementStatus: "COMPLETED",
+    helper: {
+      memberId: "101",
+      nickname: "친절한도우미",
+      profileImageUrl: "",
+      gender: "MALE",
+      ageGroup: 30,
     },
-  },
-  {
-    agreementId: 2,
-    postId: 2,
-    helperId: 101,
-    disabledId: 201,
-    help: {
-      agreementId: 2,
-      postId: 2,
-      type: "지속 도움",
-      totalHoney: 300,
-      region: "서울시 마포구 서교동",
-      engagementStatus: "DISCOMPLETED",
-      startDate: new Date("2025-03-11"),
-      endDate: new Date("2025-11-11"),
 
-      dayOfWeek: [
+    disabled: {
+      memberId: "201",
+      nickname: "김장애",
+      profileImageUrl: "",
+      gender: "FEMALE",
+      ageGroup: 60,
+    },
+
+    confirmationDate: "2025-11-20",
+    type: "DAY",
+
+    helpCategories: [
+      {
+        helpCategoryId: 1,
+        helpCategoryName: "외출동행",
+      },
+    ],
+
+    isVolunteer: false,
+    unitHoney: 120,
+    totalHoney: 120,
+
+    region: "서울시 강남구 역삼동",
+
+    engagementTime: {
+      date: "2025-11-30",
+      schedule: {
+        dayOfWeek: "SATURDAY",
+        startTime: "11:00:00",
+        endTime: "15:00:00",
+      },
+    },
+
+    isDayComplete: true,
+    isTermComplete: false,
+
+    chatRoomId: "303",
+  },
+
+  /* ======================
+     지속 도움 (TERM)
+  ====================== */
+  {
+    agreementId: "2",
+    postId: "2",
+    title: "정기 가사 도움 요청",
+    thumbnailImageUrl: undefined,
+
+    helper: {
+      memberId: "101",
+      nickname: "베테랑도우미",
+      profileImageUrl: "",
+      gender: "FEMALE",
+      ageGroup: 40,
+    },
+
+    disabled: {
+      memberId: "201",
+      nickname: "박장애",
+      profileImageUrl: "",
+      gender: "MALE",
+      ageGroup: 70,
+    },
+
+    confirmationDate: "2025-03-01",
+    type: "TERM",
+
+    helpCategories: [
+      {
+        helpCategoryId: 7,
+        helpCategoryName: "가사지원",
+      },
+    ],
+
+    isVolunteer: false,
+    unitHoney: 100,
+    totalHoney: 300,
+
+    region: "서울시 마포구 서교동",
+
+    engagementTime: {
+      startDate: "2025-03-11",
+      endDate: "2025-11-11",
+      schedules: [
         {
-          dayOfWeek: "MON",
-          startTime: "11:00",
-          endTime: "15:00",
+          dayOfWeek: "MONDAY",
+          startTime: "11:00:00",
+          endTime: "15:00:00",
         },
         {
-          dayOfWeek: "WED",
-          startTime: "13:00",
-          endTime: "15:00",
+          dayOfWeek: "WEDNESDAY",
+          startTime: "13:00:00",
+          endTime: "15:00:00",
         },
       ],
     },
+
+    isDayComplete: false,
+    isTermComplete: false,
+
+    chatRoomId: "305",
   },
 ];

@@ -2,40 +2,11 @@ import { create } from "zustand";
 
 import { disabledProfileMockData } from "../mock/profile/profile.mock";
 import { postMockData } from "../mock/post/post.mock";
-import type { Post } from "./usePostStore";
+import type { Role } from "../types/profile";
+import type { DisabledProfile, HelperProfile } from "../types/profile";
 import { helperProfileMockData } from "../mock/profile/profile.mock";
+import type { Post } from "./usePostStore";
 /* ---------- types ---------- */
-
-export type Role = "DISABLED" | "HELPER";
-
-export interface DisabledProfile {
-  memberId: number;
-  name?: string;
-  nickname?: string;
-  profileImageUrl?: string;
-  gender?: string;
-  age?: string;
-  addressRoad?: string;
-  helpType?: string[];
-  introduction?: string;
-  disabilityType?: string;
-  description?: string;
-  helpRequestPost?: Post[];
-  receivedReviews?: string[];
-}
-
-export interface HelperProfile {
-  memberId: number;
-  name: string;
-  nickname?: string;
-  profileImageUrl?: string;
-  gender?: string;
-  age?: string;
-  addressRoad?: string;
-  helpType?: string[];
-  introduction?: string;
-  receivedReviews?: string[];
-}
 
 /* ---------- store ---------- */
 
