@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import type { HelperProfile } from "../../../../../types/profile";
+import type { HelperProfile } from "../../../../../types/profile.type";
 import type { PostItem } from "../../../../../types/post.type";
 import HelpTag from "../../../../../components/HelpTag";
 import { useNavigate } from "react-router-dom";

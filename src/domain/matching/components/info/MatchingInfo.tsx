@@ -5,7 +5,7 @@ import type {
   DayEngagementTime,
   Engagement,
   TermEngagementTime,
-} from "../../../../types/match";
+} from "../../../../types/match.type";
 
 const formatDate = (date: string) => {
   const d = new Date(date);

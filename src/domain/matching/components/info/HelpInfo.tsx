@@ -3,7 +3,7 @@ import type {
   Engagement,
   DayEngagementTime,
   TermEngagementTime,
-} from "../../../../types/match";
+} from "../../../../types/match.type";
 
 /* 요일 한글 매핑 */
 const DAY_KR_MAP: Record<string, string> = {

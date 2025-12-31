@@ -10,12 +10,12 @@ import { useNavigate } from "react-router-dom";
 //hook
 import { useChatHandler } from "../../../../hooks/useChatHandler";
 
-import type { Engagement } from "../../../../types/match";
+import type { Engagement } from "../../../../types/match.type";
 import { formatDateWithDay } from "../../utils/dateFormat";
 import type {
   DayEngagementTime,
   TermEngagementTime,
-} from "../../../../types/match";
+} from "../../../../types/match.type";
 
 interface Props {
   engagement: Engagement;

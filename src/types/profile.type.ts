@@ -1,4 +1,4 @@
-import type { Post } from "../store/usePostStore";
+import type { PostItem } from "./post.type";
 export type Role = "DISABLED" | "HELPER";
 
 export interface DisabledProfile {
@@ -13,7 +13,7 @@ export interface DisabledProfile {
   introduction?: string;
   disabilityType?: string;
   description?: string;
-  helpRequestPost?: Post[];
+  helpRequestPost?: PostItem[];
   receivedReviews?: string[];
 }
 

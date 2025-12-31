@@ -1,7 +1,7 @@
 // src/apis/engagementApi.ts
 import { instance } from "./axiosInstance";
-import type { Engagement } from "../types/match";
-import type { EngagementType } from "../types/match";
+import type { Engagement } from "../types/match.type";
+import type { EngagementType } from "../types/match.type";
 export interface GetEngagementsResponse {
   matches: Engagement[];
 }

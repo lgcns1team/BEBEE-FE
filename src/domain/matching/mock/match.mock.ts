@@ -1,4 +1,4 @@
-import type { Engagement } from "../../../types/match";
+import type { Engagement } from "../../../types/match.type";
 
 export const engagementMockData: Engagement[] = [
   /* ======================

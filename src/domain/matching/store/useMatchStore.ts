@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Engagement } from "../../../types/match";
+import type { Engagement } from "../../../types/match.type";
 
 interface MatchState {
   engagements: Engagement[];
