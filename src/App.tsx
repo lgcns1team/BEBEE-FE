@@ -14,11 +14,12 @@ import theme from "./styles/theme";
 import "./App.css";
 import DayHelpWrite from "./domain/post/components/write/DayHelpWrite";
 import LongHelpWrite from "./domain/post/components/write/LongHelpWrite";
-import MapUserPage from "./domain/map/pages/MapUserPage";
+
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
+import MapDisabledPage from "./domain/map/pages/MapDisabledPage";
 import DisabledMyPage from "./domain/mypage/page/DisabledMyPage";
-import HelperMyPage from "./domain/mypage/page/HelperMyPage";
+
 import ApplicateLandingPage from "./domain/Application/page/ApplicateLandingPage";
 import ApplicateStatusPage from "./domain/Application/page/ApplicateStatusPage";
 import ApplicantPage from "./domain/Application/page/ApplicantPage";
@@ -62,8 +63,8 @@ function App() {
           <Route path="/mypage" element={<DisabledMyPage />} />
 
           {/*동네지도*/}
-          <Route path="/map" element={<MapUserPage />} />
-          <Route path="/map/user" element={<MapUserPage />} />
+          <Route path="/map" element={<MapDisabledPage />} />
+          <Route path="/map/disabled" element={<MapDisabledPage />} />
           <Route path="/map/helper" element={<MapHelperPage />} />
 
           {/* 매칭 */}
