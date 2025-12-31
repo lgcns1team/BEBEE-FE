@@ -3,6 +3,17 @@ import styled from "styled-components";
 import { format, addDays } from "date-fns";
 import { ko } from "date-fns/locale";
 
+interface Props {
+  onSelectDate: (date: string) => void;
+  markedDates: Set<string>;
+}
+
+const formatDate = (date: Date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
 const generateDates = (center: Date, count = 60) => {
   const arr = [];
   const half = Math.floor(count / 2);
@@ -13,7 +24,7 @@ const generateDates = (center: Date, count = 60) => {
   return arr;
 };
 
-const WeeklyCalendar = () => {
+const WeeklyCalendar = ({ onSelectDate, markedDates }: Props) => {
   const today = new Date();
   const [centerDate, setCenterDate] = useState(today);
   const [dates, setDates] = useState(() => generateDates(today));
@@ -22,9 +33,6 @@ const WeeklyCalendar = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const isInitialMount = useRef(true);
 
-  /* -------------------------------------
-     🔵 오늘 날짜를 처음에 가운데로 놓기
-  -------------------------------------- */
   useEffect(() => {
     if (!scrollRef.current) return;
     if (!isInitialMount.current) return;
@@ -52,9 +60,6 @@ const WeeklyCalendar = () => {
     isInitialMount.current = false;
   }, [dates]);
 
-  /* -------------------------------------
-     🔵 특정 날짜를 가운데로 스크롤 이동시키기
-  -------------------------------------- */
   const scrollToCenter = (target: Date) => {
     const el = scrollRef.current;
     if (!el) return;
@@ -76,9 +81,6 @@ const WeeklyCalendar = () => {
     });
   };
 
-  /* -------------------------------------
-     🔵 무한 스크롤 확장
-  -------------------------------------- */
   const handleScroll = () => {
     const el = scrollRef.current;
     if (!el) return;
@@ -98,18 +100,22 @@ const WeeklyCalendar = () => {
 
   return (
     <Wrapper>
+      <span className="sr-only">
+        한 주 보기 입니다. 달력 내 날짜를 클릭하여 매칭 정보를 확인해 보세요.
+      </span>
       <ScrollContainer ref={scrollRef} onScroll={handleScroll}>
         {dates.map((d) => {
-          const isSelected =
-            selected !== null &&
-            format(selected, "yyyy-MM-dd") === format(d, "yyyy-MM-dd");
+          const dateKey = formatDate(d);
+          const isSelected = selected && formatDate(selected) === dateKey;
+          const hasEngagement = markedDates.has(dateKey);
 
           const handleSelect = () => {
             if (isSelected) {
               setSelected(null);
             } else {
               setSelected(d);
-              scrollToCenter(d); /** ← ⭐ 클릭한 날짜를 가운데로 이동 */
+              onSelectDate(formatDate(d));
+              scrollToCenter(d);
             }
           };
 
@@ -122,6 +128,7 @@ const WeeklyCalendar = () => {
               <Month>{format(d, "MMM", { locale: ko })}</Month>
               <Day>{format(d, "d")}</Day>
               <Weekday>{format(d, "EEE", { locale: ko })}</Weekday>
+              {hasEngagement && <Dot />}
             </DayBox>
           );
         })}
@@ -184,4 +191,14 @@ const Day = styled.div`
 const Weekday = styled.div`
   font-size: ${({ theme }) => theme.size.sm};
   margin-top: 2px;
+`;
+
+const Dot = styled.div`
+  position: absolute;
+  top: 19px;
+  left: 15%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${({ theme }) => theme.color.main};
 `;

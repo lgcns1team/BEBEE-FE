@@ -1,11 +1,10 @@
 import styled from "styled-components";
-import type { HelperProfile } from "../../../../../store/useProfileStore";
-import type { Post } from "../../../../../store/usePostStore";
+import type { HelperProfile } from "../../../../../types/profile.type";
+import type { PostItem } from "../../../../../types/post.type";
 import HelpTag from "../../../../../components/HelpTag";
-import { FaDroplet } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 interface Props {
-  post?: Post;
+  post: PostItem;
   profile: HelperProfile;
 }
 
@@ -19,20 +18,13 @@ const MapDisabledBottomSheetPostCard = ({ profile, post }: Props) => {
       <Content>
         <Row>
           <Title>{profile?.name}</Title>
-
-          <Honey>
-            <IconWrapper>
-              <FaDroplet />
-            </IconWrapper>
-            <span>{post?.honey}</span>
-          </Honey>
         </Row>
         <Row>
           <Gender>{profile?.gender} ·&nbsp;&nbsp;</Gender>
           <Age>{profile?.age}</Age>
         </Row>
         <TagWrapper>
-          {post?.tags.map((tag) => (
+          {post.helpCategories.map((tag) => (
             <HelpTag key={tag}>{tag}</HelpTag>
           ))}
         </TagWrapper>
@@ -79,16 +71,6 @@ const Gender = styled.span`
 const Age = styled.span`
   font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.subText3};
-`;
-
-const Honey = styled.div`
-  span {
-    font-weight: ${({ theme }) => theme.weight.medium};
-  }
-`;
-const IconWrapper = styled.span`
-  color: ${({ theme }) => theme.color.main};
-  margin-right: 5px;
 `;
 
 const TagWrapper = styled.div`

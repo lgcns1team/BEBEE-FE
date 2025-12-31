@@ -8,18 +8,20 @@ import { useMatchStore } from "../store/useMatchStore";
 
 const MatchingInfoPage = () => {
   const navigate = useNavigate();
-  const { agreementId: agreementIdParam } = useParams<{
+  const { agreementId } = useParams<{
     agreementId: string;
   }>();
 
-  const agreementId = Number(agreementIdParam);
-  const getAgreementById = useMatchStore((state) => state.getAgreementById);
-  const agreement = getAgreementById(agreementId);
+  const getEngagementById = useMatchStore((state) => state.getEngagementById);
+  const engagement = agreementId ? getEngagementById(agreementId) : undefined;
 
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Layout>
+      <span className="sr-only">
+        매칭 확인서 페이지 입니다. 확정된 매칭 확인서를 확인할 수 있습니다.
+      </span>
       <Header
         title="매칭 확인서"
         showBack
@@ -31,14 +33,15 @@ const MatchingInfoPage = () => {
       <MatchingActionSheetModal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
+        aria-label="매칭 취소하기 및 신고하기"
       />
 
-      {!agreement ? (
+      {!engagement ? (
         <div style={{ padding: 40, textAlign: "center" }}>
           매칭 정보를 불러올 수 없습니다.
         </div>
       ) : (
-        <MatchingInfo help={agreement.help} />
+        <MatchingInfo engagement={engagement} />
       )}
     </Layout>
   );

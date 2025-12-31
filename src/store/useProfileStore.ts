@@ -3,7 +3,10 @@ import { create } from "zustand";
 
 import { disabledProfileMockData } from "../mock/profile/profile.mock";
 import { postMockData } from "../mock/post/post.mock";
+import type { Role } from "../types/profile.type";
+import type { DisabledProfile, HelperProfile } from "../types/profile.type";
 import { helperProfileMockData } from "../mock/profile/profile.mock";
+import type { PostItem } from "../types/post.type";
 /* ---------- types ---------- */
 
 export type Role = "DISABLED" | "HELPER";

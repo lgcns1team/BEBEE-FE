@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import DatePicker, {
   type ReactDatePickerCustomHeaderProps,
 } from "react-datepicker";
@@ -7,32 +7,57 @@ import "react-datepicker/dist/react-datepicker.css";
 import styled from "styled-components";
 import { GoChevronRight, GoChevronLeft } from "react-icons/go";
 
-const MonthlyCalendar = () => {
-  const [date, setDate] = useState<Date | null>(null);
+interface Props {
+  onSelectDate: (date: string) => void;
 
-  // 날짜 두 번 클릭 시 선택 취소 기능
+  markedDates: Set<string>;
+}
+
+const formatDate = (date: Date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+
+const MonthlyCalendar = ({
+  onSelectDate,
+  markedDates = new Set<string>(),
+}: Props) => {
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
   const handleChange = (picked: Date | null) => {
     if (!picked) return;
 
-    // 이미 선택된 날짜를 다시 클릭하면 취소
-    if (date && date.toDateString() === picked.toDateString()) {
-      setDate(null);
+    const yyyyMMdd = formatDate(picked);
+
+    // 같은 날짜 다시 클릭하면 선택 해제
+    if (selectedDate && formatDate(selectedDate) === yyyyMMdd) {
+      setSelectedDate(null);
+      onSelectDate(""); // 선택 해제 알림
       return;
     }
 
-    // 새로운 날짜 선택
-    setDate(picked);
+    setSelectedDate(picked);
+    onSelectDate(yyyyMMdd);
   };
 
   return (
     <StyledWrapper>
+      <span className="sr-only">
+        한 달 보기 입니다. 달력 내 날짜를 클릭하여 매칭 정보를 확인해 보세요.
+      </span>
       <DatePicker
         inline
         locale={ko}
-        selected={date}
+        selected={selectedDate}
         onChange={handleChange}
-        renderCustomHeader={(props) => <CustomHeader {...props} />}
         shouldCloseOnSelect={false}
+        renderCustomHeader={(props) => <CustomHeader {...props} />}
+        dayClassName={(date) => {
+          const key = formatDate(date);
+          return markedDates.has(key) ? "has-dot" : undefined;
+        }}
       />
     </StyledWrapper>
   );
@@ -55,10 +80,19 @@ const CustomHeader = ({
       </DateText>
 
       <ArrowGroup>
-        <ArrowButton onClick={decreaseMonth}>
+        <ArrowButton
+          type="button"
+          aria-label="이전 달로 이동"
+          onClick={decreaseMonth}
+        >
           <GoChevronLeft size={20} />
         </ArrowButton>
-        <ArrowButton onClick={increaseMonth}>
+
+        <ArrowButton
+          type="button"
+          aria-label="다음 달로 이동"
+          onClick={increaseMonth}
+        >
           <GoChevronRight size={20} />
         </ArrowButton>
       </ArrowGroup>
@@ -66,9 +100,6 @@ const CustomHeader = ({
   );
 };
 
-/* --------------------------
-   Styled-components
---------------------------- */
 const StyledWrapper = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   background: ${({ theme }) => theme.color.natural100};
@@ -111,6 +142,7 @@ const StyledWrapper = styled.div`
 
   /* 날짜 기본 스타일 */
   .react-datepicker__day {
+    position: relative;
     font-size: ${({ theme }) => theme.size.md};
     width: 36px;
     height: 36px;
@@ -165,6 +197,23 @@ const StyledWrapper = styled.div`
   .react-datepicker__day--disabled:hover {
     background: transparent;
   }
+
+  .react-datepicker__day--selected.has-dot::after {
+    background-color: ${({ theme }) => theme.color.white};
+  }
+
+  // 도움이 있는 날짜에 동그라미 표시
+  .react-datepicker__day.has-dot::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background-color: ${({ theme }) => theme.color.main};
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    left: 20%;
+    transform: translateX(-50%);
+  }
 `;
 
 const HeaderContainer = styled.div`
@@ -179,13 +228,11 @@ const DateText = styled.div`
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
 `;
-
 const ArrowGroup = styled.div`
   display: flex;
   gap: 16px;
   align-items: center;
 `;
-
 const ArrowButton = styled.button`
   background: transparent;
   border: none;

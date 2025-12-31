@@ -17,7 +17,7 @@ export const GlobalStyle = createGlobalStyle`
     color: ${theme.color.text};
     background-color: ${theme.color.natural100};
     line-height: 1.4;
-    backg   
+ 
   }
 
   a {

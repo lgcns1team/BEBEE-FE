@@ -14,7 +14,6 @@ import theme from "./styles/theme";
 import "./App.css";
 import DayHelpWrite from "./domain/post/components/write/DayHelpWrite";
 import LongHelpWrite from "./domain/post/components/write/LongHelpWrite";
-
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
 import MapDisabledPage from "./domain/map/pages/MapDisabledPage";
@@ -68,7 +67,7 @@ function App() {
           <Route path="/map/helper" element={<MapHelperPage />} />
 
           {/* 매칭 */}
-          <Route path="/match" element={<MatchingPage />} />
+          <Route path="/engagements" element={<MatchingPage />} />
 
           {/* 매칭 확인서 */}
           <Route

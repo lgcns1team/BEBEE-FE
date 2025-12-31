@@ -2,35 +2,40 @@
 import styled from "styled-components";
 import { FiCalendar, FiMapPin } from "react-icons/fi";
 import { BsPencil, BsChat } from "react-icons/bs";
-import type { Post } from "../../../../store/usePostStore";
+
 import HelpTag from "../../../../components/HelpTag";
 import OneDayBadge from "../../../../components/OneDayBadge";
 import { useNavigate } from "react-router-dom";
 
 //hook
 import { useChatHandler } from "../../../../hooks/useChatHandler";
-import { useMatchStore } from "../../store/useMatchStore";
+
+import type { Engagement } from "../../../../types/match.type";
+import { formatDateWithDay } from "../../utils/dateFormat";
+import type {
+  DayEngagementTime,
+  TermEngagementTime,
+} from "../../../../types/match.type";
 
 interface Props {
-  post: Post;
+  engagement: Engagement;
 }
 
-const MatchingPostCard = ({ post }: Props) => {
+const MatchingPostCard = ({ engagement }: Props) => {
   const navigate = useNavigate();
+
+  const isCompleted =
+    engagement.type === "DAY"
+      ? engagement.isDayComplete
+      : engagement.isTermComplete;
   const goMatchingInfo = () => {
-    if (!agreement) return;
-    navigate(`/match-info/${agreement.agreementId}`);
+    if (!engagement) return;
+    navigate(`/match-info/${engagement.agreementId}`);
   };
 
   const goReviewPage = () => {
     navigate(`/review`);
   };
-
-  const getAgreementByPostId = useMatchStore(
-    (state) => state.getAgreementByPostId
-  );
-  const agreement = getAgreementByPostId(post.id);
-  const engagementStatus = agreement?.help.engagementStatus;
 
   /* 채팅 관련 */
   const { handleChatOpen } = useChatHandler();
@@ -52,40 +57,64 @@ const MatchingPostCard = ({ post }: Props) => {
     <Card>
       {/* ---------- Top ---------- */}
       <TopArea>
-        <Title onClick={goMatchingInfo}>{post.title}</Title>
-        {post.category === "하루 도움" && <OneDayBadge>하루 도움</OneDayBadge>}
+        <Title onClick={goMatchingInfo} aria-label="매칭된 도움의 제목">
+          {engagement.title}
+        </Title>
+        {engagement.type === "DAY" && <OneDayBadge>하루 도움</OneDayBadge>}
       </TopArea>
 
       {/* ---------- Bottom ---------- */}
       <BottomArea>
         {/* 왼쪽 정보 */}
         <BottomLeft>
-          <User>{post.user}</User>
+          <User aria-label="장애인의 닉네임">
+            {engagement.disabled.nickname}
+          </User>
 
           <InfoLine>
-            <MapPinIcon size={16} />
-            <InfoText>{post.location}</InfoText>
+            <MapPinIcon size={16} aria-label="활동 지역 아이콘" />
+            <InfoText aria-label="활동 지역">{engagement.region}</InfoText>
           </InfoLine>
 
           <InfoLine>
-            <CalendarIcon size={16} />
-            {post.dates?.map((date) => (
-              <InfoText key={date}>{date}</InfoText>
-            ))}
+            <CalendarIcon size={16} aria-label="날짜 아이콘" />
+            <InfoText aria-label="활동 날짜">
+              {engagement.type === "DAY" && (
+                <>
+                  {formatDateWithDay(
+                    (engagement.engagementTime as DayEngagementTime).date
+                  )}
+                </>
+              )}
+
+              {engagement.type === "TERM" && (
+                <>
+                  {formatDateWithDay(
+                    (engagement.engagementTime as TermEngagementTime).startDate
+                  )}
+                  {" ~ "}
+                  {formatDateWithDay(
+                    (engagement.engagementTime as TermEngagementTime).endDate
+                  )}
+                </>
+              )}
+            </InfoText>
           </InfoLine>
 
           <TagRow>
-            {post.tags.map((tag) => (
-              <HelpTag key={tag}>{tag}</HelpTag>
+            {engagement.helpCategories.map((category) => (
+              <HelpTag key={category.helpCategoryId} aria-label="활동 카테고리">
+                {category.helpCategoryName}
+              </HelpTag>
             ))}
           </TagRow>
         </BottomLeft>
 
         {/* 오른쪽 이미지 */}
-        {post.image && (
+        {engagement.thumbnailImageUrl && (
           <BottomRight>
             <Thumbnail>
-              <img src={post.image} alt="thumbnail" />
+              <img src={engagement.thumbnailImageUrl} alt="활동 관련 이미지" />
             </Thumbnail>
           </BottomRight>
         )}
@@ -94,17 +123,20 @@ const MatchingPostCard = ({ post }: Props) => {
       {/* ---------- Buttons ---------- */}
       <BottomBar>
         <BottomInner>
-          <ChatButton onClick={goChatPage}>
+          <ChatButton onClick={goChatPage} aria-label="채팅하기로 이동합니다.">
             <BsChat size={12} />
             <span>채팅하기</span>
           </ChatButton>
 
-          {engagementStatus === "COMPLETED" ? (
-            <DoneButton>
+          {isCompleted ? (
+            <DoneButton aria-label="활동이 완료 되었다면 홛동 완료 버튼을 눌러주세요">
               <span>활동 완료</span>
             </DoneButton>
           ) : (
-            <ReviewButton onClick={goReviewPage}>
+            <ReviewButton
+              onClick={goReviewPage}
+              aria-label="리뷰를 작성하려면 리뷰 작성하기 버튼을 눌러주세요"
+            >
               <BsPencil size={12} />
               <span>리뷰 작성하기</span>
             </ReviewButton>
