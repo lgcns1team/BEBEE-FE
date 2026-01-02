@@ -21,7 +21,7 @@ const MatchingPage = () => {
 
   const [activeTab, setActiveTab] = useState<TabType>("전체");
   const [period, setPeriod] = useState<"week" | "month">("month");
-  const [selectedDate, setSelectedDate] = useState("2025-12-30");
+  const [selectedDate, setSelectedDate] = useState("2026-01-02");
   const [engagementDates, setEngagementDates] = useState<Set<string>>(
     new Set()
   );

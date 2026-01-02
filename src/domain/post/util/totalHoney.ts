@@ -1,5 +1,5 @@
 import { eachDayOfInterval, format } from "date-fns";
-
+import { getErrorMessage } from "../../../utils/error";
 /**
  * 시작일~종료일 사이에서 선택된 요일들이 총 몇 번 포함되는지 계산
  */
@@ -26,6 +26,7 @@ export const calculateTotalOccurrences = (
 
     return targetDays.length;
   } catch (error) {
+    getErrorMessage(error, "입력된 꿀이 없습니다");
     return 0;
   }
 };

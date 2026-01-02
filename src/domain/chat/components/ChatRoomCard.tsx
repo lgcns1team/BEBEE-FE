@@ -10,56 +10,81 @@ import Header from "../../../components/Header";
 
 const ChatRoomCard = () => {
   const navigate = useNavigate();
-  const handleMatchModalClick = () => {
-    navigate(`/chat/${chatroomId}/match`);
-  };
+
+  // const handleMatchModalClick = () => {
+  //   navigate(`/chat/${chatroomId}/match`);
+  // };
 
   const { chatroomId } = useParams<{ chatroomId: string }>();
   const { activeRoom, setActiveRoom } = useChatStore();
-  const currentMemberId = 100; // 실제로는 AuthStore에서 가져옴
-
-  // 1. 데이터 로딩 (채팅방 정보 가져오기)
+  const currentMemberId = "100"; // 실제로는 AuthStore에서 가져옴
+  {
+    /*}
+  console.log("현재 스토어 데이터(activeRoom):", activeRoom);
+  console.log("URL에서 가져온 ID(chatroomId):", chatroomId);*/
+  }
+  // 1. 데이터 로딩 및 동기화 로직
   useEffect(() => {
-    if (!activeRoom || activeRoom.chatroomId !== String(chatroomId)) {
-      const fetchRoomDetail = async () => {
-        try {
-          // fetch를 직접 사용하거나 chatApi 호출
-          const data = await chatApi.openChatRoom(
-            currentMemberId,
-            undefined,
-            String(chatroomId)
-          );
-          setActiveRoom(data);
-        } catch (error) {
-          console.error("채팅방 정보를 불러오는데 실패했습니다.");
-        }
-      };
+    // chatroomId가 URL에 없으면 실행 안 함
+    if (!chatroomId) return;
+
+    const fetchRoomDetail = async () => {
+      try {
+        const data = await chatApi.openChatRoom(
+          currentMemberId,
+          undefined,
+          chatroomId
+        );
+        setActiveRoom(data); // 데이터 수신 완료 -> activeRoom이 null이 아니게 됨
+      } catch (error) {
+        console.error("채팅방 정보를 불러오는데 실패했습니다.", error);
+      }
+    };
+
+    // 현재 스토어의 방 ID와 URL의 ID가 다를 때만 데이터를 가져옴
+    if (!activeRoom || activeRoom.chatroomId !== chatroomId) {
       fetchRoomDetail();
     }
 
-    // 페이지를 나갈 때 스토어의 activeRoom을 비워주고 싶다면 clean-up 추가
-    // return () => setActiveRoom(null);
+    // [중요] Cleanup 함수: 페이지를 이동할 때 이전 채팅방 데이터를 비워줌 (잔상 방지)
+    return () => {};
   }, [chatroomId]);
 
+  // 2. [가장 중요] 렌더링 가드 (Guard Clause)
+  // return문 직전에 작성합니다. 데이터가 없으면 에러가 날 아래 코드를 실행하지 않습니다.
+  if (!activeRoom) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        채팅방 정보를 불러오는 중...
+      </div>
+    );
+  }
   return (
     <>
       <Header
         title={activeRoom.otherNickname}
-        subTitle="47.3당도"
         onBack={() => navigate("/chat")}
+        showBack
         showRight
       />
       <ChatHeader>
         {/*추후 서버랑연동 -> 연결된 게시글 데이터 불러옴*/}
         <HeaderTop>
-          <ChatTitle>병원 동행할 파트너를 구합니다 절찬모집 이얏호</ChatTitle>
+          <ChatTitle id="게시글 제목">
+            병원 동행할 파트너를 구합니다 절찬모집 이얏호
+          </ChatTitle>
           {/* 매칭하기 버튼 누르면 매칭확인서로 페이지 이동*/}
-          <MatchButton onClick={handleMatchModalClick}>매칭하기</MatchButton>
+          <MatchButton
+            // onClick={handleMatchModalClick}
+            aria-describedby="게시글 제목"
+          >
+            매칭하기
+          </MatchButton>
         </HeaderTop>
 
-        <HelpTagBox>
-          {activeRoom.helpCategories.map((cat) => (
-            <HelpTag key={cat.id}>#{cat.name}</HelpTag>
+        <HelpTagBox role="list" aria-label="도움 카테고리">
+          {activeRoom?.helpCategories?.map((cat) => (
+            <HelpTag key={cat.id}>{cat.name}</HelpTag>
           ))}
         </HelpTagBox>
       </ChatHeader>

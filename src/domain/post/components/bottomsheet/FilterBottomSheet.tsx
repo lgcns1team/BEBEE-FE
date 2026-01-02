@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { usePostStore } from "../../../../store/usePostStore";
-import type { HelpType } from "../../../../types/post.type";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import HoneyRange from "./HoneyRange";
@@ -64,7 +63,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: FilterBottomSheetProps) => {
     };
 
     setFilters(reqDTO);
-    fetchPosts(true);
+    fetchPosts();
     onClose();
   };
   /* ---------------- render ---------------- */

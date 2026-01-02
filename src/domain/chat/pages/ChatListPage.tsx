@@ -1,114 +1,117 @@
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { chatApi } from "../api/chatApi";
 import { useChatStore } from "../store/useChatStore";
 import { useChatHandler } from "../../../hooks/useChatHandler";
 import { formatChatTime } from "../utils/date";
+import { chatApi } from "../api/chatApi"; // API 임포트 추가
+
 /* Components */
 import Header from "../../../components/Header";
 import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
-
 const ChatListPage = () => {
+  // Store 상태 추출
   const { chatrooms, hasNext, nextChatroomId, setChatrooms } = useChatStore();
   const { handleChatOpen } = useChatHandler();
   const navigate = useNavigate();
-  // 로딩 상태 관리 (선택 사항)
 
-  const MY_ID = 100; // 실제로는 로그인한 유저 ID 사용
+  const [isLoading, setIsLoading] = useState(false);
 
+  // API 파라미터로 들어갈 내 아이디 (실제로는 로그인 정보에서 가져와야 합니다)
+  const MY_ID = "100";
   const observerTarget = useRef<HTMLDivElement>(null);
 
-  // 데이터 불러오기 함수 (useCallback으로 감싸서 무한 루프 방지)
+  /**
+   * API 호출 및 Store 저장 로직
+   */
   const fetchList = useCallback(
     async (isMore = false) => {
-      try {
-        // 더 불러오기일 때는 nextChatroomId 사용, 처음일 때는 undefined
-        const lastId = isMore ? nextChatroomId : undefined;
-        const data = await chatApi.getChatRoomList(MY_ID, lastId);
+      if (isLoading) return;
 
-        setChatrooms(data, isMore);
-        console.log(data);
+      // 더보기 모드인데 다음 커서(ID)가 없으면 중단
+      if (isMore && !nextChatroomId) return;
+
+      setIsLoading(true);
+      try {
+        // [API 보고 수정된 부분]
+        // 인자 1: currentMemberId (MY_ID)
+        // 인자 2: lastChatroomId (더보기면 스토어의 ID, 아니면 null)
+        const response = await chatApi.getChatRoomList(
+          MY_ID,
+          isMore ? nextChatroomId : null
+        );
+
+        // Store에 응답 데이터 반영 (isMore에 따라 쌓거나 새로고침)
+        setChatrooms(response, isMore);
       } catch (error) {
-        console.error("채팅 목록 로드 실패:", error);
+        console.error("채팅 목록을 불러오는 중 오류가 발생했습니다:", error);
+      } finally {
+        setIsLoading(false);
       }
     },
-    [nextChatroomId, setChatrooms]
+    [isLoading, nextChatroomId, setChatrooms, MY_ID]
   );
 
-  // 1. 초기 로드
+  // 1. 초기 렌더링 시 목록 로드
   useEffect(() => {
     fetchList(false);
-  }, []);
+  }, []); // 마운트 시 1회 실행
 
-  // 2. 무한 스크롤 관찰자(Observer) 설정
+  // 2. 무한 스크롤 관찰
   useEffect(() => {
-    // 불러올 데이터가 없으면 관찰 중단
-    if (!hasNext || !observerTarget.current) return;
+    if (!hasNext || isLoading || !observerTarget.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        // 타겟 요소가 화면에 들어오면(isIntersecting) 다음 데이터 호출
         if (entries[0].isIntersecting) {
           fetchList(true);
         }
       },
-      { threshold: 1.0 } // 요소가 100% 다 보였을 때 실행
+      { threshold: 1.0 }
     );
 
     observer.observe(observerTarget.current);
-
-    // 클린업: 컴포넌트 언마운트 시 관찰 중단
     return () => observer.disconnect();
-  }, [hasNext, fetchList]);
+  }, [hasNext, isLoading, fetchList]);
+
   return (
     <ChatContainer>
+      <h2 className="sr-only">채팅 메시지 목록</h2>
       <Layout>
         <Header title="채팅" onBack={() => navigate("/")} />
         <ChatList>
-          {chatrooms?.length > 0 ? (
-            chatrooms.map((room) => (
-              <ChatItem
-                key={room.chatroomId}
-                onClick={() =>
-                  handleChatOpen(MY_ID, {
-                    chatroomId: "791458418405204700",
-                  })
-                }
-              >
-                <ProfileImage
-                  src={room.otherProfileImageUrl}
-                  alt={room.otherNickname}
-                />
-                <ChatInfo>
-                  <ChatFirstRow>
-                    <Nickname>{room.otherNickname}</Nickname>
-                    {/* updatedAt 오타 수정 */}
-                    <ChatLastTime>
-                      {formatChatTime(room.updatedAt)}
-                    </ChatLastTime>
-                  </ChatFirstRow>
+          {chatrooms && chatrooms.length > 0
+            ? chatrooms.map((room) => (
+                <ChatItem
+                  key={room.chatroomId}
+                  onClick={() =>
+                    handleChatOpen(MY_ID, {
+                      chatroomId: room.chatroomId,
+                    })
+                  }
+                >
+                  <ProfileImage
+                    src={room.otherProfileImageUrl || "/default-profile.png"}
+                    alt={room.otherNickname}
+                  />
+                  <ChatInfo>
+                    <ChatFirstRow>
+                      <Nickname>{room.otherNickname}</Nickname>
+                      <ChatLastTime>
+                        {formatChatTime(room.updatedAt)}
+                      </ChatLastTime>
+                    </ChatFirstRow>
+                    <PostTitle>{room.title}</PostTitle>
+                  </ChatInfo>
+                </ChatItem>
+              ))
+            : !isLoading && <EmptyState>진행 중인 채팅이 없습니다.</EmptyState>}
 
-                  <PostTitle>{room.title}</PostTitle>
-                  {/*
-                  <ChatLastRow>
-                    <LastMessage>{chat.lastMessage}</LastMessage>
-                    {chat.unreadCount > 0 && (
-                      <UnreadBadge>{chat.unreadCount}</UnreadBadge>
-                    )}
-                  </ChatLastRow>*/}
-                </ChatInfo>
-              </ChatItem>
-            )) // map 종료
-          ) : (
-            // 데이터가 없을 때의 처리가 필요합니다 (삼항 연산자 : 부분)
-            <EmptyState>진행 중인 채팅이 없습니다.</EmptyState>
-          )}
-          {/* 무한 스크롤 타겟: 이 요소가 보이면 다음 페이지를 불러옵니다 */}
+          {/* 하단 스크롤 감지 영역 */}
           {hasNext && (
             <ObserverTarget ref={observerTarget}>
-              <LoadingText>목록을 불러오는 중...</LoadingText>
+              <LoadingText>목록을 더 불러오는 중...</LoadingText>
             </ObserverTarget>
           )}
         </ChatList>
@@ -117,7 +120,6 @@ const ChatListPage = () => {
     </ChatContainer>
   );
 };
-
 export default ChatListPage;
 
 // Styled Components

@@ -1,55 +1,64 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiCalendar, FiClock, FiMapPin } from "react-icons/fi";
-
+import { getErrorMessage } from "../../../utils/error";
 import { useNavigate, useParams } from "react-router-dom";
 import { RxIconjarLogo } from "react-icons/rx";
-import ActionSheetModal from "../components/common/ActionSheetModal";
+//import ActionSheetModal from "../components/common/ActionSheetModal";
 import HelpTagBee from "../../../assets/images/helptag-bee.png";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
-import { usePostStore } from "../../../store/usePostStore";
-import { useProfileStore } from "../../../store/useProfileStore";
+import { postApi } from "../../../api/postApi";
+import type { PostDetailResponse } from "../../../types/post.type";
+import { HELP_TAG_MAP } from "../../../constants/helpTags";
 import BeeImage from "../../../assets/images/bee-letter.png";
 const PostDetailPage = () => {
   const navigate = useNavigate();
 
-  const { id } = useParams<{ id: string }>();
+  const { postId } = useParams<{ postId: string }>();
 
-  const { disabledProfiles } = useProfileStore();
+  // 1. 로컬 상태로 관리
+  const [post, setPost] = useState<PostDetailResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const postIdNum = Number(id);
+  useEffect(() => {
+    const fetchDetail = async () => {
+      try {
+        setLoading(true);
 
-  const post = usePostStore((state) =>
-    state.posts.find((p) => p.id === postIdNum)
-  );
-  const profile = disabledProfiles.find((p) => p.memberId === post?.id);
+        const data = await postApi.getPostDetail(postId, "100");
+        console.log(data);
+        setPost(data);
+      } catch (error) {
+        setError(getErrorMessage(error, "데이터를 불러오지 못함"));
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const [isActionSheetOpen, setIsActionSheetOpen] = useState(false);
+    if (postId) fetchDetail();
+  }, [postId]);
 
-  const goProfile = () => {
-    navigate(`/profile/disabled/${profile?.memberId}`);
-  };
+  if (loading) return <div>로딩 중...</div>;
+  if (error) return <div>{error}</div>;
+  if (!post) return <div>게시글이 없습니다.</div>;
 
   return (
     <Layout>
       <Container>
-        {/* ---------------- Header ---------------- */}
-        <Header
-          onBack={() => navigate(-1)}
-          showRight
-          onRightClick={() => setIsActionSheetOpen(true)}
-          showBack
-        />
+        <Header onBack={() => navigate(-1)} showRight showBack />
+
+        {/* 
         <ActionSheetModal
           isOpen={isActionSheetOpen}
           onClose={() => setIsActionSheetOpen(false)}
-        />
-        {/* ---------------- Category Tags ---------------- */}
+        />*/}
+
         <TagList>
           <HelpBeeImage src={HelpTagBee} alt="bee" />
-          {post?.tags.map((tag) => (
-            <Tag key={tag}>{tag}</Tag>
+          {post.helpCategoryIds.map((cat) => (
+            <Tag key={cat}>{HELP_TAG_MAP[cat] ?? "알 수 없음"}</Tag>
           ))}
         </TagList>
 
@@ -59,14 +68,14 @@ const PostDetailPage = () => {
         {/* ---------------- User Info ---------------- */}
         <UserSection>
           <UserLeft>
-            {profile?.profileImageUrl ? (
-              <UserImage src={profile.profileImageUrl} />
+            {post?.memberProfileImageUrl ? (
+              <UserImage src={post.memberProfileImageUrl} />
             ) : (
               <UserImage src={BeeImage} />
             )}
             <UserInfo>
-              <UserName onClick={goProfile}>{profile?.name}</UserName>
-              <UserAddress>{profile?.addressRoad}</UserAddress>
+              <UserName>{post?.memberNickname}</UserName>
+              <UserAddress>{post?.memberLegalDongCode}</UserAddress>
             </UserInfo>
           </UserLeft>
         </UserSection>
@@ -77,29 +86,29 @@ const PostDetailPage = () => {
         <InfoList>
           <InfoItem>
             <RxIconjarLogo size={16} />
-            <span>{post?.honey}꿀</span>
+            <span>{post?.unitHoney}꿀</span>
           </InfoItem>
 
           <InfoItem>
             <FiCalendar size={16} />
-            <span>{post?.dates}</span>
+            <span>{post?.date}</span>
           </InfoItem>
 
           <InfoItem>
             <FiClock size={16} />
-            <span>{post?.time}</span>
+            <span>{post?.startDate}</span> ~ <span>{post?.endDate}</span>
           </InfoItem>
 
           <InfoItem>
             <FiMapPin size={16} />
-            <span>{post?.location}</span>
+            <span>{post?.postLegalDongCode}</span>
           </InfoItem>
         </InfoList>
         {/* ---------------- Description ---------------- */}
-        <Description>{post?.description}</Description>
+        <Description>{post?.content}</Description>
 
-        <ApplicantCount>지원자 수 13</ApplicantCount>
-        {post?.image && <PostImage src={post.image} />}
+        <ApplicantCount>지원자 수 {post?.applicantCount}</ApplicantCount>
+        {post?.postImages && <PostImage src={post.postImages[0]} />}
         {/* ---------------- Bottom Buttons ---------------- */}
         <BottomBar>
           <BottomInner>

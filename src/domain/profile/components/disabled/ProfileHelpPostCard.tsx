@@ -4,11 +4,13 @@ import Bee from "../../../../assets/images/helptag-bee.png";
 import { usePostStore } from "../../../../store/usePostStore";
 
 interface Props {
-  id: number;
+  id: string;
 }
 
 const ProfileHelpPostCard = ({ id }: Props) => {
-  const post = usePostStore((state) => state.posts.find((p) => p.id === id));
+  const post = usePostStore((state) =>
+    state.posts.find((p) => p.postId === id)
+  );
   return (
     <Card>
       <HelpImage src={Bee} alt="image" />
@@ -17,11 +19,11 @@ const ProfileHelpPostCard = ({ id }: Props) => {
         <Title>{post?.title}</Title>
 
         <Row>
-          {post?.done && <Done>매칭 완료</Done>}
-          <Honey>{post?.honey}꿀</Honey>
+          {post?.isMatched && <Done>매칭 완료</Done>}
+          <Honey>{post?.totalHoney}꿀</Honey>
         </Row>
 
-        <Place>{post?.location}</Place>
+        <Place>{post?.legalDongName}</Place>
       </Content>
     </Card>
   );

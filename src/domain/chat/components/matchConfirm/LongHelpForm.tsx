@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef } from "react";
+import { useState, useRef, forwardRef } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";

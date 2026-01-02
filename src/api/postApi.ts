@@ -3,22 +3,67 @@ import type {
   GetPostsRequest,
   GetPostsResponse,
   PostCreateReqDTO,
+  PostDetailResponse,
 } from "../types/post.type";
 
 export const postApi = {
   /**
-   * 게시글 목록 조회 (필터 및 무한 스크롤 포함)
+   * 게시글 목록 조회 API
    */
   getPosts: async (params: GetPostsRequest): Promise<GetPostsResponse> => {
-    const { data } = await instance.get<GetPostsResponse>("/posts", {
-      params, // GetPostsRequest에 정의된 모든 필드가 쿼리 스트링으로 변환됨
+    const {
+      currentMemberId,
+      type,
+      isMatched,
+      lastPostId,
+      count = 20,
+      reqDTO,
+    } = params;
+
+    // 쿼리 파라미터 구성
+    const queryParams: Record<string, any> = {
+      currentMemberId,
+      count,
+      ...reqDTO, // reqDTO를 객체 자체로 전달
+    };
+
+    // type이 있을 경우만 추가
+    if (type) {
+      queryParams.type = type;
+    }
+
+    // isMatched가 명시적으로 false일 때만 추가
+    if (isMatched === false) {
+      queryParams.isMatched = false;
+    }
+
+    // lastPostId가 있을 경우 추가 (무한 스크롤)
+    if (lastPostId) {
+      queryParams.lastPostId = lastPostId;
+    }
+
+    const response = await instance.get<GetPostsResponse>("/posts", {
+      params: queryParams,
     });
-    return data;
+
+    return response.data;
   },
+
   createPost: async (currentMemberId: string, data: PostCreateReqDTO) => {
-    const response = await instance.post(`/posts`, data, {
+    const response = await instance.post("/posts", data, {
       params: { currentMemberId }, //
     });
+    return response.data;
+  },
+
+  getPostDetail: async (
+    postId: string,
+    currentMemberId: string
+  ): Promise<PostDetailResponse> => {
+    const response = await instance.get(`/posts/${postId}`, {
+      params: { currentMemberId },
+    });
+
     return response.data;
   },
 };

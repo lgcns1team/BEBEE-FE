@@ -1,6 +1,5 @@
-import type { Post } from "../../store/usePostStore";
 import BeeImage from "../../../src/assets/images/bee-santa.png";
-export const postMockData: Post[] = [
+export const postMockData = [
   {
     id: 1,
     title: "상체 운동 PT해주실 분 구합니다",
