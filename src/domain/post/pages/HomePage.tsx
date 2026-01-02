@@ -22,7 +22,6 @@ const HomePage = () => {
     hasNext,
     isLoading,
     isLoadingMore,
-    error,
     type,
     isMatched,
     fetchPosts,
@@ -33,45 +32,41 @@ const HomePage = () => {
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sort, setSort] = useState("최신순");
+
   const observerTarget = useRef<HTMLDivElement>(null);
+
   // 2. 초기 데이터 로드 (필터 빈 값 상태로 요청)
   useEffect(() => {
     fetchPosts();
   }, []);
-
-  // 2. 무한 스크롤 구현
+  // 2. 무한 스크롤 감지 (Intersection Observer)
   useEffect(() => {
+    if (!observerTarget.current || !hasNext) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
-        // 화면에 관찰 대상이 보이고, 다음 페이지가 있고, 로딩 중이 아닐 때
-        if (entries[0].isIntersecting && hasNext && !isLoadingMore) {
+        // 요소가 화면에 나타나고, 로딩 중이 아닐 때만 다음 페이지 요청
+        if (entries[0].isIntersecting && !isLoading && !isLoadingMore) {
           fetchMorePosts();
         }
       },
-      { threshold: 0.1 } // 10%만 보여도 트리거
+      { threshold: 1.0 } // 요소가 100% 다 보였을 때 실행
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
+    observer.observe(observerTarget.current);
 
-    return () => {
-      if (observerTarget.current) {
-        observer.unobserve(observerTarget.current);
-      }
-    };
-  }, [hasNext, isLoadingMore, fetchMorePosts]);
-
+    return () => observer.disconnect();
+  }, [hasNext, isLoading, isLoadingMore, fetchMorePosts]);
   // 3. 탭 클릭 핸들러 (전체/일회성/정기적)
   const handleTypeChange = (newType: HelpType | undefined) => {
     setType(newType);
   };
 
   // 4. 매칭 완료 여부 버튼 클릭 핸들러
-  const handleMatchedChange = (matched: boolean | undefined) => {
-    setIsMatched(matched);
+  const handleMatchedChange = (checked: boolean) => {
+    console.log("클릭:", checked);
+    setIsMatched(checked ? false : undefined);
   };
-
   return (
     <Layout>
       <Wrapper>
@@ -117,7 +112,6 @@ const HomePage = () => {
           </SortSelect>
 
           <Checkbox
-            // isMatched가 false일 때만 체크된 상태로 표시
             checked={isMatched === false}
             onChange={handleMatchedChange}
             label="완료 제외"
@@ -139,9 +133,14 @@ const HomePage = () => {
           {!isLoading && posts.length === 0 && (
             <span>조건에 맞는 게시글이 없습니다.</span>
           )}
-
-          {/* 추가 기능: 무한 스크롤 대신 '더보기' 버튼을 쓴다면 */}
-          {/* {hasNext && !isLoading && <button onClick={() => fetchPosts(false)}>더보기</button>} */}
+          {/* 무한 스크롤 감지용 타겟 (바닥) */}
+          <div
+            ref={observerTarget}
+            style={{ height: "50px", textAlign: "center" }}
+          >
+            {isLoadingMore && <p>데이터를 더 불러오는 중...</p>}
+            {!hasNext && posts.length > 0 && <p>마지막 게시글입니다.</p>}
+          </div>
         </ListWrapper>
 
         {/* ---------------- BottomSheet ---------------- */}
@@ -185,21 +184,29 @@ const Tab = styled.button<{ $active?: boolean }>`
   cursor: pointer;
   position: relative;
   border: none;
-  background-color: ${({ theme }) => theme.color.white};
-  &.active {
-    color: ${({ theme }) => theme.color.text};
-    font-weight: ${({ theme }) => theme.weight.medium};
-  }
 
-  &.active::after {
+  background-color: ${({ theme }) => theme.color.white};
+  color: ${({ theme, $active }) =>
+    $active ? theme.color.text : theme.color.subText2};
+  font-weight: ${({ theme, $active }) =>
+    $active ? theme.weight.medium : theme.weight.regular};
+
+  &::after {
     content: "";
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
     height: 2px;
-    background-color: ${({ theme }) => theme.color.text};
+
+    /* 활성화 상태일 때만 theme.color.text(검은색계열)를 보여줌 */
+    background-color: ${({ theme, $active }) =>
+      $active ? theme.color.text : "transparent"};
+
     border-radius: ${({ theme }) => theme.borderRadius.sm};
+
+    /* 부드러운 전환을 원한다면 추가 */
+    transition: background-color 0.2s ease;
   }
 `;
 

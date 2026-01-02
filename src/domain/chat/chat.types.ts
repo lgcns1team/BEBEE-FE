@@ -2,26 +2,29 @@
 export type MessageType = "TEXT" | "IMAGE" | "MATCH_CONFIRMATION";
 
 export interface ChatMessage {
-  messageId: number;
-  senderId: number;
-  content: string;
-  createdAt: string;
-
-  // 매칭 확인서용 필드
-  location?: string;
-  unitPoints?: number;
-  totalPoints?: number;
+  id: string;
+  senderId: string;
+  textContent: string;
+  type: string;
+  attachments: string[];
+  agreementId?: string;
+  matchType?: string;
   startDate?: string;
   endDate?: string;
   scheduleDays?: string[];
   scheduleStartTimes?: string[];
   scheduleEndTimes?: string[];
+  location?: string;
+  unitPoints?: number;
+  totalPoints?: number;
+  matchStatus?: string;
+  createdAt: string;
 }
 
-export interface ChatMessageResponse {
+export interface ChatMessagesGetResDTO {
   messages: ChatMessage[];
   hasNext: boolean;
-  nextChatId: number | null;
+  nextChatId: string | null;
 }
 
 /** 채팅방 생성/열기 요청 DTO */
@@ -34,11 +37,10 @@ export interface ChatroomOpenReqDTO {
 /** 채팅방 상세 정보 응답 (조회/생성 시) */
 export interface ChatroomResponse {
   chatroomId: string;
-  myId: number;
-  otherId: number;
+  myId: string;
+  otherId: string;
   otherNickname: string;
   otherProfileImageUrl: string;
-  otherSweetness: number;
   helpCategories: {
     id: number;
     name: string;
@@ -48,7 +50,7 @@ export interface ChatroomResponse {
 /** 채팅 목록 내 개별 아이템 */
 export interface ChatroomListItem {
   chatroomId: string;
-  otherId: number;
+  otherId: string;
   otherNickname: string;
   otherProfileImageUrl: string;
   otherSweetness: number;
@@ -60,5 +62,5 @@ export interface ChatroomListItem {
 export interface ChatroomListResponse {
   chatrooms: ChatroomListItem[];
   hasNext: boolean;
-  nextChatroomId: number | null;
+  nextChatroomId: string | null;
 }

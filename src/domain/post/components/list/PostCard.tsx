@@ -4,7 +4,7 @@ import { FiCalendar, FiMapPin } from "react-icons/fi";
 import HelpTag from "../../../../components/HelpTag";
 import OneDayBadge from "../../../../components/OneDayBadge";
 import DoneBadge from "../../../../components/DoneBadge";
-
+import { HELP_TAG_MAP } from "../../../../constants/helpTags";
 interface PostCardProps {
   post: PostItem;
 }
@@ -51,8 +51,8 @@ const PostCard = ({ post }: PostCardProps) => {
         <BottomArea>
           <BottomLeft>
             <HoneyRow>
-              {/* DAY 타입이면서 매칭 완료 상태일 때만 배지 노출 */}
-              {isDay && post.isMatched && <DoneBadge>매칭 완료</DoneBadge>}
+              {/*매칭 완료 상태일 때만 배지 노출 */}
+              {post.isMatched && <DoneBadge>매칭 완료</DoneBadge>}
               <Honey>
                 {post.unitHoney.toLocaleString()} 꿀
                 {/* TERM 타입일 경우 회당/총액 정보 추가 노출 */}
@@ -83,8 +83,8 @@ const PostCard = ({ post }: PostCardProps) => {
             </InfoLine>
 
             <TagWrapper>
-              {post.helpCategories.map((cat, index) => (
-                <HelpTag key={index}>{cat}</HelpTag>
+              {post.helpCategories.map((cat) => (
+                <HelpTag key={cat}>{HELP_TAG_MAP[cat] ?? "알 수 없음"}</HelpTag>
               ))}
             </TagWrapper>
           </BottomLeft>

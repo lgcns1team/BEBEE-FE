@@ -16,7 +16,7 @@ export type DayOfWeek =
 export interface PostItem {
   postId: string;
   title: string;
-  isCompleted: boolean;
+  isMatched: boolean;
   unitHoney: number;
   totalHoney: number;
   legalDongName: string;

@@ -7,7 +7,7 @@ import axios, {
 export const instance = axios.create({
   baseURL:
     import.meta.env.VITE_API_URL ||
-    "https://bebee-chat-1036667053569.asia-northeast3.run.app",
+    "https://bebee-match-1036667053569.asia-northeast3.run.app",
   headers: {
     "Content-Type": "application/json",
   },

@@ -1,9 +1,8 @@
-// store.ts
 import { create } from "zustand";
 import type { PostItem, PostsGetReqDTO, HelpType } from "../types/post.type";
 import { postApi } from "../api/postApi";
 
-interface Post {
+interface PostState {
   // 데이터
   posts: PostItem[];
   hasNext: boolean;
@@ -14,7 +13,7 @@ interface Post {
   isLoadingMore: boolean;
   error: string | null;
 
-  // 필터 상태
+  // 필터 및 파라미터 상태
   currentMemberId: string;
   type: HelpType | undefined;
   isMatched: boolean | undefined;
@@ -32,7 +31,7 @@ interface Post {
 
 const initialFilters: PostsGetReqDTO = {};
 
-export const usePostStore = create<Post>((set, get) => ({
+export const usePostStore = create<PostState>((set, get) => ({
   // 초기 상태
   posts: [],
   hasNext: false,
@@ -40,25 +39,28 @@ export const usePostStore = create<Post>((set, get) => ({
   isLoading: false,
   isLoadingMore: false,
   error: null,
-  currentMemberId: "100",
+  currentMemberId: "100", // 실제 사용 시에는 로그인 정보에서 가져오도록 수정 필요
   type: undefined,
   isMatched: undefined,
   filters: initialFilters,
 
-  // 첫 번째 게시글 목록 조회
+  // [1] 첫 번째 게시글 목록 조회 (필터 변경 시 호출)
   fetchPosts: async () => {
-    const state = get();
+    const { currentMemberId, type, isMatched, filters, isLoading } = get();
 
-    set({ isLoading: true, error: null });
+    // 이미 로딩 중이면 중복 요청 방지
+    if (isLoading) return;
+
+    set({ isLoading: true, error: null, posts: [], nextPostId: null });
 
     try {
       const response = await postApi.getPosts({
-        currentMemberId: state.currentMemberId,
-        type: state.type,
-        isMatched: state.isMatched,
-        lastPostId: undefined,
+        currentMemberId,
+        type,
+        isMatched,
+        lastPostId: undefined, // 첫 페이지는 항상 undefined
         count: 20,
-        reqDTO: state.filters, // 빈 객체 또는 필터가 적용된 객체
+        reqDTO: filters,
       });
 
       set({
@@ -75,63 +77,73 @@ export const usePostStore = create<Post>((set, get) => ({
     }
   },
 
-  // 무한 스크롤 - 추가 게시글 로드
+  // [2] 무한 스크롤 - 추가 게시글 로드
   fetchMorePosts: async () => {
-    const state = get();
+    const {
+      isLoadingMore,
+      hasNext,
+      nextPostId,
+      posts,
+      currentMemberId,
+      type,
+      isMatched,
+      filters,
+    } = get();
 
-    if (state.isLoadingMore || !state.hasNext) return;
+    // 더 가져올 데이터가 없거나 이미 로딩 중이면 종료
+    if (isLoadingMore || !hasNext || !nextPostId) return;
 
     set({ isLoadingMore: true, error: null });
 
     try {
       const response = await postApi.getPosts({
-        currentMemberId: state.currentMemberId,
-        type: state.type,
-        isMatched: state.isMatched,
-        lastPostId: state.nextPostId || undefined,
+        currentMemberId,
+        type,
+        isMatched,
+        lastPostId: nextPostId, // 이전 응답의 nextPostId 사용
         count: 20,
-        reqDTO: state.filters,
+        reqDTO: filters,
       });
 
       set({
-        posts: [...state.posts, ...response.posts],
+        posts: [...posts, ...response.posts], // 기존 데이터에 추가
         hasNext: response.hasNext,
         nextPostId: response.nextPostId,
         isLoadingMore: false,
       });
     } catch (error: any) {
       set({
-        error: error.message || "게시글을 불러오는데 실패했습니다.",
+        error: error.message || "추가 게시글을 불러오는데 실패했습니다.",
         isLoadingMore: false,
       });
     }
   },
 
-  // 도움 타입 설정 (탭 클릭 시)
+  // [3] 필터 변경 액션들
   setType: (type) => {
     set({ type });
-    get().fetchPosts();
+    get().fetchPosts(); // 상태 변경 후 즉시 호출
   },
 
-  // 매칭 여부 설정 (버튼 클릭 시)
   setIsMatched: (isMatched) => {
     set({ isMatched });
-    get().fetchPosts();
+    get().fetchPosts(); // "완료 제외" 체크 시 서버에서 새로 20개를 받아옴
   },
 
-  // 필터 설정
   setFilters: (filters) => {
     set({ filters });
     get().fetchPosts();
   },
 
-  // 필터 초기화
   resetFilters: () => {
-    set({ filters: initialFilters });
+    set({
+      filters: initialFilters,
+      type: undefined,
+      isMatched: undefined,
+    });
     get().fetchPosts();
   },
 
-  // 전체 상태 초기화
   reset: () => {
     set({
       posts: [],

@@ -8,9 +8,9 @@ export const useChatHandler = () => {
   const { setActiveRoom } = useChatStore();
 
   const handleChatOpen = async (
-    currentMemberId: number,
+    currentMemberId: string,
     params: {
-      otherMemberId?: number;
+      otherMemberId?: string;
       chatroomId?: string;
       postData?: ChatroomOpenReqDTO;
     }

@@ -11,41 +11,29 @@ import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
 
 const ChatListPage = () => {
-  const { chatrooms, hasNext, nextChatroomId, setChatrooms } = useChatStore();
+  const { chatrooms, chatroomHasNext, setChatrooms } = useChatStore();
+
   const { handleChatOpen } = useChatHandler();
   const navigate = useNavigate();
-  // 로딩 상태 관리 (선택 사항)
 
-  const MY_ID = 100; // 실제로는 로그인한 유저 ID 사용
-
+  const MY_ID = "100";
   const observerTarget = useRef<HTMLDivElement>(null);
-
-  // 데이터 불러오기 함수 (useCallback으로 감싸서 무한 루프 방지)
   const fetchList = useCallback(
     async (isMore = false) => {
-      try {
-        // 더 불러오기일 때는 nextChatroomId 사용, 처음일 때는 undefined
-        const lastId = isMore ? nextChatroomId : undefined;
-        const data = await chatApi.getChatRoomList(MY_ID, lastId);
-
-        setChatrooms(data, isMore);
-        console.log(data);
-      } catch (error) {
-        console.error("채팅 목록 로드 실패:", error);
-      }
+      // 복잡한 로직 없이 Store의 함수만 호출
+      await setChatrooms(isMore);
     },
-    [nextChatroomId, setChatrooms]
+    [setChatrooms]
   );
-
   // 1. 초기 로드
   useEffect(() => {
     fetchList(false);
-  }, []);
+  }, [fetchList]);
 
   // 2. 무한 스크롤 관찰자(Observer) 설정
   useEffect(() => {
     // 불러올 데이터가 없으면 관찰 중단
-    if (!hasNext || !observerTarget.current) return;
+    if (!chatroomHasNext || !observerTarget.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -61,9 +49,11 @@ const ChatListPage = () => {
 
     // 클린업: 컴포넌트 언마운트 시 관찰 중단
     return () => observer.disconnect();
-  }, [hasNext, fetchList]);
+  }, [chatroomHasNext, fetchList]);
+
   return (
     <ChatContainer>
+      <h2 className="sr-only">채팅 메시지 목록</h2>
       <Layout>
         <Header title="채팅" onBack={() => navigate("/")} />
         <ChatList>
@@ -73,7 +63,7 @@ const ChatListPage = () => {
                 key={room.chatroomId}
                 onClick={() =>
                   handleChatOpen(MY_ID, {
-                    chatroomId: "791458418405204700",
+                    chatroomId: room.chatroomId,
                   })
                 }
               >
@@ -106,7 +96,7 @@ const ChatListPage = () => {
             <EmptyState>진행 중인 채팅이 없습니다.</EmptyState>
           )}
           {/* 무한 스크롤 타겟: 이 요소가 보이면 다음 페이지를 불러옵니다 */}
-          {hasNext && (
+          {chatroomHasNext && (
             <ObserverTarget ref={observerTarget}>
               <LoadingText>목록을 불러오는 중...</LoadingText>
             </ObserverTarget>
@@ -117,7 +107,6 @@ const ChatListPage = () => {
     </ChatContainer>
   );
 };
-
 export default ChatListPage;
 
 // Styled Components

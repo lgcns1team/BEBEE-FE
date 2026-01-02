@@ -23,7 +23,7 @@ export const postApi = {
     const queryParams: Record<string, any> = {
       currentMemberId,
       count,
-      reqDTO, // reqDTO를 객체 자체로 전달
+      ...reqDTO, // reqDTO를 객체 자체로 전달
     };
 
     // type이 있을 경우만 추가
