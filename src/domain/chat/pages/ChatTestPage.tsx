@@ -22,12 +22,12 @@ const TestButton = styled.button`
 
 const ChatTestPage = () => {
   // 테스트용 내 ID (임시)
-  const MY_ID = 100;
+  const MY_ID = "100";
 
   // 1. 동네지도에서 클릭 시 (상대방 ID만 전송)
   const handleMapChat = async () => {
     console.log("동네지도 채팅 시도...");
-    const result = await chatApi.openChatRoom(MY_ID, 200); // 상대방 201번
+    const result = await chatApi.openChatRoom(MY_ID, "200"); // 상대방 201번
     console.log("결과:", result);
   };
 
@@ -41,7 +41,7 @@ const ChatTestPage = () => {
     };
     const result = await chatApi.openChatRoom(
       MY_ID,
-      200,
+      "200",
       undefined,
       mockPostData
     );
@@ -51,7 +51,7 @@ const ChatTestPage = () => {
   // 3. 매칭 현황에서 클릭 시 (기존 채팅방 ID로 조회)
   const handleMatchingChat = async () => {
     console.log("기존 채팅방 조회 시도...");
-    const EXISTING_ROOM_ID = "791458418405204700"; // 실제 존재하는 방 번호여야 함
+    const EXISTING_ROOM_ID = "793666118447600219"; // 실제 존재하는 방 번호여야 함
     const result = await chatApi.openChatRoom(
       MY_ID,
       undefined,

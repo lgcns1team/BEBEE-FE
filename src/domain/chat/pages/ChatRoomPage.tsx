@@ -1,103 +1,86 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import styled, { css } from "styled-components";
+import Layout from "../../../components/Layout";
 import ChatRoomCard from "../components/ChatRoomCard";
 import { useChatStore } from "../store/useChatStore";
 import { useSocketStore } from "../../../store/useSocketStore";
-import Layout from "../../../components/Layout";
 import { FaArrowCircleUp } from "react-icons/fa";
 
 const ChatRoom = () => {
-  const { id: chatroomId } = useParams<{ id: string }>();
-  const {
-    historyMessages,
-    fetchHistory,
-    clearHistory,
-    messageHasNext,
-    nextChatId,
-    isLoadingHistory,
-  } = useChatStore();
-  const {
-    messages: liveMessages,
-    connect,
-    disconnect,
-    sendMessage,
-  } = useSocketStore();
-
-  const [inputValue, setInputValue] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const observerTarget = useRef<HTMLDivElement>(null); // 최상단 스크롤 감지용
-
-  // 1. 메시지 통합 (이 부분을 렌더링에 사용해야 함)
-  const allMessages = [...historyMessages, ...liveMessages];
-
-  const MY_MEMBER_ID = 1;
+  const { chatroomId } = useParams<{ chatroomId: string }>();
+  const MY_MEMBER_ID = 1; // 실제 환경에선 auth 정보에서 가져옴
   const RECEIVER_ID = 2;
 
-  // 소켓 연결
-  useEffect(() => {
-    connect();
-    return () => disconnect();
-  }, [connect, disconnect]);
+  const { messages, fetchMessages, clearHistory, messageHasNext, isLoading } =
+    useChatStore();
 
-  // 초기 데이터 로드
-  useEffect(() => {
-    if (chatroomId) fetchHistory(Number(chatroomId));
-    return () => clearHistory();
-  }, [chatroomId, fetchHistory, clearHistory]);
+  const { connect, disconnect, sendMessage } = useSocketStore();
 
-  // [중요] 2. 역방향 무한 스크롤 구현
-  const handleLoadMore = useCallback(() => {
-    if (messageHasNext && !isLoadingHistory && chatroomId) {
-      // 이전 메시지를 불러올 때 스크롤 위치를 유지하는 로직이 브라우저에서 자동으로 작동하도록
-      // scroll-anchor 처리가 필요할 수 있습니다.
-      fetchHistory(Number(chatroomId), nextChatId);
+  const [inputValue, setInputValue] = useState("");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const observerTarget = useRef<HTMLDivElement>(null);
+  const prevScrollHeight = useRef<number>(0);
+
+  // 1. 초기 데이터 및 소켓 연결
+  useEffect(() => {
+    if (chatroomId) {
+      fetchMessages(chatroomId, true);
+      connect();
     }
-  }, [messageHasNext, isLoadingHistory, chatroomId, nextChatId, fetchHistory]);
+    return () => {
+      clearHistory();
+      disconnect();
+    };
+  }, [chatroomId]);
 
+  // 2. 무한 스크롤(과거 데이터) 핸들러
+  const handleLoadMore = useCallback(() => {
+    if (messageHasNext && !isLoading && chatroomId) {
+      if (scrollContainerRef.current) {
+        prevScrollHeight.current = scrollContainerRef.current.scrollHeight;
+      }
+      fetchMessages(chatroomId);
+    }
+  }, [messageHasNext, isLoading, chatroomId, fetchMessages]);
+
+  // 3. 스크롤 위치 제어 (보정 및 하단 이동)
   useEffect(() => {
-    if (!messageHasNext || isLoadingHistory) return;
+    if (!scrollContainerRef.current) return;
 
+    if (prevScrollHeight.current > 0) {
+      // 과거 데이터 로딩 시: 스크롤 위치 유지
+      const container = scrollContainerRef.current;
+      container.scrollTop = container.scrollHeight - prevScrollHeight.current;
+      prevScrollHeight.current = 0;
+    } else {
+      // 새 메시지 수신 시: 하단으로 이동
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
+  // 4. Intersection Observer 설정
+  useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          handleLoadMore();
-        }
+      ([entry]) => {
+        if (entry.isIntersecting) handleLoadMore();
       },
-      { threshold: 0.5 }
+      { threshold: 1.0 }
     );
 
     if (observerTarget.current) observer.observe(observerTarget.current);
     return () => observer.disconnect();
-  }, [handleLoadMore, messageHasNext, isLoadingHistory]);
+  }, [handleLoadMore]);
 
-  // 새 메시지 수신 시 하단 이동
-  useEffect(() => {
-    if (liveMessages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [liveMessages]);
-
-  const handleSendMessage = () => {
+  const onSend = () => {
     if (!inputValue.trim()) return;
     sendMessage(RECEIVER_ID, inputValue);
     setInputValue("");
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  const convertKST = (utcString: string) => {
-    const date = new Date(utcString);
-    return new Date(date.getTime() + 9 * 60 * 60 * 1000);
-  };
-
-  const formatTime = (kstDate: Date) => {
-    return kstDate.toLocaleTimeString("ko-KR", {
+  const formatTime = (isoString: string) => {
+    return new Date(isoString).toLocaleTimeString("ko-KR", {
       hour: "2-digit",
       minute: "2-digit",
     });
@@ -106,30 +89,19 @@ const ChatRoom = () => {
   return (
     <Layout>
       <ChatRoomCard />
-      <MessageList>
-        {/* 상단 감지 포인트: 스크롤이 여기까지 올라오면 loadMore 실행 */}
-        <div ref={observerTarget} style={{ height: "10px" }} />
+      <MessageList ref={scrollContainerRef}>
+        {/* 상단 타겟: 여기에 닿으면 이전 메시지 로드 */}
+        <div ref={observerTarget} style={{ height: "1px" }} />
 
-        {isLoadingHistory && (
-          <LoadingText>이전 대화 불러오는 중...</LoadingText>
-        )}
+        {isLoading && <LoadingText>이전 대화 불러오는 중...</LoadingText>}
 
-        {/* [수정] messages -> allMessages로 변경 */}
-        {allMessages.map((msg, index) => {
-          const isMe = msg.senderId === MY_MEMBER_ID;
+        {messages.map((msg, idx) => {
+          const isMe = msg.senderId === String(MY_MEMBER_ID);
           return (
-            <MessageRow key={msg.messageId || `temp-${index}`} $isMe={isMe}>
-              {isMe && (
-                <MessageTime>
-                  {formatTime(convertKST(msg.createdAt))}
-                </MessageTime>
-              )}
-              <MessageBubble $isMe={isMe}>{msg.content}</MessageBubble>
-              {!isMe && (
-                <MessageTime>
-                  {formatTime(convertKST(msg.createdAt))}
-                </MessageTime>
-              )}
+            <MessageRow key={msg.id || idx} $isMe={isMe}>
+              {isMe && <MessageTime>{formatTime(msg.createdAt)}</MessageTime>}
+              <MessageBubble $isMe={isMe}>{msg.textContent}</MessageBubble>
+              {!isMe && <MessageTime>{formatTime(msg.createdAt)}</MessageTime>}
             </MessageRow>
           );
         })}
@@ -140,10 +112,10 @@ const ChatRoom = () => {
         <StyledInput
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => e.key === "Enter" && onSend()}
           placeholder="메시지를 입력하세요..."
         />
-        <SendButton onClick={handleSendMessage} disabled={!inputValue.trim()}>
+        <SendButton onClick={onSend} disabled={!inputValue.trim()}>
           <FaArrowCircleUp size={30} color="#FFBE00" />
         </SendButton>
       </InputArea>
@@ -242,6 +214,3 @@ const SendButton = styled.button`
   border: none;
   background: none;
 `;
-function scrollToBottom() {
-  throw new Error("Function not implemented.");
-}

@@ -9,15 +9,18 @@ export const HELP_TAG_NAMES = [
   "기타 지원",
 ] as const;
 
-// 서버와 통신할 때 사용할 객체 형태의 맵핑 리스트
+// 선택할 때 용이
 export const HELP_TAG_LIST = HELP_TAG_NAMES.map((name, index) => ({
-  id: index + 1, // 1부터 시작하는 ID 부여
+  id: index + 1,
   name: name,
 }));
 
+//렌더링 용
+export const HELP_TAG_MAP: Record<number, string> = Object.fromEntries(
+  HELP_TAG_LIST.map(({ id, name }) => [id, name])
+);
 export type HelpTagType = (typeof HELP_TAG_LIST)[number];
 
-//용재님 용
 export const HELP_TAGS = [
   "외출 동행",
   "방문 목욕",
@@ -27,4 +30,4 @@ export const HELP_TAGS = [
   "식사 도움",
   "학습 지원",
   "기타 지원",
-];
+] as const;
