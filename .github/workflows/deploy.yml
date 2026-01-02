@@ -23,9 +23,8 @@ jobs:
           node-version: 20
           cache: "pnpm"
 
-      # pnpm 설치
-      - name: Install pnpm
-        run: nnpm install -g pnpm
+      - name: Enable pnpm
+        run: corepack enable
 
       # 의존성 설치
       - name: Install dependencies
