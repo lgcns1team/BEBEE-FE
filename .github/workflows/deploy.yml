@@ -3,10 +3,10 @@ name: CD
 on:
   push:
     branches:
-      - main
+      - develop
   pull_request:
     branches:
-      - main
+      - develop
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
 
       # pnpm 설치
       - name: Install pnpm
-        run: npm install -g pnpm
+        run: nnpm install -g pnpm
 
       # 의존성 설치
       - name: Install dependencies
