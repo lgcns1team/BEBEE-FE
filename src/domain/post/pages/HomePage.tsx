@@ -39,7 +39,8 @@ const HomePage = () => {
   useEffect(() => {
     fetchPosts();
   }, []);
-  // 2. 무한 스크롤 감지 (Intersection Observer)
+
+  // 3. 무한 스크롤 감지 (Intersection Observer)
   useEffect(() => {
     if (!observerTarget.current || !hasNext) return;
 
@@ -57,12 +58,12 @@ const HomePage = () => {
 
     return () => observer.disconnect();
   }, [hasNext, isLoading, isLoadingMore, fetchMorePosts]);
-  // 3. 탭 클릭 핸들러 (전체/일회성/정기적)
+  // 4. 탭 클릭 핸들러 (전체/일회성/정기적)
   const handleTypeChange = (newType: HelpType | undefined) => {
     setType(newType);
   };
 
-  // 4. 매칭 완료 여부 버튼 클릭 핸들러
+  // 5. 매칭 완료 여부 버튼 클릭 핸들러
   const handleMatchedChange = (checked: boolean) => {
     console.log("클릭:", checked);
     setIsMatched(checked ? false : undefined);

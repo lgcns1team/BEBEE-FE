@@ -40,7 +40,7 @@ const MatchingPostCard = ({ engagement }: Props) => {
   /* 채팅 관련 */
   const { handleChatOpen } = useChatHandler();
 
-  const MY_ID = 100;
+  const MY_ID = "100";
 
   const matchingItem = {
     id: 1,

@@ -75,7 +75,10 @@ const DayHelpWrite = ({ formData, updateField }: DayProps) => {
           <TimeInputWrapper>
             <DatePicker
               selected={selectedStartTime}
-              onChange={(time) => handleDayTimeChange("startTime", time)}
+              // [수정 포인트] (time: Date | null) 이라고 명시적으로 타입을 적어줍니다.
+              onChange={(time: Date | null) =>
+                handleDayTimeChange("startTime", time)
+              }
               showTimeSelect
               showTimeSelectOnly
               timeIntervals={30}
@@ -83,6 +86,7 @@ const DayHelpWrite = ({ formData, updateField }: DayProps) => {
               locale={ko}
               customInput={<StyledTimeInput ref={startTimeInputRef} readOnly />}
             />
+
             <TimeIconWrapper onClick={() => startTimeInputRef.current?.focus()}>
               <IoIosArrowDown size={20} />
             </TimeIconWrapper>
@@ -91,7 +95,9 @@ const DayHelpWrite = ({ formData, updateField }: DayProps) => {
           <TimeInputWrapper>
             <DatePicker
               selected={selectedEndTime}
-              onChange={(time) => handleDayTimeChange("endTime", time)}
+              onChange={(time: Date | null) =>
+                handleDayTimeChange("endTime", time)
+              }
               showTimeSelect
               showTimeSelectOnly
               timeIntervals={30}

@@ -15,7 +15,7 @@ export const GlobalStyle = createGlobalStyle`
     font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: ${theme.size.md};
     color: ${theme.color.text};
-    background-color: ${theme.color.natural100};
+    background-color: ${theme.color.white};
     line-height: 1.4;
  
   }

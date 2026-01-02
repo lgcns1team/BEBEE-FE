@@ -33,7 +33,7 @@ const DisabledProfilePage = () => {
         </HelpPostHeader>
         <Grid>
           {posts.slice(0, 2).map((post) => (
-            <ProfileHelpPostCard key={post.id} id={post.id} />
+            <ProfileHelpPostCard key={post.postId} id={post.postId} />
           ))}
         </Grid>
       </HelpPostContainer>

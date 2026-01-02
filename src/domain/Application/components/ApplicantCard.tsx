@@ -37,7 +37,7 @@ const ApplicantList: React.FC<{ item: PostItem }> = ({ item }) => (
       )}
 
       <TagList>
-        {item.tags.map((tag, idx) => (
+        {item.tags.map((tag) => (
           <HelpTag /*key={idx}*/>{tag}</HelpTag>
         ))}
       </TagList>

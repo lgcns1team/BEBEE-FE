@@ -8,7 +8,7 @@ import {
   ResumeContent,
   ResumeYear,
   ResumeTitle,
-} from "../style/MyPageSTyle";
+} from "../style/MyPageStyle";
 const CareerSection = () => {
   const [activeTab, setActiveTab] = useState("이수증");
   //const navigate = useNavigate();

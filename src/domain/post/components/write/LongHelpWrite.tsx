@@ -139,9 +139,12 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
               <TimeInputWrapper>
                 <DatePicker
                   selected={tempSchedule.start}
-                  onChange={(time) =>
-                    time && setTempSchedule({ ...tempSchedule, start: time })
-                  }
+                  // (time: Date | null)로 타입을 명시하거나 타입을 생략하여 추론하게 둡니다.
+                  onChange={(date: Date | null) => {
+                    if (date) {
+                      setTempSchedule({ ...tempSchedule, start: date });
+                    }
+                  }}
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={30}
@@ -151,19 +154,13 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
                     <StyledTimeInput ref={startTimeInputRef} readOnly />
                   }
                 />
-                <TimeIconWrapper
-                  onClick={() => startTimeInputRef.current?.focus()}
-                >
-                  <IoIosArrowDown size={20} />
-                </TimeIconWrapper>
-              </TimeInputWrapper>
-              <TimeSeparator>~</TimeSeparator>
-              <TimeInputWrapper>
                 <DatePicker
                   selected={tempSchedule.end}
-                  onChange={(time) =>
-                    time && setTempSchedule({ ...tempSchedule, end: time })
-                  }
+                  onChange={(date: Date | null) => {
+                    if (date) {
+                      setTempSchedule({ ...tempSchedule, end: date });
+                    }
+                  }}
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={30}

@@ -22,7 +22,7 @@ export const disabledProfileMockData: DisabledProfile[] = [
     disabilityType: "지체장애",
     description:
       "하반신 마비 후 얼마 지나지 않아 휠체어 사용이 아직 익숙하지 않습니다. 이동하거나 옷을 입는 등 생활 전반에서 불편함이 있어, 같은 남성분이면서 휠체어 보조 경험이 있는 분이면 좋을 것 같아요.",
-    helpRequestPost: postMockData,
+    //helpRequestPost: postMockData,
     receivedReviews: [
       "시간 약속을 잘 지켜요 +2",
       "응답이 빨라요 +10",
@@ -43,7 +43,7 @@ export const disabledProfileMockData: DisabledProfile[] = [
     disabilityType: "지체장애",
     description:
       "하반신 마비 후 얼마 지나지 않아 휠체어 사용이 아직 익숙하지 않습니다. 이동하거나 옷을 입는 등 생활 전반에서 불편함이 있어, 같은 남성분이면서 휠체어 보조 경험이 있는 분이면 좋을 것 같아요.",
-    helpRequestPost: postMockData,
+    // helpRequestPost: postMockData,
     receivedReviews: [
       "시간 약속을 잘 지켜요 +2",
       "응답이 빨라요 +10",

@@ -4,7 +4,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { HELP_TAG_LIST } from "../constants/helpTags";
 
 interface TagFilterProps {
-  selectedTags: number[]; // ID(숫자) 배열
+  selectedTags: number[];
   onTagsChange: (tags: number[]) => void;
 }
 
@@ -17,7 +17,7 @@ const TagFilter: React.FC<TagFilterProps> = ({
   const handleTagToggle = (id: number) => {
     // ID가 이미 있으면 제거, 없으면 추가
     if (selectedTags.includes(id)) {
-      onTagsChange(selectedTags.filter((tagId) => tagId !== id));
+      onTagsChange(selectedTags.filter((tagId: number) => tagId !== id));
     } else {
       onTagsChange([...selectedTags, id]);
     }
@@ -38,7 +38,7 @@ const TagFilter: React.FC<TagFilterProps> = ({
             {selectedTags.length === 0 && (
               <Placeholder>태그를 선택해주세요</Placeholder>
             )}
-            {selectedTags.map((id) => {
+            {selectedTags.map((id: number) => {
               // 선택된 ID에 해당하는 이름을 리스트에서 찾음
               const tag = HELP_TAG_LIST.find((item) => item.id === id);
               return (

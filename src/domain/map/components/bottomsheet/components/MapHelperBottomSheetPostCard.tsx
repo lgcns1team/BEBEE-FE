@@ -1,47 +1,47 @@
 import styled from "styled-components";
-import type { Post } from "../../../../../store/usePostStore";
+import type { PostItem } from "../../../../../types/post.type";
 import HelpTag from "../../../../../components/HelpTag";
 import { FiCalendar } from "react-icons/fi";
 import { FiMapPin } from "react-icons/fi";
 import OneDayBadge from "../../../../../components/OneDayBadge";
 import { useNavigate } from "react-router-dom";
-
+import { HELP_TAG_MAP } from "../../../../../constants/helpTags";
 interface Props {
-  post: Post;
+  post: PostItem;
 }
 
 const MapHelperBottomSheetPostCard = ({ post }: Props) => {
   const navigate = useNavigate();
   return (
-    <Card onClick={() => navigate(`/post/${post.id}`)}>
+    <Card onClick={() => navigate(`/post/${post.postId}`)}>
       <Content>
         <TopArea>
           <Title>{post.title}</Title>
           <RightTop>
-            {post.category === "하루 도움" && (
-              <OneDayBadge>{post.category}</OneDayBadge>
+            {post.helpType === "DAY" && (
+              <OneDayBadge>{post.helpType}</OneDayBadge>
             )}
           </RightTop>
         </TopArea>
 
         <InfoLine>
           <MapPinIcon size={16} />
-          <InfoText>{post.location}</InfoText>
+          <InfoText>{post.legalDongName}</InfoText>
         </InfoLine>
 
         <InfoLine>
           <MapPinIcon size={16} />
-          <InfoText>{post.location}</InfoText>
+          <InfoText>{post.legalDongName}</InfoText>
         </InfoLine>
 
         <InfoLine>
           <CalendarIcon size={16} />
-          <InfoText>{post.dates}</InfoText>
+          <InfoText>{post.date}</InfoText>
         </InfoLine>
 
         <TagWrapper>
-          {post.tags.map((tag) => (
-            <HelpTag key={tag}>{tag}</HelpTag>
+          {post.helpCategories.map((cat) => (
+            <HelpTag key={cat}>{HELP_TAG_MAP[cat] ?? "알 수 없음"}</HelpTag>
           ))}
         </TagWrapper>
       </Content>

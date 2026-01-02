@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./domain/post/pages/HomePage";
 import PostDetailPage from "./domain/post/pages/PostDetailPage";
 import ChatListPage from "./domain/chat/pages/ChatListPage";
-import MatchFormPage from "./domain/chat/pages/MatchFormPage";
+//import MatchFormPage from "./domain/chat/pages/MatchFormPage";
 import ChatRoomPage from "./domain/chat/pages/ChatRoomPage";
 import MatchingPage from "./domain/matching/pages/MatchingPage";
 import ReviewPage from "./domain/review/pages/ReviewPage";
@@ -12,8 +12,6 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import "./App.css";
-import DayHelpWrite from "./domain/post/components/write/DayHelpWrite";
-import LongHelpWrite from "./domain/post/components/write/LongHelpWrite";
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
 import MapDisabledPage from "./domain/map/pages/MapDisabledPage";
@@ -40,17 +38,15 @@ function App() {
           <Route path="/" element={<HomePage />} />
 
           {/* 게시글 상세 */}
-          <Route path="/post/:id" element={<PostDetailPage />} />
+          <Route path="/post/:postId" element={<PostDetailPage />} />
 
           {/* 게시글 작성 */}
           <Route path="/post/write" element={<PostWritePage />} />
-          <Route path="/post/write/day" element={<DayHelpWrite />} />
-          <Route path="/post/write/long" element={<LongHelpWrite />} />
 
           {/*채팅*/}
           <Route path="/chat" element={<ChatListPage />} />
           <Route path="/chat/:chatroomId" element={<ChatRoomPage />} />
-          <Route path="/chat/:chatroomId/match" element={<MatchFormPage />} />
+          {/* <Route path="/chat/:chatroomId/match" element={<MatchFormPage />} />*/}
           <Route path="chat-test" element={<ChatTestPage />} />
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}

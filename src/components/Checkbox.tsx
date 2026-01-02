@@ -52,7 +52,9 @@ export const Checkbox = ({
     <CheckBoxWrapper>
       <HiddenCheckbox
         checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange(e.target.checked)
+        }
       />
 
       <CustomCheckbox $checked={checked}>

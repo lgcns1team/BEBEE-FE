@@ -3,6 +3,7 @@ import type {
   GetPostsRequest,
   GetPostsResponse,
   PostCreateReqDTO,
+  PostDetailResponse,
 } from "../types/post.type";
 
 export const postApi = {
@@ -52,6 +53,17 @@ export const postApi = {
     const response = await instance.post("/posts", data, {
       params: { currentMemberId }, //
     });
+    return response.data;
+  },
+
+  getPostDetail: async (
+    postId: string,
+    currentMemberId: string
+  ): Promise<PostDetailResponse> => {
+    const response = await instance.get(`/posts/${postId}`, {
+      params: { currentMemberId },
+    });
+
     return response.data;
   },
 };

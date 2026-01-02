@@ -10,9 +10,10 @@ import Header from "../../../components/Header";
 
 const ChatRoomCard = () => {
   const navigate = useNavigate();
-  const handleMatchModalClick = () => {
-    navigate(`/chat/${chatroomId}/match`);
-  };
+
+  // const handleMatchModalClick = () => {
+  //   navigate(`/chat/${chatroomId}/match`);
+  // };
 
   const { chatroomId } = useParams<{ chatroomId: string }>();
   const { activeRoom, setActiveRoom } = useChatStore();
@@ -63,6 +64,7 @@ const ChatRoomCard = () => {
       <Header
         title={activeRoom.otherNickname}
         onBack={() => navigate("/chat")}
+        showBack
         showRight
       />
       <ChatHeader>
@@ -73,7 +75,7 @@ const ChatRoomCard = () => {
           </ChatTitle>
           {/* 매칭하기 버튼 누르면 매칭확인서로 페이지 이동*/}
           <MatchButton
-            onClick={handleMatchModalClick}
+            // onClick={handleMatchModalClick}
             aria-describedby="게시글 제목"
           >
             매칭하기

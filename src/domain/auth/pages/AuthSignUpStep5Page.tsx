@@ -16,7 +16,7 @@ import authDisabledImage from "../../../assets/images/auth-disabled.png";
 
 const AuthSignUpStep5Page = () => {
   const navigate = useNavigate();
-  const { role, uploadedFile, setUploadedFile } = useAuthSignUpForm();
+  const { role, setUploadedFile } = useAuthSignUpForm();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,9 +66,7 @@ const AuthSignUpStep5Page = () => {
             <FileUploadButton type="button" onClick={handleFileClick}>
               <IoDocumentTextOutline size={40} />
               <UploadText>파일 선택</UploadText>
-              <UploadSubText>
-                이미지 또는 PDF 파일을 업로드하세요
-              </UploadSubText>
+              <UploadSubText>이미지 또는 PDF 파일을 업로드하세요</UploadSubText>
             </FileUploadButton>
 
             <HiddenInput
@@ -80,11 +78,7 @@ const AuthSignUpStep5Page = () => {
           </FieldSet>
         </ScrollArea>
       </PageContainer>
-      <BaseLongButton
-        label="다음"
-        onClick={handleFileClick}
-        disabled={false}
-      />
+      <BaseLongButton label="다음" onClick={handleFileClick} disabled={false} />
     </Layout>
   );
 };

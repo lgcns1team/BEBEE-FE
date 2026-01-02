@@ -20,7 +20,7 @@ export interface PostItem {
   unitHoney: number;
   totalHoney: number;
   legalDongName: string;
-  helpCategories: string[];
+  helpCategories: number[];
   helpType: HelpType;
   imageUrl: string;
   date: string;
@@ -104,4 +104,33 @@ export interface PostCreateReqDTO {
   region: string;
   latitude: number;
   longitude: number;
+}
+
+/** 게시글 상세 정보 응답 타입 */
+export interface PostDetailResponse {
+  // 회원 정보
+  memberNickname: string;
+  memberLegalDongCode: string;
+  memberProfileImageUrl: string;
+
+  // 게시글 기본 정보
+  title: string;
+  content: string;
+  engagementType: HelpType; // "DAY" | "TERM"
+  unitHoney: number;
+  totalHoney: number;
+  postLegalDongCode: string;
+
+  // 도움 카테고리
+  helpCategoryIds: number[];
+
+  // 날짜/시간 정보
+  date?: string; // DAY 타입일 때 존재
+  startDate?: string; // TERM 타입일 때 존재
+  endDate?: string; // TERM 타입일 때 존재
+  schedules: Schedule[];
+
+  // 게시글 이미지 및 기타
+  postImages: string[]; // 명세에 포함된 이미지 목록
+  applicantCount: number; // 명세에 포함된 신청자 수
 }

@@ -1,4 +1,4 @@
-import { Natural50 } from "../style/MyPageSTyle";
+import { Natural50 } from "../style/MyPageStyle";
 import PointSection from "../components/common/PointSection";
 import ProfileSection from "../components/common/ProfileSection";
 import CareerSection from "../helper/CareerSection";

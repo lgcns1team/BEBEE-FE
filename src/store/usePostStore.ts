@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type { PostItem, PostsGetReqDTO, HelpType } from "../types/post.type";
 import { postApi } from "../api/postApi";
+import { getErrorMessage } from "../utils/error";
 
 interface PostState {
   // 데이터
@@ -69,9 +70,9 @@ export const usePostStore = create<PostState>((set, get) => ({
         nextPostId: response.nextPostId,
         isLoading: false,
       });
-    } catch (error: any) {
+    } catch (error) {
       set({
-        error: error.message || "게시글을 불러오는데 실패했습니다.",
+        error: getErrorMessage(error, "게시글이 없습니다."),
         isLoading: false,
       });
     }
@@ -111,9 +112,9 @@ export const usePostStore = create<PostState>((set, get) => ({
         nextPostId: response.nextPostId,
         isLoadingMore: false,
       });
-    } catch (error: any) {
+    } catch (error) {
       set({
-        error: error.message || "추가 게시글을 불러오는데 실패했습니다.",
+        error: getErrorMessage(error, "추가 게시글을 불러오는데 실패했습니다."),
         isLoadingMore: false,
       });
     }

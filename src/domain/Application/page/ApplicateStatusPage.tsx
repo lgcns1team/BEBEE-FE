@@ -32,7 +32,7 @@ const ApplicateStatusPage = () => {
             label="완료 제외"
           />
         </ExcludeDone>
-        <PostStatusItem excludeDone={excludeDone} />
+        <PostStatusItem excludeDone={excludeDone} id={0} title={""} />
       </Section2>
     </Container>
   );

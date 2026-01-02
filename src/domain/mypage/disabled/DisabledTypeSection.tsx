@@ -7,7 +7,7 @@ import {
   ResumeContent,
   ResumeYear,
   ResumeTitle,
-} from "../style/MyPageSTyle";
+} from "../style/MyPageStyle";
 const DisabledTypeSection = () => {
   const disabled = [
     {
