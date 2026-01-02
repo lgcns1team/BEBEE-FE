@@ -1,73 +1,53 @@
-import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 import ApplicantCard from "../components/ApplicantCard";
 import Header from "../../../components/Header";
-interface PostItem {
-  id: number;
-  nickname: string;
-  temperature: number;
-  gender: string;
-  ageGroup: string;
-  location: string;
-  isSharing: boolean;
-  tags: string[];
-}
+import { getApplicantsByPostId } from "../../../api/applicationApi";
+import { useApplicationStore } from "../store/useApplicationStore";
+import { useEffect, useState } from "react";
 
-const MOCK_POSTS: PostItem[] = [
-  {
-    id: 1,
-    nickname: "어디든간다",
-    temperature: 40.5,
-    gender: "여성",
-    ageGroup: "50대",
-    location: "갈현동",
-    isSharing: true,
-    tags: ["생활 지원", "방문 목욕"],
-  },
-  {
-    id: 2,
-    nickname: "어디든간다",
-    temperature: 40.5,
-    gender: "여성",
-    ageGroup: "50대",
-    location: "갈현동",
-    isSharing: false,
-    tags: ["생활 지원", "방문 목욕"],
-  },
-  {
-    id: 3,
-    nickname: "어디든간다",
-    temperature: 40.5,
-    gender: "여성",
-    ageGroup: "50대",
-    location: "갈현동",
-    isSharing: true,
-    tags: ["생활 지원", "방문 목욕"],
-  },
-];
+const MEMBER_ID = "100";
+const POST_ID = "1001";
 const ApplicantPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { applicants, setApplicants } = useApplicationStore();
+  const [isSharing, setIsSharing] = useState(false);
+  useEffect(() => {
+    getApplicantsByPostId({ memberId: MEMBER_ID, postId: POST_ID }).then(
+      (res) => {
+        setApplicants(res.data.applicants);
+      }
+    );
+  }, [setApplicants]);
 
   // 전달받은 title이 없으면 기본값 표시
   const title = location.state?.headerTitle || "지원 현황 상세";
   return (
     <Container>
       <Section>
-        <Header onBack={() => navigate(-1)} title={title} />
+        <Header onBack={() => navigate(-1)} title={title} showBack />
 
         <FilterSection>
-          <button className="active">전체</button>
-          <button>나눔</button>
+          <button
+            className={!isSharing ? "active" : ""}
+            onClick={() => setIsSharing(false)}
+          >
+            전체
+          </button>
+
+          <button
+            className={isSharing ? "active" : ""}
+            onClick={() => setIsSharing(true)}
+          >
+            나눔
+          </button>
         </FilterSection>
       </Section>
 
       <PostList>
-        {MOCK_POSTS.map((post) => (
-          <ApplicantCard key={post.id} item={post} />
-        ))}
+        <ApplicantCard applicants={applicants} isSharing={isSharing} />
       </PostList>
     </Container>
   );

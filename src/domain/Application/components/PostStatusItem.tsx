@@ -2,127 +2,163 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { BsFillPatchCheckFill } from "react-icons/bs";
 import { FiCalendar, FiMapPin } from "react-icons/fi";
+import type {
+  ApplicationPost,
+  ApplicationPostDayEngagementTime,
+  ApplicationPostTermEngagementTime,
+} from "../../../types/application.type";
+import { HELP_TAG_LIST } from "../../../constants/helpTags";
 
-// Card 데이터 타입
-interface PostStatusItemProps {
-  excludeDone?: boolean;
-  id: number;
-  title: string;
-}
-interface CardData {
-  id: number;
-  title: string;
-  locate: string;
-  date: string;
-  supporters: number;
-  share: number;
-  deadline: string;
-  completed: boolean;
-  helpTags: string[];
+interface Props {
+  posts: ApplicationPost[];
+  hideMatched?: boolean;
 }
 
-const mockCardList: CardData[] = [
-  {
-    id: 1,
-    title: "마라톤 보조 구합니다",
-    locate: "장충동",
-    date: "11월 30일 (화)",
-    supporters: 12,
-    share: 5,
-    deadline: "D-3",
-    completed: false,
-    helpTags: ["외출 동행", "기타 지원"],
-  },
-  {
-    id: 1,
-    title: "제목이 생각이 안나요",
-    locate: "장충동",
-    date: "월요일, 수요일, 금요일",
-    supporters: 12,
-    share: 5,
-    deadline: "D-3",
-    completed: true,
-    helpTags: ["외출 동행", "기타 지원"],
-  },
-  {
-    id: 2,
-    title: "으아악",
-    locate: "장충동",
-    date: "월요일, 금요일",
-    supporters: 12,
-    share: 5,
-    deadline: "D-3",
-    completed: false,
-    helpTags: ["외출 동행", "기타 지원"],
-  },
-  {
-    id: 4,
-    title: "마라톤 보조 구합니다",
-    locate: "장충동",
-    date: "3월 3일 (금)",
-    supporters: 12,
-    share: 5,
-    deadline: "D-3",
-    completed: true,
-    helpTags: ["외출 동행", "기타 지원"],
-  },
-];
+/* ======================
+   요일 한글 매핑
+====================== */
+const DAY_OF_WEEK_KR: Record<
+  | "MONDAY"
+  | "TUESDAY"
+  | "WEDNESDAY"
+  | "THURSDAY"
+  | "FRIDAY"
+  | "SATURDAY"
+  | "SUNDAY",
+  string
+> = {
+  MONDAY: "월",
+  TUESDAY: "화",
+  WEDNESDAY: "수",
+  THURSDAY: "목",
+  FRIDAY: "금",
+  SATURDAY: "토",
+  SUNDAY: "일",
+};
 
-const PostStatusItem = ({ excludeDone }: PostStatusItemProps) => {
+const toKoreanDay = (dayOfWeek?: string) =>
+  dayOfWeek
+    ? DAY_OF_WEEK_KR[dayOfWeek as keyof typeof DAY_OF_WEEK_KR] ?? dayOfWeek
+    : "";
+
+/* ======================
+   타입 가드
+====================== */
+const isDayEngagement = (
+  engagementTime: ApplicationPost["engagementTime"]
+): engagementTime is ApplicationPostDayEngagementTime => {
+  return "date" in engagementTime;
+};
+
+const isTermEngagement = (
+  engagementTime: ApplicationPost["engagementTime"]
+): engagementTime is ApplicationPostTermEngagementTime => {
+  return "startDate" in engagementTime;
+};
+
+/* ======================
+   날짜 포맷
+====================== */
+const formatDateWithDay = (dateStr: string, dayOfWeek: string) => {
+  const date = new Date(dateStr);
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  return `${month}/${day}(${toKoreanDay(dayOfWeek)})`;
+};
+
+const formatEngagementDate = (
+  engagementTime: ApplicationPost["engagementTime"]
+) => {
+  // 하루 도움
+  if (isDayEngagement(engagementTime)) {
+    return formatDateWithDay(
+      engagementTime.date,
+      engagementTime.schedule.dayOfWeek
+    );
+  }
+
+  // 지속 도움
+  if (isTermEngagement(engagementTime)) {
+    const first = engagementTime.schedules[0];
+    const last = engagementTime.schedules[engagementTime.schedules.length - 1];
+
+    return (
+      formatDateWithDay(engagementTime.startDate, first.dayOfWeek) +
+      " ~ " +
+      formatDateWithDay(engagementTime.endDate, last.dayOfWeek)
+    );
+  }
+
+  return "";
+};
+
+/* ======================
+   Component
+====================== */
+const PostStatusItem = ({ posts, hideMatched = false }: Props) => {
   const navigate = useNavigate();
-  const filteredItems = excludeDone
-    ? mockCardList.filter((item) => !item.completed)
-    : mockCardList;
 
-  // 클릭 시 해당 아이템의 id와 title을 인자로 받음
+  const filteredItems = hideMatched
+    ? posts.filter((item) => !item.isMatched)
+    : posts;
+
   const goToApplicant = (id: number, title: string) => {
     navigate(`/applicant/${id}`, {
-      state: {
-        headerTitle: title, // 전달받은 title을 state로 넘김
-      },
+      state: { headerTitle: title },
     });
   };
+
   return (
     <Container>
-      {/* 카드 */}
       {filteredItems.map((item) => (
-        <Card key={item.id} onClick={() => goToApplicant(item.id, item.title)}>
+        <Card
+          key={item.postId}
+          onClick={() => goToApplicant(item.postId, item.title)}
+        >
+          {/* 상단 */}
           <TagRow>
-            <StatusBadge completed={item.completed}>
-              <CheckIcon completed={item.completed} />
-              <span>{item.completed ? "매칭 완료" : "진행 중"}</span>
+            <StatusBadge completed={item.isMatched}>
+              <CheckIcon completed={item.isMatched} />
+              <span>{item.isMatched ? "매칭 완료" : "진행 중"}</span>
             </StatusBadge>
 
             <HelpTag>
-              <SubTag>{item.helpTags[0]}</SubTag>
-              <SubTag>{item.helpTags[1]}</SubTag>
+              {item.helpCategories.map((id) => {
+                const tag = HELP_TAG_LIST.find((t) => t.id === id);
+                return tag ? <SubTag key={id}>{tag.name}</SubTag> : null;
+              })}
             </HelpTag>
           </TagRow>
+
+          {/* 제목 / 정보 */}
           <div>
             <CardTitle>{item.title}</CardTitle>
 
             <InfoRow>
               <InfoItem>
                 <FiMapPin />
-                <span>{item.locate}</span>
+                <span>{item.region}</span>
               </InfoItem>
+
               <InfoItem>
                 <FiCalendar />
-                <span>{item.date}</span>
+                <span>{formatEngagementDate(item.engagementTime)}</span>
               </InfoItem>
             </InfoRow>
           </div>
+
+          {/* 하단 */}
           <BottomBox>
             <BottomItem>
-              지원자 <em>{item.supporters}</em>
+              지원자 <em>{item.commonApplicantCount}</em>
             </BottomItem>
             <Line />
             <BottomItem>
-              나눔 <em>{item.share}</em>
+              나눔 <em>{item.volunteerApplicantCount}</em>
             </BottomItem>
-            <Line />{" "}
+            <Line />
             <BottomItem>
-              마감<em>{item.deadline}</em>
+              마감 <em>D-{item.daysRemaining}</em>
             </BottomItem>
           </BottomBox>
         </Card>
@@ -132,6 +168,10 @@ const PostStatusItem = ({ excludeDone }: PostStatusItemProps) => {
 };
 
 export default PostStatusItem;
+
+/* ======================
+   Styled Components
+====================== */
 
 const Container = styled.div`
   display: flex;
@@ -154,6 +194,7 @@ const TagRow = styled.div`
   gap: 6px;
   flex-wrap: wrap;
 `;
+
 const StatusBadge = styled.div<{ completed?: boolean }>`
   display: inline-flex;
   align-items: center;

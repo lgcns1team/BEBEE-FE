@@ -78,7 +78,7 @@ function App() {
           <Route path="/review" element={<ReviewPage />} />
           {/*  테스트 */}
           <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
-          <Route path="applicate-status" element={<ApplicateStatusPage />} />
+          <Route path="/applicate-status" element={<ApplicateStatusPage />} />
           <Route path="/applicant/:id" element={<ApplicantPage />} />
 
           {/* 회원가입 */}

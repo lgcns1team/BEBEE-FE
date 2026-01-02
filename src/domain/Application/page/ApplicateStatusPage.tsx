@@ -1,26 +1,47 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../components/Header";
 import PostStatusItem from "../components/PostStatusItem";
 import { Checkbox } from "../../../components/Checkbox";
 
+import { useApplicationStore } from "../store/useApplicationStore";
+import { getApplicationPosts } from "../../../api/applicationApi";
+
+const MEMBER_ID = "100";
 const ApplicateStatusPage = () => {
   const [excludeDone, setExcludeDone] = useState(false);
   const navigate = useNavigate();
+  const { posts, setPosts } = useApplicationStore();
+
+  useEffect(() => {
+    getApplicationPosts({ memberId: MEMBER_ID }).then((res) => {
+      setPosts(res.data.posts);
+    });
+  }, [setPosts]);
+
+  const { totalCommon, totalVolunteer } = posts.reduce(
+    (acc, post) => {
+      acc.totalCommon += post.commonApplicantCount;
+      acc.totalVolunteer += post.volunteerApplicantCount;
+      return acc;
+    },
+    { totalCommon: 0, totalVolunteer: 0 }
+  );
+
   return (
     <Container>
       <Section1>
-        <Header onBack={() => navigate("/mypage-1")} title="지원 현황" />
+        <Header onBack={() => navigate("/mypage")} title="지원 현황" showBack />
         <SummaryBox>
           <SummaryItem>
             <span>지원자</span>
-            <strong>21</strong>
+            <strong>{totalCommon}</strong>
           </SummaryItem>
           <Divider />
           <SummaryItem>
             <span>나눔</span>
-            <strong>2</strong>
+            <strong>{totalVolunteer}</strong>
           </SummaryItem>
         </SummaryBox>
       </Section1>
@@ -32,7 +53,7 @@ const ApplicateStatusPage = () => {
             label="완료 제외"
           />
         </ExcludeDone>
-        <PostStatusItem excludeDone={excludeDone} />
+        <PostStatusItem posts={posts} />
       </Section2>
     </Container>
   );
