@@ -41,6 +41,17 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
+    // 개발 환경에서는 토큰 갱신 로직 비활성화 (백엔드 개발 미완료)
+    if (import.meta.env.DEV) {
+      console.warn(
+        "API 에러 (개발 환경 - 토큰 갱신 비활성화):",
+        error.response?.status,
+        error.message
+      );
+      return Promise.reject(error);
+    }
+
+    // 프로덕션 환경에서만 토큰 갱신 로직 실행
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
@@ -70,9 +81,9 @@ instance.interceptors.response.use(
           return instance(originalRequest);
         }
       } catch (refreshError) {
-        // 토큰 갱신 실패 시 로그인 페이지로 리다이렉트
+        // 토큰 갱신 실패 시 로그인 페이지로 리다이렉트 -> 현재 Login이 없으므로 home으로
         localStorage.removeItem("accessToken");
-        window.location.href = "/login";
+        window.location.href = "/";
         return Promise.reject(refreshError);
       }
     }
