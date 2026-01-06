@@ -549,11 +549,11 @@ const ChatRoom = () => {
         })}
 
         {/* 매칭 성공 카드 (로컬스토리지에서 복원된 정보) */}
-        {matchSuccessData && (
+        {/* {matchSuccessData && (
           <MessageWrapper>
             <MatchSuccessCard message={matchSuccessData} />
           </MessageWrapper>
-        )}
+        )} */}
 
         <div ref={messagesEndRef} />
       </MessageList>

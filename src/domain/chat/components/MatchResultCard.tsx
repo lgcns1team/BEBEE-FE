@@ -69,7 +69,7 @@ const MatchResultCard = ({
         disabledId: messageWithMetadata.disabledId,
         postId: messageWithMetadata.postId,
         title: messageWithMetadata.title,
-        chatRoomId: chatroomId,
+        chatroomId: chatroomId,
       });
 
       console.log("✅ 매칭 확인서 수락 성공");

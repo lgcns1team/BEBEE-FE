@@ -561,6 +561,7 @@ const MatchFormPage = () => {
           helperId: String(finalRequest.helperId),
           disabledId: String(finalRequest.disabledId),
           chatroomId: chatroomId,
+          agreementId: response.agreementId,
         });
 
         // 서버에서 최신 메시지 가져와서 중복 확인
