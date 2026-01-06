@@ -11,6 +11,7 @@ interface Props {
 const GENDER_KR: Record<Gender, string> = {
   MALE: "남성",
   FEMALE: "여성",
+  NONE: "비공개",
 };
 
 const ApplicantList = ({ applicants, isSharing }: Props) => {
