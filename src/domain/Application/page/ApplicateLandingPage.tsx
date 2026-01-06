@@ -109,6 +109,7 @@ const PointLandingPage = () => {
       <BaseLongButton
         label="지원자 보러가기"
         onClick={() => navigate("/applicate-status")}
+        aria-label="지원자 보러가기 버튼"
       />
     </Layout>
   );

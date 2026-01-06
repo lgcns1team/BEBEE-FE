@@ -17,6 +17,7 @@ import BaseInput from "../../../components/BaseInput";
 import type { Gender } from "../auth.types";
 import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
 import { checkNickname } from "../../../api/authApi";
+import LocationInput from "../../../components/LocationInput";
 
 const AuthSignUpStep3Page = () => {
   const navigate = useNavigate();
@@ -27,7 +28,9 @@ const AuthSignUpStep3Page = () => {
   const [gender, setGender] = useState<Gender>("NONE");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [address, setAddress] = useState("");
-
+  const [districtCode, setDistrictCode] = useState("");
+  const [latitude, setLatitude] = useState<number>(0);
+  const [longitude, setLongitude] = useState<number>(0);
   const handleNext = async () => {
     if (nickname.length > 10) {
       alert("닉네임은 10자 이내로 입력해주세요.");
@@ -113,8 +116,18 @@ const AuthSignUpStep3Page = () => {
             onChange={(e) => setPhoneNumber(e.target.value)}
             required
           />
-          {/* 장소 api 연동했으므로 LocationInput 확인 후 코드 수정 요망
-          <LocationInput inputLabel="만남 장소" value={address} required />*/}
+          {/* 장소 api 연동했으므로 LocationInput 확인 후 코드 수정 요망 */}
+          <LocationInput
+            inputLabel="만남 장소"
+            value={address}
+            onSelect={(loc) => {
+              setAddress(loc.address); // 입력창에 표시될 값
+              setDistrictCode(loc.code); // (현재는 address_name 들어올 수 있음)
+              setLatitude(loc.lat);
+              setLongitude(loc.lng);
+            }}
+            required
+          />
         </ScrollArea>
       </PageContainer>
       <BaseLongButton

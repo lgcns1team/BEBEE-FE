@@ -2,15 +2,24 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import BaseLongButton from "../../../components/BaseLongButton";
 import application from "../../../assets/images/application.png";
+import { useApplicationStore } from "../../Application/store/useApplicationStore";
+
 const ApplicationStatusSection = () => {
   const navigate = useNavigate();
+  const { posts } = useApplicationStore();
+
+  const totalApplicantCount = posts.reduce(
+    (sum, post) =>
+      sum + post.commonApplicantCount + post.volunteerApplicantCount,
+    0
+  );
   return (
     <Container>
       <Box>
         <Info>
           <TextContainer>
             <Title>지원 현황 확인하기</Title>
-            <SubTitle>총 21명의</SubTitle>
+            <SubTitle>총 {totalApplicantCount}명의</SubTitle>
             <SubTitle> 지원자가 있어요</SubTitle>
           </TextContainer>
           <ImgContainer></ImgContainer>
@@ -19,6 +28,7 @@ const ApplicationStatusSection = () => {
         <BaseLongButton
           onClick={() => navigate("/applicate-landing")}
           label="보러가기"
+          aria-label="지원자 보러가기 버튼"
         ></BaseLongButton>
       </Box>
     </Container>
@@ -27,7 +37,7 @@ const ApplicationStatusSection = () => {
 
 export default ApplicationStatusSection;
 
-const Container = styled.div`
+const Container = styled.main`
   width: 100%;
   background-color: ${({ theme }) => theme.color.white};
   padding: 16px;

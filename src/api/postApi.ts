@@ -46,7 +46,9 @@ export const postApi = {
     return response.data;
   },
 
-  getPostDetail: async (postId: string | number): Promise<PostDetailResponse> => {
+  getPostDetail: async (
+    postId: string | number
+  ): Promise<PostDetailResponse> => {
     // postId를 문자열로 변환하여 URL에 사용
     const postIdStr = String(postId);
     console.log("📡 [postApi.getPostDetail] 요청:", {

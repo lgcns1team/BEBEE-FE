@@ -14,6 +14,8 @@ import {
 } from "../../../types/post.type";
 import { HELP_TAG_MAP } from "../../../constants/helpTags";
 import BeeImage from "../../../assets/images/bee-letter.png";
+import { applyHelper } from "../../../api/applicationApi";
+
 import { formatDateToKoreanWithDay } from "../../../types/common.types";
 const PostDetailPage = () => {
   const navigate = useNavigate();
@@ -24,6 +26,10 @@ const PostDetailPage = () => {
   const [post, setPost] = useState<PostDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // 도우미가 지원하기 및 나눔하기
+  const [isApplied, setIsApplied] = useState(false);
+  const [applyLoading, setApplyLoading] = useState(false);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -46,6 +52,61 @@ const PostDetailPage = () => {
   if (loading) return <div>로딩 중...</div>;
   if (error) return <div>{error}</div>;
   if (!post) return <div>게시글이 없습니다.</div>;
+
+  // 임시 memberId
+
+  // 장애인용 아이디 100
+  const MEMBER_ID = "100";
+
+  // 도우미용 아이디 700
+  // const MEMBER_ID = "700";
+
+  // 지원하기 및 나눔하기
+  const handleApply = async () => {
+    if (!postId) return;
+
+    try {
+      setApplyLoading(true);
+
+      await applyHelper({
+        memberId: MEMBER_ID,
+        postId: postId,
+        isVolunteer: false,
+      });
+      setIsApplied(true);
+      setPost((prev) =>
+        prev ? { ...prev, applicantCount: prev.applicantCount + 1 } : prev
+      );
+      alert("지원이 완료 되었습니다!");
+    } catch (error) {
+      setError(getErrorMessage(error, "지원에 실패했습니다."));
+    } finally {
+      setApplyLoading(false);
+    }
+  };
+
+  const handleVolunteer = async () => {
+    if (!postId) return;
+
+    try {
+      setApplyLoading(true);
+
+      await applyHelper({
+        memberId: MEMBER_ID,
+        postId: postId,
+        isVolunteer: true,
+      });
+      setIsApplied(true);
+      setPost((prev) =>
+        prev ? { ...prev, applicantCount: prev.applicantCount + 1 } : prev
+      );
+      alert("나눔 신청이 완료 되었습니다!");
+    } catch (error) {
+      setError(getErrorMessage(error, "나눔 신청에 실패했습니다."));
+    } finally {
+      setApplyLoading(false);
+    }
+  };
 
   return (
     <Layout>
@@ -152,8 +213,18 @@ const PostDetailPage = () => {
         {/* ---------------- Bottom Buttons ---------------- */}
         <BottomBar>
           <BottomInner>
-            <ShareButton>나눔하기</ShareButton>
-            <ApplyButton>지원하기</ApplyButton>
+            <ShareButton
+              disabled={isApplied || applyLoading}
+              onClick={handleVolunteer}
+            >
+              나눔 하기
+            </ShareButton>
+            <ApplyButton
+              disabled={isApplied || applyLoading}
+              onClick={handleApply}
+            >
+              {isApplied ? "지원 완료" : "지원 하기"}
+            </ApplyButton>
           </BottomInner>
         </BottomBar>
       </Container>
@@ -296,28 +367,42 @@ const BottomInner = styled.div`
   gap: 12px;
 `;
 
-const ShareButton = styled.button`
+const ShareButton = styled.button<{ disabled?: boolean }>`
   flex: 1;
   height: 48px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   border: 0.5px solid ${({ theme }) => theme.color.natural200};
   font-size: ${({ theme }) => theme.size.md};
-  background: ${({ theme }) => theme.color.white};
+  background: ${({ theme, disabled }) =>
+    disabled ? theme.color.natural200 : theme.color.white};
   font-weight: ${({ theme }) => theme.weight.medium};
   appearance: none;
   outline: none;
   -webkit-tap-highlight-color: transparent;
 `;
 
-const ApplyButton = styled.button`
+// const ApplyButton = styled.button`
+//   flex: 2;
+//   height: 48px;
+//   border-radius: ${({ theme }) => theme.borderRadius.sm};
+//   background: ${({ theme }) => theme.color.main};
+//   color: ${({ theme }) => theme.color.white};
+//   font-size: ${({ theme }) => theme.size.md};
+//   border: none;
+//   font-weight: ${({ theme }) => theme.weight.medium};
+// `;
+
+const ApplyButton = styled.button<{ disabled?: boolean }>`
   flex: 2;
   height: 48px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
-  background: ${({ theme }) => theme.color.main};
+  background: ${({ theme, disabled }) =>
+    disabled ? theme.color.natural200 : theme.color.main};
   color: ${({ theme }) => theme.color.white};
   font-size: ${({ theme }) => theme.size.md};
   border: none;
   font-weight: ${({ theme }) => theme.weight.medium};
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
 `;
 
 /*TERM 에만 적용*/

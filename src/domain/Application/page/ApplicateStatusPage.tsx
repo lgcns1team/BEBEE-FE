@@ -1,26 +1,52 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../components/Header";
 import PostStatusItem from "../components/PostStatusItem";
 import { Checkbox } from "../../../components/Checkbox";
 
+import { useApplicationStore } from "../store/useApplicationStore";
+import { getApplicationPosts } from "../../../api/applicationApi";
+
+const MEMBER_ID = "100";
 const ApplicateStatusPage = () => {
   const [excludeDone, setExcludeDone] = useState(false);
   const navigate = useNavigate();
+  const { posts, setPosts } = useApplicationStore();
+
+  useEffect(() => {
+    getApplicationPosts({ memberId: MEMBER_ID }).then((res) => {
+      setPosts(res.data.posts);
+    });
+  }, []);
+
+  const { totalCommon, totalVolunteer } = posts.reduce(
+    (acc, post) => {
+      acc.totalCommon += post.commonApplicantCount;
+      acc.totalVolunteer += post.volunteerApplicantCount;
+      return acc;
+    },
+    { totalCommon: 0, totalVolunteer: 0 }
+  );
+
   return (
     <Container>
       <Section1>
-        <Header onBack={() => navigate("/mypage-1")} title="지원 현황" />
+        <Header
+          onBack={() => navigate("/mypage")}
+          title="지원 현황"
+          showBack
+          aria-label="지원 현황 페이지 입니다"
+        />
         <SummaryBox>
           <SummaryItem>
             <span>지원자</span>
-            <strong>21</strong>
+            <strong>{totalCommon}</strong>
           </SummaryItem>
           <Divider />
           <SummaryItem>
             <span>나눔</span>
-            <strong>2</strong>
+            <strong>{totalVolunteer}</strong>
           </SummaryItem>
         </SummaryBox>
       </Section1>
@@ -30,16 +56,18 @@ const ApplicateStatusPage = () => {
             checked={excludeDone}
             onChange={setExcludeDone}
             label="완료 제외"
+            aria-label="매칭이 완료된 게시글을 제외할 수 있습니다"
           />
         </ExcludeDone>
-        <PostStatusItem excludeDone={excludeDone} id={0} title={""} />
+        {/* <PostStatusItem posts={posts} /> */}
+        <PostStatusItem posts={posts} />
       </Section2>
     </Container>
   );
 };
 
 export default ApplicateStatusPage;
-const Container = styled.div`
+const Container = styled.main`
   width: 100%;
   min-height: 100vh;
   background-color: ${({ theme }) => theme.color.natural50};
