@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { usePostStore } from "../../../store/usePostStore";
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import PostCard from "../components/list/PostCard";
 import FilterButton from "../components/list/FilterButton";
 import FilterBottomSheet from "../components/bottomsheet/FilterBottomSheet";
@@ -14,9 +14,10 @@ import { Checkbox } from "../../../components/Checkbox";
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // 1. Store에서 필요한 상태와 액션들을 구조 분해 할당
-  // 이제 filters라는 통객체가 아니라 type, isMatched, reqDTO로 분리되어 있습니다.
+  // Store에서 필요한 상태와 액션들을 구조 분해 할당
+
   const {
     posts,
     hasNext,
@@ -34,11 +35,24 @@ const HomePage = () => {
   const [sort, setSort] = useState("최신순");
 
   const observerTarget = useRef<HTMLDivElement>(null);
+  const hasInitialized = useRef(false);
 
-  // 2. 초기 데이터 로드 (필터 빈 값 상태로 요청)
+  // 초기 데이터 로드 (필터 빈 값 상태로 요청)
   useEffect(() => {
+    // 홈 경로가 아니면 초기화하지 않음
+    if (location.pathname !== "/") {
+      return;
+    }
+
+    // 이미 초기화했거나 게시글이 있으면 다시 로드하지 않음
+    if (hasInitialized.current || (posts.length > 0 && !isLoading)) {
+      return;
+    }
+
+    hasInitialized.current = true;
     fetchPosts();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 빈 배열로 마운트 시 1회만 실행
 
   // 3. 무한 스크롤 감지 (Intersection Observer)
   useEffect(() => {
@@ -57,7 +71,8 @@ const HomePage = () => {
     observer.observe(observerTarget.current);
 
     return () => observer.disconnect();
-  }, [hasNext, isLoading, isLoadingMore, fetchMorePosts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasNext, isLoading, isLoadingMore]);
   // 4. 탭 클릭 핸들러 (전체/일회성/정기적)
   const handleTypeChange = (newType: HelpType | undefined) => {
     setType(newType);
