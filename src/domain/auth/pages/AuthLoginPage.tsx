@@ -1,5 +1,4 @@
-{
-  /* 빌드 오류 (useUSerStroe 없음 해결 필요) import { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
@@ -174,5 +173,3 @@ const SignUpLink = styled(UtilLink)`
     color: ${({ theme }) => theme.color.main};
   }
 `;
-*/
-}

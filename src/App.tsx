@@ -27,6 +27,7 @@ import AuthSignUpStep4Page from "./domain/auth/pages/AuthSignUpStep4Page";
 import AuthSignUpStep5Page from "./domain/auth/pages/AuthSignUpStep5Page";
 import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
 import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
+import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
 
 function App() {
   return (
@@ -77,6 +78,7 @@ function App() {
           <Route path="/applicant/:postId" element={<ApplicantPage />} />
 
           {/* 회원가입 */}
+          <Route path="/login" element={<AuthLoginPage />} />
           <Route path="/signup/step1" element={<AuthSignUpStep1Page />} />
           <Route path="/signup/step2" element={<AuthSignUpStep2Page />} />
           <Route path="/signup/step3" element={<AuthSignUpStep3Page />} />
