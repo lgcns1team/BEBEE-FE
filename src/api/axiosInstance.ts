@@ -7,7 +7,7 @@ import axios, {
 // 개발 환경 임시 토큰 설정
 if (import.meta.env.DEV && !localStorage.getItem("accessToken")) {
   const TEMP_TOKEN =
-    "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3MDAiLCJpc3MiOiJiZWJlZSIsInJvbGUiOiJIRUxQRVIiLCJpYXQiOjE3Njc2MDIzODksImV4cCI6MTc2NzY4ODc4OX0.fathby5Dq_ZuZQUqfUDpowbLDJpUrokK7FrQzriGv8k";
+    "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJiZWJlZSIsInN1YiI6IjEwMCIsInJvbGUiOiJESVNBQkxFRCIsImlhdCI6MTc2NzY2OTk1MiwiZXhwIjoxNzY3NzU2MzUyfQ.iy1-XQEGU_Ik5OLXoWLwQ_AlUhA6YKWXNiJs6II9Ixg";
   localStorage.setItem("accessToken", TEMP_TOKEN);
 }
 
@@ -41,7 +41,7 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
-    // 개발 환경에서는 토큰 갱신 로직 비활성화 (백엔드 개발 미완료)
+    // 개발 환경에서는 토큰 갱신 로직 비활성화
     if (import.meta.env.DEV) {
       console.warn(
         "API 에러 (개발 환경 - 토큰 갱신 비활성화):",
