@@ -1,8 +1,8 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./domain/post/pages/HomePage";
 import PostDetailPage from "./domain/post/pages/PostDetailPage";
 import ChatListPage from "./domain/chat/pages/ChatListPage";
-//import MatchFormPage from "./domain/chat/pages/MatchFormPage";
 import ChatRoomPage from "./domain/chat/pages/ChatRoomPage";
 import MatchingPage from "./domain/matching/pages/MatchingPage";
 import ReviewPage from "./domain/review/pages/ReviewPage";
@@ -12,6 +12,7 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import "./App.css";
+
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
 import MapDisabledPage from "./domain/map/pages/MapDisabledPage";
@@ -28,8 +29,37 @@ import AuthSignUpStep5Page from "./domain/auth/pages/AuthSignUpStep5Page";
 import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
 import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
+import { useUserStore } from "./store/useUserStore";
+import { reissueToken, getMyInfo } from "./api/authApi";
+
 
 function App() {
+  const { isLoggedIn, setAccessToken, setUser } = useUserStore();
+
+  useEffect(() => {
+    const silentLogin = async () => {
+      if (!isLoggedIn) {
+        try {
+          // 1. Refresh Token(쿠키)으로 Access Token 재발급 시도
+          const { accessToken } = await reissueToken();
+          setAccessToken(accessToken);
+
+          // 2. 재발급 성공 시 사용자 정보 복구
+          const userInfo = await getMyInfo();
+          setUser({
+            ...userInfo,
+            role: userInfo.role as 'DISABLED' | 'HELPER' | 'ADMIN'
+          });
+          console.log("Silent Login Success");
+        } catch (error) {
+          // 쿠키가 없거나 만료된 경우 -> 그냥 비로그인 상태 유지
+          console.log("Silent Login Failed (No active session)");
+        }
+      }
+    };
+    silentLogin();
+  }, [isLoggedIn, setAccessToken, setUser]);
+
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
@@ -48,6 +78,7 @@ function App() {
           <Route path="/chat" element={<ChatListPage />} />
           <Route path="/chat/:chatroomId" element={<ChatRoomPage />} />
           <Route path="/chat/:chatroomId/match" element={<MatchFormPage />} />
+
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
 
