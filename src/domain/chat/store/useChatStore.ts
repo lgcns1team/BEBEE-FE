@@ -40,22 +40,16 @@ const loadMessagesFromStorage = (): Record<
         (sum, room) => sum + (room.messages?.length || 0),
         0
       );
-      console.log(
-        `✅ [loadMessagesFromStorage] localStorage에서 메시지 복원:`,
-        {
-          채팅방수: chatroomCount,
-          총메시지수: totalMessages,
-        }
-      );
+      console.log(` localStorage에서 메시지 복원:`, {
+        채팅방수: chatroomCount,
+        총메시지수: totalMessages,
+      });
       return parsed;
     }
   } catch (error) {
-    console.error(
-      "❌ [loadMessagesFromStorage] localStorage에서 메시지 복원 실패:",
-      error
-    );
+    console.error("localStorage에서 메시지 복원 실패:", error);
   }
-  console.log("ℹ️ [loadMessagesFromStorage] localStorage에 저장된 메시지 없음");
+  console.log("localStorage에 저장된 메시지 없음");
   return {};
 };
 
@@ -78,14 +72,9 @@ const loadAgreementMetadataFromStorage = (): Record<
       return parsed;
     }
   } catch (error) {
-    console.error(
-      "❌ [loadAgreementMetadataFromStorage] localStorage에서 메타데이터 복원 실패:",
-      error
-    );
+    console.error(" localStorage에서 메타데이터 복원 실패:", error);
   }
-  console.log(
-    "ℹ️ [loadAgreementMetadataFromStorage] localStorage에 저장된 메타데이터 없음"
-  );
+  console.log("localStorage에 저장된 메타데이터 없음");
   return {};
 };
 
@@ -96,17 +85,11 @@ const saveAgreementMetadataToStorage = (
   try {
     const metadataCount = Object.keys(metadata).length;
     localStorage.setItem(AGREEMENT_METADATA_KEY, JSON.stringify(metadata));
-    console.log(
-      `💾 [saveAgreementMetadataToStorage] localStorage에 메타데이터 저장:`,
-      {
-        메타데이터수: metadataCount,
-      }
-    );
+    console.log(`localStorage에 메타데이터 저장:`, {
+      메타데이터수: metadataCount,
+    });
   } catch (error) {
-    console.error(
-      "❌ [saveAgreementMetadataToStorage] localStorage에 메타데이터 저장 실패:",
-      error
-    );
+    console.error("localStorage에 메타데이터 저장 실패:", error);
   }
 };
 
@@ -128,15 +111,12 @@ const saveMessagesToStorage = (
       0
     );
     localStorage.setItem(STORAGE_KEY, JSON.stringify(messagesByChatroom));
-    console.log(`💾 [saveMessagesToStorage] localStorage에 메시지 저장:`, {
+    console.log(`localStorage에 메시지 저장:`, {
       채팅방수: chatroomCount,
       총메시지수: totalMessages,
     });
   } catch (error) {
-    console.error(
-      "❌ [saveMessagesToStorage] localStorage에 메시지 저장 실패:",
-      error
-    );
+    console.error("localStorage에 메시지 저장 실패:", error);
     // localStorage 용량 초과 시 오래된 메시지 정리 시도
     if (error instanceof DOMException && error.name === "QuotaExceededError") {
       console.warn("⚠️ localStorage 용량 초과, 오래된 메시지 정리 필요");
@@ -568,6 +548,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           helperId: message.helperId,
           disabledId: message.disabledId,
           chatroomId: targetChatroomId,
+          agreementId: message.agreementId,
         };
         const updatedMetadata = {
           ...state.agreementMetadata,

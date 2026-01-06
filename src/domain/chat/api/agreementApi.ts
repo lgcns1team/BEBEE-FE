@@ -2,7 +2,7 @@ import { instance } from "../../../api/axiosInstance";
 import type {
   AgreementRequest,
   AgreementResponse,
-  AgreementConfirmRequest,
+  AgreementMetadata,
 } from "../agreement.types";
 
 export const createAgreement = async (
@@ -18,7 +18,7 @@ export const createAgreement = async (
 // 매칭 확인서 수락
 export const confirmAgreement = async (
   agreementId: string,
-  data: AgreementConfirmRequest
+  data: AgreementMetadata
 ): Promise<void> => {
   await instance.patch(`match/agreements/${agreementId}/confirm`, data);
 };
