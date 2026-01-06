@@ -11,18 +11,10 @@ export const postApi = {
    * 게시글 목록 조회 API
    */
   getPosts: async (params: GetPostsRequest): Promise<GetPostsResponse> => {
-    const {
-      currentMemberId,
-      type,
-      isMatched,
-      lastPostId,
-      count = 20,
-      reqDTO,
-    } = params;
+    const { type, isMatched, lastPostId, count = 20, reqDTO } = params;
 
     // 쿼리 파라미터 구성
     const queryParams: Record<string, any> = {
-      currentMemberId,
       count,
       ...reqDTO, // reqDTO를 객체 자체로 전달
     };
@@ -42,27 +34,29 @@ export const postApi = {
       queryParams.lastPostId = lastPostId;
     }
 
-    const response = await instance.get<GetPostsResponse>("/posts", {
+    const response = await instance.get<GetPostsResponse>("match/posts", {
       params: queryParams,
     });
 
     return response.data;
   },
 
-  createPost: async (currentMemberId: string, data: PostCreateReqDTO) => {
-    const response = await instance.post("/posts", data, {
-      params: { currentMemberId }, //
-    });
+  createPost: async (data: PostCreateReqDTO) => {
+    const response = await instance.post("match/posts", data);
     return response.data;
   },
 
-  getPostDetail: async (
-    postId: string,
-    currentMemberId: string
-  ): Promise<PostDetailResponse> => {
-    const response = await instance.get(`/posts/${postId}`, {
-      params: { currentMemberId },
+  getPostDetail: async (postId: string | number): Promise<PostDetailResponse> => {
+    // postId를 문자열로 변환하여 URL에 사용
+    const postIdStr = String(postId);
+    console.log("📡 [postApi.getPostDetail] 요청:", {
+      postId,
+      postIdStr,
+      url: `match/posts/${postIdStr}`,
     });
+
+    const response = await instance.get(`match/posts/${postIdStr}`);
+    console.log("✅ [postApi.getPostDetail] 응답:", response.data);
 
     return response.data;
   },

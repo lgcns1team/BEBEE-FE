@@ -4,14 +4,17 @@ import { FiCalendar, FiClock, FiMapPin } from "react-icons/fi";
 import { getErrorMessage } from "../../../utils/error";
 import { useNavigate, useParams } from "react-router-dom";
 import { RxIconjarLogo } from "react-icons/rx";
-//import ActionSheetModal from "../components/common/ActionSheetModal";
 import HelpTagBee from "../../../assets/images/helptag-bee.png";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 import { postApi } from "../../../api/postApi";
-import type { PostDetailResponse } from "../../../types/post.type";
+import {
+  type PostDetailResponse,
+  DAY_OF_WEEK_MAP,
+} from "../../../types/post.type";
 import { HELP_TAG_MAP } from "../../../constants/helpTags";
 import BeeImage from "../../../assets/images/bee-letter.png";
+import { formatDateToKoreanWithDay } from "../../../types/common.types";
 const PostDetailPage = () => {
   const navigate = useNavigate();
 
@@ -27,7 +30,7 @@ const PostDetailPage = () => {
       try {
         setLoading(true);
 
-        const data = await postApi.getPostDetail(postId, "100");
+        const data = await postApi.getPostDetail(postId);
         console.log(data);
         setPost(data);
       } catch (error) {
@@ -58,14 +61,12 @@ const PostDetailPage = () => {
         <TagList>
           <HelpBeeImage src={HelpTagBee} alt="bee" />
           {post.helpCategoryIds.map((cat) => (
-            <Tag key={cat}>{HELP_TAG_MAP[cat] ?? "알 수 없음"}</Tag>
+            <Tag key={cat}>{HELP_TAG_MAP[cat]}</Tag>
           ))}
         </TagList>
 
-        {/* ---------------- Title ---------------- */}
         <Title>{post?.title}</Title>
 
-        {/* ---------------- User Info ---------------- */}
         <UserSection>
           <UserLeft>
             {post?.memberProfileImageUrl ? (
@@ -82,26 +83,65 @@ const PostDetailPage = () => {
 
         <Divider />
 
-        {/* ---------------- Info List ---------------- */}
         <InfoList>
           <InfoItem>
             <RxIconjarLogo size={16} />
             <span>{post?.unitHoney}꿀</span>
+            {post.engagementType == "TERM" ? (
+              <TotalHoney>/회 (총 {post.totalHoney}꿀)</TotalHoney>
+            ) : undefined}
           </InfoItem>
 
           <InfoItem>
             <FiCalendar size={16} />
-            <span>{post?.date}</span>
+            {post.engagementType == "DAY" ? (
+              <span>{formatDateToKoreanWithDay(post?.date)}</span>
+            ) : (
+              <span>
+                {post?.startDate} ~ {post?.endDate}{" "}
+              </span>
+            )}
           </InfoItem>
 
-          <InfoItem>
+          <InfoItem style={{ display: "flex", alignItems: "flex-start" }}>
             <FiClock size={16} />
-            <span>{post?.startDate}</span> ~ <span>{post?.endDate}</span>
+
+            {post.engagementType === "DAY" ? (
+              <Schedules style={{ listStyle: "none" }}>
+                {post.schedules?.map((item, index) => (
+                  <ScheduleRow key={index} className="schedule-row">
+                    {/* 시간 변환: 11:00:00 -> 11:00 */}
+                    <span className="time">
+                      {item.startTime?.slice(0, 5)} ~{" "}
+                      {item.endTime?.slice(0, 5)}
+                    </span>
+                  </ScheduleRow>
+                ))}
+              </Schedules>
+            ) : (
+              <Schedules style={{ listStyle: "none" }}>
+                {post.schedules?.map((item, index) => (
+                  <ScheduleRow key={index} className="schedule-row">
+                    {/* 요일 변환: MONDAY -> (월) */}
+                    <span className="day">
+                      {DAY_OF_WEEK_MAP[item.dayOfWeek] || item.dayOfWeek}
+                      <span>요일:</span>
+                    </span>
+
+                    {/* 시간 변환: 11:00:00 -> 11:00 */}
+                    <span className="time">
+                      {item.startTime?.slice(0, 5)} ~{" "}
+                      {item.endTime?.slice(0, 5)}
+                    </span>
+                  </ScheduleRow>
+                ))}
+              </Schedules>
+            )}
           </InfoItem>
 
           <InfoItem>
             <FiMapPin size={16} />
-            <span>{post?.postLegalDongCode}</span>
+            <span>{post?.postAddress}</span>
           </InfoItem>
         </InfoList>
         {/* ---------------- Description ---------------- */}
@@ -278,4 +318,26 @@ const ApplyButton = styled.button`
   font-size: ${({ theme }) => theme.size.md};
   border: none;
   font-weight: ${({ theme }) => theme.weight.medium};
+`;
+
+/*TERM 에만 적용*/
+const TotalHoney = styled.span`
+  color: ${({ theme }) => theme.color.subText2};
+  font-size: ${({ theme }) => theme.size.sm};
+`;
+
+const Schedules = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column; /* 일정들을 아래로 쌓음 */
+  gap: 6px; /* 일정 줄 사이의 간격 */
+`;
+
+const ScheduleRow = styled.li`
+  display: flex;
+  gap: 8px;
+  font-size: ${({ theme }) => theme.size.md};
+  line-height: 1.2; /* 텍스트 높이를 조절해 아이콘과 맞춤 */
 `;

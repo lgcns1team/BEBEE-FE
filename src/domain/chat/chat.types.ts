@@ -1,6 +1,6 @@
 // 메시지 타입 구분 (일반 텍스트, 이미지, 매칭 확인서)
 export type MessageType = "TEXT" | "IMAGE" | "MATCH_CONFIRMATION";
-
+export type MatchStatus = "NON_MATCHED" | "PROCEEDING" | "MATCHED";
 export interface ChatMessage {
   id: string;
   senderId: string;
@@ -19,6 +19,7 @@ export interface ChatMessage {
   totalPoints?: number;
   matchStatus?: string;
   createdAt: string;
+  chatroomId?: string; // 채팅방 ID (소켓 메시지 구분용)
 }
 
 export interface ChatMessagesGetResDTO {
@@ -40,11 +41,13 @@ export interface ChatroomResponse {
   myId: string;
   otherId: string;
   otherNickname: string;
+  postId: string;
   otherProfileImageUrl: string;
   helpCategories: {
     id: number;
     name: string;
   }[];
+  matchStatus: MatchStatus;
 }
 
 /** 채팅 목록 내 개별 아이템 */
@@ -53,7 +56,7 @@ export interface ChatroomListItem {
   otherId: string;
   otherNickname: string;
   otherProfileImageUrl: string;
-  otherSweetness: number;
+  lastMessage: string;
   updatedAt: string;
   title: string;
 }

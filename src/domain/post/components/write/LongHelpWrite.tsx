@@ -153,7 +153,15 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
                   customInput={
                     <StyledTimeInput ref={startTimeInputRef} readOnly />
                   }
-                />
+                />{" "}
+                <TimeIconWrapper
+                  onClick={() => endTimeInputRef.current?.focus()}
+                >
+                  <IoIosArrowDown size={20} />
+                </TimeIconWrapper>
+              </TimeInputWrapper>
+              <TimeSeparator>~</TimeSeparator>
+              <TimeInputWrapper>
                 <DatePicker
                   selected={tempSchedule.end}
                   onChange={(date: Date | null) => {

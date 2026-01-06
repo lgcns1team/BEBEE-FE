@@ -9,14 +9,24 @@ import { ko } from "date-fns/locale";
 import { CiCalendar } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
 
-import type { MatchPost } from "./matchPost";
+import type { AgreementRequest } from "../../agreement.types";
 
 interface DailyHelpFormProps {
-  editedPost: MatchPost;
-  updateField: <K extends keyof MatchPost>(key: K, value: MatchPost[K]) => void;
+  dayEngagement: {
+    date: Date | null;
+    startTime: Date | null;
+    endTime: Date | null;
+  };
+  setDayEngagement: React.Dispatch<React.SetStateAction<{
+    date: Date | null;
+    startTime: Date | null;
+    endTime: Date | null;
+  }>>;
+  agreementRequest: Partial<AgreementRequest>;
+  updateField: <K extends keyof AgreementRequest>(key: K, value: AgreementRequest[K]) => void;
 }
 
-const DayHelpForm = ({ editedPost, updateField }: DailyHelpFormProps) => {
+const DayHelpForm = ({ dayEngagement, setDayEngagement }: DailyHelpFormProps) => {
   const datePickerInputRef = useRef<HTMLInputElement>(null);
   const startTimeInputRef = useRef<HTMLInputElement>(null);
   const endTimeInputRef = useRef<HTMLInputElement>(null);
@@ -27,7 +37,7 @@ const DayHelpForm = ({ editedPost, updateField }: DailyHelpFormProps) => {
   };
 
   const handleDateChange = (date: Date | null) => {
-    updateField("date", date);
+    setDayEngagement((prev) => ({ ...prev, date }));
   };
 
   /** 시간 */
@@ -40,11 +50,11 @@ const DayHelpForm = ({ editedPost, updateField }: DailyHelpFormProps) => {
   };
 
   const handleStartTimeChange = (time: Date | null) => {
-    updateField("startTime", time);
+    setDayEngagement((prev) => ({ ...prev, startTime: time }));
   };
 
   const handleEndTimeChange = (time: Date | null) => {
-    updateField("endTime", time);
+    setDayEngagement((prev) => ({ ...prev, endTime: time }));
   };
 
   return (
@@ -60,7 +70,7 @@ const DayHelpForm = ({ editedPost, updateField }: DailyHelpFormProps) => {
           </CalendarIconWrapper>
 
           <DatePicker
-            selected={editedPost.date}
+            selected={dayEngagement.date}
             onChange={handleDateChange}
             dateFormat="yyyy.MM.dd"
             locale={ko}
@@ -76,7 +86,7 @@ const DayHelpForm = ({ editedPost, updateField }: DailyHelpFormProps) => {
         <TimeWrapper>
           <TimeInputWrapper>
             <DatePicker
-              selected={editedPost.startTime}
+              selected={dayEngagement.startTime}
               onChange={handleStartTimeChange}
               showTimeSelect
               showTimeSelectOnly
@@ -94,7 +104,7 @@ const DayHelpForm = ({ editedPost, updateField }: DailyHelpFormProps) => {
 
           <TimeInputWrapper>
             <DatePicker
-              selected={editedPost.endTime}
+              selected={dayEngagement.endTime}
               onChange={handleEndTimeChange}
               showTimeSelect
               showTimeSelectOnly

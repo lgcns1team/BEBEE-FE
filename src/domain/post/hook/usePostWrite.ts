@@ -8,7 +8,7 @@ import {
   SERVER_MAPPING,
 } from "../../../types/post.type";
 import { postApi } from "../../../api/postApi";
-import { calculateTotalOccurrences } from "../util/totalHoney";
+import { calculateTotalOccurrences } from "../../../types/common.types";
 
 export const usePostWrite = (
   formData: Partial<PostCreateReqDTO>,
@@ -145,15 +145,29 @@ export const usePostWrite = (
       schedules,
     } = formData;
 
-    if (
-      !title ||
-      !content ||
-      !unitHoney ||
-      !region ||
-      !helpCategoryIds?.length ||
-      !schedules?.length
-    ) {
-      alert("모든 필수 항목(*)을 입력해주세요.");
+    // 필수 항목 검증 (순차적으로 체크하여 명확한 메시지 제공)
+    if (!title) {
+      alert("제목을 입력해주세요.");
+      return;
+    }
+    if (!content) {
+      alert("상세 내용을 입력해주세요.");
+      return;
+    }
+    if (!unitHoney || unitHoney === 0) {
+      alert("제공할 꿀을 입력해주세요.");
+      return;
+    }
+    if (!region) {
+      alert("만남 장소를 선택해주세요.");
+      return;
+    }
+    if (!helpCategoryIds?.length) {
+      alert("도움 유형을 최소 하나 선택해주세요.");
+      return;
+    }
+    if (!schedules?.length) {
+      alert("도움 시간을 입력해주세요.");
       return;
     }
 
@@ -167,7 +181,7 @@ export const usePostWrite = (
     }
 
     try {
-      await postApi.createPost("100", formData as PostCreateReqDTO);
+      await postApi.createPost(formData as PostCreateReqDTO);
       alert("게시글 작성이 완료되었습니다.");
       navigate("/");
     } catch (error) {

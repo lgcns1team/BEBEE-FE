@@ -18,8 +18,6 @@ const ChatListPage = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // API 파라미터로 들어갈 내 아이디 (실제로는 로그인 정보에서 가져와야 합니다)
-  const MY_ID = "100";
   const observerTarget = useRef<HTMLDivElement>(null);
 
   /**
@@ -27,52 +25,84 @@ const ChatListPage = () => {
    */
   const fetchList = useCallback(
     async (isMore = false) => {
-      if (isLoading) return;
+      // 이미 로딩 중이면 중복 요청 방지
+      if (isLoading) {
+        console.log("⏭️ [fetchList] 이미 로딩 중, 요청 스킵");
+        return;
+      }
 
-      // 더보기 모드인데 다음 커서(ID)가 없으면 중단
-      if (isMore && !nextChatroomId) return;
+      // 추가 로드 시 nextChatroomId가 없으면 요청하지 않음
+      if (isMore && !nextChatroomId) {
+        console.log("⏭️ [fetchList] nextChatroomId가 없어 추가 로드 불가");
+        return;
+      }
 
       setIsLoading(true);
       try {
-        // [API 보고 수정된 부분]
-        // 인자 1: currentMemberId (MY_ID)
-        // 인자 2: lastChatroomId (더보기면 스토어의 ID, 아니면 null)
+        console.log("📡 [fetchList] 채팅방 목록 조회:", {
+          isMore,
+          lastChatroomId: isMore ? nextChatroomId : null,
+        });
+
         const response = await chatApi.getChatRoomList(
-          MY_ID,
           isMore ? nextChatroomId : null
         );
+
+        console.log("✅ [fetchList] 채팅방 목록 조회 성공:", {
+          count: response.chatrooms?.length || 0,
+          hasNext: response.hasNext,
+          nextChatroomId: response.nextChatroomId,
+        });
 
         // Store에 응답 데이터 반영 (isMore에 따라 쌓거나 새로고침)
         setChatrooms(response, isMore);
       } catch (error) {
-        console.error("채팅 목록을 불러오는 중 오류가 발생했습니다:", error);
+        console.error("❌ [fetchList] 채팅 목록을 불러오는 중 오류:", error);
+        // 에러 발생 시 사용자에게 알림 (선택사항)
+        // alert("채팅 목록을 불러오는데 실패했습니다.");
       } finally {
         setIsLoading(false);
       }
     },
-    [isLoading, nextChatroomId, setChatrooms, MY_ID]
+    [nextChatroomId, setChatrooms] // isLoading 제거 (무한 루프 방지)
   );
 
-  // 1. 초기 렌더링 시 목록 로드
+  // 1. 초기 렌더링 시 목록 로드 (마운트 시 1회만 실행)
   useEffect(() => {
+    console.log("🚀 [ChatListPage] 초기 로드 시작");
     fetchList(false);
-  }, []); // 마운트 시 1회 실행
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 빈 배열로 마운트 시 1회만 실행
 
   // 2. 무한 스크롤 관찰
   useEffect(() => {
-    if (!hasNext || isLoading || !observerTarget.current) return;
+    // 조건 확인: 더 불러올 데이터가 있고, 로딩 중이 아니고, 관찰 대상이 있어야 함
+    if (!hasNext || isLoading || !observerTarget.current) {
+      console.log("⏭️ [IntersectionObserver] 관찰 조건 불만족:", {
+        hasNext,
+        isLoading,
+        hasObserverTarget: !!observerTarget.current,
+      });
+      return;
+    }
+
+    console.log("👀 [IntersectionObserver] 관찰 시작");
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
+          console.log("📜 [IntersectionObserver] 스크롤 감지, 추가 로드 시작");
           fetchList(true);
         }
       },
-      { threshold: 1.0 }
+      { threshold: 0.1 } // 10%만 보여도 트리거 (1.0은 너무 높음)
     );
 
     observer.observe(observerTarget.current);
-    return () => observer.disconnect();
+    return () => {
+      console.log("🧹 [IntersectionObserver] 관찰 해제");
+      observer.disconnect();
+    };
   }, [hasNext, isLoading, fetchList]);
 
   return (
@@ -85,14 +115,18 @@ const ChatListPage = () => {
             ? chatrooms.map((room) => (
                 <ChatItem
                   key={room.chatroomId}
-                  onClick={() =>
-                    handleChatOpen(MY_ID, {
+                  onClick={() => {
+                    console.log("🔵 [ChatListPage] 채팅방 클릭:", {
                       chatroomId: room.chatroomId,
-                    })
-                  }
+                      room,
+                    });
+                    handleChatOpen({
+                      chatroomId: room.chatroomId,
+                    });
+                  }}
                 >
                   <ProfileImage
-                    src={room.otherProfileImageUrl || "/default-profile.png"}
+                    src={room.otherProfileImageUrl}
                     alt={room.otherNickname}
                   />
                   <ChatInfo>
@@ -103,6 +137,7 @@ const ChatListPage = () => {
                       </ChatLastTime>
                     </ChatFirstRow>
                     <PostTitle>{room.title}</PostTitle>
+                    <PostTitle>{room.lastMessage}</PostTitle>
                   </ChatInfo>
                 </ChatItem>
               ))
@@ -181,34 +216,6 @@ const PostTitle = styled.p`
   font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.subText2};
   margin: 2px 0 0 0;
-`;
-const ChatLastRow = styled.div`
-  display: flex;
-  align-items: flex-end;
-  margin-top: 8px;
-`;
-const LastMessage = styled.p`
-  max-width: 80%;
-  font-size: ${({ theme }) => theme.size.sm};
-  color: ${({ theme }) => theme.color.subText2};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const UnreadBadge = styled.div`
-  position: absolute;
-  right: 0px;
-  width: 19px;
-  height: 19px;
-  border-radius: 50%;
-  background-color: ${({ theme }) => theme.color.main};
-  font-size: ${({ theme }) => theme.size.sm};
-  color: ${({ theme }) => theme.color.text};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: ${({ theme }) => theme.weight.regular};
 `;
 
 const EmptyState = styled.div``;

@@ -1,16 +1,6 @@
-export type HelpType = "DAY" | "TERM";
-export type Gender = "MALE" | "FEMALE";
-/**
- * 요일
- */
-export type DayOfWeek =
-  | "MONDAY"
-  | "TUESDAY"
-  | "WEDNESDAY"
-  | "THURSDAY"
-  | "FRIDAY"
-  | "SATURDAY"
-  | "SUNDAY";
+// 공통 타입은 common.types.ts에서 import
+import type { HelpType, Gender, DayOfWeek, Schedule } from "./common.types";
+export type { HelpType, Gender, DayOfWeek, Schedule };
 
 /** 1. 서버 응답 데이터 타입 (PostCard에서 사용) */
 export interface PostItem {
@@ -55,39 +45,8 @@ export interface GetPostsRequest {
   reqDTO: PostsGetReqDTO;
 }
 
-/** 5. UI <-> 서버 매핑 상수 */
-export const SERVER_MAPPING = {
-  DAYS: {
-    월: "MONDAY",
-    화: "TUESDAY",
-    수: "WEDNESDAY",
-    목: "THURSDAY",
-    금: "FRIDAY",
-    토: "SATURDAY",
-    일: "SUNDAY",
-  },
-  GENDER: {
-    남자: "MALE",
-    여자: "FEMALE",
-  },
-} as const;
-
-export const DAY_OF_WEEK_MAP: Record<string, string> = {
-  MONDAY: "월",
-  TUESDAY: "화",
-  WEDNESDAY: "수",
-  THURSDAY: "목",
-  FRIDAY: "금",
-  SATURDAY: "토",
-  SUNDAY: "일",
-};
-
-/*게시글 작성 타입*/
-export interface Schedule {
-  dayOfWeek: DayOfWeek;
-  startTime: string; // "11:00:00"
-  endTime: string; // "14:00:00"
-}
+import { SERVER_MAPPING, DAY_OF_WEEK_MAP } from "./common.types";
+export { SERVER_MAPPING, DAY_OF_WEEK_MAP };
 
 export interface PostCreateReqDTO {
   postType: "DAY" | "TERM";
@@ -119,7 +78,7 @@ export interface PostDetailResponse {
   engagementType: HelpType; // "DAY" | "TERM"
   unitHoney: number;
   totalHoney: number;
-  postLegalDongCode: string;
+  postAddress: string;
 
   // 도움 카테고리
   helpCategoryIds: number[];
