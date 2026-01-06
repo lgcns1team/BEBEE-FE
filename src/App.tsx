@@ -27,7 +27,7 @@ import AuthSignUpStep4Page from "./domain/auth/pages/AuthSignUpStep4Page";
 import AuthSignUpStep5Page from "./domain/auth/pages/AuthSignUpStep5Page";
 import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
 import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
-import ChatTestPage from "./domain/chat/pages/ChatTestPage";
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -47,7 +47,6 @@ function App() {
           <Route path="/chat" element={<ChatListPage />} />
           <Route path="/chat/:chatroomId" element={<ChatRoomPage />} />
           <Route path="/chat/:chatroomId/match" element={<MatchFormPage />} />
-          <Route path="chat-test" element={<ChatTestPage />} />
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
 
