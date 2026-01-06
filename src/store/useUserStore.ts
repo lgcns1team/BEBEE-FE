@@ -1,9 +1,8 @@
 import { create } from 'zustand';
 
-
-// 백엔드 /api/test/me 응답 구조
+// 백엔드 /api/test/me 응답 구조 (Compatible with both string/number memberId)
 interface User {
-    memberId: string;
+    memberId: number | string;
     email: string;
     name: string;
     nickname: string;

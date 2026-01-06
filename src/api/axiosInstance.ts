@@ -2,8 +2,8 @@ import axios, { type InternalAxiosRequestConfig, type AxiosResponse, type AxiosE
 import { useUserStore } from '../store/useUserStore';
 
 export const instance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8083',
-    timeout: 60000, // 60초 (하이브리드 엔진 처리 시간 고려)
+    baseURL: import.meta.env.VITE_API_URL || "https://api.be-bee.link",
+    timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
     },
