@@ -139,7 +139,7 @@ const HomePage = () => {
             ref={observerTarget}
             style={{ height: "50px", textAlign: "center" }}
           >
-            {isLoadingMore && <p>데이터를 더 불러오는 중...</p>}
+            {isLoadingMore && <p> 불러오는 중...</p>}
             {!hasNext && posts.length > 0 && <p>마지막 게시글입니다.</p>}
           </div>
         </ListWrapper>

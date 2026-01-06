@@ -4,26 +4,11 @@ import type {
   DayEngagementTime,
   TermEngagementTime,
 } from "../../../../types/match.type";
-
-/* 요일 한글 매핑 */
-const DAY_KR_MAP: Record<string, string> = {
-  MONDAY: "월요일",
-  TUESDAY: "화요일",
-  WEDNESDAY: "수요일",
-  THURSDAY: "목요일",
-  FRIDAY: "금요일",
-  SATURDAY: "토요일",
-  SUNDAY: "일요일",
-};
-
-/* 날짜 포맷: YYYY.MM.DD */
-const formatDate = (date: string) => {
-  const d = new Date(date);
-  return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
-};
-
-/* 시간 포맷: HH:MM */
-const formatTime = (time: string) => time.slice(0, 5);
+import {
+  DAY_OF_WEEK_FULL_MAP,
+  formatDateToDot,
+  formatTimeToHHmm,
+} from "../../../../types/common.types";
 
 interface Props {
   engagement: Engagement;
@@ -45,14 +30,14 @@ const HelpInfo = ({ engagement }: Props) => {
         <Label aria-label="도움 날짜">날짜</Label>
         <Value>
           {isOneDay ? (
-            formatDate((engagement.engagementTime as DayEngagementTime).date)
+            formatDateToDot((engagement.engagementTime as DayEngagementTime).date)
           ) : (
             <>
-              {formatDate(
+              {formatDateToDot(
                 (engagement.engagementTime as TermEngagementTime).startDate
               )}
               {" ~ "}
-              {formatDate(
+              {formatDateToDot(
                 (engagement.engagementTime as TermEngagementTime).endDate
               )}
             </>
@@ -68,12 +53,12 @@ const HelpInfo = ({ engagement }: Props) => {
         <Value>
           {isOneDay ? (
             <>
-              {formatTime(
+              {formatTimeToHHmm(
                 (engagement.engagementTime as DayEngagementTime).schedule
                   .startTime
               )}
               {" ~ "}
-              {formatTime(
+              {formatTimeToHHmm(
                 (engagement.engagementTime as DayEngagementTime).schedule
                   .endTime
               )}
@@ -83,8 +68,8 @@ const HelpInfo = ({ engagement }: Props) => {
               {(engagement.engagementTime as TermEngagementTime).schedules.map(
                 (item, idx) => (
                   <ScheduleItem key={idx}>
-                    {DAY_KR_MAP[item.dayOfWeek]} · {formatTime(item.startTime)}{" "}
-                    ~ {formatTime(item.endTime)}
+                    {DAY_OF_WEEK_FULL_MAP[item.dayOfWeek]} · {formatTimeToHHmm(item.startTime)}{" "}
+                    ~ {formatTimeToHHmm(item.endTime)}
                   </ScheduleItem>
                 )
               )}

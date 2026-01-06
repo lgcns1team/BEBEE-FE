@@ -5,37 +5,14 @@ import HelpTag from "../../../../components/HelpTag";
 import OneDayBadge from "../../../../components/OneDayBadge";
 import DoneBadge from "../../../../components/DoneBadge";
 import { HELP_TAG_MAP } from "../../../../constants/helpTags";
+import { getScheduleText } from "../../../../types/common.types";
+
 interface PostCardProps {
   post: PostItem;
 }
 
-// 요일 변환용 맵
-const DAY_MAP: Record<string, string> = {
-  MONDAY: "월",
-  TUESDAY: "화",
-  WEDNESDAY: "수",
-  THURSDAY: "목",
-  FRIDAY: "금",
-  SATURDAY: "토",
-  SUNDAY: "일",
-};
-
 const PostCard = ({ post }: PostCardProps) => {
   const isDay = post.helpType === "DAY";
-
-  // 날짜/요일 포맷팅 로직
-  const getScheduleText = () => {
-    if (isDay && post.date) {
-      // DAY: "11월 30일 (화)" 형식
-      const dateObj = new Date(post.date);
-      const month = dateObj.getMonth() + 1;
-      const day = dateObj.getDate();
-      const dayName = DAY_MAP[post.dayOfWeeks[0]] || "";
-      return `${month}월 ${day}일 (${dayName})`;
-    }
-    // TERM: "월요일, 수요일, 목요일" 형식
-    return post.dayOfWeeks.map((d) => `${DAY_MAP[d]}요일`).join(", ");
-  };
 
   return (
     <Card>
@@ -79,14 +56,16 @@ const PostCard = ({ post }: PostCardProps) => {
 
             <InfoLine>
               <CalendarIcon size={16} />
-              <InfoText>{getScheduleText()}</InfoText>
+              <InfoText>
+                {getScheduleText(post.helpType, post.date, post.dayOfWeeks)}
+              </InfoText>
             </InfoLine>
 
-            <TagWrapper>
+            <InfoLine>
               {post.helpCategories.map((cat) => (
-                <HelpTag key={cat}>{HELP_TAG_MAP[cat] ?? "알 수 없음"}</HelpTag>
+                <HelpTag key={cat}>{HELP_TAG_MAP[cat]}</HelpTag>
               ))}
-            </TagWrapper>
+            </InfoLine>
           </BottomLeft>
 
           {post.imageUrl && (
@@ -164,19 +143,13 @@ const InfoLine = styled.div`
   display: flex;
   gap: 9px;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
 `;
 
 const InfoText = styled.span`
   font-weight: ${({ theme }) => theme.weight.regular};
   color: ${({ theme }) => theme.color.subText2};
   font-size: ${({ theme }) => theme.size.sm};
-`;
-
-const TagWrapper = styled.div`
-  display: flex;
-  gap: 6px;
-  margin-top: 6px;
 `;
 
 const Thumbnail = styled.div`

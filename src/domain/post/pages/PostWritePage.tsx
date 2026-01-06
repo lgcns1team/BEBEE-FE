@@ -52,12 +52,21 @@ const PostWritePage = () => {
 
   /* ---------------- 3. 상세 페이지 전환 ---------------- */
   const handleNext = () => {
-    if (!formData.title) {
-      alert("제목을 입력해주세요!");
+    // 필수 항목 검증 (순차적으로 체크하여 명확한 메시지 제공)
+    if (!formData.postType) {
+      alert("어떤 도움이 필요한지 선택해주세요.");
+      return;
+    }
+    if (!formData.title || formData.title.trim() === "") {
+      alert("제목을 입력해주세요.");
       return;
     }
     if (!formData.helpCategoryIds || formData.helpCategoryIds.length === 0) {
-      alert("도움 유형을 최소 하나 선택해주세요!");
+      alert("도움 유형을 최소 하나 선택해주세요.");
+      return;
+    }
+    if (!formData.content || formData.content.trim() === "") {
+      alert("상세 내용을 입력해주세요.");
       return;
     }
 
@@ -240,7 +249,15 @@ const PostWritePage = () => {
       <BaseLongButton
         label="다음"
         onClick={handleNext}
-        disabled={!formData.title || formData.helpCategoryIds?.length === 0}
+        disabled={
+          !formData.postType ||
+          !formData.title ||
+          formData.title.trim() === "" ||
+          !formData.helpCategoryIds ||
+          formData.helpCategoryIds.length === 0 ||
+          !formData.content ||
+          formData.content.trim() === ""
+        }
       />
     </ScrollWrapper>
   );
