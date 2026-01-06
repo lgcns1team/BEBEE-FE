@@ -16,29 +16,30 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      # Node 설정 (pnpm 캐시 포함)
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm"
 
-      # pnpm 설치
-      - name: Install pnpm
-        run: nnpm install -g pnpm
-
       # 의존성 설치
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # 빌드
+      - name: Build
+        run: pnpm build
 
       # env 생성
       - name: Create .env file
         run: |
           echo "VITE_KAKAO_MAP_KEY=${{ secrets.VITE_KAKAO_MAP_KEY }}" >> .env
-
-      # 빌드
-      - name: Build
-        run: pnpm build
 
       # S3 배포
       - name: S3 Deploy

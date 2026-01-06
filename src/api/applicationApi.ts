@@ -1,4 +1,5 @@
 import { instance } from "./axiosInstance";
+
 import type {
   GetApplicationPostsResponse,
   GetApplicantsResponse,
@@ -9,14 +10,14 @@ import type {
 
 export const getApplicationPosts = (params: { memberId: string }) => {
   return instance.get<GetApplicationPostsResponse>(
-    "/helper-applications/posts",
+    "/match/helper-applications/posts",
     { params }
   );
 };
 
 // 도우미가 지원
 export const applyHelper = (body: ApplyHelperRequest) => {
-  return instance.post("/helper-applications", body);
+  return instance.post("/match/helper-applications", body);
 };
 // 특정 게시글의 지원자 목록 조회
 
@@ -27,7 +28,7 @@ export const getApplicantsByPostId = (params: {
   const { postId, memberId } = params;
 
   return instance.get<GetApplicantsResponse>(
-    `/helper-applications/posts/${postId}/applicants`,
+    `/match/helper-applications/posts/${postId}/applicants`,
     {
       params: { memberId },
     }

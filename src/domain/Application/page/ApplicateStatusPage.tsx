@@ -18,7 +18,7 @@ const ApplicateStatusPage = () => {
     getApplicationPosts({ memberId: MEMBER_ID }).then((res) => {
       setPosts(res.data.posts);
     });
-  }, [setPosts]);
+  }, []);
 
   const { totalCommon, totalVolunteer } = posts.reduce(
     (acc, post) => {
@@ -32,7 +32,12 @@ const ApplicateStatusPage = () => {
   return (
     <Container>
       <Section1>
-        <Header onBack={() => navigate("/mypage")} title="지원 현황" showBack />
+        <Header
+          onBack={() => navigate("/mypage")}
+          title="지원 현황"
+          showBack
+          aria-label="지원 현황 페이지 입니다"
+        />
         <SummaryBox>
           <SummaryItem>
             <span>지원자</span>
@@ -51,8 +56,10 @@ const ApplicateStatusPage = () => {
             checked={excludeDone}
             onChange={setExcludeDone}
             label="완료 제외"
+            aria-label="매칭이 완료된 게시글을 제외할 수 있습니다"
           />
         </ExcludeDone>
+        {/* <PostStatusItem posts={posts} /> */}
         <PostStatusItem posts={posts} />
       </Section2>
     </Container>
@@ -60,7 +67,7 @@ const ApplicateStatusPage = () => {
 };
 
 export default ApplicateStatusPage;
-const Container = styled.div`
+const Container = styled.main`
   width: 100%;
   min-height: 100vh;
   background-color: ${({ theme }) => theme.color.natural50};

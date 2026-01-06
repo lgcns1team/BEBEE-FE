@@ -11,7 +11,7 @@ export const getEngagements = (params: {
   date: string;
   engagementType?: EngagementType;
 }) => {
-  return instance.get<GetEngagementsResponse>("/engagements", {
+  return instance.get<GetEngagementsResponse>("/match/engagements", {
     params,
   });
 };

@@ -75,7 +75,7 @@ function App() {
           {/*  테스트 */}
           <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
           <Route path="/applicate-status" element={<ApplicateStatusPage />} />
-          <Route path="/applicant/:id" element={<ApplicantPage />} />
+          <Route path="/applicant/:postId" element={<ApplicantPage />} />
 
           {/* 회원가입 */}
           <Route path="/signup/step1" element={<AuthSignUpStep1Page />} />

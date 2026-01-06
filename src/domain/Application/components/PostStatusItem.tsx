@@ -96,15 +96,16 @@ const formatEngagementDate = (
    Component
 ====================== */
 const PostStatusItem = ({ posts, hideMatched = false }: Props) => {
+  const MEMBER_ID = "100";
   const navigate = useNavigate();
 
   const filteredItems = hideMatched
     ? posts.filter((item) => !item.isMatched)
     : posts;
 
-  const goToApplicant = (id: number, title: string) => {
-    navigate(`/applicant/${id}`, {
-      state: { headerTitle: title },
+  const goToApplicant = (postId: string, title: string) => {
+    navigate(`/applicant/${postId}`, {
+      state: { headerTitle: title, memberId: MEMBER_ID },
     });
   };
 
@@ -119,10 +120,12 @@ const PostStatusItem = ({ posts, hideMatched = false }: Props) => {
           <TagRow>
             <StatusBadge completed={item.isMatched}>
               <CheckIcon completed={item.isMatched} />
-              <span>{item.isMatched ? "매칭 완료" : "진행 중"}</span>
+              <span aria-label="현재 매칭의 진행상황을 볼 수 있습니다">
+                {item.isMatched ? "매칭 완료" : "진행 중"}
+              </span>
             </StatusBadge>
 
-            <HelpTag>
+            <HelpTag aria-label="도움의 카테고리 입니다">
               {item.helpCategories.map((id) => {
                 const tag = HELP_TAG_LIST.find((t) => t.id === id);
                 return tag ? <SubTag key={id}>{tag.name}</SubTag> : null;
@@ -132,17 +135,19 @@ const PostStatusItem = ({ posts, hideMatched = false }: Props) => {
 
           {/* 제목 / 정보 */}
           <div>
-            <CardTitle>{item.title}</CardTitle>
+            <CardTitle aria-label="게시글의 제목입니다">{item.title}</CardTitle>
 
             <InfoRow>
               <InfoItem>
-                <FiMapPin />
-                <span>{item.region}</span>
+                <FiMapPin aria-label="활동 지역 아이콘" />
+                <span aria-label="활동 지역입니다">{item.region}</span>
               </InfoItem>
 
               <InfoItem>
-                <FiCalendar />
-                <span>{formatEngagementDate(item.engagementTime)}</span>
+                <FiCalendar aria-label="활동 기간 아이콘" />
+                <span aria-label="활동 기간입니다">
+                  {formatEngagementDate(item.engagementTime)}
+                </span>
               </InfoItem>
             </InfoRow>
           </div>
@@ -150,15 +155,24 @@ const PostStatusItem = ({ posts, hideMatched = false }: Props) => {
           {/* 하단 */}
           <BottomBox>
             <BottomItem>
-              지원자 <em>{item.commonApplicantCount}</em>
+              지원자{" "}
+              <em aria-label="해당 게시글에 지원한 도우미 수 입니다">
+                {item.commonApplicantCount}
+              </em>
             </BottomItem>
             <Line />
             <BottomItem>
-              나눔 <em>{item.volunteerApplicantCount}</em>
+              나눔{" "}
+              <em aria-label="해당 게시글에 나눔을 희망하는 도우미 수 입니다 ">
+                {item.volunteerApplicantCount}
+              </em>
             </BottomItem>
             <Line />
             <BottomItem>
-              마감 <em>D-{item.daysRemaining}</em>
+              마감{" "}
+              <em aria-label="현재 날짜 기준 마감일 입니다">
+                D-{item.daysRemaining}
+              </em>
             </BottomItem>
           </BottomBox>
         </Card>

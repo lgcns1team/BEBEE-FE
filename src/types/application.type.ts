@@ -21,7 +21,7 @@ export interface ApplicationPostTermEngagementTime {
 }
 
 export interface ApplicationPost {
-  postId: number;
+  postId: string;
   title: string;
   region: string;
   commonApplicantCount: number;
@@ -48,6 +48,7 @@ export interface ApplyHelperRequest {
 // 지원자 목록 조회
 export interface Applicant {
   memberId: string;
+  postId: string;
   nickname: string;
   ageGroup: number;
   gender: Gender;

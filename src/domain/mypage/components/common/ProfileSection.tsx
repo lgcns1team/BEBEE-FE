@@ -18,7 +18,10 @@ const ProfileSection = () => {
   return (
     <Container onClick={handleClick}>
       <ProfileWrapper>
-        <ProfileImage src={profile?.profileImageUrl ?? Image} />
+        <ProfileImage
+          src={profile?.profileImageUrl ?? Image}
+          alt="프로필 이미지"
+        />
         <Nickname>{profile?.name ?? "프로필"}</Nickname>
       </ProfileWrapper>
 

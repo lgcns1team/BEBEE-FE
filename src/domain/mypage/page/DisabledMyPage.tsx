@@ -5,7 +5,7 @@ import DisabledTypeSection from "../disabled/DisabledTypeSection";
 import BottomMenuSection from "../components/common/BottomMenuSection";
 import { Natural50 } from "../style/MyPageStyle";
 import NavBar from "../../../components/NavBar";
-
+//
 const DisabledMyPage = () => {
   return (
     <Natural50>
