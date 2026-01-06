@@ -28,6 +28,7 @@ import AuthSignUpStep5Page from "./domain/auth/pages/AuthSignUpStep5Page";
 import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
 import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
+import ChargePage from "./domain/Pay/page/ChargePage";
 
 function App() {
   return (
@@ -85,6 +86,8 @@ function App() {
           <Route path="/signup/step4" element={<AuthSignUpStep4Page />} />
           <Route path="/signup/step5" element={<AuthSignUpStep5Page />} />
           <Route path="/signup/step6" element={<AuthSignUpStep6Page />} />
+          {/* 결제 */}
+          <Route path="/charge" element={<ChargePage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
