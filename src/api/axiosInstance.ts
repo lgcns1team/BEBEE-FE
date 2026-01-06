@@ -14,9 +14,13 @@ export const instance = axios.create({
 instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         // useUserStore에서 accessToken 가져오기
-        const accessToken = useUserStore.getState().accessToken;
+        const userStore = useUserStore.getState();
+        const accessToken = userStore.accessToken;
 
         if (accessToken) {
+            if (!config.headers) {
+                config.headers = {} as any;
+            }
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
         return config;
