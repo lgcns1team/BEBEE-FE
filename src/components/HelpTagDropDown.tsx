@@ -45,10 +45,18 @@ const TagFilter: React.FC<TagFilterProps> = ({
                 <Tag key={id}>
                   {tag?.name}
                   <RemoveButton
-                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleTagToggle(id);
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleTagToggle(id);
+                      }
                     }}
                     aria-label={`${tag?.name} 제거`}
                   >
@@ -156,7 +164,7 @@ const Tag = styled.div`
   font-size: ${({ theme }) => theme.size.md};
 `;
 
-const RemoveButton = styled.button`
+const RemoveButton = styled.div`
   background: none;
   border: none;
   color: ${({ theme }) => theme.color.main};
@@ -167,6 +175,7 @@ const RemoveButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+  user-select: none;
 `;
 
 const TypeIconWrapper = styled.div`

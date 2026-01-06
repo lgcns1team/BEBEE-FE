@@ -29,15 +29,29 @@ const ButtonArea = styled.div`
 
 const StyledButton = styled.button`
   width: 100%;
-  background-color: ${({ theme }) => theme.color.main};
-  color: ${({ theme }) => theme.color.white};
+  background-color: ${({ theme, disabled }) =>
+    disabled ? theme.color.natural200 : theme.color.main};
+  color: ${({ theme, disabled }) =>
+    disabled ? theme.color.subText3 : theme.color.white};
   padding: 14px 0;
-  border: 1px solid ${({ theme }) => theme.color.main};
+  border: 1px solid
+    ${({ theme, disabled }) =>
+      disabled ? theme.color.natural200 : theme.color.main};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
-  cursor: pointer;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+
   &:active {
-    background-color: ${({ theme }) => theme.color.main};
+    background-color: ${({ theme, disabled }) =>
+      disabled ? theme.color.natural200 : theme.color.main};
+  }
+
+  &:hover {
+    background-color: ${({ theme, disabled }) =>
+      disabled
+        ? theme.color.natural200
+        : theme.color.mainDark};
   }
 `;

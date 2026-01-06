@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 import Layout from "../../../components/Layout";
 import ChatRoomCard from "../components/ChatRoomCard";
+import MatchResultCard from "../components/MatchResultCard";
 import { useChatStore } from "../store/useChatStore";
 import { useSocketStore } from "../../../store/useSocketStore";
 import { chatApi } from "../api/chatApi";
@@ -11,29 +12,60 @@ import { FaArrowCircleUp } from "react-icons/fa";
 const ChatRoom = () => {
   const { chatroomId } = useParams<{ chatroomId: string }>();
 
-  // [ID 설정 분리]
-  const API_MEMBER_ID = "100"; // 채팅룸/내역 API용 내 아이디
-  const SOCKET_MEMBER_ID = "1"; // 소켓 구독/전송용 내 아이디
+  // chatroomId 확인 로그
+  useEffect(() => {
+    console.log("chatroomId from URL:", chatroomId);
+    if (!chatroomId) {
+      console.error("chatroomId가 없습니다");
+    }
+  }, [chatroomId]);
+
+  // [ID 설정 분리] - 모두 number로 처리
+  const API_MEMBER_ID = 100; // 채팅룸/내역 API용 내 아이디
+  const SOCKET_MEMBER_ID = 1; // 소켓 구독/전송용 내 아이디
   const RECEIVER_ID = 2; // 소켓 전송용 상대방 아이디
 
   // 1. ChatStore (API 기반 과거 내역)
   const {
     setActiveRoom,
-    historyMessages,
     fetchHistory,
-    clearHistory,
-    messageHasNext,
-    nextChatId,
     isLoadingHistory,
+    getHistoryMessages,
+    getMessageHasNext,
+    getNextChatId,
+    messagesByChatroom, // messagesByChatroom 변경 감지를 위해 구독
   } = useChatStore();
+
+  // 현재 채팅방의 메시지 조회 (chatroomId나 messagesByChatroom이 변경될 때마다 재계산)
+  const historyMessages = useMemo(() => {
+    if (!chatroomId) return [];
+    return getHistoryMessages(chatroomId);
+  }, [chatroomId, getHistoryMessages, messagesByChatroom]);
+
+  const messageHasNext = useMemo(() => {
+    if (!chatroomId) return false;
+    return getMessageHasNext(chatroomId);
+  }, [chatroomId, getMessageHasNext, messagesByChatroom]);
+
+  const nextChatId = useMemo(() => {
+    if (!chatroomId) return null;
+    return getNextChatId(chatroomId);
+  }, [chatroomId, getNextChatId, messagesByChatroom]);
 
   // 2. SocketStore (실시간 소켓 메시지)
   const {
-    messages: socketMessages,
+    getMessages,
     connect,
     disconnect,
     sendMessage,
+    messagesByChatroom: socketMessagesByChatroom, // 변경 감지를 위해 구독 (변수명 충돌 방지)
   } = useSocketStore();
+
+  // 현재 채팅방의 소켓 메시지 조회
+  const socketMessages = useMemo(() => {
+    if (!chatroomId) return [];
+    return getMessages(chatroomId);
+  }, [chatroomId, getMessages, socketMessagesByChatroom]);
 
   const [inputValue, setInputValue] = useState("");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -43,60 +75,149 @@ const ChatRoom = () => {
 
   /**
    * 3. 전체 메시지 통합
+   *
+   * API로 가져온 과거 메시지(historyMessages)와
+   * 소켓으로 받은 실시간 메시지(socketMessages)를 합칩니다.
+   *
+   * 메시지 순서: [과거 메시지들 (오래된 것 → 최신 것)] + [실시간 메시지들]
+   *
+   * 주의: 소켓 메시지가 API 메시지와 중복될 수 있으므로,
+   * 실제 운영 환경에서는 중복 제거 로직이 필요할 수 있습니다.
    */
   const allMessages = useMemo(() => {
     return [...historyMessages, ...socketMessages];
   }, [historyMessages, socketMessages]);
 
   /**
+   * API 메시지 콘솔 출력 (항상 출력)
+   */
+  useEffect(() => {
+    console.log("📨 [ChatRoomPage] API 메시지 상태:", {
+      개수: historyMessages.length,
+      메시지: historyMessages,
+      isEmpty: historyMessages.length === 0,
+    });
+  }, [historyMessages]);
+
+  /**
+   * 실시간 소켓 메시지 콘솔 출력 (항상 출력)
+   */
+  useEffect(() => {
+    console.log("⚡ [ChatRoomPage] 실시간 소켓 메시지 상태:", {
+      개수: socketMessages.length,
+      메시지: socketMessages,
+      isEmpty: socketMessages.length === 0,
+    });
+    if (socketMessages.length > 0) {
+      const latestMessage = socketMessages[socketMessages.length - 1];
+      console.log("🆕 [ChatRoomPage] 최신 실시간 메시지:", latestMessage);
+    }
+  }, [socketMessages]);
+
+  /**
+   * 전체 메시지 통합 결과 콘솔 출력 (항상 출력)
+   */
+  useEffect(() => {
+    console.log("💬 [ChatRoomPage] 전체 메시지 통합 상태:", {
+      총개수: allMessages.length,
+      API메시지개수: historyMessages.length,
+      실시간메시지개수: socketMessages.length,
+      통합메시지목록: allMessages,
+      isEmpty: allMessages.length === 0,
+    });
+  }, [allMessages, historyMessages.length, socketMessages.length]);
+
+  /**
    * 4. 채팅방 초기화 (API 및 소켓 연결)
    */
   useEffect(() => {
     const initChatRoom = async () => {
-      if (!chatroomId) return;
+      if (!chatroomId) {
+        console.log("chatroomId가 없습니다.");
+        return;
+      }
 
       try {
-        // [수정] 채팅방 상세 정보 조회 시 '100'번 아이디 사용
-        const roomInfo = await chatApi.openChatRoom(
-          API_MEMBER_ID,
-          undefined,
-          chatroomId
-        );
-        setActiveRoom(roomInfo);
+        // 채팅방 상세 정보 조회 (ChatRoomCard에서도 호출하지만, 여기서도 호출하여 스토어 동기화)
+        const roomInfo = await chatApi.openChatRoom(undefined, chatroomId);
+        console.log("채팅방 정보:", roomInfo);
+
+        // 채팅방이 바뀌었는지 확인
+        const currentState = useChatStore.getState();
+        const isSameChatroom =
+          currentState.activeRoom?.chatroomId === chatroomId;
 
         // 과거 내역 가져오기
-        await fetchHistory(chatroomId, null);
+        // 같은 채팅방이고 메시지가 이미 있으면 다시 로드하지 않음 (메시지 유지)
+        const existingMessages = currentState.getHistoryMessages(chatroomId);
+        if (!isSameChatroom || existingMessages.length === 0) {
+          console.log(" 과거 메시지 조회 중...");
+          await fetchHistory(chatroomId, null);
+        } else {
+          console.log(
+            "기존 메시지 유지 (재로드 스킵), 메시지 개수:",
+            existingMessages.length
+          );
+        }
+
+        // 주의: 소켓 메시지도 채팅방별로 관리되므로 초기화하지 않음
+        // 모든 메시지(매칭확인서, 채팅, 내용)가 나갔다 들어와도 유지됨
+
+        // 채팅방 정보 업데이트 (메시지 로드 후)
+        setActiveRoom(roomInfo);
 
         // 소켓 연결 (SocketStore 내부적으로 '1'번으로 구독함)
+        console.log(" 소켓 연결 중...");
         connect();
+        console.log("채팅방 초기화 완료");
       } catch (error) {
         console.error("채팅방 초기화 실패:", error);
+        // 에러 발생 시에도 메시지는 유지 (이미 로드된 메시지가 있으면 표시)
+        if (error && typeof error === "object" && "response" in error) {
+          const axiosError = error as {
+            response?: { status?: number; statusText?: string; data?: unknown };
+            message?: string;
+          };
+          console.error(" 에러 상세:", {
+            status: axiosError.response?.status,
+            statusText: axiosError.response?.statusText,
+            data: axiosError.response?.data,
+            message: axiosError.message,
+          });
+        }
       }
     };
 
     initChatRoom();
 
     return () => {
-      clearHistory();
+      // cleanup: 채팅방이 바뀔 때만 소켓 연결 해제
+      // 메시지는 유지 (같은 채팅방으로 돌아올 때 메시지가 보이도록)
+      console.log("cleanup:", chatroomId);
+
+      // 소켓 연결만 해제 (메시지는 유지)
       disconnect();
+
+      // 주의: 메시지를 초기화하지 않음
+      // 매칭확인서, 채팅, 내용 모두 나갔다 들어와도 유지됨
+      // 각 채팅방의 메시지는 독립적으로 관리됨
     };
-  }, [
-    chatroomId,
-    connect,
-    disconnect,
-    fetchHistory,
-    clearHistory,
-    setActiveRoom,
-  ]);
+  }, [chatroomId, connect, disconnect, fetchHistory, setActiveRoom]);
 
   /**
    * 5. 무한 스크롤 (과거 내역 로드)
+   *
+   * 스웨거 명세에 따르면:
+   * - 응답의 nextChatId를 다음 요청의 lastChatId로 전달
+   * - hasNext가 true이면 더 불러올 메시지가 있음
    */
   const handleLoadMore = useCallback(async () => {
     if (messageHasNext && !isLoadingHistory && chatroomId && nextChatId) {
+      // 스크롤 위치 유지를 위해 현재 스크롤 높이 저장
       if (scrollContainerRef.current) {
         prevScrollHeight.current = scrollContainerRef.current.scrollHeight;
       }
+      // nextChatId를 lastChatId로 사용하여 이전 메시지 조회
       await fetchHistory(chatroomId, nextChatId);
     }
   }, [messageHasNext, isLoadingHistory, chatroomId, nextChatId, fetchHistory]);
@@ -137,10 +258,16 @@ const ChatRoom = () => {
    * 8. 메시지 전송
    */
   const onSend = () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || !chatroomId) return;
 
-    // 소켓 전송 시 상대방 ID '2' 사용
-    sendMessage(RECEIVER_ID, inputValue);
+    console.log("📤 [onSend] 메시지 전송 시도:", {
+      receiverId: RECEIVER_ID,
+      text: inputValue,
+      chatroomId,
+    });
+
+    // 소켓 전송 시 상대방 ID와 chatroomId 포함
+    sendMessage(RECEIVER_ID, inputValue, chatroomId);
     setInputValue("");
   };
 
@@ -164,10 +291,21 @@ const ChatRoom = () => {
         )}
 
         {allMessages.map((msg, idx) => {
-          // [중요] '100'(API 내역) 또는 '1'(실시간 소켓)인 경우 모두 내가 보낸 것으로 처리
+          // MATCH_CONFIRMATION 타입 메시지는 MatchResultCard로 렌더링
+          if (msg.type === "MATCH_CONFIRMATION") {
+            return (
+              <MessageWrapper key={msg.id || `msg-${idx}`}>
+                <MatchResultCard message={msg} />
+              </MessageWrapper>
+            );
+          }
+
+          // 일반 텍스트 메시지
+          // [중요] senderId를 number로 변환하여 비교
+          // API 내역(100) 또는 실시간 소켓(1)인 경우 모두 내가 보낸 것으로 처리
+          const senderIdNum = Number(msg.senderId);
           const isMe =
-            String(msg.senderId) === API_MEMBER_ID ||
-            String(msg.senderId) === SOCKET_MEMBER_ID;
+            senderIdNum === API_MEMBER_ID || senderIdNum === SOCKET_MEMBER_ID;
 
           return (
             <MessageRow key={msg.id || `msg-${idx}`} $isMe={isMe}>
@@ -201,6 +339,7 @@ const ChatRoom = () => {
 };
 
 export default ChatRoom;
+
 // --- 스타일 컴포넌트 (CSS) ---
 
 const MessageList = styled.div`
@@ -208,7 +347,7 @@ const MessageList = styled.div`
   flex-direction: column;
   overflow-y: auto;
   padding: 20px 0;
-overflow-anchor: auto
+  overflow-anchor: auto;
   &::-webkit-scrollbar {
     width: 4px;
   }
@@ -225,7 +364,6 @@ const LoadingText = styled.div`
 `;
 const MessageRow = styled.div<{ $isMe: boolean }>`
   display: flex;
-
   width: 100%;
   justify-content: ${({ $isMe }) => ($isMe ? "flex-end" : "flex-start")};
   margin-top: 16px;
@@ -261,6 +399,12 @@ const MessageTime = styled.span`
   color: ${({ theme }) => theme.color.subText2};
   margin: 0 5px;
   min-width: fit-content;
+`;
+
+const MessageWrapper = styled.div`
+  width: 100%;
+
+  margin-top: 16px;
 `;
 
 const InputArea = styled.div`

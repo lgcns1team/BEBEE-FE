@@ -7,7 +7,7 @@ import { CiCalendar } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { TbMinusVertical } from "react-icons/tb";
-import type { MatchPost } from "./matchPost";
+import type { AgreementRequest } from "../../agreement.types";
 import AddButton from "../../../../components/AddButton";
 import {
   FieldSet,
@@ -16,8 +16,31 @@ import {
   RequiredMark,
 } from "../../../../styles/FieldSetStyle";
 interface LongHelpProps {
-  editedPost: MatchPost;
-  updateField: <K extends keyof MatchPost>(key: K, value: MatchPost[K]) => void;
+  termEngagement: {
+    periodStart: Date | null;
+    periodEnd: Date | null;
+    weeks: {
+      day: string;
+      start: Date | null;
+      end: Date | null;
+    }[];
+  };
+  setTermEngagement: React.Dispatch<
+    React.SetStateAction<{
+      periodStart: Date | null;
+      periodEnd: Date | null;
+      weeks: {
+        day: string;
+        start: Date | null;
+        end: Date | null;
+      }[];
+    }>
+  >;
+  agreementRequest: Partial<AgreementRequest>;
+  updateField: <K extends keyof AgreementRequest>(
+    key: K,
+    value: AgreementRequest[K]
+  ) => void;
 }
 
 interface WeekSchedule {
@@ -28,11 +51,11 @@ interface WeekSchedule {
 
 const DAYS = ["월", "화", "수", "목", "금", "토", "일"];
 
-const LongHelpForm = ({ editedPost, updateField }: LongHelpProps) => {
+const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
   const required = true;
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-    editedPost.periodStart || null,
-    editedPost.periodEnd || null,
+    termEngagement.periodStart || null,
+    termEngagement.periodEnd || null,
   ]);
   const [startDate, endDate] = dateRange;
 
@@ -47,13 +70,16 @@ const LongHelpForm = ({ editedPost, updateField }: LongHelpProps) => {
   const endTimeInputRef = useRef<HTMLInputElement>(null);
   const periodInputRef = useRef<HTMLInputElement>(null);
 
-  const weeks = editedPost.weeks || [];
+  const weeks = termEngagement.weeks || [];
 
   // 날짜 범위 변경
   const handleDateRangeChange = (update: [Date | null, Date | null]) => {
     setDateRange(update);
-    updateField("periodStart", update[0]);
-    updateField("periodEnd", update[1]);
+    setTermEngagement((prev) => ({
+      ...prev,
+      periodStart: update[0],
+      periodEnd: update[1],
+    }));
   };
 
   // 요일 선택기 아이콘 클릭
@@ -83,14 +109,14 @@ const LongHelpForm = ({ editedPost, updateField }: LongHelpProps) => {
   // 스케줄 확인 (추가)
   const handleConfirmSchedule = () => {
     const newWeeks = [...weeks, tempSchedule];
-    updateField("weeks", newWeeks);
+    setTermEngagement((prev) => ({ ...prev, weeks: newWeeks }));
     setIsAddingSchedule(false);
   };
 
   // 스케줄 삭제
   const handleDeleteSchedule = (index: number) => {
     const newWeeks = weeks.filter((_, i) => i !== index);
-    updateField("weeks", newWeeks);
+    setTermEngagement((prev) => ({ ...prev, weeks: newWeeks }));
   };
 
   // 임시 스케줄 시간 변경
