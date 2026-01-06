@@ -38,11 +38,14 @@ const isValidRole = (role: string): role is 'DISABLED' | 'HELPER' | 'ADMIN' => {
 };
 
 function App() {
-  const { isLoggedIn, setAccessToken, setUser } = useUserStore();
+  const { setAccessToken, setUser } = useUserStore();
   const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   useEffect(() => {
     const silentLogin = async () => {
+      // 현재 로그인 상태를 직접 조회 (의존성 배열 최적화)
+      const { isLoggedIn } = useUserStore.getState();
+
       if (!isLoggedIn) {
         try {
           // 1. Refresh Token(쿠키)으로 Access Token 재발급 시도
@@ -72,11 +75,26 @@ function App() {
       }
     };
     silentLogin();
-  }, [isLoggedIn, setAccessToken, setUser]);
+  }, [setAccessToken, setUser]); // isLoggedIn 제거로 불필요한 재실행 방지
 
-  // 인증 체크 중에는 로딩 표시
+  // 인증 체크 중에는 로딩 표시 (사용자 경험 개선)
   if (isAuthChecking) {
-    return null; // 또는 <LoadingSpinner /> 컴포넌트
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        backgroundColor: '#f5f5f5'
+      }}>
+        <div style={{
+          fontSize: '18px',
+          color: '#666'
+        }}>
+          로딩 중...
+        </div>
+      </div>
+    );
   }
 
   return (

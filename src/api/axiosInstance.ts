@@ -11,6 +11,19 @@ export const instance = axios.create({
     withCredentials: true,
 });
 
+// 토큰 갱신 중복 방지를 위한 Promise 저장소
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+const onRefreshed = (token: string) => {
+    refreshSubscribers.forEach(callback => callback(token));
+    refreshSubscribers = [];
+};
+
+const addRefreshSubscriber = (callback: (token: string) => void) => {
+    refreshSubscribers.push(callback);
+};
+
 // 요청 인터셉터
 instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
@@ -28,7 +41,7 @@ instance.interceptors.request.use(
     }
 );
 
-// 응답 인터셉터 - 401 에러 시 자동 토큰 갱신
+// 응답 인터셉터 - 401 에러 시 자동 토큰 갱신 (Race Condition 방지)
 instance.interceptors.response.use(
     (response: AxiosResponse) => response,
     async (error: AxiosError) => {
@@ -38,18 +51,35 @@ instance.interceptors.response.use(
         if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
             originalRequest._retry = true;
 
-            try {
-                // 토큰 재발급 시도
-                const { accessToken } = await reissueToken();
-                useUserStore.getState().setAccessToken(accessToken);
+            if (!isRefreshing) {
+                isRefreshing = true;
 
-                // 원래 요청에 새 토큰 적용 후 재시도
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-                return instance(originalRequest);
-            } catch (refreshError) {
-                // 토큰 갱신 실패 시 로그아웃 처리
-                useUserStore.getState().clearUser();
-                return Promise.reject(refreshError);
+                try {
+                    // 토큰 재발급 시도
+                    const { accessToken } = await reissueToken();
+                    useUserStore.getState().setAccessToken(accessToken);
+
+                    // 대기 중인 모든 요청에 새 토큰 전달
+                    onRefreshed(accessToken);
+
+                    // 원래 요청에 새 토큰 적용 후 재시도
+                    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                    return instance(originalRequest);
+                } catch (refreshError) {
+                    // 토큰 갱신 실패 시 로그아웃 처리
+                    useUserStore.getState().clearUser();
+                    return Promise.reject(refreshError);
+                } finally {
+                    isRefreshing = false;
+                }
+            } else {
+                // 이미 토큰 갱신 중이면 대기열에 추가
+                return new Promise((resolve) => {
+                    addRefreshSubscriber((token: string) => {
+                        originalRequest.headers.Authorization = `Bearer ${token}`;
+                        resolve(instance(originalRequest));
+                    });
+                });
             }
         }
 
