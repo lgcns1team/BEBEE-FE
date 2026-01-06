@@ -13,14 +13,14 @@ export const instance = axios.create({
 
 // 토큰 갱신 중복 방지를 위한 Promise 저장소
 let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+let refreshSubscribers: ((token: string | null) => void)[] = [];
 
-const onRefreshed = (token: string) => {
+const onRefreshed = (token: string | null) => {
     refreshSubscribers.forEach(callback => callback(token));
     refreshSubscribers = [];
 };
 
-const addRefreshSubscriber = (callback: (token: string) => void) => {
+const addRefreshSubscriber = (callback: (token: string | null) => void) => {
     refreshSubscribers.push(callback);
 };
 
@@ -68,14 +68,20 @@ instance.interceptors.response.use(
                 } catch (refreshError) {
                     // 토큰 갱신 실패 시 로그아웃 처리
                     useUserStore.getState().clearUser();
+                    // 대기 중인 모든 요청에 실패 전달
+                    onRefreshed(null);
                     return Promise.reject(refreshError);
                 } finally {
                     isRefreshing = false;
                 }
             } else {
                 // 이미 토큰 갱신 중이면 대기열에 추가
-                return new Promise((resolve) => {
-                    addRefreshSubscriber((token: string) => {
+                return new Promise((resolve, reject) => {
+                    addRefreshSubscriber((token: string | null) => {
+                        if (!token) {
+                            reject(new Error('Token refresh failed'));
+                            return;
+                        }
                         originalRequest.headers.Authorization = `Bearer ${token}`;
                         resolve(instance(originalRequest));
                     });
