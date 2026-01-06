@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import { Client } from "@stomp/stompjs";
 import type { ChatMessage } from "../domain/chat/chat.types";
+import { useChatStore } from "../domain/chat/store/useChatStore";
 
 interface SocketStore {
   // 채팅방별 소켓 메시지 관리
@@ -11,7 +12,7 @@ interface SocketStore {
 
   connect: () => void;
   disconnect: () => void;
-  sendMessage: (receiverId: number, text: string, chatroomId?: string) => void;
+  sendMessage: (senderId: number, receiverId: number, text: string, chatroomId?: string) => void;
   addMessage: (msg: ChatMessage, chatroomId?: string) => void;
   clearMessages: (chatroomId?: string) => void;
   getMessages: (chatroomId: string) => ChatMessage[];
@@ -64,7 +65,11 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
               // 소켓 메시지에 chatroomId가 있으면 사용, 없으면 activeRoom에서 가져오기
               const chatroomId = receivedMsg.chatroomId;
               if (chatroomId) {
+                // 1. useSocketStore에 추가 (즉시 UI 표시)
                 get().addMessage(receivedMsg, chatroomId);
+                // 2. useChatStore에 추가 (영구 저장 - localStorage)
+                useChatStore.getState().addMessage(receivedMsg, chatroomId);
+                console.log("✅ [socket] 소켓 메시지를 useChatStore에도 저장 완료");
               } else {
                 console.warn(
                   "⚠️ [socket] 수신 메시지에 chatroomId가 없습니다:",
@@ -104,7 +109,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   },
 
   // 3. 메시지 전송
-  sendMessage: (receiverId, text, chatroomId?: string) => {
+  sendMessage: (senderId, receiverId, text, chatroomId?: string) => {
     const { client } = get();
     if (!client || !client.active) {
       console.warn("⚠️ [sendMessage] 소켓이 연결되지 않았습니다.");
@@ -133,6 +138,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     }
 
     console.log("📤 [sendMessage] 메시지 전송:", {
+      senderId,
       receiverId,
       text,
       chatroomId,
@@ -149,16 +155,19 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
     const tempMessage: ChatMessage = {
       id: messageId,
-      senderId: String(MY_MEMBER_ID),
+      senderId: String(senderId),
       textContent: text,
       type: "TEXT",
       attachments: [],
       createdAt: createdAt,
       chatroomId: chatroomId,
     };
+    // 1. useSocketStore에 추가 (즉시 UI 표시)
     get().addMessage(tempMessage, chatroomId);
+    // 2. useChatStore에 추가 (영구 저장 - localStorage)
+    useChatStore.getState().addMessage(tempMessage, chatroomId);
     console.log(
-      "✅ [sendMessage] 로컬 메시지 추가 (즉시 UI 표시):",
+      "✅ [sendMessage] 로컬 메시지 추가 (즉시 UI 표시 및 영구 저장):",
       tempMessage
     );
 

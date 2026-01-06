@@ -1,3 +1,4 @@
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import chatLight from "../../../assets/images/chat-light.png";
 import type { ChatMessage } from "../chat.types";
@@ -6,24 +7,117 @@ import {
   formatTimeToHHmm,
   formatDayOfWeek,
 } from "../../../types/common.types";
+import { confirmAgreement } from "../api/agreementApi";
+import { useChatStore } from "../store/useChatStore";
 
 interface MatchResultCardProps {
   message: ChatMessage;
+  onAcceptSuccess?: (successData: ChatMessage) => void;
 }
 
-const MatchResultCard = ({ message }: MatchResultCardProps) => {
+const MatchResultCard = ({
+  message,
+  onAcceptSuccess,
+}: MatchResultCardProps) => {
+  const { chatroomId } = useParams<{ chatroomId: string }>();
+  const { getMessageWithMetadata } = useChatStore();
+
+  // 메타데이터가 병합된 메시지 사용
+  const messageWithMetadata = getMessageWithMetadata(message);
+
   // 공통 유틸리티 함수 사용
   const formatDate = formatDateToKoreanWithDay;
   const formatTime = formatTimeToHHmm;
   const formatDay = (day?: string) => formatDayOfWeek(day, true); // "요일" 포함
 
-  const isDayType = message.matchType === "DAY";
+  const isDayType = messageWithMetadata.matchType === "DAY";
 
-  const handleAccept = () => {
-    console.log("매칭 확인서 수락:", message.agreementId);
-    // TODO: 수락 API 호출
+  const handleAccept = async () => {
+    if (!messageWithMetadata.agreementId || !chatroomId) {
+      console.error("매칭 확인서 수락 실패: 필수 정보가 없습니다.");
+      alert("매칭 확인서 수락에 필요한 정보가 없습니다.");
+      return;
+    }
+
+    // 매칭 확인서에서 필요한 데이터 확인 (메타데이터 병합된 메시지 사용)
+    if (
+      !messageWithMetadata.postId ||
+      !messageWithMetadata.helperId ||
+      !messageWithMetadata.disabledId ||
+      !messageWithMetadata.title
+    ) {
+      console.error(
+        "매칭 확인서 수락 실패: 매칭 확인서에 필수 정보가 없습니다.",
+        {
+          postId: messageWithMetadata.postId,
+          helperId: messageWithMetadata.helperId,
+          disabledId: messageWithMetadata.disabledId,
+          title: messageWithMetadata.title,
+          agreementId: messageWithMetadata.agreementId,
+        }
+      );
+      alert("매칭 확인서에 필요한 정보가 없습니다.");
+      return;
+    }
+
+    try {
+      console.log("매칭 확인서 수락 시작:", messageWithMetadata.agreementId);
+
+      await confirmAgreement(messageWithMetadata.agreementId, {
+        agreementId: messageWithMetadata.agreementId,
+        helperId: messageWithMetadata.helperId,
+        disabledId: messageWithMetadata.disabledId,
+        postId: messageWithMetadata.postId,
+        title: messageWithMetadata.title,
+        chatRoomId: chatroomId,
+      });
+
+      console.log("✅ 매칭 확인서 수락 성공");
+
+      // 매칭 성공 데이터 생성 (메타데이터 병합된 메시지 사용)
+      const timestamp = new Date().getTime();
+      const successData: ChatMessage = {
+        id: `match-success-${timestamp}`,
+        senderId:
+          messageWithMetadata.disabledId || messageWithMetadata.senderId,
+        textContent: "매칭이 성사되었습니다.",
+        type: "MATCH_SUCCESS",
+        attachments: [],
+        agreementId: messageWithMetadata.agreementId,
+        matchType: messageWithMetadata.matchType,
+        startDate: messageWithMetadata.startDate,
+        endDate: messageWithMetadata.endDate,
+        scheduleDays: messageWithMetadata.scheduleDays,
+        scheduleStartTimes: messageWithMetadata.scheduleStartTimes,
+        scheduleEndTimes: messageWithMetadata.scheduleEndTimes,
+        location: messageWithMetadata.location,
+        unitPoints: messageWithMetadata.unitPoints,
+        totalPoints: messageWithMetadata.totalPoints,
+        createdAt: new Date().toISOString(),
+        chatroomId: chatroomId,
+        postId: messageWithMetadata.postId,
+        title: messageWithMetadata.title,
+        helperId: messageWithMetadata.helperId,
+        disabledId: messageWithMetadata.disabledId,
+      };
+
+      // localStorage에 저장
+      localStorage.setItem(
+        `bebee-match-success-${chatroomId}`,
+        JSON.stringify(successData)
+      );
+
+      // 부모 컴포넌트에 알림
+      if (onAcceptSuccess) {
+        onAcceptSuccess(successData);
+      }
+
+      alert("매칭이 성공적으로 수락되었습니다!");
+    } catch (error) {
+      console.error("❌ 매칭 확인서 수락 실패:", error);
+      alert("매칭 확인서 수락에 실패했습니다.");
+    }
   };
-
   const handleRefuse = () => {
     console.log("매칭 확인서 거절:", message.agreementId);
     // TODO: 거절 API 호출
@@ -42,42 +136,55 @@ const MatchResultCard = ({ message }: MatchResultCardProps) => {
           <div>유형: {isDayType ? "하루 도움" : "지속 도움"}</div>
           {isDayType ? (
             <>
-              <div>날짜: {formatDate(message.startDate)}</div>
-              {message.scheduleDays && message.scheduleDays.length > 0 && (
-                <div>
-                  {message.scheduleDays.map((day, idx) => (
-                    <div key={idx}>
-                      일시: {formatTime(message.scheduleStartTimes?.[idx])}-
-                      {formatTime(message.scheduleEndTimes?.[idx])}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div>날짜: {formatDate(messageWithMetadata.startDate)}</div>
+              {messageWithMetadata.scheduleDays &&
+                messageWithMetadata.scheduleDays.length > 0 && (
+                  <div>
+                    {messageWithMetadata.scheduleDays.map((day, idx) => (
+                      <div key={idx}>
+                        일시:{" "}
+                        {formatTime(
+                          messageWithMetadata.scheduleStartTimes?.[idx]
+                        )}
+                        -
+                        {formatTime(
+                          messageWithMetadata.scheduleEndTimes?.[idx]
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
             </>
           ) : (
             <>
               <div>
-                기간: {formatDate(message.startDate)} ~{" "}
-                {formatDate(message.endDate)}
+                기간: {formatDate(messageWithMetadata.startDate)} ~{" "}
+                {formatDate(messageWithMetadata.endDate)}
               </div>
-              {message.scheduleDays && message.scheduleDays.length > 0 && (
-                <div>
-                  일시:
-                  {message.scheduleDays.map((day, idx) => (
-                    <Indent key={idx}>
-                      {formatDay(day)}{" "}
-                      {formatTime(message.scheduleStartTimes?.[idx])}-
-                      {formatTime(message.scheduleEndTimes?.[idx])}
-                    </Indent>
-                  ))}
-                </div>
-              )}
+              {messageWithMetadata.scheduleDays &&
+                messageWithMetadata.scheduleDays.length > 0 && (
+                  <div>
+                    일시:
+                    {messageWithMetadata.scheduleDays.map((day, idx) => (
+                      <Indent key={idx}>
+                        {formatDay(day)}{" "}
+                        {formatTime(
+                          messageWithMetadata.scheduleStartTimes?.[idx]
+                        )}
+                        -
+                        {formatTime(
+                          messageWithMetadata.scheduleEndTimes?.[idx]
+                        )}
+                      </Indent>
+                    ))}
+                  </div>
+                )}
             </>
           )}
-          <div>장소: {message.location || "-"}</div>
+          <div>장소: {messageWithMetadata.location || "-"}</div>
           <div>
-            꿀: {message.unitPoints?.toLocaleString() || "-"}꿀 /회(총{" "}
-            {message.totalPoints?.toLocaleString() || "-"}꿀)
+            꿀: {messageWithMetadata.unitPoints?.toLocaleString() || "-"}꿀
+            /회(총 {messageWithMetadata.totalPoints?.toLocaleString() || "-"}꿀)
           </div>
           {/* TODO: 카테고리 정보 추가 */}
         </Info>

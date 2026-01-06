@@ -27,13 +27,13 @@ const ChatListPage = () => {
     async (isMore = false) => {
       // 이미 로딩 중이면 중복 요청 방지
       if (isLoading) {
-        console.log("⏭️ [fetchList] 이미 로딩 중, 요청 스킵");
+        console.log("이미 로딩 중, 요청 스킵");
         return;
       }
 
       // 추가 로드 시 nextChatroomId가 없으면 요청하지 않음
       if (isMore && !nextChatroomId) {
-        console.log("⏭️ [fetchList] nextChatroomId가 없어 추가 로드 불가");
+        console.log(" nextChatroomId가 없어 추가 로드 불가");
         return;
       }
 
@@ -48,7 +48,7 @@ const ChatListPage = () => {
           isMore ? nextChatroomId : null
         );
 
-        console.log("✅ [fetchList] 채팅방 목록 조회 성공:", {
+        console.log("채팅방 목록 조회 성공:", {
           count: response.chatrooms?.length || 0,
           hasNext: response.hasNext,
           nextChatroomId: response.nextChatroomId,
@@ -57,7 +57,7 @@ const ChatListPage = () => {
         // Store에 응답 데이터 반영 (isMore에 따라 쌓거나 새로고침)
         setChatrooms(response, isMore);
       } catch (error) {
-        console.error("❌ [fetchList] 채팅 목록을 불러오는 중 오류:", error);
+        console.error(" 채팅 목록을 불러오는 중 오류:", error);
         // 에러 발생 시 사용자에게 알림 (선택사항)
         // alert("채팅 목록을 불러오는데 실패했습니다.");
       } finally {
@@ -69,7 +69,6 @@ const ChatListPage = () => {
 
   // 1. 초기 렌더링 시 목록 로드 (마운트 시 1회만 실행)
   useEffect(() => {
-    console.log("🚀 [ChatListPage] 초기 로드 시작");
     fetchList(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 빈 배열로 마운트 시 1회만 실행
@@ -78,7 +77,7 @@ const ChatListPage = () => {
   useEffect(() => {
     // 조건 확인: 더 불러올 데이터가 있고, 로딩 중이 아니고, 관찰 대상이 있어야 함
     if (!hasNext || isLoading || !observerTarget.current) {
-      console.log("⏭️ [IntersectionObserver] 관찰 조건 불만족:", {
+      console.log({
         hasNext,
         isLoading,
         hasObserverTarget: !!observerTarget.current,
@@ -116,7 +115,7 @@ const ChatListPage = () => {
                 <ChatItem
                   key={room.chatroomId}
                   onClick={() => {
-                    console.log("🔵 [ChatListPage] 채팅방 클릭:", {
+                    console.log("채팅방 클릭:", {
                       chatroomId: room.chatroomId,
                       room,
                     });
