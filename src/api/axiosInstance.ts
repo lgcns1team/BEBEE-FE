@@ -1,5 +1,6 @@
 import axios, { type InternalAxiosRequestConfig, type AxiosResponse, type AxiosError } from 'axios';
 import { useUserStore } from '../store/useUserStore';
+import { reissueToken } from './authApi';
 
 export const instance = axios.create({
     baseURL: import.meta.env.VITE_API_URL || "https://api.be-bee.link",
@@ -18,9 +19,6 @@ instance.interceptors.request.use(
         const accessToken = userStore.accessToken;
 
         if (accessToken) {
-            if (!config.headers) {
-                config.headers = {} as any;
-            }
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
         return config;
@@ -30,10 +28,31 @@ instance.interceptors.request.use(
     }
 );
 
-// 응답 인터셉터
+// 응답 인터셉터 - 401 에러 시 자동 토큰 갱신
 instance.interceptors.response.use(
     (response: AxiosResponse) => response,
-    (error: AxiosError) => {
+    async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+
+        // 401 에러이고, 재시도하지 않은 요청인 경우
+        if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            try {
+                // 토큰 재발급 시도
+                const { accessToken } = await reissueToken();
+                useUserStore.getState().setAccessToken(accessToken);
+
+                // 원래 요청에 새 토큰 적용 후 재시도
+                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                return instance(originalRequest);
+            } catch (refreshError) {
+                // 토큰 갱신 실패 시 로그아웃 처리
+                useUserStore.getState().clearUser();
+                return Promise.reject(refreshError);
+            }
+        }
+
         return Promise.reject(error);
     }
 );

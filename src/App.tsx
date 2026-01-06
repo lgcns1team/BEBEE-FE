@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./domain/post/pages/HomePage";
 import PostDetailPage from "./domain/post/pages/PostDetailPage";
@@ -32,9 +32,14 @@ import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
 import { useUserStore } from "./store/useUserStore";
 import { reissueToken, getMyInfo } from "./api/authApi";
 
+// Role 타입 검증 함수
+const isValidRole = (role: string): role is 'DISABLED' | 'HELPER' | 'ADMIN' => {
+  return ['DISABLED', 'HELPER', 'ADMIN'].includes(role);
+};
 
 function App() {
   const { isLoggedIn, setAccessToken, setUser } = useUserStore();
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   useEffect(() => {
     const silentLogin = async () => {
@@ -46,19 +51,33 @@ function App() {
 
           // 2. 재발급 성공 시 사용자 정보 복구
           const userInfo = await getMyInfo();
+
+          // 3. Role 타입 검증
+          if (!isValidRole(userInfo.role)) {
+            throw new Error(`Invalid role: ${userInfo.role}`);
+          }
+
           setUser({
             ...userInfo,
-            role: userInfo.role as 'DISABLED' | 'HELPER' | 'ADMIN'
+            role: userInfo.role
           });
-          console.log("Silent Login Success");
         } catch (error) {
           // 쿠키가 없거나 만료된 경우 -> 그냥 비로그인 상태 유지
-          console.log("Silent Login Failed (No active session)");
+          // 프로덕션에서는 로그 제거
+        } finally {
+          setIsAuthChecking(false);
         }
+      } else {
+        setIsAuthChecking(false);
       }
     };
     silentLogin();
   }, [isLoggedIn, setAccessToken, setUser]);
+
+  // 인증 체크 중에는 로딩 표시
+  if (isAuthChecking) {
+    return null; // 또는 <LoadingSpinner /> 컴포넌트
+  }
 
   return (
     <ThemeProvider theme={theme}>
