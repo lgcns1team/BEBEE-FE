@@ -39,9 +39,6 @@ const MatchingPostCard = ({ engagement }: Props) => {
 
   /* 채팅 관련 */
   const { handleChatOpen } = useChatHandler();
-
-  const MY_ID = "100";
-
   const matchingItem = {
     id: 1,
     chatroomId: "791458418405204700",
@@ -50,7 +47,7 @@ const MatchingPostCard = ({ engagement }: Props) => {
 
   const goChatPage = () => {
     console.log("기존 채팅방 조회 및 이동 시도...");
-    handleChatOpen(MY_ID, { chatroomId: matchingItem.chatroomId });
+    handleChatOpen({ chatroomId: matchingItem.chatroomId });
   };
 
   return (

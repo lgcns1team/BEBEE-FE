@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useChatStore } from "../store/useChatStore";
 import { postApi } from "../../../api/postApi";
 import { createAgreement } from "../api/agreementApi";
-import { useUserStore } from "../../../store/useUserStore";
 import { chatApi } from "../api/chatApi";
 import type { PostDetailResponse } from "../../../types/post.type";
 import type {
@@ -62,7 +61,6 @@ const MatchFormPage = () => {
   const { chatroomId } = useParams<{ chatroomId: string }>();
   const navigate = useNavigate();
   const { activeRoom, setActiveRoom } = useChatStore();
-  const { user } = useUserStore();
 
   const [postDetail, setPostDetail] = useState<PostDetailResponse | null>(null);
   const [agreementRequest, setAgreementRequest] =
@@ -217,7 +215,7 @@ const MatchFormPage = () => {
       agreementRequest,
       postDetail: !!postDetail,
       activeRoom: !!activeRoom,
-      user: !!user,
+
       dayEngagement,
       termEngagement,
       agreementRequestType: agreementRequest?.type,
@@ -229,7 +227,6 @@ const MatchFormPage = () => {
         agreementRequest: !!agreementRequest,
         postDetail: !!postDetail,
         activeRoom: !!activeRoom,
-        user: !!user,
       });
       alert("필수 정보가 누락되었습니다.");
       return;
@@ -311,12 +308,9 @@ const MatchFormPage = () => {
             endTime: formatTime(week.end),
           })),
         };
-        console.log(
-          "✅ [handleConfirm] TERM 타입 engagementTime 생성 완료:",
-          engagementTime
-        );
+        console.log("TERM 타입 engagementTime 생성 완료:", engagementTime);
       } else {
-        console.error("❌ [handleConfirm] engagementTime 정보 없음:", {
+        console.error("engagementTime 정보 없음:", {
           type: agreementRequest.type,
           hasDayEngagement: !!dayEngagement,
           hasTermEngagement: !!termEngagement,
@@ -345,14 +339,11 @@ const MatchFormPage = () => {
           !agreementRequest.disabledId ||
           !agreementRequest.postId
         ) {
-          console.error(
-            "❌ [handleConfirm] agreementRequest에 필수 필드 누락:",
-            {
-              helperId: agreementRequest.helperId,
-              disabledId: agreementRequest.disabledId,
-              postId: agreementRequest.postId,
-            }
-          );
+          console.error(" 필수 필드 누락:", {
+            helperId: agreementRequest.helperId,
+            disabledId: agreementRequest.disabledId,
+            postId: agreementRequest.postId,
+          });
           alert("필수 정보가 누락되었습니다. (helperId, disabledId, postId)");
           setIsSubmitting(false);
           return;
@@ -464,17 +455,17 @@ const MatchFormPage = () => {
         validationErrors.push("engagementTime은 필수입니다.");
 
       if (validationErrors.length > 0) {
-        console.error("❌ [handleConfirm] 데이터 검증 실패:", validationErrors);
+        console.error("데이터 검증 실패:", validationErrors);
         alert(`데이터 검증 실패:\n${validationErrors.join("\n")}`);
         setIsSubmitting(false);
         return;
       }
 
-      console.log("✅ [handleConfirm] 데이터 검증 통과");
+      console.log(" 데이터 검증 통과");
 
-      console.log("🚀 [handleConfirm] API 호출 시작");
+      console.log(" API 호출 시작");
       const response = await createAgreement(finalRequest);
-      console.log("✅ [handleConfirm] 매칭 확인서 생성 성공:", response);
+      console.log("매칭 확인서 생성 성공:", response);
 
       // 매칭 확인서 생성 성공 시 MATCH_CONFIRMATION 타입 메시지 생성 및 추가
       if (chatroomId) {
@@ -537,7 +528,7 @@ const MatchFormPage = () => {
             addMessage: addMessageToStore,
           } = useChatStore.getState();
           await fetchHistory(chatroomId, null);
-          console.log("✅ [handleConfirm] 서버 메시지 동기화 완료");
+          console.log(" 동기화 완료");
 
           // 서버 메시지 확인 후, 서버에 없는 경우에만 클라이언트 메시지 추가
           const serverMessages = getHistoryMessages(chatroomId);
@@ -549,17 +540,17 @@ const MatchFormPage = () => {
 
           if (!serverHasMatchMessage) {
             console.log(
-              "📤 [handleConfirm] 서버에 매칭 확인서 메시지 없음, 클라이언트 메시지 추가:",
+              "📤 서버에 매칭 확인서 메시지 없음, 클라이언트 메시지 추가:",
               matchConfirmationMessage
             );
             addMessageToStore(matchConfirmationMessage, chatroomId);
           } else {
             console.log(
-              "⏭️ [handleConfirm] 서버에 이미 매칭 확인서 메시지 존재, 클라이언트 메시지 추가 스킵"
+              " 서버에 이미 매칭 확인서 메시지 존재, 클라이언트 메시지 추가 스킵"
             );
           }
         } catch (error) {
-          console.error("❌ [handleConfirm] 서버 메시지 동기화 실패:", error);
+          console.error(" 서버 메시지 동기화 실패:", error);
           // 실패해도 클라이언트 메시지 추가
           const { addMessage: addMessageToStore } = useChatStore.getState();
           console.log(
@@ -573,12 +564,9 @@ const MatchFormPage = () => {
         try {
           const updatedRoom = await chatApi.openChatRoom(undefined, chatroomId);
           setActiveRoom(updatedRoom);
-          console.log(
-            "✅ [handleConfirm] 채팅방 정보 업데이트 완료:",
-            updatedRoom
-          );
+          console.log("채팅방 정보 업데이트 완료:", updatedRoom);
         } catch (error) {
-          console.error("❌ [handleConfirm] 채팅방 정보 업데이트 실패:", error);
+          console.error(" 채팅방 정보 업데이트 실패:", error);
         }
 
         // 채팅방으로 이동
@@ -588,7 +576,7 @@ const MatchFormPage = () => {
         navigate(`/chat/${chatroomId}`);
       }
     } catch (error) {
-      console.error("❌ [handleConfirm] 매칭 확인서 생성 실패:", error);
+      console.error(" 매칭 확인서 생성 실패:", error);
 
       // Axios 에러인 경우 상세 정보 출력
       if (error && typeof error === "object" && "response" in error) {
@@ -597,7 +585,7 @@ const MatchFormPage = () => {
           message?: string;
           config?: unknown;
         };
-        console.error("❌ [handleConfirm] 에러 상세:", {
+        console.error(" 에러 상세:", {
           message: axiosError.message,
           status: axiosError.response?.status,
           statusText: axiosError.response?.statusText,
