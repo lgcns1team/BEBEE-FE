@@ -1,5 +1,5 @@
-//import { instance } from "../../../api/axiosInstance";
-import axios from "axios";
+import { instance } from "../../../api/axiosInstance";
+
 import type {
   ChatroomOpenReqDTO,
   ChatroomResponse,
@@ -7,35 +7,26 @@ import type {
   ChatMessagesGetResDTO,
 } from "../chat.types";
 // chat instance
-const chatInstance = axios.create({
-  baseURL: "https://bebee-chat-1036667053569.asia-northeast3.run.app",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+
 export const chatApi = {
   /**
    * 채팅방 열기 (조회/생성)
-   * axios.post(URL, data, config) 순서로 인자를 전달합니다.
    */
   openChatRoom: async (
-    currentMemberId: string,
     otherMemberId?: string,
     chatroomId?: string,
     body?: ChatroomOpenReqDTO
   ): Promise<ChatroomResponse> => {
-    const response = await chatInstance.post<ChatroomResponse>(
-      "/chatrooms",
+    const response = await instance.post<ChatroomResponse>(
+      "chat/chatrooms",
       body || {}, // 2번째 인자: Request Body (게시글 정보)
       {
         params: {
-          currentMemberId,
           otherMemberId,
           chatroomId,
         },
         headers: {
           "Content-Type": "application/json",
-          // 필요 시 토큰 추가
         },
       }
     );
@@ -43,18 +34,30 @@ export const chatApi = {
   },
   /**
    * 채팅방 목록 조회 (커서 기반 페이징)
+   * @param lastChatroomId 마지막으로 조회한 채팅방 ID (커서 페이징용)
+   * @param count 한 번에 조회할 채팅방 개수 (기본값: 20)
    */
   getChatRoomList: async (
-    currentMemberId: string,
-    lastChatroomId?: string | null
+    lastChatroomId?: string | null,
+    count: number = 20
   ): Promise<ChatroomListResponse> => {
-    const response = await chatInstance.get<ChatroomListResponse>(
-      "chatrooms/list",
+    const params: {
+      lastChatroomId?: string | null;
+      count?: number;
+    } = {};
+
+    // lastChatroomId가 있으면 포함 (null이어도 명시적으로 전달하지 않음)
+    if (lastChatroomId !== undefined && lastChatroomId !== null) {
+      params.lastChatroomId = lastChatroomId;
+    }
+
+    // count는 기본값 20이지만 명시적으로 전달
+    params.count = count;
+
+    const response = await instance.get<ChatroomListResponse>(
+      "chat/chatrooms/list",
       {
-        params: {
-          currentMemberId,
-          lastChatroomId,
-        },
+        params,
       }
     );
 
@@ -67,8 +70,8 @@ export const chatApi = {
     count: number = 20
   ) => {
     try {
-      const response = await chatInstance.get<ChatMessagesGetResDTO>(
-        "/chatrooms/chats",
+      const response = await instance.get<ChatMessagesGetResDTO>(
+        "chat/chatrooms/chats",
         {
           params: {
             chatroomId,

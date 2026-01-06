@@ -16,7 +16,7 @@ import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
 import MapDisabledPage from "./domain/map/pages/MapDisabledPage";
 import DisabledMyPage from "./domain/mypage/page/DisabledMyPage";
-
+import MatchFormPage from "./domain/chat/pages/MatchFormPage";
 import ApplicateLandingPage from "./domain/Application/page/ApplicateLandingPage";
 import ApplicateStatusPage from "./domain/Application/page/ApplicateStatusPage";
 import ApplicantPage from "./domain/Application/page/ApplicantPage";
@@ -46,7 +46,7 @@ function App() {
           {/*채팅*/}
           <Route path="/chat" element={<ChatListPage />} />
           <Route path="/chat/:chatroomId" element={<ChatRoomPage />} />
-          {/* <Route path="/chat/:chatroomId/match" element={<MatchFormPage />} />*/}
+          <Route path="/chat/:chatroomId/match" element={<MatchFormPage />} />
           <Route path="chat-test" element={<ChatTestPage />} />
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}

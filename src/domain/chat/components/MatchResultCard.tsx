@@ -1,117 +1,172 @@
-// import styled from "styled-components";
-// import chatLight from "../../../assets/images/chat-light.png";
-// import MatchFailCard from "./MatchFailCard";
-// import MatchSuccessCard from "./MatchSuccessCard";
+import styled from "styled-components";
+import chatLight from "../../../assets/images/chat-light.png";
+import type { ChatMessage } from "../chat.types";
+import {
+  formatDateToKoreanWithDay,
+  formatTimeToHHmm,
+  formatDayOfWeek,
+} from "../../../types/common.types";
 
-// const MatchResultCard = ([addMessage]) => {
-//   return (
-//     <Card>
-//       <Content>
-//         <Header>
-//           <img src={chatLight} alt="chat icon" width={60} height={60} />
-//           <Title>매칭 확인서가 도착했어요</Title>
-//           <Sub>아래의 정보를 확인해주세요.</Sub>
-//         </Header>
+interface MatchResultCardProps {
+  message: ChatMessage;
+}
 
-//         <Info>
-//           <div>유형: 지속도움</div>
-//           <div>기간: 2025.03.11 ~ 2025.11.11</div>
-//           <div>
-//             일시:
-//             <Indent> 화요일 11시-14시</Indent>
-//             <Indent> 수요일 12시-14시</Indent>
-//           </div>
-//           <div>장소: 한남더힐주차장</div>
-//           <div>꿀: 150꿀 /회(총 1200꿀)</div>
-//           <div>카테고리: 방문목욕</div>
-//         </Info>
-//       </Content>
-//       <ButtonWrapper>
-//         <RefusalButton onClick={addMessage}>거절</RefusalButton>
+const MatchResultCard = ({ message }: MatchResultCardProps) => {
+  // 공통 유틸리티 함수 사용
+  const formatDate = formatDateToKoreanWithDay;
+  const formatTime = formatTimeToHHmm;
+  const formatDay = (day?: string) => formatDayOfWeek(day, true); // "요일" 포함
 
-//         <AcceptButton onClick={addMessage}>수락</AcceptButton>
-//       </ButtonWrapper>
-//     </Card>
-//   );
-// };
+  const isDayType = message.matchType === "DAY";
 
-// export default MatchResultCard;
+  const handleAccept = () => {
+    console.log("매칭 확인서 수락:", message.agreementId);
+    // TODO: 수락 API 호출
+  };
 
-// const Card = styled.div`
-//   width: 70%;
-//   max-width: 330px;
-//   display: flex;
-//   flex-direction: column;
-//   gap: 16px;
-//   /*세로선*/
-//   border-left: 3px solid ${({ theme }) => theme.color.main};
-//   padding-left: 24px; /* 내용이 선에 붙지 않도록 */
-// `;
+  const handleRefuse = () => {
+    console.log("매칭 확인서 거절:", message.agreementId);
+    // TODO: 거절 API 호출
+  };
 
-// const Content = styled.div`
-//   flex: 1;
-//   display: flex;
-//   flex-direction: column;
-// `;
+  return (
+    <Card>
+      <Content>
+        <Header>
+          <img src={chatLight} alt="chat icon" width={60} height={60} />
+          <Title>매칭 확인서가 도착했어요</Title>
+          <Sub>아래의 정보를 확인해주세요.</Sub>
+        </Header>
 
-// const Header = styled.div`
-//   display: flex;
-//   align-items: flex-start;
-//   justify-content: flex-start;
-//   flex-direction: column;
-//   gap: 10px;
-//   margin-bottom: 2rem;
-// `;
+        <Info>
+          <div>유형: {isDayType ? "하루 도움" : "지속 도움"}</div>
+          {isDayType ? (
+            <>
+              <div>날짜: {formatDate(message.startDate)}</div>
+              {message.scheduleDays && message.scheduleDays.length > 0 && (
+                <div>
+                  {message.scheduleDays.map((day, idx) => (
+                    <div key={idx}>
+                      일시: {formatTime(message.scheduleStartTimes?.[idx])}-
+                      {formatTime(message.scheduleEndTimes?.[idx])}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div>
+                기간: {formatDate(message.startDate)} ~{" "}
+                {formatDate(message.endDate)}
+              </div>
+              {message.scheduleDays && message.scheduleDays.length > 0 && (
+                <div>
+                  일시:
+                  {message.scheduleDays.map((day, idx) => (
+                    <Indent key={idx}>
+                      {formatDay(day)}{" "}
+                      {formatTime(message.scheduleStartTimes?.[idx])}-
+                      {formatTime(message.scheduleEndTimes?.[idx])}
+                    </Indent>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+          <div>장소: {message.location || "-"}</div>
+          <div>
+            꿀: {message.unitPoints?.toLocaleString() || "-"}꿀 /회(총{" "}
+            {message.totalPoints?.toLocaleString() || "-"}꿀)
+          </div>
+          {/* TODO: 카테고리 정보 추가 */}
+        </Info>
+      </Content>
+      <ButtonWrapper>
+        <RefusalButton onClick={handleRefuse}>거절</RefusalButton>
+        <AcceptButton onClick={handleAccept}>수락</AcceptButton>
+      </ButtonWrapper>
+    </Card>
+  );
+};
 
-// const Title = styled.div`
-//   font-size: ${({ theme }) => theme.size.md};
-//   font-weight: ${({ theme }) => theme.weight.bold};
-//   color: ${({ theme }) => theme.color.main};
-// `;
+export default MatchResultCard;
 
-// const Sub = styled.div`
-//   font-size: ${({ theme }) => theme.size.md};
-//   color: ${({ theme }) => theme.color.subText2};
-// `;
+const Card = styled.div`
+  width: 100%;
+  max-width: 330px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /*세로선*/
+  border-left: 3px solid ${({ theme }) => theme.color.main};
+  padding-left: 24px; /* 내용이 선에 붙지 않도록 */
+`;
 
-// const Info = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: flex-start;
-//   gap: 12px;
-//   font-size: ${({ theme }) => theme.size.md};
-//   color: ${({ theme }) => theme.color.text};
-//   line-height: 20px;
-// `;
+const Content = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
 
-// const Indent = styled.div`
-//   margin-left: 40px;
-// `;
-// const ButtonWrapper = styled.div`
-//   width: 100%;
-//   margin-top: 1rem;
-//   display: flex;
-//   gap: 12px;
-// `;
+const Header = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 1rem;
+`;
 
-// const AcceptButton = styled.button`
-//   flex: 1;
-//   color: ${({ theme }) => theme.color.white};
-//   background-color: ${({ theme }) => theme.color.main};
-//   padding: 12px 24px;
-//   border: none;
-//   border-radius: ${({ theme }) => theme.borderRadius.sm};
-//   font-size: ${({ theme }) => theme.size.md};
-//   cursor: pointer;
-// `;
+const Title = styled.div`
+  font-size: ${({ theme }) => theme.size.md};
+  font-weight: ${({ theme }) => theme.weight.bold};
+  color: ${({ theme }) => theme.color.main};
+`;
 
-// const RefusalButton = styled.button`
-//   flex: 1;
-//   color: ${({ theme }) => theme.color.subText3};
-//   background-color: ${({ theme }) => theme.color.natural100};
-//   padding: 12px 24px;
-//   border: none;
-//   border-radius: ${({ theme }) => theme.borderRadius.sm};
-//   font-size: ${({ theme }) => theme.size.md};
-//   cursor: pointer;
-// `;
+const Sub = styled.div`
+  font-size: ${({ theme }) => theme.size.md};
+  color: ${({ theme }) => theme.color.subText2};
+`;
+
+const Info = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 12px;
+  font-size: ${({ theme }) => theme.size.md};
+  color: ${({ theme }) => theme.color.text};
+  line-height: 20px;
+`;
+
+const Indent = styled.div`
+  margin-left: 40px;
+`;
+const ButtonWrapper = styled.div`
+  width: 100%;
+  margin-top: 1rem;
+  display: flex;
+  gap: 12px;
+`;
+
+const AcceptButton = styled.button`
+  flex: 1;
+  color: ${({ theme }) => theme.color.white};
+  background-color: ${({ theme }) => theme.color.main};
+  padding: 12px 24px;
+  border: none;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  font-size: ${({ theme }) => theme.size.md};
+  cursor: pointer;
+`;
+
+const RefusalButton = styled.button`
+  flex: 1;
+  color: ${({ theme }) => theme.color.subText3};
+  background-color: ${({ theme }) => theme.color.natural100};
+  padding: 12px 24px;
+  border: none;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  font-size: ${({ theme }) => theme.size.md};
+  cursor: pointer;
+`;

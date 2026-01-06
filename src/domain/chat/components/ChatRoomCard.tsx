@@ -1,8 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { chatApi } from "../api/chatApi";
+import { postApi } from "../../../api/postApi";
+import type { PostDetailResponse } from "../../../types/post.type";
+import { HELP_TAG_MAP } from "../../../constants/helpTags";
 
 /* Components */
 import HelpTag from "../../../components/HelpTag";
@@ -10,31 +13,27 @@ import Header from "../../../components/Header";
 
 const ChatRoomCard = () => {
   const navigate = useNavigate();
-
-  // const handleMatchModalClick = () => {
-  //   navigate(`/chat/${chatroomId}/match`);
-  // };
-
   const { chatroomId } = useParams<{ chatroomId: string }>();
   const { activeRoom, setActiveRoom } = useChatStore();
-  const currentMemberId = "100"; // 실제로는 AuthStore에서 가져옴
-  {
-    /*}
-  console.log("현재 스토어 데이터(activeRoom):", activeRoom);
-  console.log("URL에서 가져온 ID(chatroomId):", chatroomId);*/
-  }
-  // 1. 데이터 로딩 및 동기화 로직
+  const [postDetail, setPostDetail] = useState<PostDetailResponse | null>(null);
+  const [isLoadingPost, setIsLoadingPost] = useState(false);
+
+  const handleMatchModalClick = () => {
+    if (chatroomId) {
+      navigate(`/chat/${chatroomId}/match`);
+    } else {
+      console.warn("매칭하기 버튼: chatroomId가 없습니다.");
+    }
+  };
+
+  // 1. 채팅방 정보 로딩 및 동기화 로직
   useEffect(() => {
     // chatroomId가 URL에 없으면 실행 안 함
     if (!chatroomId) return;
 
     const fetchRoomDetail = async () => {
       try {
-        const data = await chatApi.openChatRoom(
-          currentMemberId,
-          undefined,
-          chatroomId
-        );
+        const data = await chatApi.openChatRoom(undefined, chatroomId);
         setActiveRoom(data); // 데이터 수신 완료 -> activeRoom이 null이 아니게 됨
       } catch (error) {
         console.error("채팅방 정보를 불러오는데 실패했습니다.", error);
@@ -46,12 +45,53 @@ const ChatRoomCard = () => {
       fetchRoomDetail();
     }
 
-    // [중요] Cleanup 함수: 페이지를 이동할 때 이전 채팅방 데이터를 비워줌 (잔상 방지)
+    //  Cleanup 함수: 잔상 방지
     return () => {};
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatroomId]);
 
-  // 2. [가장 중요] 렌더링 가드 (Guard Clause)
-  // return문 직전에 작성합니다. 데이터가 없으면 에러가 날 아래 코드를 실행하지 않습니다.
+  // 2. 게시글 상세 정보 로딩
+  useEffect(() => {
+    if (!activeRoom?.postId) {
+      console.log("⚠️ [ChatRoomCard] postId가 없습니다:", activeRoom);
+      return;
+    }
+
+    const fetchPostDetail = async () => {
+      setIsLoadingPost(true);
+      try {
+        console.log({
+          postId: activeRoom.postId,
+          postIdType: typeof activeRoom.postId,
+        });
+
+        const detail = await postApi.getPostDetail(activeRoom.postId);
+        console.log("성공:", detail);
+        setPostDetail(detail);
+      } catch (error) {
+        const axiosError = error as {
+          response?: { data?: unknown; status?: number; statusText?: string };
+          message?: string;
+        };
+        console.error("실패:", {
+          postId: activeRoom.postId,
+          error,
+          response: axiosError.response?.data,
+          status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
+        });
+        // 에러 발생 시 postDetail을 null로 설정하여 UI가 깨지지 않도록 함
+        setPostDetail(null);
+      } finally {
+        setIsLoadingPost(false);
+      }
+    };
+
+    fetchPostDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeRoom?.postId]);
+
+  // 3. 렌더링 가드 (Guard Clause)
   if (!activeRoom) {
     return (
       <div style={{ padding: "20px", textAlign: "center" }}>
@@ -59,6 +99,7 @@ const ChatRoomCard = () => {
       </div>
     );
   }
+
   return (
     <>
       <Header
@@ -68,14 +109,15 @@ const ChatRoomCard = () => {
         showRight
       />
       <ChatHeader>
-        {/*추후 서버랑연동 -> 연결된 게시글 데이터 불러옴*/}
         <HeaderTop>
           <ChatTitle id="게시글 제목">
-            병원 동행할 파트너를 구합니다 절찬모집 이얏호
+            {isLoadingPost
+              ? "게시글 정보를 불러오는 중..."
+              : postDetail?.title || "게시글 제목"}
           </ChatTitle>
           {/* 매칭하기 버튼 누르면 매칭확인서로 페이지 이동*/}
           <MatchButton
-            // onClick={handleMatchModalClick}
+            onClick={handleMatchModalClick}
             aria-describedby="게시글 제목"
           >
             매칭하기
@@ -83,9 +125,12 @@ const ChatRoomCard = () => {
         </HeaderTop>
 
         <HelpTagBox role="list" aria-label="도움 카테고리">
-          {activeRoom?.helpCategories?.map((cat) => (
-            <HelpTag key={cat.id}>{cat.name}</HelpTag>
-          ))}
+          {postDetail?.helpCategoryIds?.map((categoryId) => {
+            const categoryName = HELP_TAG_MAP[categoryId];
+            return categoryName ? (
+              <HelpTag key={categoryId}>{categoryName}</HelpTag>
+            ) : null;
+          })}
         </HelpTagBox>
       </ChatHeader>
     </>
