@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
 import { useChatStore } from "../store/useChatStore";
 import { postApi } from "../../../api/postApi";
@@ -17,6 +18,7 @@ import {
   getDayOfWeekFromDate,
   formatDateToISO,
   formatTimeToISO,
+  calculateTotalOccurrences,
 } from "../../../types/common.types";
 
 import DayHelpForm from "../components/matchConfirm/DayHelpForm";
@@ -36,9 +38,9 @@ const typeLabelMap = {
 // PostDetailResponse를 AgreementRequest로 변환
 const convertPostToAgreementRequest = (
   post: PostDetailResponse,
-  postId: number,
-  helperId: number,
-  disabledId: number
+  postId: string,
+  helperId: string,
+  disabledId: string
 ): Partial<AgreementRequest> => {
   // 기본 AgreementRequest 구조
   const baseRequest: Partial<AgreementRequest> = {
@@ -118,17 +120,21 @@ const MatchFormPage = () => {
         const detail = await postApi.getPostDetail(currentActiveRoom.postId);
         setPostDetail(detail);
 
-        const myId = Number(currentActiveRoom.myId);
-        const otherId = Number(currentActiveRoom.otherId);
-        const helperId = myId;
-        const disabledId = otherId;
+        const myId = currentActiveRoom.myId;
+        const otherId = currentActiveRoom.otherId;
+        const helperId = otherId;
+        const disabledId = myId;
 
         const request = convertPostToAgreementRequest(
           detail,
-          Number(currentActiveRoom.postId),
+          currentActiveRoom.postId,
           helperId,
           disabledId
         );
+        // region을 postDetail.postAddress로 초기화 (LocationInput 초기값 설정)
+        if (detail.postAddress) {
+          request.region = detail.postAddress;
+        }
         setAgreementRequest(request);
         setSelectedTags(detail.helpCategoryIds || []);
 
@@ -210,6 +216,55 @@ const MatchFormPage = () => {
   const formatDate = formatDateToISO;
   const formatTime = formatTimeToISO;
 
+  // TERM 타입일 때 총 도움 횟수 계산 (usePostWrite 패턴과 동일)
+  const totalCount = useMemo(() => {
+    if (
+      agreementRequest?.type === "TERM" &&
+      termEngagement?.periodStart &&
+      termEngagement?.periodEnd &&
+      termEngagement?.weeks?.length
+    ) {
+      // termEngagement.weeks를 schedules 형식으로 변환
+      const schedules = termEngagement.weeks.map((week) => ({
+        dayOfWeek: convertDayNameToDayOfWeek(week.day) as
+          | "MONDAY"
+          | "TUESDAY"
+          | "WEDNESDAY"
+          | "THURSDAY"
+          | "FRIDAY"
+          | "SATURDAY"
+          | "SUNDAY",
+      }));
+
+      return calculateTotalOccurrences(
+        formatDateToISO(termEngagement.periodStart),
+        formatDateToISO(termEngagement.periodEnd),
+        schedules
+      );
+    }
+    return 1; // DAY 타입은 기본 1회
+  }, [
+    agreementRequest?.type,
+    termEngagement?.periodStart,
+    termEngagement?.periodEnd,
+    termEngagement?.weeks,
+  ]);
+
+  // TERM 타입일 때 totalHoney 자동 계산 (usePostWrite 패턴과 동일)
+  useEffect(() => {
+    if (
+      agreementRequest?.type === "TERM" &&
+      agreementRequest?.unitHoney &&
+      totalCount > 0
+    ) {
+      const calculatedTotal = totalCount * agreementRequest.unitHoney;
+      if (agreementRequest.totalHoney !== calculatedTotal) {
+        updateField("totalHoney", calculatedTotal);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalCount, agreementRequest?.unitHoney, agreementRequest?.type]);
+
   const handleConfirm = async () => {
     console.log("현재 상태:", {
       agreementRequest,
@@ -274,12 +329,8 @@ const MatchFormPage = () => {
             endTime: formatTime(dayEngagement.endTime),
           },
         };
-        console.log(
-          "✅ [handleConfirm] DAY 타입 engagementTime 생성 완료:",
-          engagementTime
-        );
+        console.log("DAY 타입 engagementTime 생성 완료:", engagementTime);
       } else if (agreementRequest.type === "TERM" && termEngagement) {
-        console.log("🔵 [handleConfirm] TERM 타입 처리 시작:", termEngagement);
         // TERM 타입
         if (
           !termEngagement.periodStart ||
@@ -319,19 +370,18 @@ const MatchFormPage = () => {
         setIsSubmitting(false);
         return;
       }
-
       // helperId와 disabledId는 agreementRequest에 이미 포함되어 있음
       // activeRoom이 있으면 그것을 우선 사용, 없으면 agreementRequest의 값 사용
-      let helperId: number;
-      let disabledId: number;
-      let postId: number;
+      let helperId: string;
+      let disabledId: string;
+      let postId: string;
 
       if (activeRoom) {
-        const myId = Number(activeRoom.myId);
-        const otherId = Number(activeRoom.otherId);
+        const myId = activeRoom.myId;
+        const otherId = activeRoom.otherId;
         helperId = agreementRequest.helperId ?? otherId;
         disabledId = agreementRequest.disabledId ?? myId;
-        postId = agreementRequest.postId ?? Number(activeRoom.postId);
+        postId = agreementRequest.postId;
       } else {
         // activeRoom이 없으면 agreementRequest의 값 사용
         if (
@@ -382,7 +432,7 @@ const MatchFormPage = () => {
           (agreementRequest.type === "DAY"
             ? agreementRequest.unitHoney ?? postDetail.unitHoney
             : (agreementRequest.unitHoney ?? postDetail.unitHoney) *
-              (termEngagement?.weeks?.length || 1)),
+              totalCount),
         region: agreementRequest.region || postDetail.postAddress || "",
         // engagementTime은 항상 새로 생성 (dayEngagement/termEngagement에서 변환)
         engagementTime: engagementTime,
@@ -390,7 +440,7 @@ const MatchFormPage = () => {
 
       // 서버로 보낼 최종 데이터 상세 출력
       console.log("=".repeat(60));
-      console.log("📤 [handleConfirm] 매칭 확인서 생성 요청 데이터");
+      console.log(" 매칭 확인서 생성 요청 데이터");
       console.log("=".repeat(60));
       console.log("JSON 형태:", JSON.stringify(finalRequest, null, 2));
       console.log("=".repeat(60));
@@ -430,36 +480,6 @@ const MatchFormPage = () => {
       console.log("- region:", finalRequest.region, typeof finalRequest.region);
       console.log("- engagementTime:", JSON.stringify(engagementTime, null, 2));
       console.log("=".repeat(60));
-
-      // 타입 검증
-      const validationErrors: string[] = [];
-      if (typeof finalRequest.postId !== "number")
-        validationErrors.push("postId는 number여야 합니다.");
-      if (typeof finalRequest.helperId !== "number")
-        validationErrors.push("helperId는 number여야 합니다.");
-      if (typeof finalRequest.disabledId !== "number")
-        validationErrors.push("disabledId는 number여야 합니다.");
-      if (!["DAY", "TERM"].includes(finalRequest.type))
-        validationErrors.push("type은 'DAY' 또는 'TERM'이어야 합니다.");
-      if (typeof finalRequest.isVolunteer !== "boolean")
-        validationErrors.push("isVolunteer는 boolean이어야 합니다.");
-      if (!Array.isArray(finalRequest.helpCategoryIds))
-        validationErrors.push("helpCategoryIds는 배열이어야 합니다.");
-      if (typeof finalRequest.unitHoney !== "number")
-        validationErrors.push("unitHoney는 number여야 합니다.");
-      if (typeof finalRequest.totalHoney !== "number")
-        validationErrors.push("totalHoney는 number여야 합니다.");
-      if (typeof finalRequest.region !== "string")
-        validationErrors.push("region은 string이어야 합니다.");
-      if (!finalRequest.engagementTime)
-        validationErrors.push("engagementTime은 필수입니다.");
-
-      if (validationErrors.length > 0) {
-        console.error("데이터 검증 실패:", validationErrors);
-        alert(`데이터 검증 실패:\n${validationErrors.join("\n")}`);
-        setIsSubmitting(false);
-        return;
-      }
 
       console.log(" 데이터 검증 통과");
 
@@ -518,15 +538,33 @@ const MatchFormPage = () => {
           totalPoints: finalRequest.totalHoney,
           matchStatus: "MATCHED",
           createdAt: new Date().toISOString(),
+          postId: String(finalRequest.postId),
+          title:
+            postDetail?.title || activeRoom?.otherNickname || "매칭 확인서",
+          helperId: String(finalRequest.helperId),
+          disabledId: String(finalRequest.disabledId),
         };
+
+        // 매칭 확인서 메타데이터를 store에 저장
+        const {
+          setAgreementMetadata,
+          fetchHistory,
+          getHistoryMessages,
+          addMessage: addMessageToStore,
+        } = useChatStore.getState();
+
+        // 메타데이터 저장 (서버 메시지와 병합 시 사용)
+        setAgreementMetadata(String(response.agreementId), {
+          postId: String(finalRequest.postId),
+          title:
+            postDetail?.title || activeRoom?.otherNickname || "매칭 확인서",
+          helperId: String(finalRequest.helperId),
+          disabledId: String(finalRequest.disabledId),
+          chatroomId: chatroomId,
+        });
 
         // 서버에서 최신 메시지 가져와서 중복 확인
         try {
-          const {
-            fetchHistory,
-            getHistoryMessages,
-            addMessage: addMessageToStore,
-          } = useChatStore.getState();
           await fetchHistory(chatroomId, null);
           console.log(" 동기화 완료");
 
@@ -548,11 +586,11 @@ const MatchFormPage = () => {
             console.log(
               " 서버에 이미 매칭 확인서 메시지 존재, 클라이언트 메시지 추가 스킵"
             );
+            // 서버 메시지가 있더라도 메타데이터는 이미 저장되었으므로 유지됨
           }
         } catch (error) {
           console.error(" 서버 메시지 동기화 실패:", error);
           // 실패해도 클라이언트 메시지 추가
-          const { addMessage: addMessageToStore } = useChatStore.getState();
           console.log(
             "📤 [handleConfirm] 서버 동기화 실패, 클라이언트 메시지 추가:",
             matchConfirmationMessage
@@ -667,17 +705,32 @@ const MatchFormPage = () => {
         }}
         required
       />
-
-      <LocationInput
-        inputLabel="만남 장소"
-        infoText="행정동 단위까지만 공개되니 안심하세요."
-        value={agreementRequest.region || postDetail?.postAddress || ""}
-        onChange={(e) => updateField("region", e.target.value)}
-        onSelect={(loc) => {
-          updateField("region", loc.address);
-        }}
-        required
-      />
+      {agreementRequest.type === "TERM" &&
+      termEngagement &&
+      agreementRequest.unitHoney &&
+      agreementRequest.totalHoney ? (
+        <TotlaHoney>
+          <span style={{ color: "#155DFC" }}> 총 제공 꿀: </span>
+          <span>
+            총{" "}
+            <span style={{ color: "#155DFC" }}>
+              {agreementRequest.totalHoney.toLocaleString()} 꿀
+            </span>
+            이 도우미에게 제공될 예정이에요
+          </span>
+        </TotlaHoney>
+      ) : null}
+      <LocationInputWrapper>
+        <LocationInput
+          inputLabel="만남 장소"
+          infoText="행정동 단위까지만 공개되니 안심하세요."
+          value={agreementRequest.region || postDetail?.postAddress || ""}
+          onSelect={(loc) => {
+            updateField("region", loc.address);
+          }}
+          required
+        />
+      </LocationInputWrapper>
 
       <BaseLongButton
         label={isSubmitting ? "생성 중..." : "확인"}
@@ -689,3 +742,20 @@ const MatchFormPage = () => {
 };
 
 export default MatchFormPage;
+
+const TotlaHoney = styled.div`
+  width: 100%;
+  border: 0.5px solid ${({ theme }) => theme.color.blue500};
+  background-color: ${({ theme }) => theme.color.blue50};
+  padding: 8px 16px;
+  font-size: ${({ theme }) => theme.size.sm};
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  color: ${({ theme }) => theme.color.subText2};
+  margin-top: 12px;
+`;
+
+const LocationInputWrapper = styled.div`
+  position: relative;
+  margin-bottom: 220px; /* 검색 리스트가 표시될 공간 확보 (max-height: 200px + 여유 공간) */
+  z-index: 1;
+`;

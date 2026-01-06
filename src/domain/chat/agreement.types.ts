@@ -25,10 +25,10 @@ export interface TermEngagementTime {
 
 // 매칭 확인서 생성 요청
 export interface AgreementRequest {
-  postId: number;
-  helperId: number;
-  disabledId: number;
-  memberId?: number;
+  postId: string;
+  helperId: string;
+  disabledId: string;
+  memberId?: string;
   type: HelpType;
   isVolunteer: boolean;
   unitHoney: number;
@@ -47,7 +47,7 @@ export interface HelpCategory {
 
 // 매칭 확인서 응답
 export interface AgreementResponse {
-  agreementId: number;
+  agreementId: string;
   status: "BEFORE" | "AFTER" | "CANCEL";
   confirmationDate: string; // YYYY-MM-DD
   type: HelpType;
@@ -58,4 +58,15 @@ export interface AgreementResponse {
   region: string;
   isDayComplete: boolean;
   isTermComplete: boolean;
+}
+
+//수락 요청 타입
+
+export interface AgreementMetadata {
+  agreementId: string;
+  postId: string;
+  title: string;
+  helperId: string;
+  disabledId: string;
+  chatroomId: string;
 }

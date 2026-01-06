@@ -1,5 +1,9 @@
 import { instance } from "../../../api/axiosInstance";
-import type { AgreementRequest, AgreementResponse } from "../agreement.types";
+import type {
+  AgreementRequest,
+  AgreementResponse,
+  AgreementConfirmRequest,
+} from "../agreement.types";
 
 export const createAgreement = async (
   data: AgreementRequest
@@ -9,4 +13,12 @@ export const createAgreement = async (
     data
   );
   return response.data;
+};
+
+// 매칭 확인서 수락
+export const confirmAgreement = async (
+  agreementId: string,
+  data: AgreementConfirmRequest
+): Promise<void> => {
+  await instance.patch(`match/agreements/${agreementId}/confirm`, data);
 };

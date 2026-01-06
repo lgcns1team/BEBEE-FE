@@ -67,7 +67,7 @@ export const chatApi = {
   getMessages: async (
     chatroomId: string,
     nextChatId?: string | null,
-    count: number = 20
+    count: number = 5
   ) => {
     try {
       const response = await instance.get<ChatMessagesGetResDTO>(

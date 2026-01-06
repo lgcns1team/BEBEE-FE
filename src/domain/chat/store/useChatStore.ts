@@ -5,8 +5,144 @@ import type {
   ChatroomListItem,
   ChatroomListResponse,
   ChatMessage,
-  ChatMessagesGetResDTO, // 기존 ChatMessageResponse에서 이름 변경됨
+  ChatMessagesGetResDTO,
 } from "../chat.types";
+
+import type { AgreementMetadata } from "../agreement.types";
+// localStorage 키
+const STORAGE_KEY = "bebee-chat-messages";
+const AGREEMENT_METADATA_KEY = "bebee-agreement-metadata";
+
+// 매칭 확인서 메타데이터 타입
+
+// localStorage에서 메시지 복원
+const loadMessagesFromStorage = (): Record<
+  string,
+  {
+    messages: ChatMessage[];
+    messageHasNext: boolean;
+    nextChatId: string | null;
+  }
+> => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as Record<
+        string,
+        {
+          messages: ChatMessage[];
+          messageHasNext: boolean;
+          nextChatId: string | null;
+        }
+      >;
+      const chatroomCount = Object.keys(parsed).length;
+      const totalMessages = Object.values(parsed).reduce(
+        (sum, room) => sum + (room.messages?.length || 0),
+        0
+      );
+      console.log(
+        `✅ [loadMessagesFromStorage] localStorage에서 메시지 복원:`,
+        {
+          채팅방수: chatroomCount,
+          총메시지수: totalMessages,
+        }
+      );
+      return parsed;
+    }
+  } catch (error) {
+    console.error(
+      "❌ [loadMessagesFromStorage] localStorage에서 메시지 복원 실패:",
+      error
+    );
+  }
+  console.log("ℹ️ [loadMessagesFromStorage] localStorage에 저장된 메시지 없음");
+  return {};
+};
+
+// localStorage에서 매칭 확인서 메타데이터 복원
+const loadAgreementMetadataFromStorage = (): Record<
+  string,
+  AgreementMetadata
+> => {
+  try {
+    const stored = localStorage.getItem(AGREEMENT_METADATA_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as Record<string, AgreementMetadata>;
+      const metadataCount = Object.keys(parsed).length;
+      console.log(
+        `✅ [loadAgreementMetadataFromStorage] localStorage에서 메타데이터 복원:`,
+        {
+          메타데이터수: metadataCount,
+        }
+      );
+      return parsed;
+    }
+  } catch (error) {
+    console.error(
+      "❌ [loadAgreementMetadataFromStorage] localStorage에서 메타데이터 복원 실패:",
+      error
+    );
+  }
+  console.log(
+    "ℹ️ [loadAgreementMetadataFromStorage] localStorage에 저장된 메타데이터 없음"
+  );
+  return {};
+};
+
+// localStorage에 매칭 확인서 메타데이터 저장
+const saveAgreementMetadataToStorage = (
+  metadata: Record<string, AgreementMetadata>
+) => {
+  try {
+    const metadataCount = Object.keys(metadata).length;
+    localStorage.setItem(AGREEMENT_METADATA_KEY, JSON.stringify(metadata));
+    console.log(
+      `💾 [saveAgreementMetadataToStorage] localStorage에 메타데이터 저장:`,
+      {
+        메타데이터수: metadataCount,
+      }
+    );
+  } catch (error) {
+    console.error(
+      "❌ [saveAgreementMetadataToStorage] localStorage에 메타데이터 저장 실패:",
+      error
+    );
+  }
+};
+
+// localStorage에 메시지 저장
+const saveMessagesToStorage = (
+  messagesByChatroom: Record<
+    string,
+    {
+      messages: ChatMessage[];
+      messageHasNext: boolean;
+      nextChatId: string | null;
+    }
+  >
+) => {
+  try {
+    const chatroomCount = Object.keys(messagesByChatroom).length;
+    const totalMessages = Object.values(messagesByChatroom).reduce(
+      (sum, room) => sum + (room.messages?.length || 0),
+      0
+    );
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messagesByChatroom));
+    console.log(`💾 [saveMessagesToStorage] localStorage에 메시지 저장:`, {
+      채팅방수: chatroomCount,
+      총메시지수: totalMessages,
+    });
+  } catch (error) {
+    console.error(
+      "❌ [saveMessagesToStorage] localStorage에 메시지 저장 실패:",
+      error
+    );
+    // localStorage 용량 초과 시 오래된 메시지 정리 시도
+    if (error instanceof DOMException && error.name === "QuotaExceededError") {
+      console.warn("⚠️ localStorage 용량 초과, 오래된 메시지 정리 필요");
+    }
+  }
+};
 
 interface ChatState {
   // 1. 상세 채팅방 관련
@@ -30,12 +166,24 @@ interface ChatState {
     }
   >;
 
+  // 4. 매칭 확인서 메타데이터 (agreementId를 키로 관리)
+  agreementMetadata: Record<string, AgreementMetadata>;
+
   isLoadingHistory: boolean;
 
   // 현재 활성 채팅방의 메시지 조회 헬퍼
   getHistoryMessages: (chatroomId?: string) => ChatMessage[];
   getMessageHasNext: (chatroomId?: string) => boolean;
   getNextChatId: (chatroomId?: string) => string | null;
+
+  // 매칭 확인서 메타데이터 관리
+  setAgreementMetadata: (
+    agreementId: string,
+    metadata: AgreementMetadata
+  ) => void;
+  getAgreementMetadata: (agreementId: string) => AgreementMetadata | undefined;
+  // 메시지에 메타데이터 병합
+  getMessageWithMetadata: (message: ChatMessage) => ChatMessage;
 
   fetchHistory: (
     chatroomId: string,
@@ -51,7 +199,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   hasNext: false,
   nextChatroomId: null,
 
-  messagesByChatroom: {},
+  messagesByChatroom: loadMessagesFromStorage(), // localStorage에서 복원
+  agreementMetadata: loadAgreementMetadataFromStorage(), // localStorage에서 복원
   isLoadingHistory: false,
 
   getHistoryMessages: (chatroomId?: string) => {
@@ -70,6 +219,40 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const targetChatroomId = chatroomId || get().activeRoom?.chatroomId;
     if (!targetChatroomId) return null;
     return get().messagesByChatroom[targetChatroomId]?.nextChatId || null;
+  },
+
+  // 매칭 확인서 메타데이터 설정
+  setAgreementMetadata: (agreementId: string, metadata: AgreementMetadata) => {
+    set((state) => {
+      const updatedMetadata = {
+        ...state.agreementMetadata,
+        [agreementId]: metadata,
+      };
+      saveAgreementMetadataToStorage(updatedMetadata);
+      return { agreementMetadata: updatedMetadata };
+    });
+  },
+
+  // 매칭 확인서 메타데이터 조회
+  getAgreementMetadata: (agreementId: string) => {
+    return get().agreementMetadata[agreementId];
+  },
+
+  // 메시지에 메타데이터 병합
+  getMessageWithMetadata: (message: ChatMessage) => {
+    if (message.type === "MATCH_CONFIRMATION" && message.agreementId) {
+      const metadata = get().agreementMetadata[message.agreementId];
+      if (metadata) {
+        return {
+          ...message,
+          postId: message.postId || metadata.postId,
+          title: message.title || metadata.title,
+          helperId: message.helperId || metadata.helperId,
+          disabledId: message.disabledId || metadata.disabledId,
+        };
+      }
+    }
+    return message;
   },
 
   setActiveRoom: (room) => set({ activeRoom: room }),
@@ -109,6 +292,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       );
 
       set((state) => {
+        // 현재 채팅방의 메시지 가져오기 (localStorage에서 복원된 메시지 포함)
         const currentChatroomMessages = state.messagesByChatroom[
           chatroomId
         ] || {
@@ -116,6 +300,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
           messageHasNext: false,
           nextChatId: null,
         };
+
+        console.log(`🔍 [fetchHistory] 현재 상태 확인:`, {
+          chatroomId,
+          기존메시지개수: currentChatroomMessages.messages.length,
+          전체채팅방수: Object.keys(state.messagesByChatroom).length,
+        });
 
         let updatedMessages: ChatMessage[];
 
@@ -128,10 +318,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
             ...currentChatroomMessages.messages,
           ];
         } else {
-          // 초기 로드 시: 서버 메시지와 기존 메시지(MATCH_CONFIRMATION 등) 병합
-          const existingMatchMessages = currentChatroomMessages.messages.filter(
-            (msg) => msg.type === "MATCH_CONFIRMATION"
+          // 초기 로드 시: 서버 메시지와 기존 메시지(로컬 저장소에서 복원된 메시지 포함) 병합
+          // localStorage에서 복원된 모든 메시지를 유지
+          const existingMessages = currentChatroomMessages.messages;
+          console.log(
+            `📥 [fetchHistory] 초기 로드 - 기존 메시지 개수: ${existingMessages.length}`,
+            {
+              chatroomId,
+              existingCount: existingMessages.length,
+              serverCount: data?.messages?.length || 0,
+            }
           );
+
           let serverMessages = data?.messages ?? [];
 
           // 서버 메시지 배열 내에서도 중복 제거 (agreementId 기준)
@@ -163,7 +361,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             return true;
           });
 
-          // 서버 메시지의 agreementId Set 생성
+          // 서버 메시지의 ID와 agreementId Set 생성
           const serverAgreementIds = new Set(
             serverMessages
               .filter((m) => m.agreementId)
@@ -171,26 +369,51 @@ export const useChatStore = create<ChatState>((set, get) => ({
           );
           const serverMessageIds = new Set(serverMessages.map((m) => m.id));
 
-          // 클라이언트 메시지 중 서버에 없는 것만 유지
-          const uniqueMatchMessages = existingMatchMessages.filter(
-            (msg) =>
-              !serverMessageIds.has(msg.id) &&
-              (!msg.agreementId || !serverAgreementIds.has(msg.agreementId))
-          );
-
-          // 서버 메시지와 클라이언트 메시지 병합
-          updatedMessages = [...serverMessages];
-          uniqueMatchMessages.forEach((clientMsg) => {
-            // 서버에 없는 클라이언트 메시지만 추가
-            const serverMsg = serverMessages.find(
-              (m) =>
-                m.agreementId === clientMsg.agreementId &&
-                m.type === "MATCH_CONFIRMATION"
-            );
-
-            if (!serverMsg) {
-              updatedMessages.push(clientMsg);
+          // 기존 메시지(localStorage에서 복원된 메시지 포함) 중 서버에 없는 것만 유지
+          const uniqueExistingMessages = existingMessages.filter((msg) => {
+            // 서버에 이미 있는 메시지는 제외
+            if (serverMessageIds.has(msg.id)) {
+              return false;
             }
+            // MATCH_CONFIRMATION 타입은 agreementId로도 체크
+            if (
+              msg.type === "MATCH_CONFIRMATION" &&
+              msg.agreementId &&
+              serverAgreementIds.has(msg.agreementId)
+            ) {
+              return false;
+            }
+            return true;
+          });
+
+          // 서버 메시지에 메타데이터 병합
+          const serverMessagesWithMetadata = serverMessages.map((msg) => {
+            if (msg.type === "MATCH_CONFIRMATION" && msg.agreementId) {
+              const metadata = state.agreementMetadata[msg.agreementId];
+              if (metadata) {
+                return {
+                  ...msg,
+                  postId: msg.postId || metadata.postId,
+                  title: msg.title || metadata.title,
+                  helperId: msg.helperId || metadata.helperId,
+                  disabledId: msg.disabledId || metadata.disabledId,
+                };
+              }
+            }
+            return msg;
+          });
+
+          // 서버 메시지와 기존 메시지 병합 (시간순 정렬)
+          updatedMessages = [
+            ...serverMessagesWithMetadata,
+            ...uniqueExistingMessages,
+          ];
+
+          console.log(`✅ [fetchHistory] 메시지 병합 완료:`, {
+            chatroomId,
+            서버메시지: serverMessages.length,
+            기존메시지유지: uniqueExistingMessages.length,
+            최종메시지: updatedMessages.length,
           });
 
           // 모든 메시지를 시간순으로 정렬
@@ -201,16 +424,27 @@ export const useChatStore = create<ChatState>((set, get) => ({
           });
         }
 
-        // 채팅방별 메시지 업데이트
-        return {
-          messagesByChatroom: {
-            ...state.messagesByChatroom,
-            [chatroomId]: {
-              messages: updatedMessages,
-              messageHasNext: data?.hasNext ?? false,
-              nextChatId: data?.nextChatId ?? null,
-            },
+        // 채팅방별 메시지 업데이트 (다른 채팅방의 메시지는 유지)
+        const updatedMessagesByChatroom = {
+          ...state.messagesByChatroom, // 기존 모든 채팅방 메시지 유지
+          [chatroomId]: {
+            messages: updatedMessages,
+            messageHasNext: data?.hasNext ?? false,
+            nextChatId: data?.nextChatId ?? null,
           },
+        };
+
+        console.log(
+          `💾 [fetchHistory] localStorage 저장 전 - 채팅방 수: ${
+            Object.keys(updatedMessagesByChatroom).length
+          }`
+        );
+
+        // localStorage에 저장 (모든 채팅방 메시지 포함)
+        saveMessagesToStorage(updatedMessagesByChatroom);
+
+        return {
+          messagesByChatroom: updatedMessagesByChatroom,
         };
       });
     } catch (error) {
@@ -222,20 +456,42 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   clearHistory: (chatroomId?: string) =>
     set((state) => {
+      let updatedMessagesByChatroom: Record<
+        string,
+        {
+          messages: ChatMessage[];
+          messageHasNext: boolean;
+          nextChatId: string | null;
+        }
+      >;
+      let updatedMetadata = { ...state.agreementMetadata };
+
       if (chatroomId) {
         // 특정 채팅방의 메시지만 초기화
-        const updatedMessagesByChatroom = { ...state.messagesByChatroom };
+        updatedMessagesByChatroom = { ...state.messagesByChatroom };
         delete updatedMessagesByChatroom[chatroomId];
-        return {
-          messagesByChatroom: updatedMessagesByChatroom,
-        };
+
+        // 해당 채팅방의 매칭 확인서 메타데이터도 제거
+        Object.keys(updatedMetadata).forEach((agreementId) => {
+          if (updatedMetadata[agreementId].chatroomId === chatroomId) {
+            delete updatedMetadata[agreementId];
+          }
+        });
       } else {
         // chatroomId가 없으면 모든 메시지 초기화
-        return {
-          messagesByChatroom: {},
-          activeRoom: null,
-        };
+        updatedMessagesByChatroom = {};
+        updatedMetadata = {};
       }
+
+      // localStorage에 저장
+      saveMessagesToStorage(updatedMessagesByChatroom);
+      saveAgreementMetadataToStorage(updatedMetadata);
+
+      return {
+        messagesByChatroom: updatedMessagesByChatroom,
+        agreementMetadata: updatedMetadata,
+        ...(chatroomId ? {} : { activeRoom: null }),
+      };
     }),
 
   addMessage: (message, chatroomId?: string) =>
@@ -297,14 +553,43 @@ export const useChatStore = create<ChatState>((set, get) => ({
         chatroomId: targetChatroomId,
       });
 
-      return {
-        messagesByChatroom: {
-          ...state.messagesByChatroom,
-          [targetChatroomId]: {
-            ...currentChatroomMessages,
-            messages: [...currentChatroomMessages.messages, message],
-          },
+      // MATCH_CONFIRMATION 타입 메시지이고 메타데이터가 있으면 저장
+      if (
+        message.type === "MATCH_CONFIRMATION" &&
+        message.agreementId &&
+        message.postId &&
+        message.helperId &&
+        message.disabledId &&
+        message.title
+      ) {
+        const metadata: AgreementMetadata = {
+          postId: message.postId,
+          title: message.title,
+          helperId: message.helperId,
+          disabledId: message.disabledId,
+          chatroomId: targetChatroomId,
+        };
+        const updatedMetadata = {
+          ...state.agreementMetadata,
+          [message.agreementId]: metadata,
+        };
+        saveAgreementMetadataToStorage(updatedMetadata);
+        set({ agreementMetadata: updatedMetadata });
+      }
+
+      const updatedMessagesByChatroom = {
+        ...state.messagesByChatroom,
+        [targetChatroomId]: {
+          ...currentChatroomMessages,
+          messages: [...currentChatroomMessages.messages, message],
         },
+      };
+
+      // localStorage에 저장
+      saveMessagesToStorage(updatedMessagesByChatroom);
+
+      return {
+        messagesByChatroom: updatedMessagesByChatroom,
       };
     }),
 }));

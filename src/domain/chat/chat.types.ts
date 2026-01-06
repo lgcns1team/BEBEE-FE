@@ -1,5 +1,5 @@
-// 메시지 타입 구분 (일반 텍스트, 이미지, 매칭 확인서)
-export type MessageType = "TEXT" | "IMAGE" | "MATCH_CONFIRMATION";
+// 메시지 타입 구분 (일반 텍스트, 이미지, 매칭 확인서, 매칭 성공)
+export type MessageType = "TEXT" | "IMAGE" | "MATCH_CONFIRMATION" | "MATCH_SUCCESS";
 export type MatchStatus = "NON_MATCHED" | "PROCEEDING" | "MATCHED";
 export interface ChatMessage {
   id: string;
@@ -20,6 +20,10 @@ export interface ChatMessage {
   matchStatus?: string;
   createdAt: string;
   chatroomId?: string; // 채팅방 ID (소켓 메시지 구분용)
+  postId?: string; // 게시글 ID (매칭 확인서 수락 시 필요)
+  title?: string; // 게시글 제목 (매칭 확인서 수락 시 필요)
+  helperId?: string; // 도우미 ID (매칭 확인서 수락 시 필요)
+  disabledId?: string; // 장애인 ID (매칭 확인서 수락 시 필요)
 }
 
 export interface ChatMessagesGetResDTO {
