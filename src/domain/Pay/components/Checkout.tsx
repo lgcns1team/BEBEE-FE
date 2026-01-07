@@ -13,7 +13,8 @@ type CheckoutState = {
 };
 
 export default function Checkout() {
-  const memberId = useUserStore((s) => s.user.memberId);
+  // const memberId = useUserStore((s) => s.user.memberId);
+  const memberId = "100";
   const location = useLocation();
   const clientKey = import.meta.env.VITE_TOSS_PAYMENTS_CLIENT_KEY;
   const customerKey = String(memberId);

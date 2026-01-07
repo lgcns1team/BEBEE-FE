@@ -2,10 +2,16 @@ import styled from "styled-components";
 import { FaHeart } from "react-icons/fa";
 import type { Applicant } from "../../../types/application.type";
 import type { Gender } from "../../auth/auth.types";
-import { IoChevronForward } from "react-icons/io5";
+// import { useNavigate } from "react-router-dom";
+// import { chatApi } from "../../chat/api/chatApi";
+// import { IoChevronForward } from "react-icons/io5";
+
 interface Props {
   applicants: Applicant[];
   isSharing: boolean;
+  // postId: number;
+  // postTitle: string;
+  // helpCategoryIds: number[];
 }
 
 const GENDER_KR: Record<Gender, string> = {
@@ -14,10 +20,31 @@ const GENDER_KR: Record<Gender, string> = {
   NONE: "비공개",
 };
 
-const ApplicantList = ({ applicants, isSharing }: Props) => {
+const ApplicantList = ({
+  applicants,
+  isSharing,
+}: // postId,
+// postTitle,
+// helpCategoryIds,
+Props) => {
   const filteredApplicants = isSharing
     ? applicants.filter((applicant) => applicant.isVolunteer)
     : applicants;
+  // const navigate = useNavigate();
+  // const goChat = async (otherMemberId: string) => {
+  //   try {
+  //     const res = await chatApi.openChatRoom(otherMemberId, undefined, {
+  //       postId,
+  //       postTitle,
+  //       helpCategoryIds,
+  //     });
+  //     const chatroomId = res.chatroomId;
+  //     navigate(`/chat/${chatroomId}`);
+  //   } catch (e) {
+  //     console.error(e);
+  //     alert("채팅방을 열 수 없습니다");
+  //   }
+  // };
   return (
     <PostItemWrapper>
       {filteredApplicants.map((applicant) => (
@@ -33,9 +60,8 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
               </div>
             </UserText>
 
-            <GoProfile>
-              <IoChevronForward size={16} />
-            </GoProfile>
+            {/* <GoProfile onClick={() => goChat(applicant.memberId)}> */}
+            <GoProfile>채팅하기</GoProfile>
           </UserRow>
 
           {applicant.isVolunteer && (
@@ -87,7 +113,12 @@ const UserText = styled.div`
 `;
 
 const GoProfile = styled.div`
-  color: ${({ theme }) => theme.color.subText3};
+  padding: 4px 8px;
+  color: ${({ theme }) => theme.color.text};
+  border: 1px solid ${({ theme }) => theme.color.main};
+  font-size: ${({ theme }) => theme.size.md};
+  background-color: ${({ theme }) => theme.color.subColor};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
   display: flex;
   align-items: center;
 `;

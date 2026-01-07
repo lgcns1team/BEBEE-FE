@@ -17,7 +17,7 @@ export interface ConfirmPaymentRequest {
 
 export const preparePayment = async (amount: number) => {
   const response = await instance.post<PreparePaymentResponse>(
-    "/payments/prepare",
+    "/payment/payments/prepare",
     { amount } satisfies PreparePaymentRequest
   );
 
@@ -25,6 +25,6 @@ export const preparePayment = async (amount: number) => {
 };
 
 export const confirmPayment = async (body: ConfirmPaymentRequest) => {
-  const res = await instance.post("/payments/confirm", body);
+  const res = await instance.post("/payment/payments/confirm", body);
   return res.data;
 };
