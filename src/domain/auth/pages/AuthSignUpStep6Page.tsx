@@ -9,6 +9,7 @@ import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
 import { signUpUser } from "../../../api/authApi";
 import { extractOcr } from "../../../api/ocrApi";
 import { uploadDocument } from "../../../api/documentApi";
+import { uploadFileToS3 } from "../../../api/fileApi";
 import type { SignUpRequest } from "../auth.types";
 
 const AuthSignUpStep6Page = () => {
@@ -127,9 +128,13 @@ const AuthSignUpStep6Page = () => {
                 }
             }
 
-            // 2. 문서 업로드 및 분석
+            // 2. 문서 업로드 및 분석 (S3 직접 업로드 방식)
             if (uploadedFile && currentMemberId) {
-                const uploadRes = await uploadDocument(currentMemberId, uploadedFile);
+                // (1) S3에 직접 업로드하여 URL 획득
+                const fileUrl = await uploadFileToS3(uploadedFile, "documents", currentMemberId);
+
+                // (2) 백엔드에 파일 URL 전달
+                const uploadRes = await uploadDocument(currentMemberId, undefined, fileUrl);
                 const systemFlag = uploadRes.systemFlag;
 
                 if (systemFlag === "HIGH") {
