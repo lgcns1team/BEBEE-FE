@@ -1,10 +1,21 @@
 import axios from "axios";
+import { instance } from "./axiosInstance";
 
-export const uploadImageToS3 = async (file: File) => {
+export interface PresignedUrlParams {
+  directory: string;
+  entityId: string;
+  originFileName: string;
+  contentType: string;
+}
+
+/**
+ * 전용 파일 서비스(file-service)를 통해 S3 Presigned URL을 획득하고 파일을 직접 업로드합니다.
+ */
+export const uploadFileToS3 = async (file: File, directory: string, entityId: string = Date.now().toString()) => {
   // 1. Presigned URL 요청
-  const { data } = await axios.post("/files/presigned-url", {
-    directory: "posts",
-    entityId: Date.now().toString(), // 게시글 생성 전이라면 임시 ID(타임스탬프 등) 부여
+  const { data } = await instance.post("/files/presigned-url", {
+    directory,
+    entityId,
     originFileName: file.name,
     contentType: file.type,
   });
@@ -12,10 +23,10 @@ export const uploadImageToS3 = async (file: File) => {
   const { uploadUrl, fileUrl } = data;
 
   // 2. S3로 직접 업로드 (PUT 요청)
-  // 주의: 이때 headers의 Content-Type은 위에서 요청한 값과 정확히 일치해야 함
+  // instance 대신 순수 axios를 사용하여 Authorization 헤더 충돌을 방지합니다. (S3는 해당 헤더를 거부할 수 있음)
   await axios.put(uploadUrl, file, {
     headers: { "Content-Type": file.type },
   });
 
-  return fileUrl; // 최종적으로 서버(posts/)에 보낼 URL 반환
+  return fileUrl; // 최종적으로 성공 시 저장된 S3 URL 반환
 };
