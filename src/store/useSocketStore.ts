@@ -18,11 +18,23 @@ interface SocketStore {
   getMessages: (chatroomId: string) => ChatMessage[];
 }
 
-// ★ 테스트 환경 설정
+// 소켓 URL 설정 (환경 변수 또는 기본값)
 const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL ||
   "wss://bebee-chat-1036667053569.asia-northeast3.run.app/ws/chats";
 const MY_TOKEN = "1";
 const MY_MEMBER_ID = 1;
+
+// URL에서 호스트 추출 함수
+const getHostFromUrl = (url: string): string => {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.hostname;
+  } catch {
+    // URL 파싱 실패 시 기본값 반환
+    return "localhost";
+  }
+};
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
   messagesByChatroom: {},
@@ -55,7 +67,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       brokerURL: SOCKET_URL,
       connectHeaders: {
         "accept-version": "1.2",
-        host: "localhost",
+        host: getHostFromUrl(SOCKET_URL),
         Authorization: `Bearer ${MY_TOKEN}`,
       },
       debug: (str) => {
