@@ -1,7 +1,7 @@
 import axios, { type InternalAxiosRequestConfig, type AxiosError } from "axios";
 
 // 임시 토큰 (헤더에 고정)
-const TEMP_TOKEN =
+export const TEMP_TOKEN =
   "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJiZWJlZSIsInN1YiI6IjEwMCIsInJvbGUiOiJESVNBQkxFRCIsImlhdCI6MTc2Nzc2NDMyMywiZXhwIjoxNzY3ODUwNzIzfQ.UXHC_jBsDqho0HuxejaKOCmuDkZF-huZDTOLeA2BMYE";
 
 // localStorage에 토큰 강제 설정

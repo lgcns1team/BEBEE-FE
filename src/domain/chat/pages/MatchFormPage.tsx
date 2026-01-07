@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
 import { useChatStore } from "../store/useChatStore";
+import { useSocketStore } from "../../../store/useSocketStore";
 import { postApi } from "../../../api/postApi";
 import { createAgreement } from "../api/agreementApi";
 import { chatApi } from "../api/chatApi";
@@ -375,10 +376,11 @@ const MatchFormPage = () => {
       let postId: string;
 
       if (activeRoom) {
+        //이거 나중에 바꿔야 됨
         const myId = activeRoom.myId;
         const otherId = activeRoom.otherId;
         helperId = agreementRequest.helperId ?? otherId;
-        disabledId = myId; // activeRoom에서 가져오기
+        disabledId = myId;
         postId = agreementRequest.postId;
       } else {
         // activeRoom이 없으면 agreementRequest의 값 사용
@@ -399,7 +401,7 @@ const MatchFormPage = () => {
         return;
       }
 
-      console.log("🔵 [handleConfirm] helperId/disabledId 결정:", {
+      console.log(" helperId/disabledId 결정:", {
         helperId,
         disabledId,
         postId,
@@ -434,47 +436,6 @@ const MatchFormPage = () => {
         chatroomId: chatroomId,
       };
 
-      // 서버로 보낼 최종 데이터 상세 출력
-      console.log("=".repeat(60));
-      console.log(" 매칭 확인서 생성 요청 데이터");
-      console.log("=".repeat(60));
-      console.log("JSON 형태:", JSON.stringify(finalRequest, null, 2));
-      console.log("=".repeat(60));
-      console.log("상세 정보:");
-      console.log("- postId:", finalRequest.postId, typeof finalRequest.postId);
-      console.log(
-        "- helperId:",
-        finalRequest.helperId,
-        typeof finalRequest.helperId
-      );
-      console.log("- type:", finalRequest.type, typeof finalRequest.type);
-      console.log(
-        "- isVolunteer:",
-        finalRequest.isVolunteer,
-        typeof finalRequest.isVolunteer
-      );
-      console.log(
-        "- helpCategoryIds:",
-        finalRequest.helpCategoryIds,
-        Array.isArray(finalRequest.helpCategoryIds)
-      );
-      console.log(
-        "- unitHoney:",
-        finalRequest.unitHoney,
-        typeof finalRequest.unitHoney
-      );
-      console.log(
-        "- totalHoney:",
-        finalRequest.totalHoney,
-        typeof finalRequest.totalHoney
-      );
-      console.log("- region:", finalRequest.region, typeof finalRequest.region);
-      console.log("- engagementTime:", JSON.stringify(engagementTime, null, 2));
-      console.log("=".repeat(60));
-
-      console.log(" 데이터 검증 통과");
-
-      console.log(" API 호출 시작");
       const response = await createAgreement(finalRequest);
       console.log("매칭 확인서 생성 성공:", response);
 
@@ -569,10 +530,34 @@ const MatchFormPage = () => {
           );
 
           if (!serverHasMatchMessage) {
-            console.log(
-              "📤 서버에 매칭 확인서 메시지 없음, 클라이언트 메시지 추가:",
-              matchConfirmationMessage
-            );
+            console.log("STOMP로 전송", matchConfirmationMessage);
+
+            // STOMP로 매칭확인서 전송
+            const receiverId = activeRoom?.otherId
+              ? Number(activeRoom.otherId)
+              : null;
+
+            if (receiverId && chatroomId) {
+              useSocketStore
+                .getState()
+                .sendMatchConfirmation(receiverId, chatroomId, {
+                  location: matchConfirmationMessage.location || "",
+                  unitPoints: matchConfirmationMessage.unitPoints || 0,
+                  totalPoints: matchConfirmationMessage.totalPoints || 0,
+                  startDate: matchConfirmationMessage.startDate,
+                  endDate: matchConfirmationMessage.endDate,
+                  scheduleDays: matchConfirmationMessage.scheduleDays,
+                  scheduleStartTimes:
+                    matchConfirmationMessage.scheduleStartTimes,
+                  scheduleEndTimes: matchConfirmationMessage.scheduleEndTimes,
+                });
+            } else {
+              console.warn(
+                "receiverId 또는 chatroomId가 없어 STOMP 전송 실패",
+                { receiverId, chatroomId }
+              );
+            }
+
             addMessageToStore(matchConfirmationMessage, chatroomId);
           } else {
             console.log(
