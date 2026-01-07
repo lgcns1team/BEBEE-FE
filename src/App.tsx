@@ -29,13 +29,8 @@ import AuthSignUpStep5Page from "./domain/auth/pages/AuthSignUpStep5Page";
 import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
 import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
-import { useUserStore } from "./store/useUserStore";
-import { reissueToken, getMyInfo } from "./api/authApi";
-
-// Role 타입 검증 함수
-const isValidRole = (role: string): role is 'DISABLED' | 'HELPER' | 'ADMIN' => {
-  return ['DISABLED', 'HELPER', 'ADMIN'].includes(role);
-};
+import ChargePage from "./domain/Pay/page/ChargePage";
+import Checkout from "./domain/Pay/components/Checkout";
 
 function App() {
   const { setAccessToken, setUser } = useUserStore();
@@ -153,6 +148,9 @@ function App() {
           <Route path="/signup/step4" element={<AuthSignUpStep4Page />} />
           <Route path="/signup/step5" element={<AuthSignUpStep5Page />} />
           <Route path="/signup/step6" element={<AuthSignUpStep6Page />} />
+          {/* 결제 */}
+          <Route path="/charge" element={<ChargePage />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

@@ -16,7 +16,7 @@ const ApplicantPage: React.FC = () => {
   const memberId = location.state?.memberId;
   // 전달받은 title이 없으면 기본값 표시
   const title = location.state?.headerTitle || "지원 현황 상세";
-
+  // const helpCategoryIds : number[] = location.state?.helpCategoryIds ?? [];
   useEffect(() => {
     getApplicantsByPostId({
       postId,
@@ -50,6 +50,7 @@ const ApplicantPage: React.FC = () => {
 
       <PostList>
         <ApplicantCard applicants={applicants} isSharing={isSharing} />
+        {/* postId={postId} postTitle={title} helpCategoryIds={helpCategoryIds} */}
       </PostList>
     </Container>
   );

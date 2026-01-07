@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
+import { preparePayment } from "../../../api/paymentApi";
 const ChargePage = () => {
   const [amount, setAmount] = useState<string>("");
   const navigate = useNavigate();
@@ -32,6 +33,28 @@ const ChargePage = () => {
   const getPrice = () => {
     if (amount === "") return "0";
     return (parseInt(amount) * 100).toLocaleString();
+  };
+
+  const handleConfirm = async () => {
+    if (amount === "") return;
+
+    const honey = parseInt(amount, 10); // 꿀
+    const won = honey * 100; // 실제 금액
+
+    try {
+      const { orderId, amount: serverAmout } = await preparePayment(won);
+
+      navigate("/checkout", {
+        state: {
+          orderId,
+          amount: serverAmout,
+          honey,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      alert("결제 준비에 실패했어요. 잠시 후 다시 시도해 주세요.");
+    }
   };
 
   return (
@@ -111,7 +134,9 @@ const ChargePage = () => {
         </Numpad>
       </Content>
 
-      <ConfirmButton disabled={amount === ""}>확인</ConfirmButton>
+      <ConfirmButton onClick={handleConfirm} disabled={amount === ""}>
+        확인
+      </ConfirmButton>
     </Layout>
   );
 };
