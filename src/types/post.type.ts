@@ -90,6 +90,6 @@ export interface PostDetailResponse {
   schedules: Schedule[];
 
   // 게시글 이미지 및 기타
-  postImages: string[]; // 명세에 포함된 이미지 목록
-  applicantCount: number; // 명세에 포함된 신청자 수
+  postImageUrls: string[]; 
+  applicantCount: number; 
 }
