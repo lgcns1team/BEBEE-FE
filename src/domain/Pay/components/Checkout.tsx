@@ -20,8 +20,11 @@ export default function Checkout() {
   const customerKey = String(memberId);
   const state = location.state as CheckoutState;
   const paymentWidgetRef = useRef<PaymentWidgetInstance | null>(null);
-
+  // useEffect 중복 렌더링 방지
+  const didInitWidget = useRef(false);
   useEffect(() => {
+    if (didInitWidget.current) return;
+    didInitWidget.current = true;
     (async () => {
       const paymentWidget = await loadPaymentWidget(clientKey, customerKey);
 
@@ -30,7 +33,7 @@ export default function Checkout() {
       });
       paymentWidgetRef.current = paymentWidget;
     })();
-  }, [clientKey, customerKey, state]);
+  }, [clientKey, customerKey, state.amount]);
 
   const handleRequestPayment = async () => {
     const paymentWidget = paymentWidgetRef.current;

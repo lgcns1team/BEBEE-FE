@@ -33,6 +33,7 @@ import ChargePage from "./domain/Pay/page/ChargePage";
 import Checkout from "./domain/Pay/components/Checkout";
 import { useUserStore } from "./store/useUserStore";
 import { reissueToken, getMyInfo } from "./api/authApi";
+import PaymentSuccessPage from "./domain/Pay/page/PaymentSuccessPage";
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -63,7 +64,7 @@ function App() {
           <Route path="/mypage" element={<DisabledMyPage />} />
 
           {/*동네지도*/}
-          <Route path="/map" element={<MapDisabledPage />} />
+          <Route path="/map" element={<MapHelperPage />} />
           <Route path="/map/disabled" element={<MapDisabledPage />} />
           <Route path="/map/helper" element={<MapHelperPage />} />
 
@@ -93,6 +94,7 @@ function App() {
           {/* 결제 */}
           <Route path="/charge" element={<ChargePage />} />
           <Route path="/checkout" element={<Checkout />} />
+          <Route path="/payments/success" element={<PaymentSuccessPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

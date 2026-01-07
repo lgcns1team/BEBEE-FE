@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { confirmPayment } from "../../../api/paymentApi";
 
@@ -22,12 +22,21 @@ export default function PaymentSuccessPage() {
       return;
     }
 
+    const dedupKey = `toss_confirmed:${orderId}:${paymentKey}`;
+    if (sessionStorage.getItem(dedupKey) === "1") {
+      return;
+    }
+    sessionStorage.setItem(dedupKey, "1");
     (async () => {
       try {
         await confirmPayment({ paymentKey, orderId, amount });
-
+        alert("결제가 완료 되었습니다!!");
         navigate("/mypage", { replace: true });
       } catch (e) {
+        sessionStorage.removeItem(dedupKey);
+
+        console.log("status", e?.response?.status);
+        console.log("data", e?.response?.data);
         console.error(e);
         navigate("/payments/fail", { replace: true });
       }
