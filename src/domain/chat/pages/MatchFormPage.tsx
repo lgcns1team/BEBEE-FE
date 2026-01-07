@@ -5,7 +5,7 @@ import { useChatStore } from "../store/useChatStore";
 import { useSocketStore } from "../../../store/useSocketStore";
 import { postApi } from "../../../api/postApi";
 import { createAgreement } from "../api/agreementApi";
-import { chatApi } from "../api/chatApi";
+import { chatApi } from "../../../api/chatApi";
 import type { PostDetailResponse } from "../../../types/post.type";
 import type {
   AgreementRequest,

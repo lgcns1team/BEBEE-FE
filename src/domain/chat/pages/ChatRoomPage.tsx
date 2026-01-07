@@ -6,7 +6,7 @@ import MatchResultCard from "../components/MatchResultCard";
 import MatchFailCard from "../components/MatchFailCard";
 import { useChatStore } from "../store/useChatStore";
 import { useSocketStore } from "../../../store/useSocketStore";
-import { chatApi } from "../api/chatApi";
+import { chatApi } from "../../../api/chatApi";
 import type { ChatMessage } from "../chat.types";
 import { FaArrowCircleUp } from "react-icons/fa";
 
