@@ -1,11 +1,11 @@
-import { instance } from "../../../api/axiosInstance";
+import { instance } from "./axiosInstance";
 
 import type {
   ChatroomOpenReqDTO,
   ChatroomResponse,
   ChatroomListResponse,
   ChatMessagesGetResDTO,
-} from "../chat.types";
+} from "../domain/chat/chat.types";
 // chat instance
 
 export const chatApi = {
@@ -33,6 +33,32 @@ export const chatApi = {
     console.log("[chatApi] chatrooms response data:", response.data);
     return response.data;
   },
+
+  /**
+   * 채팅방 생성 (새로운 채팅방 생성)
+   * @param otherMemberId 상대방 멤버 ID (쿼리 파라미터)
+   * @param body 게시글 정보 (postId, postTitle, helpCategoryIds)
+   */
+  createChatRoom: async (
+    otherMemberId: string,
+    body: ChatroomOpenReqDTO
+  ): Promise<ChatroomResponse> => {
+    const response = await instance.post<ChatroomResponse>(
+      "chat/chatrooms",
+      body,
+      {
+        params: {
+          otherMemberId,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log("채팅방 생성", response.data);
+    return response.data;
+  },
+
   /**
    * 채팅방 목록 조회 (커서 기반 페이징)
    * @param lastChatroomId 마지막으로 조회한 채팅방 ID (커서 페이징용)
