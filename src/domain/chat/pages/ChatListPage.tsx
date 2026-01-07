@@ -105,15 +105,16 @@ const ChatListPage = () => {
   }, [hasNext, isLoading, fetchList]);
 
   return (
-    <ChatContainer>
+    <ChatContainer role="main" aria-label="채팅 목록">
       <h2 className="sr-only">채팅 메시지 목록</h2>
       <Layout>
         <Header title="채팅" onBack={() => navigate("/")} />
-        <ChatList>
+        <ChatList role="list" aria-label="채팅방 목록">
           {chatrooms && chatrooms.length > 0
             ? chatrooms.map((room) => (
                 <ChatItem
                   key={room.chatroomId}
+                  role="listitem"
                   onClick={() => {
                     console.log("채팅방 클릭:", {
                       chatroomId: room.chatroomId,
@@ -123,29 +124,60 @@ const ChatListPage = () => {
                       chatroomId: room.chatroomId,
                     });
                   }}
+                  aria-label={`${room.otherNickname}님과의 채팅방, ${
+                    room.title
+                  }, 마지막 메시지: ${room.lastMessage || "없음"}`}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleChatOpen({
+                        chatroomId: room.chatroomId,
+                      });
+                    }
+                  }}
                 >
                   <ProfileImage
                     src={room.otherProfileImageUrl}
-                    alt={room.otherNickname}
+                    alt={`${room.otherNickname}님의 프로필 사진`}
                   />
                   <ChatInfo>
                     <ChatFirstRow>
                       <Nickname>{room.otherNickname}</Nickname>
-                      <ChatLastTime>
+                      <ChatLastTime
+                        aria-label={`마지막 메시지 시간: ${formatChatTime(
+                          room.updatedAt
+                        )}`}
+                      >
                         {formatChatTime(room.updatedAt)}
                       </ChatLastTime>
                     </ChatFirstRow>
-                    <PostTitle>{room.title}</PostTitle>
-                    <PostTitle>{room.lastMessage}</PostTitle>
+                    <PostTitle>
+                      {room.title}
+                      <span className="sr-only">게시글 제목</span>
+                    </PostTitle>
+                    <PostTitle>
+                      {room.lastMessage || "메시지 없음"}
+                      <span className="sr-only">마지막 메시지</span>
+                    </PostTitle>
                   </ChatInfo>
                 </ChatItem>
               ))
-            : !isLoading && <EmptyState>진행 중인 채팅이 없습니다.</EmptyState>}
+            : !isLoading && (
+                <EmptyState role="status" aria-live="polite">
+                  진행 중인 채팅이 없습니다.
+                </EmptyState>
+              )}
 
           {/* 하단 스크롤 감지 영역 */}
           {hasNext && (
-            <ObserverTarget ref={observerTarget}>
-              <LoadingText>목록을 더 불러오는 중...</LoadingText>
+            <ObserverTarget
+              ref={observerTarget}
+              className="sr-only"
+              aria-label="더 불러오기 영역"
+            >
+              <LoadingText role="status" aria-live="polite">
+                목록을 더 불러오는 중...
+              </LoadingText>
             </ObserverTarget>
           )}
         </ChatList>

@@ -6,6 +6,7 @@ import { chatApi } from "../api/chatApi";
 import { postApi } from "../../../api/postApi";
 import type { PostDetailResponse } from "../../../types/post.type";
 import { HELP_TAG_MAP } from "../../../constants/helpTags";
+import type { MatchStatus } from "../chat.types";
 
 /* Components */
 import HelpTag from "../../../components/HelpTag";
@@ -18,7 +19,11 @@ const ChatRoomCard = () => {
   const [postDetail, setPostDetail] = useState<PostDetailResponse | null>(null);
   const [isLoadingPost, setIsLoadingPost] = useState(false);
 
+  const matchStatus: MatchStatus = activeRoom?.matchStatus ?? "NON_MATCHED";
+  const isInteractive = matchStatus === "NON_MATCHED";
+
   const handleMatchModalClick = () => {
+    if (!isInteractive) return;
     if (chatroomId) {
       navigate(`/chat/${chatroomId}/match`);
     } else {
@@ -108,29 +113,70 @@ const ChatRoomCard = () => {
         showBack
         showRight
       />
-      <ChatHeader>
+      <ChatHeader role="region" aria-label="채팅방 정보">
         <HeaderTop>
-          <ChatTitle id="게시글 제목">
+          <ChatTitle id="post-title">
             {isLoadingPost
               ? "게시글 정보를 불러오는 중..."
               : postDetail?.title || "게시글 제목"}
+            <span className="sr-only">
+              {isLoadingPost
+                ? "게시글 정보를 불러오는 중입니다"
+                : postDetail?.title
+                ? `게시글 제목: ${postDetail.title}`
+                : "게시글 제목 정보가 없습니다"}
+            </span>
           </ChatTitle>
           {/* 매칭하기 버튼 누르면 매칭확인서로 페이지 이동*/}
           <MatchButton
+            status={matchStatus}
             onClick={handleMatchModalClick}
-            aria-describedby="게시글 제목"
+            aria-describedby="post-title"
+            aria-label="매칭 확인서 작성하기"
+            onKeyDown={(e) => {
+              if ((e.key === "Enter" || e.key === " ") && isInteractive) {
+                e.preventDefault();
+                handleMatchModalClick();
+              }
+            }}
+            disabled={!isInteractive}
           >
-            매칭하기
+            {matchStatus === "NON_MATCHED"
+              ? "매칭하기"
+              : matchStatus === "PROCEEDING"
+              ? "진행 중"
+              : "매칭 완료"}
+            <span className="sr-only">
+              {matchStatus === "NON_MATCHED"
+                ? postDetail?.title
+                  ? `${postDetail.title} 게시글에 대한 매칭 확인서 작성 페이지로 이동합니다. Enter 키 또는 Space 키를 누르면 실행됩니다.`
+                  : "매칭 확인서 작성 페이지로 이동합니다. Enter 키 또는 Space 키를 누르면 실행됩니다."
+                : `현재 상태: ${
+                    matchStatus === "PROCEEDING" ? "진행 중" : "매칭 완료"
+                  }`}
+            </span>
           </MatchButton>
         </HeaderTop>
 
-        <HelpTagBox role="list" aria-label="도움 카테고리">
-          {postDetail?.helpCategoryIds?.map((categoryId) => {
-            const categoryName = HELP_TAG_MAP[categoryId];
-            return categoryName ? (
-              <HelpTag key={categoryId}>{categoryName}</HelpTag>
-            ) : null;
-          })}
+        <HelpTagBox role="list" aria-label="도움 카테고리 목록">
+          {postDetail?.helpCategoryIds &&
+          postDetail.helpCategoryIds.length > 0 ? (
+            <>
+              <span className="sr-only">
+                도움 카테고리 {postDetail.helpCategoryIds.length}개
+              </span>
+              {postDetail.helpCategoryIds.map((categoryId) => {
+                const categoryName = HELP_TAG_MAP[categoryId];
+                return categoryName ? (
+                  <HelpTag key={categoryId} role="listitem">
+                    {categoryName}
+                  </HelpTag>
+                ) : null;
+              })}
+            </>
+          ) : (
+            <span className="sr-only">도움 카테고리 정보 없음</span>
+          )}
         </HelpTagBox>
       </ChatHeader>
     </>
@@ -162,17 +208,26 @@ const HelpTagBox = styled.div`
   gap: 8px;
 `;
 
-const MatchButton = styled.button`
-  background-color: ${({ theme }) => theme.color.subColor2};
-  color: ${({ theme }) => theme.color.text};
+const MatchButton = styled.button<{ status: MatchStatus }>`
   padding: 4px 12px;
-  border: 0.5px solid ${({ theme }) => theme.color.main};
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   font-size: ${({ theme }) => theme.size.md};
-  cursor: pointer;
-
-  &:active {
-    background-color: ${({ theme }) => theme.color.mainDark};
+  border: 0.5px solid
+    ${({ theme, status }) => {
+      if (status === "PROCEEDING") return theme.color.blue500;
+      if (status === "MATCHED") return theme.color.red500;
+      return theme.color.main;
+    }};
+  background-color: ${({ theme, status }) => {
+    if (status === "PROCEEDING") return theme.color.blue50;
+    if (status === "MATCHED") return theme.color.red50;
+    return theme.color.subColor2;
+  }};
+  color: ${({ theme }) => theme.color.text};
+  cursor: ${({ status }) =>
+    status === "NON_MATCHED" ? "pointer" : "not-allowed"};
+  &:disabled {
+    cursor: not-allowed;
   }
 `;
 

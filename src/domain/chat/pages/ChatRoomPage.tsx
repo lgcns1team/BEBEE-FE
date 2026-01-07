@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import styled, { css } from "styled-components";
 import ChatRoomCard from "../components/ChatRoomCard";
 import MatchResultCard from "../components/MatchResultCard";
-import MatchSuccessCard from "../components/MatchSuccessCard";
+import MatchFailCard from "../components/MatchFailCard";
 import { useChatStore } from "../store/useChatStore";
 import { useSocketStore } from "../../../store/useSocketStore";
 import { chatApi } from "../api/chatApi";
@@ -18,6 +18,9 @@ const ChatRoom = () => {
     null
   );
 
+  // 매칭 거절 정보
+  const [matchFailData, setMatchFailData] = useState<boolean>(false);
+
   // chatroomId 확인 로그
   useEffect(() => {
     console.log("chatroomId from URL:", chatroomId);
@@ -26,15 +29,10 @@ const ChatRoom = () => {
     }
   }, [chatroomId]);
 
-  // [ID 설정 분리] - 모두 number로 처리
-  const API_MEMBER_ID = 100; // 채팅룸/내역 API용 내 아이디
-  const SOCKET_MEMBER_ID = 1; // 소켓 구독/전송용 내 아이디
-
   // 1. ChatStore (API 기반 과거 내역)
   const {
     activeRoom,
     setActiveRoom,
-    fetchHistory,
     isLoadingHistory,
     getHistoryMessages,
     getMessageHasNext,
@@ -69,8 +67,7 @@ const ChatRoom = () => {
   // 2. SocketStore (실시간 소켓 메시지)
   const {
     getMessages,
-    connect,
-    disconnect,
+
     sendMessage,
     messagesByChatroom: socketMessagesByChatroom, // 변경 감지를 위해 구독 (변수명 충돌 방지)
   } = useSocketStore();
@@ -187,29 +184,55 @@ const ChatRoom = () => {
   }, [allMessages.length, historyMessages.length, socketMessages.length]);
 
   /**
-   * 3.5. 로컬스토리지에서 매칭 성공 정보 복원
+   * 3.5. 로컬스토리지에서 매칭 성공/거절 정보 복원
    */
   useEffect(() => {
     if (!chatroomId) return;
 
-    const storageKey = `bebee-match-success-${chatroomId}`;
-    const stored = localStorage.getItem(storageKey);
-    if (stored) {
+    const successKey = `bebee-match-success-${chatroomId}`;
+    const storedSuccess = localStorage.getItem(successKey);
+    if (storedSuccess) {
       try {
-        const successData = JSON.parse(stored) as ChatMessage;
+        const successData = JSON.parse(storedSuccess) as ChatMessage;
         setMatchSuccessData(successData);
       } catch (error) {
         console.error("로컬스토리지에서 매칭 성공 정보 복원 실패:", error);
       }
+    } else {
+      setMatchSuccessData(null);
     }
+
+    const failKey = `bebee-match-fail-${chatroomId}`;
+    const storedFail = localStorage.getItem(failKey);
+    setMatchFailData(storedFail === "true");
   }, [chatroomId]);
 
   /**
    * 매칭 수락 성공 콜백
    */
-  const handleAcceptSuccess = useCallback((successData: ChatMessage) => {
-    setMatchSuccessData(successData);
-  }, []);
+  const handleAcceptSuccess = useCallback(
+    (successData: ChatMessage) => {
+      setMatchSuccessData(successData);
+      if (chatroomId) {
+        localStorage.removeItem(`bebee-match-fail-${chatroomId}`);
+      }
+      setMatchFailData(false);
+    },
+    [chatroomId]
+  );
+
+  /**
+   * 매칭 거절 성공 콜백
+   */
+  const handleRefuseSuccess = useCallback(() => {
+    setMatchFailData(true);
+    if (chatroomId) {
+      localStorage.setItem(`bebee-match-fail-${chatroomId}`, "true");
+    }
+    setActiveRoom(
+      activeRoom ? { ...activeRoom, matchStatus: "NON_MATCHED" } : activeRoom
+    );
+  }, [chatroomId, setActiveRoom, activeRoom]);
 
   /**
    * 4. 채팅방 초기화 (API 및 소켓 연결)
@@ -232,8 +255,6 @@ const ChatRoom = () => {
 
         // 채팅방이 바뀌었는지 확인
         const currentState = useChatStore.getState();
-        const isSameChatroom =
-          currentState.activeRoom?.chatroomId === chatroomId;
 
         // 과거 내역 가져오기
         // localStorage에서 복원된 메시지가 있으면 먼저 확인
@@ -241,10 +262,7 @@ const ChatRoom = () => {
 
         // localStorage에 메시지가 있으면 서버와 동기화만 수행 (기존 메시지 유지)
         if (existingMessages.length > 0) {
-          console.log(
-            "✅ localStorage에서 메시지 복원됨, 서버와 동기화 중... 메시지 개수:",
-            existingMessages.length
-          );
+          console.log("메시지 개수:", existingMessages.length);
           // 서버에서 최신 메시지만 가져와서 동기화 (기존 메시지는 유지)
           await useChatStore.getState().fetchHistory(chatroomId, null);
         } else {
@@ -501,17 +519,31 @@ const ChatRoom = () => {
   };
 
   return (
-    <ChatRoomLayout>
+    <ChatRoomLayout role="main" aria-label="채팅방">
       <ChatRoomCard />
 
-      <MessageList ref={scrollContainerRef}>
-        <div ref={observerTarget} style={{ height: "10px" }} />
+      <MessageList
+        ref={scrollContainerRef}
+        role="log"
+        aria-label="채팅 메시지 목록"
+        aria-live="polite"
+        aria-atomic="false"
+      >
+        <div
+          ref={observerTarget}
+          style={{ height: "10px" }}
+          className="sr-only"
+          aria-label="이전 메시지 불러오기 영역"
+        />
 
         {isLoadingHistory && (
-          <LoadingText>이전 대화 불러오는 중...</LoadingText>
+          <LoadingText role="status" aria-live="polite">
+            이전 대화 불러오는 중...
+            <span className="sr-only">이전 메시지를 불러오는 중입니다</span>
+          </LoadingText>
         )}
 
-        {allMessages.map((msg, idx) => {
+        {allMessages.map((msg) => {
           // 고유한 key 생성: id가 있으면 사용하고, 없으면 여러 속성을 조합하여 고유성 보장
           // idx를 포함하지 않도록 주의 (메시지 순서가 바뀌면 key가 바뀌어 문제 발생)
           const uniqueKey = msg.id
@@ -527,6 +559,7 @@ const ChatRoom = () => {
                 <MatchResultCard
                   message={msg}
                   onAcceptSuccess={handleAcceptSuccess}
+                  onRefuseSuccess={handleRefuseSuccess}
                 />
               </MessageWrapper>
             );
@@ -534,16 +567,40 @@ const ChatRoom = () => {
 
           // 일반 텍스트 메시지
           // [중요] senderId를 number로 변환하여 비교
-          // API 내역(100) 또는 실시간 소켓(1)인 경우 모두 내가 보낸 것으로 처리
+          // myId와 비교하여 내가 보낸 메시지인지 판단
           const senderIdNum = Number(msg.senderId);
-          const isMe =
-            senderIdNum === API_MEMBER_ID || senderIdNum === SOCKET_MEMBER_ID;
+          const isMe = activeRoom?.myId
+            ? senderIdNum === Number(activeRoom.myId)
+            : false;
 
           return (
-            <MessageRow key={uniqueKey} $isMe={isMe}>
-              {isMe && <MessageTime>{formatTime(msg.createdAt)}</MessageTime>}
-              <MessageBubble $isMe={isMe}>{msg.textContent}</MessageBubble>
-              {!isMe && <MessageTime>{formatTime(msg.createdAt)}</MessageTime>}
+            <MessageRow
+              key={uniqueKey}
+              $isMe={isMe}
+              role="article"
+              aria-label={isMe ? "내가 보낸 메시지" : "받은 메시지"}
+            >
+              {isMe && (
+                <MessageTime
+                  aria-label={`전송 시간: ${formatTime(msg.createdAt)}`}
+                >
+                  {formatTime(msg.createdAt)}
+                </MessageTime>
+              )}
+              <MessageBubble $isMe={isMe} role="text">
+                {msg.textContent}
+                <span className="sr-only">
+                  {isMe ? "내가 보낸 메시지" : "받은 메시지"},{" "}
+                  {formatTime(msg.createdAt)}
+                </span>
+              </MessageBubble>
+              {!isMe && (
+                <MessageTime
+                  aria-label={`수신 시간: ${formatTime(msg.createdAt)}`}
+                >
+                  {formatTime(msg.createdAt)}
+                </MessageTime>
+              )}
             </MessageRow>
           );
         })}
@@ -551,15 +608,30 @@ const ChatRoom = () => {
         {/* 매칭 성공 카드 (로컬스토리지에서 복원된 정보) */}
         {/* {matchSuccessData && (
           <MessageWrapper>
-            <MatchSuccessCard message={matchSuccessData} />
+            <MatchSuccessCard />
           </MessageWrapper>
         )} */}
 
-        <div ref={messagesEndRef} />
+        {/* 매칭 거절 카드 */}
+        {matchFailData && (
+          <MessageWrapper>
+            <MatchFailCard />
+          </MessageWrapper>
+        )}
+
+        <div
+          ref={messagesEndRef}
+          className="sr-only"
+          aria-label="메시지 목록 끝"
+        />
       </MessageList>
 
-      <InputArea>
+      <InputArea role="form" aria-label="메시지 입력">
+        <label htmlFor="chat-input" className="sr-only">
+          메시지 입력란
+        </label>
         <StyledInput
+          id="chat-input"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => {
@@ -568,9 +640,20 @@ const ChatRoom = () => {
             }
           }}
           placeholder="메시지를 입력하세요..."
+          aria-label="메시지 입력란"
+          aria-describedby="send-button-description"
         />
-        <SendButton onClick={onSend} disabled={!inputValue.trim()}>
-          <FaArrowCircleUp size={30} color="#FFBE00" />
+        <span id="send-button-description" className="sr-only">
+          Enter 키를 누르면 메시지가 전송됩니다
+        </span>
+        <SendButton
+          onClick={onSend}
+          disabled={!inputValue.trim()}
+          aria-label="메시지 전송"
+          aria-disabled={!inputValue.trim()}
+        >
+          <FaArrowCircleUp size={30} color="#FFBE00" aria-hidden="true" />
+          <span className="sr-only">전송</span>
         </SendButton>
       </InputArea>
     </ChatRoomLayout>
@@ -585,7 +668,6 @@ const ChatRoomLayout = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
-  max-height: 100vh;
   overflow: hidden;
   padding: 0 16px;
   box-sizing: border-box;
