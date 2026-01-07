@@ -2,6 +2,7 @@
 import { create } from "zustand";
 import { Client } from "@stomp/stompjs";
 import type { ChatMessage } from "../domain/chat/chat.types";
+import { useChatStore } from "../domain/chat/store/useChatStore";
 
 interface SocketStore {
   // 채팅방별 소켓 메시지 관리
@@ -11,7 +12,7 @@ interface SocketStore {
 
   connect: () => void;
   disconnect: () => void;
-  sendMessage: (receiverId: number, text: string, chatroomId?: string) => void;
+  sendMessage: (senderId: number, receiverId: number, text: string, chatroomId?: string) => void;
   addMessage: (msg: ChatMessage, chatroomId?: string) => void;
   clearMessages: (chatroomId?: string) => void;
   getMessages: (chatroomId: string) => ChatMessage[];
@@ -34,8 +35,21 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
   // 1. 소켓 연결
   connect: () => {
-    // 이미 연결되어 있다면 중단
-    if (get().client?.active) return;
+    const currentState = get();
+    // 이미 연결되어 있고 활성 상태라면 중단
+    if (currentState.client?.active && currentState.connected) {
+      console.log("ℹ️ [connect] 이미 연결되어 있습니다.");
+      return;
+    }
+
+    // 기존 클라이언트가 있으면 정리
+    if (currentState.client) {
+      try {
+        currentState.client.deactivate();
+      } catch (e) {
+        console.warn("⚠️ [connect] 기존 클라이언트 정리 중 오류:", e);
+      }
+    }
 
     const client = new Client({
       brokerURL: SOCKET_URL,
@@ -45,53 +59,82 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
         Authorization: `Bearer ${MY_TOKEN}`,
       },
       debug: (str) => {
-        console.log("[STOMP Debug]:", str);
+        if (import.meta.env.DEV) {
+          console.log("[STOMP Debug]:", str);
+        }
       },
+      // 재연결 설정
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
 
       // 연결 성공 시
       onConnect: () => {
-        console.log("연결 성공");
+        console.log("✅ [connect] STOMP 연결 성공");
         set({ connected: true });
 
         // 구독 (Subscribe): 나에게 오는 메시지 수신
         // 경로: /sub/member:{내ID}
-        client.subscribe(
-          `/sub/member:${MY_MEMBER_ID}`,
-          (message) => {
-            try {
-              const receivedMsg: ChatMessage = JSON.parse(message.body);
-              console.log("📩 수신 메시지:", receivedMsg);
-              // 소켓 메시지에 chatroomId가 있으면 사용, 없으면 activeRoom에서 가져오기
-              const chatroomId = receivedMsg.chatroomId;
-              if (chatroomId) {
-                get().addMessage(receivedMsg, chatroomId);
-              } else {
-                console.warn(
-                  "⚠️ [socket] 수신 메시지에 chatroomId가 없습니다:",
-                  receivedMsg
-                );
-                // chatroomId가 없으면 메시지를 추가하지 않음
+        try {
+          client.subscribe(
+            `/sub/member:${MY_MEMBER_ID}`,
+            (message) => {
+              try {
+                const receivedMsg: ChatMessage = JSON.parse(message.body);
+                console.log("📩 [socket] 수신 메시지:", receivedMsg);
+                // 소켓 메시지에 chatroomId가 있으면 사용, 없으면 activeRoom에서 가져오기
+                const chatroomId = receivedMsg.chatroomId;
+                if (chatroomId) {
+                  // 1. useSocketStore에 추가 (즉시 UI 표시)
+                  get().addMessage(receivedMsg, chatroomId);
+                  // 2. useChatStore에 추가 (영구 저장 - localStorage)
+                  useChatStore.getState().addMessage(receivedMsg, chatroomId);
+                  console.log("✅ [socket] 소켓 메시지를 useChatStore에도 저장 완료");
+                } else {
+                  console.warn(
+                    "⚠️ [socket] 수신 메시지에 chatroomId가 없습니다:",
+                    receivedMsg
+                  );
+                  // chatroomId가 없으면 메시지를 추가하지 않음
+                }
+              } catch (e) {
+                console.error("❌ [socket] 메시지 파싱 실패:", e);
               }
-            } catch (e) {
-              console.error("메시지 파싱 실패:", e);
-            }
-          },
-          { id: String(MY_MEMBER_ID) }
-        );
+            },
+            { id: String(MY_MEMBER_ID) }
+          );
+          console.log("✅ [connect] 구독 완료: /sub/member:" + MY_MEMBER_ID);
+        } catch (e) {
+          console.error("❌ [connect] 구독 실패:", e);
+        }
+      },
+
+      // WebSocket 연결 실패 시
+      onWebSocketError: (event) => {
+        console.error("❌ [connect] WebSocket 연결 실패:", event);
+        set({ connected: false });
       },
 
       // 연결 끊김/에러 처리
       onDisconnect: () => {
-        console.log("연결 안 됨");
+        console.log("⚠️ [connect] 연결 끊김");
         set({ connected: false });
       },
+      
       onStompError: (frame) => {
-        console.error("Broker reported error: " + frame.headers["message"]);
+        console.error("❌ [connect] STOMP 에러:", frame.headers["message"]);
+        set({ connected: false });
       },
     });
 
-    client.activate();
-    set({ client });
+    try {
+      client.activate();
+      set({ client, connected: false }); // 연결 중 상태로 설정
+      console.log("🔄 [connect] 소켓 연결 시도 중...");
+    } catch (error) {
+      console.error("❌ [connect] 소켓 활성화 실패:", error);
+      set({ connected: false });
+    }
   },
 
   // 2. 연결 해제
@@ -104,10 +147,22 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   },
 
   // 3. 메시지 전송
-  sendMessage: (receiverId, text, chatroomId?: string) => {
-    const { client } = get();
-    if (!client || !client.active) {
-      console.warn("⚠️ [sendMessage] 소켓이 연결되지 않았습니다.");
+  sendMessage: (senderId, receiverId, text, chatroomId?: string) => {
+    const { client, connected } = get();
+    
+    // 연결 상태 확인: client가 있고, active 상태이며, connected 상태여야 함
+    if (!client || !client.active || !connected) {
+      console.warn("⚠️ [sendMessage] 소켓이 연결되지 않았습니다.", {
+        hasClient: !!client,
+        isActive: client?.active,
+        isConnected: connected,
+      });
+      
+      // 연결이 안 되어 있으면 연결 시도
+      if (!client || !client.active) {
+        console.log("🔄 [sendMessage] 소켓 연결 시도 중...");
+        get().connect();
+      }
       return;
     }
 
@@ -133,6 +188,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     }
 
     console.log("📤 [sendMessage] 메시지 전송:", {
+      senderId,
       receiverId,
       text,
       chatroomId,
@@ -149,21 +205,45 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
     const tempMessage: ChatMessage = {
       id: messageId,
-      senderId: String(MY_MEMBER_ID),
+      senderId: String(senderId),
       textContent: text,
       type: "TEXT",
       attachments: [],
       createdAt: createdAt,
       chatroomId: chatroomId,
     };
+    // 1. useSocketStore에 추가 (즉시 UI 표시)
     get().addMessage(tempMessage, chatroomId);
+    // 2. useChatStore에 추가 (영구 저장 - localStorage)
+    useChatStore.getState().addMessage(tempMessage, chatroomId);
     console.log(
-      "✅ [sendMessage] 로컬 메시지 추가 (즉시 UI 표시):",
+      "✅ [sendMessage] 로컬 메시지 추가 (즉시 UI 표시 및 영구 저장):",
       tempMessage
     );
 
     // 서버로 전송 (Publish) -> /pub/chats
+    // 연결 상태를 다시 한 번 확인 (publish 직전)
+    if (!client.active || !connected) {
+      console.error("❌ [sendMessage] publish 직전 연결 상태 확인 실패:", {
+        isActive: client.active,
+        isConnected: connected,
+      });
+      return;
+    }
+
     try {
+      // STOMP 연결이 완전히 준비되었는지 확인
+      // client.active와 connected 상태 모두 확인
+      if (!client.active) {
+        console.error("❌ [sendMessage] WebSocket이 활성화되지 않았습니다.");
+        return;
+      }
+
+      if (!connected) {
+        console.error("❌ [sendMessage] STOMP 연결이 완료되지 않았습니다.");
+        return;
+      }
+
       client.publish({
         destination: "/pub/chats",
         body: JSON.stringify(payload),
@@ -172,6 +252,19 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       console.log("✅ [sendMessage] 서버로 메시지 전송 완료");
     } catch (error) {
       console.error("❌ [sendMessage] 메시지 전송 실패:", error);
+      // 연결이 끊어진 경우 재연결 시도
+      if (
+        error instanceof Error &&
+        (error.message.includes("STOMP connection") ||
+          error.message.includes("underlying STOMP connection"))
+      ) {
+        console.log("🔄 [sendMessage] 연결 끊김 감지, 재연결 시도...");
+        set({ connected: false });
+        get().disconnect();
+        setTimeout(() => {
+          get().connect();
+        }, 1000);
+      }
     }
   },
 

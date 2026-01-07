@@ -14,8 +14,8 @@ const NavBar = () => {
   ];
 
   return (
-    <NavContainer>
-      <NavList>
+    <NavContainer role="navigation" aria-label="하단 네비게이션 메뉴">
+      <NavList role="list" aria-label="메인 메뉴 목록">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const Icon = item.icon;
@@ -25,11 +25,27 @@ const NavBar = () => {
               key={item.path}
               $isActive={isActive}
               onClick={() => navigate(item.path)}
+              role="listitem"
+              aria-label={
+                isActive ? `현재 ${item.label} 페이지` : `${item.label}로 이동`
+              }
+              aria-current={isActive ? "page" : undefined}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  navigate(item.path);
+                }
+              }}
             >
-              <NavIcon>
+              <NavIcon aria-hidden="true">
                 <Icon />
               </NavIcon>
-              <NavLabel>{item.label}</NavLabel>
+              <NavLabel aria-hidden="true">{item.label}</NavLabel>
+              <span className="sr-only">
+                {isActive
+                  ? `현재 ${item.label} 페이지입니다`
+                  : `${item.label}로 이동합니다. Enter 키 또는 Space 키를 누르면 실행됩니다.`}
+              </span>
             </NavItem>
           );
         })}

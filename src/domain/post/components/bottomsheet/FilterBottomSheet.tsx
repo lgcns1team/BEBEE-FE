@@ -7,63 +7,105 @@ import Badge from "../../../../components/Badge";
 import { HELP_TAG_LIST } from "../../../../constants/helpTags";
 import { DISABILITY_TYPES } from "../../../../constants/disabilityTypes";
 
-import { SERVER_MAPPING } from "../../../../types/post.type";
+import {
+  SERVER_MAPPING,
+  type PostsGetReqDTO,
+} from "../../../../types/post.type";
+import type { DayOfWeek } from "../../../../types/common.types";
 interface FilterBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 const FilterBottomSheet = ({ isOpen, onClose }: FilterBottomSheetProps) => {
-  const { setFilters, fetchPosts, resetFilters } = usePostStore();
+  const { setFilters, resetFilters } = usePostStore();
   /* ---------------- local state ---------------- */
 
-  const [regions, setRegions] = useState<string[]>([""]);
+  const [regions, setRegions] = useState<string[]>([]);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
-  const [gender, setGender] = useState<"남자" | "여자">("여자");
+  const [gender, setGender] = useState<"남자" | "여자" | undefined>(undefined);
   const [selectedDisabilityIds, setSelectedDisabilityIds] = useState<number[]>(
     []
   );
-  const [days, setDays] = useState<string[]>([""]);
-  const [honeyRange, setHoneyRange] = useState<number[]>([200, 500]);
+  const [days, setDays] = useState<string[]>([]);
+  const [honeyRange, setHoneyRange] = useState<number[]>([0, 1000]);
 
   /* ---------------- handlers ---------------- */
 
   const removeRegion = (region: string) => {
     setRegions((prev) => prev.filter((r) => r !== region));
   };
-  const toggleItem = (id: any, state: any[], setState: any) => {
+  const toggleItem = <T,>(
+    id: T,
+    state: T[],
+    setState: React.Dispatch<React.SetStateAction<T[]>>
+  ) => {
     setState(
       state.includes(id) ? state.filter((i) => i !== id) : [...state, id]
     );
   };
 
   const handleReset = () => {
-    setRegions(["서울 은평구 전체"]);
+    // 모든 필드 초기화
+    setRegions([]);
     setSelectedCategoryIds([]);
-    setGender("여자");
+    setGender(undefined);
     setSelectedDisabilityIds([]);
     setDays([]);
     setHoneyRange([0, 1000]);
+
+    // Store의 필터도 초기화
     resetFilters();
+
+    // 모달 닫기
+    onClose();
   };
 
   const handleSubmit = () => {
-    // 서버 reqDTO 형식으로 변환
-    const reqDTO = {
-      legalDongCodes: regions, // 실제 연동 시 코드로 변환 필요
-      helpCategories: selectedCategoryIds,
-      gender: SERVER_MAPPING.GENDER[gender],
-      minHoney: honeyRange[0],
-      maxHoney: honeyRange[1],
-      // 다중 선택 시 첫 번째 ID만 혹은 배열로 (서버 협의 필요)
-      disabilityCategoryId: selectedDisabilityIds,
-      days: days.map(
-        (d) => SERVER_MAPPING.DAYS[d as keyof typeof SERVER_MAPPING.DAYS]
-      ),
-    };
+    // 서버 reqDTO 형식으로 변환 (빈 값은 제외)
+    const reqDTO: PostsGetReqDTO = {};
 
+    // legalDongCodes: 빈 배열이 아니면 추가
+    if (regions.length > 0) {
+      reqDTO.legalDongCodes = regions;
+    }
+
+    // helpCategories: 빈 배열이 아니면 추가
+    if (selectedCategoryIds.length > 0) {
+      reqDTO.helpCategories = selectedCategoryIds;
+    }
+
+    // gender: 선택된 경우만 추가
+    if (gender) {
+      reqDTO.gender = SERVER_MAPPING.GENDER[gender];
+    }
+
+    // minHoney: 0보다 크면 추가
+    if (honeyRange[0] > 0) {
+      reqDTO.minHoney = honeyRange[0];
+    }
+
+    // maxHoney: 1000보다 작으면 추가 (기본값이 1000이므로)
+    if (honeyRange[1] < 1000) {
+      reqDTO.maxHoney = honeyRange[1];
+    }
+
+    // disabilityCategoryIds: 빈 배열이 아니면 추가
+    if (selectedDisabilityIds.length > 0) {
+      reqDTO.disabilityCategoryIds = selectedDisabilityIds;
+    }
+
+    // days: 빈 배열이 아니면 추가 (한글 요일을 영문 DayOfWeek로 변환)
+    if (days.length > 0) {
+      reqDTO.days = days.map(
+        (d) => SERVER_MAPPING.DAYS[d as keyof typeof SERVER_MAPPING.DAYS]
+      ) as DayOfWeek[];
+    }
+
+    // 필터 적용 (setFilters가 내부에서 fetchPosts를 호출함)
     setFilters(reqDTO);
-    fetchPosts();
+
+    // 모달 닫기
     onClose();
   };
   /* ---------------- render ---------------- */
@@ -97,9 +139,11 @@ const FilterBottomSheet = ({ isOpen, onClose }: FilterBottomSheetProps) => {
                 <Section>
                   <Header>
                     <Label>도움 지역</Label>
-                    <Count>
-                      <Highlight>{regions.length}</Highlight>/10
-                    </Count>
+                    {regions.length > 0 && (
+                      <Count>
+                        <Highlight>{regions.length}</Highlight>/10
+                      </Count>
+                    )}
                   </Header>
 
                   <RegionChipRow>
@@ -149,13 +193,17 @@ const FilterBottomSheet = ({ isOpen, onClose }: FilterBottomSheetProps) => {
                   <GenderTabs>
                     <GenderTab
                       $active={gender === "남자"}
-                      onClick={() => setGender("남자")}
+                      onClick={() =>
+                        setGender(gender === "남자" ? undefined : "남자")
+                      }
                     >
                       남자
                     </GenderTab>
                     <GenderTab
                       $active={gender === "여자"}
-                      onClick={() => setGender("여자")}
+                      onClick={() =>
+                        setGender(gender === "여자" ? undefined : "여자")
+                      }
                     >
                       여자
                     </GenderTab>
@@ -192,9 +240,11 @@ const FilterBottomSheet = ({ isOpen, onClose }: FilterBottomSheetProps) => {
                 <Section>
                   <Header>
                     <Label>도움 요일</Label>
-                    <Count>
-                      <Highlight>{days.length}</Highlight>/7
-                    </Count>
+                    {days.length > 0 && (
+                      <Count>
+                        <Highlight>{days.length}</Highlight>/7
+                      </Count>
+                    )}
                   </Header>
 
                   <Row>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { IoIosSearch } from "react-icons/io";
 import BaseInput from "./BaseInput";
 import {
@@ -34,6 +34,8 @@ const LocationInput = ({
   const [keyword, setKeyword] = useState(value || "");
   const [results, setResults] = useState<any[]>([]);
   const [ps, setPs] = useState<any>(null);
+  const isUserTypingRef = useRef(false);
+  const prevValueRef = useRef<string | undefined>(value);
 
   // 1. 카카오 장소 검색 객체 초기화
   useEffect(() => {
@@ -41,6 +43,20 @@ const LocationInput = ({
       setPs(new window.kakao.maps.services.Places());
     }
   }, []);
+
+  // 2. value prop이 변경되면 keyword state 동기화
+  // 사용자가 입력 중이 아닐 때만 동기화
+  useEffect(() => {
+    // value가 변경되었고, 사용자가 입력 중이 아니며, 이전 값과 다를 때만 업데이트
+    if (
+      value !== undefined &&
+      value !== prevValueRef.current &&
+      !isUserTypingRef.current
+    ) {
+      setKeyword(value);
+      prevValueRef.current = value;
+    }
+  }, [value]);
 
   // 2. 키워드 검색 실행 함수
   const searchPlaces = (searchKeyword: string) => {
@@ -62,20 +78,32 @@ const LocationInput = ({
   // 3. 입력창 변경 핸들러
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
+    isUserTypingRef.current = true;
     setKeyword(val);
-    searchPlaces(val); // 실시간 검색 (혹은 엔터키 이벤트로 분리 가능)
+    searchPlaces(val); // 실시간 검색
+    // onChange prop이 있으면 호출
+    if (rest.onChange) {
+      rest.onChange(e);
+    }
+    // 입력이 끝난 후 플래그 리셋 (약간의 지연 후)
+    setTimeout(() => {
+      isUserTypingRef.current = false;
+    }, 100);
   };
 
   // 4. 장소 선택 핸들러
   const handleSelectPlace = (place: any) => {
+    const selectedAddress = place.place_name;
+    isUserTypingRef.current = false; // 선택 시에는 사용자 입력이 아님
     onSelect({
-      address: place.place_name,
+      address: selectedAddress,
       code: place.address_name, // 법정동 코드는 추가 좌표-주소 변환 API 필요 (하단 설명 참고)
       lat: Number(place.y),
       lng: Number(place.x),
     });
     console.log(place);
-    setKeyword(place.place_name); // 입력창에 선택된 주소 넣기
+    setKeyword(selectedAddress); // 입력창에 선택된 주소 넣기
+    prevValueRef.current = selectedAddress;
     setResults([]); // 리스트 닫기
   };
 

@@ -30,6 +30,7 @@ export const chatApi = {
         },
       }
     );
+    console.log("[chatApi] chatrooms response data:", response.data);
     return response.data;
   },
   /**
@@ -67,7 +68,7 @@ export const chatApi = {
   getMessages: async (
     chatroomId: string,
     nextChatId?: string | null,
-    count: number = 20
+    count: number = 5
   ) => {
     try {
       const response = await instance.get<ChatMessagesGetResDTO>(
@@ -85,6 +86,7 @@ export const chatApi = {
       );
 
       // axios는 서버 응답 데이터를 .data에 담아서 반환합니다.
+      console.log("[chatApi] chats response data:", response.data);
       return response.data;
     } catch (error) {
       // axios는 4xx, 5xx 에러 발생 시 자동으로 catch 문으로 넘어옵니다.
