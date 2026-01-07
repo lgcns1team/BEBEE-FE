@@ -2,18 +2,46 @@ import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
 const MatchFailCard = () => {
   const navigate = useNavigate();
-  const { chatId } = useParams();
+  const { chatroomId } = useParams<{ chatroomId: string }>();
   const handleRetry = () => {
-    navigate(`/chat/${chatId}/match`);
+    if (chatroomId) {
+      navigate(`/chat/${chatroomId}/match`);
+    }
   };
   return (
-    <Wrapper>
-      <FailBox>
-        <Title>😞 매칭이 성사되지 않았어요</Title>
-        <Sub>다시 한번 이야기를 나눠보아요</Sub>
+    <Wrapper role="region" aria-label="매칭 실패 알림">
+      <FailBox role="alert">
+        <Title>
+          <span aria-hidden="true">😞</span> 매칭이 성사되지 않았어요
+          <span className="sr-only">
+            매칭이 성사되지 않았습니다. 다시 한번 이야기를 나눠보시기 바랍니다.
+          </span>
+        </Title>
+        <Sub>
+          다시 한번 이야기를 나눠보아요
+          <span className="sr-only">
+            아래의 다시 작성하기 버튼을 눌러 매칭 확인서를 다시 작성할 수
+            있습니다.
+          </span>
+        </Sub>
       </FailBox>
 
-      <RetryButton onClick={handleRetry}>다시 작성하기</RetryButton>
+      <RetryButton
+        onClick={handleRetry}
+        aria-label="매칭 확인서 다시 작성하기"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleRetry();
+          }
+        }}
+      >
+        다시 작성하기
+        <span className="sr-only">
+          매칭 확인서 작성 페이지로 이동합니다. Enter 키 또는 Space 키를 누르면
+          실행됩니다.
+        </span>
+      </RetryButton>
     </Wrapper>
   );
 };
