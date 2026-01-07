@@ -35,7 +35,7 @@ interface SocketStore {
 }
 
 // 환경 변수 처리 (Vite 기준)
-const SOCKET_URL = import.meta.env.VITE_WS_URL;
+const SOCKET_URL = "wss://api.be-bee.link/chat/ws/chats";
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
   messagesByChatroom: {},
