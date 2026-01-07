@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./domain/post/pages/HomePage";
 import PostDetailPage from "./domain/post/pages/PostDetailPage";
@@ -29,10 +28,6 @@ import AuthSignUpStep5Page from "./domain/auth/pages/AuthSignUpStep5Page";
 import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
 import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
-import ChargePage from "./domain/Pay/page/ChargePage";
-import Checkout from "./domain/Pay/components/Checkout";
-import { useUserStore } from "./store/useUserStore";
-import { reissueToken, getMyInfo } from "./api/authApi";
 function App() {
   return (
     <ThemeProvider theme={theme}>

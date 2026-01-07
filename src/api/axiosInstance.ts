@@ -1,8 +1,8 @@
 import axios, { type InternalAxiosRequestConfig, type AxiosError } from "axios";
 
 // 임시 토큰 (헤더에 고정)
-const TEMP_TOKEN =
-  "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJiZWJlZSIsInN1YiI6IjEwMCIsInJvbGUiOiJESVNBQkxFRCIsImlhdCI6MTc2Nzc2NDgyMCwiZXhwIjoxNzY3ODUxMjIwfQ.0wR2bi5mxZgbef2P8ZxQyPTyQXe3soalWmbUeJ084qg";
+export const TEMP_TOKEN =
+  "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJiZWJlZSIsInN1YiI6IjEwMCIsInJvbGUiOiJESVNBQkxFRCIsImlhdCI6MTc2Nzc2NDMyMywiZXhwIjoxNzY3ODUwNzIzfQ.UXHC_jBsDqho0HuxejaKOCmuDkZF-huZDTOLeA2BMYE";
 
 // localStorage에 토큰 강제 설정
 localStorage.setItem("accessToken", TEMP_TOKEN);
@@ -25,6 +25,7 @@ instance.interceptors.request.use(
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
+
     return config;
   },
   (error: AxiosError) => {

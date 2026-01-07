@@ -1,155 +1,113 @@
-// store/useSocketStore.ts
 import { create } from "zustand";
 import { Client } from "@stomp/stompjs";
 import type { ChatMessage } from "../domain/chat/chat.types";
 import { useChatStore } from "../domain/chat/store/useChatStore";
 
 interface SocketStore {
-  // 채팅방별 소켓 메시지 관리
   messagesByChatroom: Record<string, ChatMessage[]>;
   connected: boolean;
   client: Client | null;
-
   connect: () => void;
   disconnect: () => void;
-  sendMessage: (senderId: number, receiverId: number, text: string, chatroomId?: string) => void;
+  sendMessage: (
+    senderId: number,
+    receiverId: number,
+    text: string,
+    chatroomId: string
+  ) => void;
+  sendMatchConfirmation: (
+    receiverId: number,
+    chatroomId: string,
+    matchConfirmationData: {
+      location: string;
+      unitPoints: number;
+      totalPoints: number;
+      startDate?: string;
+      endDate?: string;
+      scheduleDays?: string[];
+      scheduleStartTimes?: string[];
+      scheduleEndTimes?: string[];
+    }
+  ) => void;
   addMessage: (msg: ChatMessage, chatroomId?: string) => void;
   clearMessages: (chatroomId?: string) => void;
   getMessages: (chatroomId: string) => ChatMessage[];
 }
 
-// 소켓 URL 설정 (환경 변수 또는 기본값)
-const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ||
-  "wss://bebee-chat-1036667053569.asia-northeast3.run.app/ws/chats";
-const MY_TOKEN = "1";
-const MY_MEMBER_ID = 1;
-
-// URL에서 호스트 추출 함수
-const getHostFromUrl = (url: string): string => {
-  try {
-    const urlObj = new URL(url);
-    return urlObj.hostname;
-  } catch {
-    // URL 파싱 실패 시 기본값 반환
-    return "localhost";
-  }
-};
+// 환경 변수 처리 (Vite 기준)
+const SOCKET_URL = import.meta.env.VITE_WS_URL;
 
 export const useSocketStore = create<SocketStore>((set, get) => ({
   messagesByChatroom: {},
   connected: false,
   client: null,
 
-  getMessages: (chatroomId: string) => {
-    return get().messagesByChatroom[chatroomId] || [];
-  },
+  getMessages: (chatroomId: string) =>
+    get().messagesByChatroom[chatroomId] || [],
 
-  // 1. 소켓 연결
   connect: () => {
-    const currentState = get();
-    // 이미 연결되어 있고 활성 상태라면 중단
-    if (currentState.client?.active && currentState.connected) {
-      console.log("ℹ️ [connect] 이미 연결되어 있습니다.");
+    const token = 1;
+    const memberId = 1;
+    if (!token || !memberId) {
+      console.error("토큰 또는 멤버 ID가 없습니다.");
       return;
     }
 
-    // 기존 클라이언트가 있으면 정리
-    if (currentState.client) {
-      try {
-        currentState.client.deactivate();
-      } catch (e) {
-        console.warn("⚠️ [connect] 기존 클라이언트 정리 중 오류:", e);
-      }
-    }
+    const currentState = get();
+    if (currentState.client?.active && currentState.connected) return;
 
+    if (currentState.client) currentState.client.deactivate();
+
+    //연결
     const client = new Client({
       brokerURL: SOCKET_URL,
       connectHeaders: {
         "accept-version": "1.2",
-        host: getHostFromUrl(SOCKET_URL),
-        Authorization: `Bearer ${MY_TOKEN}`,
+        host: window.location.hostname,
+        Authorization: `Bearer ${token}`,
       },
       debug: (str) => {
-        if (import.meta.env.DEV) {
-          console.log("[STOMP Debug]:", str);
-        }
+        if (import.meta.env.DEV) console.log("[STOMP Debug]:", str);
       },
-      // 재연결 설정
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
 
-      // 연결 성공 시
       onConnect: () => {
-        console.log("✅ [connect] STOMP 연결 성공");
+        console.log("STOMP 연결 성공");
         set({ connected: true });
-
-        // 구독 (Subscribe): 나에게 오는 메시지 수신
-        // 경로: /sub/member:{내ID}
-        try {
-          client.subscribe(
-            `/sub/member:${MY_MEMBER_ID}`,
-            (message) => {
-              try {
-                const receivedMsg: ChatMessage = JSON.parse(message.body);
-                console.log("📩 [socket] 수신 메시지:", receivedMsg);
-                // 소켓 메시지에 chatroomId가 있으면 사용, 없으면 activeRoom에서 가져오기
-                const chatroomId = receivedMsg.chatroomId;
-                if (chatroomId) {
-                  // 1. useSocketStore에 추가 (즉시 UI 표시)
-                  get().addMessage(receivedMsg, chatroomId);
-                  // 2. useChatStore에 추가 (영구 저장 - localStorage)
-                  useChatStore.getState().addMessage(receivedMsg, chatroomId);
-                  console.log("✅ [socket] 소켓 메시지를 useChatStore에도 저장 완료");
-                } else {
-                  console.warn(
-                    "⚠️ [socket] 수신 메시지에 chatroomId가 없습니다:",
-                    receivedMsg
-                  );
-                  // chatroomId가 없으면 메시지를 추가하지 않음
-                }
-              } catch (e) {
-                console.error("❌ [socket] 메시지 파싱 실패:", e);
+        //구독
+        client.subscribe(
+          `/sub/member:${memberId}`,
+          (message) => {
+            try {
+              const receivedMsg: ChatMessage = JSON.parse(message.body);
+              const chatroomId = receivedMsg.chatroomId;
+              if (chatroomId) {
+                get().addMessage(receivedMsg, chatroomId);
+                useChatStore.getState().addMessage(receivedMsg, chatroomId);
               }
-            },
-            { id: String(MY_MEMBER_ID) }
-          );
-          console.log("✅ [connect] 구독 완료: /sub/member:" + MY_MEMBER_ID);
-        } catch (e) {
-          console.error("❌ [connect] 구독 실패:", e);
-        }
+            } catch (e) {
+              console.error("메시지 파싱 실패:", e);
+            }
+          },
+          { id: `sub-${memberId}` } // ID 고유화
+        );
       },
 
-      // WebSocket 연결 실패 시
-      onWebSocketError: (event) => {
-        console.error("❌ [connect] WebSocket 연결 실패:", event);
-        set({ connected: false });
+      onWebSocketError: (error) => {
+        console.error("WebSocket Error:", error);
       },
-
-      // 연결 끊김/에러 처리
-      onDisconnect: () => {
-        console.log("⚠️ [connect] 연결 끊김");
-        set({ connected: false });
-      },
-      
       onStompError: (frame) => {
-        console.error("❌ [connect] STOMP 에러:", frame.headers["message"]);
-        set({ connected: false });
+        console.error(" STOMP Error:", frame.headers["message"]);
       },
+      onDisconnect: () => set({ connected: false }),
     });
 
-    try {
-      client.activate();
-      set({ client, connected: false }); // 연결 중 상태로 설정
-      console.log("🔄 [connect] 소켓 연결 시도 중...");
-    } catch (error) {
-      console.error("❌ [connect] 소켓 활성화 실패:", error);
-      set({ connected: false });
-    }
+    client.activate();
+    set({ client });
   },
 
-  // 2. 연결 해제
   disconnect: () => {
     const { client } = get();
     if (client) {
@@ -158,197 +116,110 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     }
   },
 
-  // 3. 메시지 전송
-  sendMessage: (senderId, receiverId, text, chatroomId?: string) => {
+  sendMessage: (senderId, receiverId, text, chatroomId) => {
     const { client, connected } = get();
-    
-    // 연결 상태 확인: client가 있고, active 상태이며, connected 상태여야 함
-    if (!client || !client.active || !connected) {
-      console.warn("⚠️ [sendMessage] 소켓이 연결되지 않았습니다.", {
-        hasClient: !!client,
-        isActive: client?.active,
-        isConnected: connected,
-      });
-      
-      // 연결이 안 되어 있으면 연결 시도
-      if (!client || !client.active) {
-        console.log("🔄 [sendMessage] 소켓 연결 시도 중...");
-        get().connect();
-      }
+
+    if (!client?.active || !connected) {
+      console.warn("연결되지 않음. 재연결 시도...");
+      get().connect();
       return;
     }
 
     const createdAt = new Date().toISOString();
-    const messageId = `temp-${Date.now()}-${Math.random()}`;
-
-    const payload: {
-      receiverId: number;
-      type: string;
-      textContent: string;
-      createdAt: string;
-      chatroomId?: string;
-    } = {
-      receiverId: receiverId,
+    const payload = {
+      receiverId,
       type: "TEXT",
       textContent: text,
-      createdAt: createdAt,
+      createdAt,
+      chatroomId,
     };
 
-    // chatroomId가 있으면 포함
-    if (chatroomId) {
-      payload.chatroomId = chatroomId;
-    }
-
-    console.log("📤 [sendMessage] 메시지 전송:", {
-      senderId,
-      receiverId,
-      text,
-      chatroomId,
-      payload,
-    });
-
-    // 즉시 UI에 표시하기 위해 로컬 메시지 추가 (임시 ID 사용)
-    if (!chatroomId) {
-      console.warn(
-        "⚠️ [sendMessage] chatroomId가 없어 메시지를 추가할 수 없습니다."
-      );
-      return;
-    }
-
+    // UI 즉시 반영 (Optimistic Update)
     const tempMessage: ChatMessage = {
-      id: messageId,
+      id: `temp-${Date.now()}`,
       senderId: String(senderId),
       textContent: text,
       type: "TEXT",
       attachments: [],
-      createdAt: createdAt,
-      chatroomId: chatroomId,
+      createdAt,
+      chatroomId,
     };
-    // 1. useSocketStore에 추가 (즉시 UI 표시)
-    get().addMessage(tempMessage, chatroomId);
-    // 2. useChatStore에 추가 (영구 저장 - localStorage)
-    useChatStore.getState().addMessage(tempMessage, chatroomId);
-    console.log(
-      "✅ [sendMessage] 로컬 메시지 추가 (즉시 UI 표시 및 영구 저장):",
-      tempMessage
-    );
 
-    // 서버로 전송 (Publish) -> /pub/chats
-    // 연결 상태를 다시 한 번 확인 (publish 직전)
-    if (!client.active || !connected) {
-      console.error("❌ [sendMessage] publish 직전 연결 상태 확인 실패:", {
-        isActive: client.active,
-        isConnected: connected,
-      });
+    get().addMessage(tempMessage, chatroomId);
+    useChatStore.getState().addMessage(tempMessage, chatroomId);
+
+    client.publish({
+      destination: "/pub/chats",
+      body: JSON.stringify(payload),
+      headers: { "content-type": "application/json" },
+    });
+  },
+
+  sendMatchConfirmation: (receiverId, chatroomId, matchConfirmationData) => {
+    const { client, connected } = get();
+
+    if (!client?.active || !connected) {
+      console.warn(" 연결되지 않음. 재연결 시도...");
+      get().connect();
       return;
     }
 
+    const createdAt = new Date().toISOString();
+    const payload = {
+      receiverId,
+      type: "MATCH_CONFIRMATION",
+      location: matchConfirmationData.location,
+      unitPoints: matchConfirmationData.unitPoints,
+      totalPoints: matchConfirmationData.totalPoints,
+      startDate: matchConfirmationData.startDate,
+      endDate: matchConfirmationData.endDate,
+      scheduleDays: matchConfirmationData.scheduleDays,
+      scheduleStartTimes: matchConfirmationData.scheduleStartTimes,
+      scheduleEndTimes: matchConfirmationData.scheduleEndTimes,
+      createdAt,
+    };
+
+    console.log("] 매칭확인서 전송:", {
+      receiverId,
+      chatroomId,
+      payload,
+    });
+
     try {
-      // STOMP 연결이 완전히 준비되었는지 확인
-      // client.active와 connected 상태 모두 확인
-      if (!client.active) {
-        console.error("❌ [sendMessage] WebSocket이 활성화되지 않았습니다.");
-        return;
-      }
-
-      if (!connected) {
-        console.error("❌ [sendMessage] STOMP 연결이 완료되지 않았습니다.");
-        return;
-      }
-
       client.publish({
         destination: "/pub/chats",
         body: JSON.stringify(payload),
         headers: { "content-type": "application/json" },
       });
-      console.log("✅ [sendMessage] 서버로 메시지 전송 완료");
+      console.log(" 매칭확인서 전송 완료");
     } catch (error) {
-      console.error("❌ [sendMessage] 메시지 전송 실패:", error);
-      // 연결이 끊어진 경우 재연결 시도
-      if (
-        error instanceof Error &&
-        (error.message.includes("STOMP connection") ||
-          error.message.includes("underlying STOMP connection"))
-      ) {
-        console.log("🔄 [sendMessage] 연결 끊김 감지, 재연결 시도...");
-        set({ connected: false });
-        get().disconnect();
-        setTimeout(() => {
-          get().connect();
-        }, 1000);
-      }
+      console.error("매칭확인서 전송 실패:", error);
     }
   },
 
-  // 4. 메시지 추가 (UI 갱신용) - 중복 체크 포함, 채팅방별 관리
-  addMessage: (msg, chatroomId?: string) =>
+  addMessage: (msg, chatroomId) =>
     set((state) => {
-      // chatroomId가 없으면 메시지의 chatroomId 사용
-      const targetChatroomId = chatroomId || msg.chatroomId;
+      const targetId = chatroomId || msg.chatroomId;
+      if (!targetId) return state;
 
-      if (!targetChatroomId) {
-        console.warn(
-          "⚠️ [socket addMessage] chatroomId가 없어 메시지를 추가할 수 없습니다:",
-          msg
-        );
-        return state;
-      }
-
-      const currentMessages = state.messagesByChatroom[targetChatroomId] || [];
-
-      // 중복 체크: 같은 ID를 가진 메시지가 이미 있으면 추가하지 않음
-      const existingIds = new Set(currentMessages.map((m) => m.id));
-      if (existingIds.has(msg.id)) {
-        console.log(
-          "⚠️ [socket addMessage] 중복 메시지 ID 감지, 추가하지 않음:",
-          msg.id,
-          "chatroomId:",
-          targetChatroomId
-        );
-        return state;
-      }
-
-      // MATCH_CONFIRMATION 타입 메시지는 agreementId로도 중복 체크
-      if (msg.type === "MATCH_CONFIRMATION" && msg.agreementId) {
-        const existingAgreementIds = new Set(
-          currentMessages.filter((m) => m.agreementId).map((m) => m.agreementId)
-        );
-        if (existingAgreementIds.has(msg.agreementId)) {
-          console.log(
-            "⚠️ [socket addMessage] 중복 매칭 확인서 감지 (agreementId), 추가하지 않음:",
-            msg.agreementId,
-            "chatroomId:",
-            targetChatroomId
-          );
-          return state;
-        }
-      }
-
-      console.log("✅ [socket addMessage] 메시지 추가:", {
-        id: msg.id,
-        type: msg.type,
-        chatroomId: targetChatroomId,
-      });
+      const currentMessages = state.messagesByChatroom[targetId] || [];
+      if (currentMessages.find((m) => m.id === msg.id)) return state;
 
       return {
         messagesByChatroom: {
           ...state.messagesByChatroom,
-          [targetChatroomId]: [...currentMessages, msg],
+          [targetId]: [...currentMessages, msg],
         },
       };
     }),
 
-  // 5. 메시지 초기화 (특정 채팅방 또는 전체)
-  clearMessages: (chatroomId?: string) =>
+  clearMessages: (chatroomId) =>
     set((state) => {
       if (chatroomId) {
-        // 특정 채팅방의 소켓 메시지만 초기화
-        const updated = { ...state.messagesByChatroom };
-        delete updated[chatroomId];
-        return { messagesByChatroom: updated };
-      } else {
-        // chatroomId가 없으면 모든 소켓 메시지 초기화
-        return { messagesByChatroom: {} };
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { [chatroomId]: _, ...rest } = state.messagesByChatroom;
+        return { messagesByChatroom: rest };
       }
+      return { messagesByChatroom: {} };
     }),
 }));
