@@ -13,12 +13,15 @@ export interface PresignedUrlParams {
  */
 export const uploadFileToS3 = async (file: File, directory: string, entityId: string = Date.now().toString()) => {
   try {
+    // Content-Type 검증 및 기본값 설정
+    const contentType = file.type || 'application/octet-stream';
+
     // 1. Presigned URL 요청
     const { data } = await instance.post("/files/presigned-url", {
       directory,
       entityId,
       originFileName: file.name,
-      contentType: file.type,
+      contentType,
     });
 
     const { uploadUrl, fileUrl } = data;
@@ -27,7 +30,7 @@ export const uploadFileToS3 = async (file: File, directory: string, entityId: st
     // instance 대신 순수 axios를 사용하여 Authorization 헤더 충돌을 방지합니다. (S3는 해당 헤더를 거부할 수 있음)
     try {
       await axios.put(uploadUrl, file, {
-        headers: { "Content-Type": file.type },
+        headers: { "Content-Type": contentType },
       });
     } catch (s3Error) {
       console.error("S3 업로드 실패:", s3Error);
