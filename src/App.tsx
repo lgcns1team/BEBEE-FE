@@ -29,6 +29,7 @@ import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
 import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
 import ChargePage from "./domain/Pay/page/ChargePage";
+import Checkout from "./domain/Pay/components/Checkout";
 
 function App() {
   return (
@@ -88,6 +89,7 @@ function App() {
           <Route path="/signup/step6" element={<AuthSignUpStep6Page />} />
           {/* 결제 */}
           <Route path="/charge" element={<ChargePage />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
