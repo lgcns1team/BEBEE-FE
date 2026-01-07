@@ -31,7 +31,8 @@ import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
 import ChargePage from "./domain/Pay/page/ChargePage";
 import Checkout from "./domain/Pay/components/Checkout";
-
+import { useUserStore } from "./store/useUserStore";
+import { reissueToken, getMyInfo } from "./api/authApi";
 function App() {
   const { setAccessToken, setUser } = useUserStore();
   const [isAuthChecking, setIsAuthChecking] = useState(true);
@@ -57,7 +58,7 @@ function App() {
 
           setUser({
             ...userInfo,
-            role: userInfo.role
+            role: userInfo.role,
           });
         } catch (error) {
           // 쿠키가 없거나 만료된 경우 -> 그냥 비로그인 상태 유지
@@ -75,17 +76,21 @@ function App() {
   // 인증 체크 중에는 로딩 표시 (사용자 경험 개선)
   if (isAuthChecking) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        backgroundColor: '#f5f5f5'
-      }}>
-        <div style={{
-          fontSize: '18px',
-          color: '#666'
-        }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          backgroundColor: "#f5f5f5",
+        }}
+      >
+        <div
+          style={{
+            fontSize: "18px",
+            color: "#666",
+          }}
+        >
           로딩 중...
         </div>
       </div>
