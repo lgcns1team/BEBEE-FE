@@ -103,9 +103,13 @@ const PostStatusItem = ({ posts, hideMatched = false }: Props) => {
     ? posts.filter((item) => !item.isMatched)
     : posts;
 
-  const goToApplicant = (postId: string, title: string) => {
+  const goToApplicant = (
+    postId: string,
+    title: string,
+    helpCategoryIds: number[]
+  ) => {
     navigate(`/applicant/${postId}`, {
-      state: { headerTitle: title, memberId: MEMBER_ID },
+      state: { headerTitle: title, memberId: MEMBER_ID, helpCategoryIds },
     });
   };
 
@@ -114,7 +118,9 @@ const PostStatusItem = ({ posts, hideMatched = false }: Props) => {
       {filteredItems.map((item) => (
         <Card
           key={item.postId}
-          onClick={() => goToApplicant(item.postId, item.title)}
+          onClick={() =>
+            goToApplicant(item.postId, item.title, item.helpCategories)
+          }
         >
           {/* 상단 */}
           <TagRow>

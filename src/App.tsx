@@ -71,7 +71,7 @@ function App() {
             element={<MatchingInfoPage />}
           />
           {/* 리뷰 */}
-          <Route path="/review" element={<ReviewPage />} />
+          <Route path="/review/:agreementId" element={<ReviewPage />} />
           {/*  테스트 */}
           <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
           <Route path="/applicate-status" element={<ApplicateStatusPage />} />
@@ -85,6 +85,9 @@ function App() {
           <Route path="/signup/step4" element={<AuthSignUpStep4Page />} />
           <Route path="/signup/step5" element={<AuthSignUpStep5Page />} />
           <Route path="/signup/step6" element={<AuthSignUpStep6Page />} />
+          {/* 결제 */}
+          <Route path="/charge" element={<ChargePage />} />
+          <Route path="/checkout" element={<Checkout />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

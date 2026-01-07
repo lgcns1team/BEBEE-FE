@@ -2,8 +2,13 @@
 //DISABLED (장애인)	충전	포인트 충전 페이지로 이동
 // HELPER (도우미)	인출	포인트 인출 페이지로 이동
 
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 const PointSection = () => {
+  const navigate = useNavigate();
+  const goPay = () => {
+    navigate("/charge");
+  };
   return (
     <PaymentContainer>
       <PointWrapper>
@@ -12,7 +17,7 @@ const PointSection = () => {
       </PointWrapper>
       <PaymentWrapper>
         <ReceiptButton>내역</ReceiptButton>
-        <PayButton>인출</PayButton>
+        <PayButton onClick={goPay}>충전</PayButton>
       </PaymentWrapper>
     </PaymentContainer>
   );

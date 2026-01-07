@@ -1,43 +1,113 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 import { useNavigate } from "react-router-dom";
 import HelpTag from "../../../components/HelpTag";
 import BaseLongButton from "../../../components/BaseLongButton";
-import { reviewMockData } from "../mock/review.mock";
+// import { reviewMockData } from "../mock/review.mock";
+import { useMatchStore } from "../../matching/store/useMatchStore";
+import { useParams } from "react-router-dom";
+import {
+  getReviewKeywords,
+  reviewWrite,
+  type ReviewKeyword,
+} from "../../../api/reviewApi";
 const ReviewPage = () => {
   const navigate = useNavigate();
-  const [selected, setSelected] = useState<number | null>(null);
-  const ReviewSubmit = () => {
-    navigate("/");
+
+  const { agreementId } = useParams<{ agreementId: string }>();
+  const { getEngagementById } = useMatchStore();
+
+  const [keywords, setKeywords] = useState<ReviewKeyword[]>([]);
+
+  const [selectedKeywordIds, setSelectedKeywordIds] = useState<number[]>([]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const engagement = agreementId ? getEngagementById(agreementId) : undefined;
+  const myRole = engagement.myRole;
+
+  const opponent =
+    myRole === "DISABLED" ? engagement.helper : engagement.disabled;
+  const revieweeId = "700";
+  const opponentNickname =
+    myRole === "DISABLED"
+      ? engagement.helper.nickname
+      : engagement.disabled.nickname;
+
+  const postTitle = engagement.title;
+  const helpCategories = engagement.helpCategories;
+
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      await reviewWrite({
+        revieweeId,
+        keywordIds: selectedKeywordIds,
+      });
+      alert("리뷰가 성공적으로 등록되었습니다.");
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+      alert("리뷰 등록에 실패했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  useEffect(() => {
+    const fetchKeywords = async () => {
+      try {
+        const res = await getReviewKeywords();
+        setKeywords(res.keywords);
+      } catch (e) {
+        console.error("리뷰 키워드 조회 실패");
+      }
+    };
+    fetchKeywords();
+  }, []);
+
   return (
     <Layout>
       <Header title="리뷰 보내기" onBack={() => navigate(-1)} />
-      <Title>아자아자 화이팅!</Title>
+      <Title>{postTitle}</Title>
       <TagWrapper>
-        <HelpTag>이동지원</HelpTag>
-        <HelpTag>의료동행</HelpTag>
+        {helpCategories.map((category) => {
+          return (
+            <HelpTag key={category.helpCategoryId}>
+              {category.helpCategoryName}
+            </HelpTag>
+          );
+        })}
       </TagWrapper>
-
       <Divider />
       <Content>
-        <Prompt>화이팅님과의 동행은 어떠셨나요?</Prompt>
+        <Prompt>{opponentNickname}과의 동행은 어떠셨나요?</Prompt>
         <Info>상대방은 어떤 리뷰를 남겼는지 알 수 없어요.</Info>
         <SelectReview>
-          {reviewMockData.map((review) => (
-            <ReviewCard
-              key={review.id}
-              $active={selected === review.id}
-              onClick={() => setSelected(review.id)}
-            >
-              {review.reviewcontent}
-            </ReviewCard>
-          ))}
+          {keywords.map((keyword) => {
+            const isSelected = selectedKeywordIds.includes(keyword.keywordId);
+
+            return (
+              <ReviewCard
+                key={keyword.keywordId}
+                $active={isSelected}
+                onClick={() => {
+                  setSelectedKeywordIds((prev) =>
+                    isSelected
+                      ? prev.filter((id) => id !== keyword.keywordId)
+                      : [...prev, keyword.keywordId]
+                  );
+                }}
+              >
+                {keyword.description}
+              </ReviewCard>
+            );
+          })}
         </SelectReview>
       </Content>
-      <BaseLongButton onClick={ReviewSubmit} label="리뷰 보내기" />
+      <BaseLongButton onClick={handleSubmit} label="리뷰 보내기" />
     </Layout>
   );
 };

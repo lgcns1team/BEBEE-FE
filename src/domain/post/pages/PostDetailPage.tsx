@@ -56,10 +56,10 @@ const PostDetailPage = () => {
   // 임시 memberId
 
   // 장애인용 아이디 100
-  const MEMBER_ID = "100";
+  // const MEMBER_ID = "100";
 
   // 도우미용 아이디 700
-  // const MEMBER_ID = "700";
+  const MEMBER_ID = "700";
 
   // 지원하기 및 나눔하기
   const handleApply = async () => {

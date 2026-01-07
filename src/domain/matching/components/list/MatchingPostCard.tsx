@@ -34,7 +34,7 @@ const MatchingPostCard = ({ engagement }: Props) => {
   };
 
   const goReviewPage = () => {
-    navigate(`/review`);
+    navigate(`/review/${engagement.agreementId}`);
   };
 
   /* 채팅 관련 */
