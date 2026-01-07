@@ -31,7 +31,8 @@ import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
 import ChargePage from "./domain/Pay/page/ChargePage";
 import Checkout from "./domain/Pay/components/Checkout";
-
+import { useUserStore } from "./store/useUserStore";
+import { reissueToken, getMyInfo } from "./api/authApi";
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -75,7 +76,7 @@ function App() {
             element={<MatchingInfoPage />}
           />
           {/* 리뷰 */}
-          <Route path="/review" element={<ReviewPage />} />
+          <Route path="/review/:agreementId" element={<ReviewPage />} />
           {/*  테스트 */}
           <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
           <Route path="/applicate-status" element={<ApplicateStatusPage />} />
