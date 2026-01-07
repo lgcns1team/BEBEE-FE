@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./domain/post/pages/HomePage";
 import PostDetailPage from "./domain/post/pages/PostDetailPage";
@@ -119,9 +119,6 @@ function App() {
           <Route path="/chat/:chatroomId" element={<ChatRoomPage />} />
           <Route path="/chat/:chatroomId/match" element={<MatchFormPage />} />
 
-          {/*마이페이지*/}
-          {/* <Route path="/mypage" element={<MyPage />} /> */}
-
           {/* 마이페이지에서 보는 프로필 정보 */}
           <Route path="/profile-info/:infoId" element={<ProfileInfoPage />} />
 
@@ -143,12 +140,13 @@ function App() {
           />
           {/* 리뷰 */}
           <Route path="/review" element={<ReviewPage />} />
-          {/*  테스트 */}
+
+          {/* 테스트 */}
           <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
           <Route path="/applicate-status" element={<ApplicateStatusPage />} />
           <Route path="/applicant/:postId" element={<ApplicantPage />} />
 
-          {/* 회원가입 */}
+          {/* 회원가입/로그인 */}
           <Route path="/login" element={<AuthLoginPage />} />
           <Route path="/signup/step1" element={<AuthSignUpStep1Page />} />
           <Route path="/signup/step2" element={<AuthSignUpStep2Page />} />
