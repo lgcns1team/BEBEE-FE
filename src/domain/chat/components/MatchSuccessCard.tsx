@@ -38,36 +38,3 @@ const Sub = styled.div`
   font-size: ${({ theme }) => theme.size.sm};
   margin-bottom: 16px;
 `;
-
-const InfoSection = styled.div`
-  width: 100%;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid ${({ theme }) => theme.color.blue500};
-  opacity: 0.3;
-`;
-
-const InfoRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const InfoLabel = styled.span`
-  color: ${({ theme }) => theme.color.subText2};
-  font-size: ${({ theme }) => theme.size.sm};
-  font-weight: ${({ theme }) => theme.weight.medium};
-  min-width: 80px;
-`;
-
-const InfoValue = styled.span`
-  color: ${({ theme }) => theme.color.text};
-  font-size: ${({ theme }) => theme.size.sm};
-  text-align: right;
-  flex: 1;
-`;
