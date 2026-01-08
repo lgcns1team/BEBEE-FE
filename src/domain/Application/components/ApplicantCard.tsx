@@ -34,13 +34,13 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
       console.log("[ApplicantCard] 채팅방 생성 요청:", {
         otherMemberId,
         body: {
-          postId: Number(currentPost.postId),
+          postId: currentPost.postId,
           postTitle: currentPost.postTitle,
           helpCategoryIds: currentPost.helpCategoryIds,
         },
       });
       const res = await chatApi.createChatRoom(otherMemberId, {
-        postId: Number(currentPost.postId),
+        postId: currentPost.postId,
         postTitle: currentPost.postTitle,
         helpCategoryIds: currentPost.helpCategoryIds,
       });
