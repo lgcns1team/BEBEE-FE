@@ -108,6 +108,7 @@ const PostStatusItem = ({ posts, hideMatched = false }: Props) => {
     title: string,
     helpCategoryIds: number[]
   ) => {
+    console.log("postId:", postId);
     navigate(`/applicant/${postId}`, {
       state: { headerTitle: title, memberId: MEMBER_ID, helpCategoryIds },
     });

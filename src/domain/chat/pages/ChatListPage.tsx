@@ -3,8 +3,8 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useChatStore } from "../store/useChatStore";
 import { useChatHandler } from "../../../hooks/useChatHandler";
-import { formatChatTime } from "../utils/date";
-import { chatApi } from "../api/chatApi"; // API 임포트 추가
+import { formatChatTime } from "../utils/date";
+import { chatApi } from "../../../api/chatApi";
 
 /* Components */
 import Header from "../../../components/Header";
@@ -39,7 +39,7 @@ const ChatListPage = () => {
 
       setIsLoading(true);
       try {
-        console.log("📡 [fetchList] 채팅방 목록 조회:", {
+        console.log(" 채팅방 목록 조회:", {
           isMore,
           lastChatroomId: isMore ? nextChatroomId : null,
         });
@@ -77,20 +77,13 @@ const ChatListPage = () => {
   useEffect(() => {
     // 조건 확인: 더 불러올 데이터가 있고, 로딩 중이 아니고, 관찰 대상이 있어야 함
     if (!hasNext || isLoading || !observerTarget.current) {
-      console.log({
-        hasNext,
-        isLoading,
-        hasObserverTarget: !!observerTarget.current,
-      });
       return;
     }
-
-    console.log("👀 [IntersectionObserver] 관찰 시작");
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          console.log("📜 [IntersectionObserver] 스크롤 감지, 추가 로드 시작");
+          console.log("추가 로드 시작");
           fetchList(true);
         }
       },
@@ -99,7 +92,6 @@ const ChatListPage = () => {
 
     observer.observe(observerTarget.current);
     return () => {
-      console.log("🧹 [IntersectionObserver] 관찰 해제");
       observer.disconnect();
     };
   }, [hasNext, isLoading, fetchList]);

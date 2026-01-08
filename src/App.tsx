@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./domain/post/pages/HomePage";
 import PostDetailPage from "./domain/post/pages/PostDetailPage";
 import ChatListPage from "./domain/chat/pages/ChatListPage";
+//import MatchFormPage from "./domain/chat/pages/MatchFormPage";
 import ChatRoomPage from "./domain/chat/pages/ChatRoomPage";
 import MatchingPage from "./domain/matching/pages/MatchingPage";
 import ReviewPage from "./domain/review/pages/ReviewPage";
@@ -12,7 +12,6 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import "./App.css";
-
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
 import MapDisabledPage from "./domain/map/pages/MapDisabledPage";
@@ -31,8 +30,6 @@ import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
 import ChargePage from "./domain/Pay/page/ChargePage";
 import Checkout from "./domain/Pay/components/Checkout";
-import { useUserStore } from "./store/useUserStore";
-import { reissueToken, getMyInfo } from "./api/authApi";
 import PaymentSuccessPage from "./domain/Pay/page/PaymentSuccessPage";
 function App() {
   return (
@@ -53,7 +50,6 @@ function App() {
           <Route path="/chat" element={<ChatListPage />} />
           <Route path="/chat/:chatroomId" element={<ChatRoomPage />} />
           <Route path="/chat/:chatroomId/match" element={<MatchFormPage />} />
-
           {/*마이페이지*/}
           {/* <Route path="/mypage" element={<MyPage />} /> */}
 

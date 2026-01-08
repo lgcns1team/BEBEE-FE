@@ -2,11 +2,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { chatApi } from "../api/chatApi";
+import { chatApi } from "../../../api/chatApi";
 import { postApi } from "../../../api/postApi";
 import type { PostDetailResponse } from "../../../types/post.type";
 import { HELP_TAG_MAP } from "../../../constants/helpTags";
 import type { MatchStatus } from "../chat.types";
+import { useApplicationStore } from "../../../domain/Application/store/useApplicationStore";
 
 /* Components */
 import HelpTag from "../../../components/HelpTag";
@@ -16,6 +17,7 @@ const ChatRoomCard = () => {
   const navigate = useNavigate();
   const { chatroomId } = useParams<{ chatroomId: string }>();
   const { activeRoom, setActiveRoom } = useChatStore();
+  const { currentPost } = useApplicationStore();
   const [postDetail, setPostDetail] = useState<PostDetailResponse | null>(null);
   const [isLoadingPost, setIsLoadingPost] = useState(false);
 
@@ -39,6 +41,12 @@ const ChatRoomCard = () => {
     const fetchRoomDetail = async () => {
       try {
         const data = await chatApi.openChatRoom(undefined, chatroomId);
+        console.log("[ChatRoomCard] 채팅방 조회 응답:", {
+          chatroomId: data.chatroomId,
+          postId: data.postId,
+          postIdType: typeof data.postId,
+          전체데이터: data,
+        });
         setActiveRoom(data); // 데이터 수신 완료 -> activeRoom이 null이 아니게 됨
       } catch (error) {
         console.error("채팅방 정보를 불러오는데 실패했습니다.", error);
@@ -57,8 +65,11 @@ const ChatRoomCard = () => {
 
   // 2. 게시글 상세 정보 로딩
   useEffect(() => {
-    if (!activeRoom?.postId) {
-      console.log("⚠️ [ChatRoomCard] postId가 없습니다:", activeRoom);
+    // currentPost에서 postId를 우선 사용, 없으면 activeRoom.postId 사용
+    const postIdToUse = currentPost?.postId || activeRoom?.postId;
+    
+    if (!postIdToUse) {
+      console.log("postId가 없습니다:", { currentPost, activeRoom });
       return;
     }
 
@@ -66,11 +77,12 @@ const ChatRoomCard = () => {
       setIsLoadingPost(true);
       try {
         console.log({
-          postId: activeRoom.postId,
-          postIdType: typeof activeRoom.postId,
+          postId: postIdToUse,
+          postIdType: typeof postIdToUse,
+          source: currentPost?.postId ? "currentPost" : "activeRoom",
         });
 
-        const detail = await postApi.getPostDetail(activeRoom.postId);
+        const detail = await postApi.getPostDetail(postIdToUse);
         console.log("성공:", detail);
         setPostDetail(detail);
       } catch (error) {
@@ -79,7 +91,7 @@ const ChatRoomCard = () => {
           message?: string;
         };
         console.error("실패:", {
-          postId: activeRoom.postId,
+          postId: postIdToUse,
           error,
           response: axiosError.response?.data,
           status: axiosError.response?.status,
@@ -94,7 +106,7 @@ const ChatRoomCard = () => {
 
     fetchPostDetail();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeRoom?.postId]);
+  }, [currentPost?.postId, activeRoom?.postId]);
 
   // 3. 렌더링 가드 (Guard Clause)
   if (!activeRoom) {

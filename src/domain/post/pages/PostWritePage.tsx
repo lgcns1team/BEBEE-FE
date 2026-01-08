@@ -19,6 +19,7 @@ import {
   ModalLabel,
   RequiredMark,
 } from "../../../styles/FieldSetStyle";
+import { uploadFile } from "../../../api/fileApi2";
 const PostWritePage = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -110,16 +111,31 @@ const PostWritePage = () => {
     const newPreviews = fileArray.map((file) => URL.createObjectURL(file));
     setImagePreviews((prev) => [...prev, ...newPreviews]);
 
-    // B. 서버 업로드 (실제 구현 시 API 호출)
-    // 예시: const uploadedUrls = await uploadImagesToServer(fileArray);
-    const mockUrls = fileArray.map(
-      (_, i) => `https://server-storage.com/image${Date.now() + i}.jpg`
-    );
+    // B. Presigned URL을 통한 S3 업로드
+    try {
+      const entityId = Date.now().toString();
+      const uploadPromises = fileArray.map((file) =>
+        uploadFile(file, "posts", entityId)
+      );
+      const uploadedUrls = await Promise.all(uploadPromises);
 
-    // C. formData 업데이트 (Tip A 방식)
-    updateField({
-      postImages: [...(formData.postImages || []), ...mockUrls],
-    });
+      // C. formData 업데이트
+      updateField({
+        postImages: [...(formData.postImages || []), ...uploadedUrls],
+      });
+    } catch (error) {
+      console.error("파일 업로드 실패:", error);
+      alert("파일 업로드에 실패했습니다. 다시 시도해주세요.");
+      // 업로드 실패 시 미리보기도 제거
+      setImagePreviews((prev) =>
+        prev.slice(0, prev.length - fileArray.length)
+      );
+    }
+
+    // input 초기화 (같은 파일 다시 선택 가능하도록)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   /* ---------------- 이미지 삭제 핸들러 ---------------- */
