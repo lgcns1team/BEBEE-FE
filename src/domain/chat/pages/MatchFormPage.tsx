@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
 import { useChatStore } from "../store/useChatStore";
 import { useSocketStore } from "../../../store/useSocketStore";
+import { useApplicationStore } from "../../Application/store/useApplicationStore";
 import { postApi } from "../../../api/postApi";
 import { createAgreement } from "../api/agreementApi";
 import { chatApi } from "../../../api/chatApi";
@@ -46,14 +47,15 @@ const MatchFormPage = () => {
     post: PostDetailResponse,
     postId: string,
     helperId: string,
-    chatroomId: string
+    chatroomId: string,
+    isVolunteer?: boolean
   ): Partial<AgreementRequest> => {
     // 기본 AgreementRequest 구조
     const baseRequest: Partial<AgreementRequest> = {
       postId: postId,
       helperId: helperId,
       type: post.engagementType,
-      isVolunteer: false,
+      isVolunteer: isVolunteer ?? false,
       helpCategoryIds: post.helpCategoryIds || [],
       unitHoney: post.unitHoney,
       totalHoney: post.totalHoney,
@@ -66,6 +68,7 @@ const MatchFormPage = () => {
   };
   const navigate = useNavigate();
   const { activeRoom, setActiveRoom } = useChatStore();
+  const { applicants } = useApplicationStore();
 
   const [postDetail, setPostDetail] = useState<PostDetailResponse | null>(null);
   const [agreementRequest, setAgreementRequest] =
@@ -111,8 +114,21 @@ const MatchFormPage = () => {
         if (!activeRoom || activeRoom.chatroomId !== chatroomId) {
           console.log("채팅방 정보를 가져오는 중...", chatroomId);
           const roomData = await chatApi.openChatRoom(undefined, chatroomId);
+          console.log("[MatchFormPage] 채팅방 정보 응답:", {
+            roomData전체: roomData,
+            chatroomId: roomData.chatroomId,
+            postId: roomData.postId,
+            otherId: roomData.otherId,
+          });
           setActiveRoom(roomData);
           currentActiveRoom = roomData;
+        } else {
+          console.log("[MatchFormPage] 기존 activeRoom 사용:", {
+            activeRoom전체: activeRoom,
+            chatroomId: activeRoom.chatroomId,
+            postId: activeRoom.postId,
+            otherId: activeRoom.otherId,
+          });
         }
 
         // 2. postId가 없으면 에러
@@ -131,11 +147,16 @@ const MatchFormPage = () => {
         const otherId = currentActiveRoom.otherId;
         const helperId = otherId;
 
+        // useApplicationStore의 applicants에서 isVolunteer 정보 가져오기
+        const applicant = applicants.find((app) => app.memberId === otherId);
+        const isVolunteer = applicant?.isVolunteer ?? false;
+
         const request = convertPostToAgreementRequest(
           detail,
           currentActiveRoom.postId,
           helperId,
-          chatroomId
+          chatroomId,
+          isVolunteer
         );
         // region을 postDetail.postAddress로 초기화 (LocationInput 초기값 설정)
         if (detail.postAddress) {
@@ -284,6 +305,12 @@ const MatchFormPage = () => {
       return;
     }
 
+    // 나눔인 경우 잔액 확인 불필요
+    if (agreementRequest.isVolunteer) {
+      alert("나눔은 꿀 차감이 없습니다.");
+      return;
+    }
+
     // totalHoney 계산 (DAY 타입은 unitHoney, TERM 타입은 totalHoney 사용)
     const requiredHoney =
       agreementRequest.type === "DAY"
@@ -344,15 +371,17 @@ const MatchFormPage = () => {
       return;
     }
 
-    // 잔액 확인 체크
-    if (!isBalanceChecked) {
-      alert("잔액 확인을 먼저 해주세요.");
-      return;
-    }
+    // 나눔이 아닌 경우에만 잔액 확인 체크
+    if (!agreementRequest.isVolunteer) {
+      if (!isBalanceChecked) {
+        alert("잔액 확인을 먼저 해주세요.");
+        return;
+      }
 
-    if (!isBalanceSufficient) {
-      alert("꿀이 부족합니다. 충전 후 다시 시도해주세요.");
-      return;
+      if (!isBalanceSufficient) {
+        alert("꿀이 부족합니다. 충전 후 다시 시도해주세요.");
+        return;
+      }
     }
 
     if (isSubmitting) {
@@ -599,8 +628,6 @@ const MatchFormPage = () => {
           );
 
           if (!serverHasMatchMessage) {
-            console.log("STOMP로 전송", matchConfirmationMessage);
-
             // STOMP로 매칭확인서 전송
             const receiverId = activeRoom?.otherId
               ? Number(activeRoom.otherId)
@@ -622,8 +649,8 @@ const MatchFormPage = () => {
                 });
             } else {
               console.warn(
-                "receiverId 또는 chatroomId가 없어 STOMP 전송 실패",
-                { receiverId, chatroomId }
+                " receiverId 또는 chatroomId가 없어 STOMP 전송 실패",
+                { receiverId, chatroomId, activeRoom }
               );
             }
 
@@ -758,17 +785,25 @@ const MatchFormPage = () => {
             <InputContainer>
               <GeneralInput
                 inputLabel="1회 제공 꿀"
-                value={(agreementRequest.unitHoney || 0).toString()}
+                value={
+                  agreementRequest.isVolunteer
+                    ? "나눔"
+                    : (agreementRequest.unitHoney || 0).toString()
+                }
                 onChange={(e) => {
+                  if (agreementRequest.isVolunteer) return;
                   const value = parseInt(e.target.value) || 0;
                   updateField("unitHoney", value);
                 }}
+                disabled={agreementRequest.isVolunteer ?? false}
                 required
               />
             </InputContainer>
             <BalanceCheckButton
               onClick={handleCheckBalance}
-              disabled={isCheckingBalance}
+              disabled={
+                isCheckingBalance || (agreementRequest.isVolunteer ?? false)
+              }
               $isSufficient={isBalanceSufficient}
             >
               {isCheckingBalance ? "확인 중..." : "잔액확인"}
@@ -777,7 +812,8 @@ const MatchFormPage = () => {
           {agreementRequest.type === "TERM" &&
           termEngagement &&
           agreementRequest.unitHoney &&
-          agreementRequest.totalHoney ? (
+          agreementRequest.totalHoney &&
+          !agreementRequest.isVolunteer ? (
             <TotlaHoney role="status" aria-live="polite">
               <span style={{ color: "#155DFC" }}> 총 제공 꿀: </span>
               <span>

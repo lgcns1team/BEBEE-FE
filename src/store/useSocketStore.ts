@@ -3,10 +3,26 @@ import { Client } from "@stomp/stompjs";
 import type { ChatMessage } from "../domain/chat/chat.types";
 import { useChatStore } from "../domain/chat/store/useChatStore";
 
+interface PendingMatchConfirmation {
+  receiverId: number;
+  chatroomId: string;
+  matchConfirmationData: {
+    location: string;
+    unitPoints: number;
+    totalPoints: number;
+    startDate?: string;
+    endDate?: string;
+    scheduleDays?: string[];
+    scheduleStartTimes?: string[];
+    scheduleEndTimes?: string[];
+  };
+}
+
 interface SocketStore {
   messagesByChatroom: Record<string, ChatMessage[]>;
   connected: boolean;
   client: Client | null;
+  pendingMatchConfirmations: PendingMatchConfirmation[];
   connect: () => void;
   disconnect: () => void;
   sendMessage: (
@@ -41,9 +57,16 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   messagesByChatroom: {},
   connected: false,
   client: null,
+  pendingMatchConfirmations: [],
 
-  getMessages: (chatroomId: string) =>
-    get().messagesByChatroom[chatroomId] || [],
+  getMessages: (chatroomId: string) => {
+    const state = get();
+    if (!state.messagesByChatroom || !chatroomId) {
+      return [];
+    }
+    const messages = state.messagesByChatroom[chatroomId];
+    return Array.isArray(messages) ? messages : [];
+  },
 
   connect: () => {
     const token = 1;
@@ -93,6 +116,22 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
           },
           { id: `sub-${memberId}` } // ID 고유화
         );
+
+        // 연결 완료 후 대기 중인 매칭확인서 전송
+        const pending = get().pendingMatchConfirmations;
+        if (pending.length > 0) {
+          console.log(
+            `📤 [onConnect] 대기 중인 매칭확인서 ${pending.length}개 전송 시작`
+          );
+          pending.forEach((pendingConfirmation) => {
+            get().sendMatchConfirmation(
+              pendingConfirmation.receiverId,
+              pendingConfirmation.chatroomId,
+              pendingConfirmation.matchConfirmationData
+            );
+          });
+          set({ pendingMatchConfirmations: [] });
+        }
       },
 
       onWebSocketError: (error) => {
@@ -158,8 +197,25 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   sendMatchConfirmation: (receiverId, chatroomId, matchConfirmationData) => {
     const { client, connected } = get();
 
+    console.log("📤 [sendMatchConfirmation] 매칭확인서 Socket 전송 시작:", {
+      receiverId,
+      chatroomId,
+      matchConfirmationData,
+      clientActive: client?.active,
+      connected,
+    });
+
     if (!client?.active || !connected) {
-      console.warn(" 연결되지 않음. 재연결 시도...");
+      console.warn(
+        "⚠️ [sendMatchConfirmation] 연결되지 않음. 대기열에 추가 후 재연결 시도..."
+      );
+      // 대기열에 추가
+      set((state) => ({
+        pendingMatchConfirmations: [
+          ...state.pendingMatchConfirmations,
+          { receiverId, chatroomId, matchConfirmationData },
+        ],
+      }));
       get().connect();
       return;
     }
@@ -179,10 +235,11 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       createdAt,
     };
 
-    console.log("] 매칭확인서 전송:", {
+    console.log("매칭확인서 Payload:", {
       receiverId,
       chatroomId,
-      payload,
+      payload: JSON.stringify(payload, null, 2),
+      destination: "/pub/chats",
     });
 
     try {
@@ -191,24 +248,41 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
         body: JSON.stringify(payload),
         headers: { "content-type": "application/json" },
       });
-      console.log(" 매칭확인서 전송 완료");
+      console.log(" 매칭확인서 Socket 전송 완료:", {
+        receiverId,
+        chatroomId,
+        timestamp: createdAt,
+      });
     } catch (error) {
-      console.error("매칭확인서 전송 실패:", error);
+      console.error("매칭확인서 Socket 전송 실패:", {
+        error,
+        receiverId,
+        chatroomId,
+        payload,
+      });
     }
   },
 
   addMessage: (msg, chatroomId) =>
     set((state) => {
-      const targetId = chatroomId || msg.chatroomId;
-      if (!targetId) return state;
+      const targetId = chatroomId || msg?.chatroomId;
+      if (!targetId || !msg) return state;
 
-      const currentMessages = state.messagesByChatroom[targetId] || [];
-      if (currentMessages.find((m) => m.id === msg.id)) return state;
+      // 안전한 접근 보장
+      const currentMessages = state.messagesByChatroom?.[targetId];
+      const safeCurrentMessages = Array.isArray(currentMessages)
+        ? currentMessages
+        : [];
+
+      // 중복 체크
+      if (msg.id && safeCurrentMessages.find((m) => m?.id === msg.id)) {
+        return state;
+      }
 
       return {
         messagesByChatroom: {
-          ...state.messagesByChatroom,
-          [targetId]: [...currentMessages, msg],
+          ...(state.messagesByChatroom || {}),
+          [targetId]: [...safeCurrentMessages, msg],
         },
       };
     }),

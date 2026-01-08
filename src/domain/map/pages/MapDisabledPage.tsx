@@ -27,31 +27,86 @@ const MapDisabledPage = () => {
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const [locationSouce, setLocationSource] = useState<MapFindType>("CURRENT");
   const [allPosts, setAllPosts] = useState<PostItem[]>([]);
-  const [filteredPosts, sse];
+  const [filteredPosts, setFilteredPosts] = useState<PostItem[]>;
+  const [findType, setFindType] = useState<MapFindType>("CURRENT");
 
+  const { latitude, longitude, addressRoad } = useAuthSignUpForm();
+  // const moveToCurrentLocation = useCallback(() => {
+  //   if (!navigator.geolocation) return;
+
+  //   navigator.geolocation.getCurrentPosition((pos) => {
+  //     const nextCenter = {
+  //       lat: pos.coords.latitude,
+  //       lng: pos.coords.longitude,
+  //     };
+
+  //     setCenter(nextCenter);
+  //     setLocationLabel("현재 위치");
+  //     if (mapRef.current) {
+  //       mapRef.current.setCenter(
+  //         new kakao.maps.LatLng(nextCenter.lat, nextCenter.lng)
+  //       );
+  //     }
+  //   });
+  // }, []);
+  // 현재 위치 기준
   const moveToCurrentLocation = useCallback(() => {
-    if (!navigator.geolocation) return;
-
     navigator.geolocation.getCurrentPosition((pos) => {
-      const nextCenter = {
+      const next = {
         lat: pos.coords.latitude,
         lng: pos.coords.longitude,
       };
 
-      setCenter(nextCenter);
+      setCenter(next);
       setLocationLabel("현재 위치");
-      if (mapRef.current) {
-        mapRef.current.setCenter(
-          new kakao.maps.LatLng(nextCenter.lat, nextCenter.lng)
-        );
-      }
+      setLocationSource("CURRENT");
     });
   }, []);
+  // 집 기준
+  const moveToHomeLocation = useCallback(() => {
+    if (!homeLat || !homeLng) return;
+
+    setCenter({ lat: homeLat, lng: homeLng });
+    setLocationLabel(addressRoad || "우리 집");
+    setLocationSource("HOME");
+  }, [homeLat, homeLng, addressRoad]);
+
+  /** 기준 위치 or 반경 변경 시 API 호출 */
+  useEffect(() => {
+    const fetchPosts = async () => {
+      const res = await mapApi.getNearByPosts({
+        latitude: center.lat,
+        longitude: center.lng,
+        radius: radiusKm * 1000,
+        type: findType,
+      });
+
+      setAllPosts(res.nearByPosts);
+    };
+
+    fetchPosts();
+  }, [center, radiusKm, findType]);
+
+  /** 프론트에서 반경 필터링 (이중 안전망) */
+  useEffect(() => {
+    const next = allPosts.filter((post) => {
+      const d = getDistanceMeter(
+        center.lat,
+        center.lng,
+        post.latitude,
+        post.longitude
+      );
+
+      return d <= radiusKm * 1000;
+    });
+
+    setFilteredPosts(next);
+  }, [allPosts, center, radiusKm]);
 
   /** 최초 진입 시 현재 위치 */
-  useEffect(() => {
-    moveToCurrentLocation();
-  }, [moveToCurrentLocation]);
+  // useEffect(() => {
+  //   moveToCurrentLocation();
+  // }, [moveToCurrentLocation]);
 
   return (
     <Container>
