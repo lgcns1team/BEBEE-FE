@@ -18,11 +18,10 @@ export const getEngagements = (params: {
 };
 
 export const getEngagementCompleteStatus = (params: {
-  currentMemberId: "100";
-  engagementId: string;
+  agreementId: string;
 }) => {
   return instance.post<getEngagementCompleteResponse>(
-    `/match/engagements/${params.engagementId}/complete`,
+    `/match/engagements/${params.agreementId}/complete`,
     null,
     {
       params: {

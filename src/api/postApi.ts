@@ -95,14 +95,14 @@ export const postApi = {
   ): Promise<PostDetailResponse> => {
     // postId를 문자열로 변환하여 URL에 사용
     const postIdStr = String(postId);
-    console.log("📡 [postApi.getPostDetail] 요청:", {
+    console.log("게시글 데이터 요청:", {
       postId,
       postIdStr,
       url: `match/posts/${postIdStr}`,
     });
 
     const response = await instance.get(`match/posts/${postIdStr}`);
-    console.log("✅ [postApi.getPostDetail] 응답:", response.data);
+    console.log("게시글 데이터 응답:", response.data);
 
     return response.data;
   },

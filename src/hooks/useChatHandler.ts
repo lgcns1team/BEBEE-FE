@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { chatApi } from "../domain/chat/api/chatApi";
+import { chatApi } from "../api/chatApi";
 import type { ChatroomOpenReqDTO } from "../domain/chat/chat.types";
 import { useChatStore } from "../domain/chat/store/useChatStore";
 

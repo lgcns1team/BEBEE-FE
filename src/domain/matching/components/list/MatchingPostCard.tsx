@@ -19,7 +19,7 @@ import type {
 
 interface Props {
   engagement: Engagement;
-  onComplete: (engagementId: string) => void;
+  onComplete: (agreementId: string) => void;
 }
 
 const MatchingPostCard = ({ engagement, onComplete }: Props) => {
@@ -131,22 +131,25 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
           {!isCompleted ? (
             <DoneButton
               onClick={() => {
-                console.log("RAW engagement", engagement);
-                console.log("agreementId", engagement.agreementId);
-                console.log("engagementId", engagement.engagementId);
-
-                onComplete(engagement.engagementId);
+                onComplete(engagement.agreementId);
               }}
+              aria-label="활동을 완료했을 경우 눌러주세요"
             >
               <span>활동 완료</span>
             </DoneButton>
           ) : canReview ? (
-            <ReviewButton onClick={goReviewPage}>
+            <ReviewButton
+              onClick={goReviewPage}
+              aria-label="리뷰를 작성하실 경우 눌러주세요"
+            >
               <BsPencil size={12} />
               <span>리뷰 작성하기</span>
             </ReviewButton>
           ) : (
-            <DoneButton disabled>
+            <DoneButton
+              disabled
+              aria-label="아직 마지막 활동이 종료되지 않았어요"
+            >
               <span>다음 일정 대기</span>
             </DoneButton>
           )}

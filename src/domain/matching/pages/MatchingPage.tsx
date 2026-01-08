@@ -14,7 +14,7 @@ import { useMatchStore } from "../store/useMatchStore";
 import { getEngagements } from "../../../api/engagementApi";
 import { getEngagementDateSet } from "../utils/engagementDates";
 import { getEngagementCompleteStatus } from "../../../api/engagementApi";
-import { useUserStore } from "../../../store/useUserStore";
+// import { useUserStore } from "../../../store/useUserStore";
 
 // const MEMBER_ID = "100";
 
@@ -27,19 +27,19 @@ const MatchingPage = () => {
   const [engagementDates, setEngagementDates] = useState<Set<string>>(
     new Set()
   );
-  const { user } = useUserStore();
-  const memberId = user?.memberId;
-  const handleComplete = async (engagementId: string) => {
+  // const { user } = useUserStore();
+  // const memberId = user?.memberId;
+  const handleComplete = async (agreementId: string) => {
     try {
       const res = await getEngagementCompleteStatus({
-        engagementId,
-        currentMemberId: "100",
+        agreementId,
+        // currentMemberId: "700",
       });
       const { status, isLastActivity } = res.data;
 
       setEngagements(
         engagements.map((e) =>
-          e.engagementId === engagementId
+          e.agreementId === agreementId
             ? {
                 ...e,
                 isDayComplete: status === "COMPLETED" ? true : e.isDayComplete,
@@ -76,7 +76,7 @@ const MatchingPage = () => {
     Promise.all(
       types.map((type) =>
         getEngagements({
-          memberId: "100",
+          memberId: "700",
           date: selectedDate,
           engagementType: type,
         })
@@ -97,20 +97,30 @@ const MatchingPage = () => {
         <Header title="활동 관리" />
 
         <StickyBox>
-          <PeriodToggle active={period} onChange={setPeriod} />
+          <PeriodToggle
+            active={period}
+            onChange={setPeriod}
+            aria-label="활동을 한 달 보기와 한 주 보기 중 선택하여 확인할 수 있습니다"
+          />
           {period === "week" ? (
             <WeeklyCalendar
               onSelectDate={(date) => setSelectedDate(date)}
               markedDates={engagementDates}
+              aria-label="한 주 보기로 확인할 수 있습니다"
             />
           ) : (
             <MonthlyCalendar
               onSelectDate={(date) => setSelectedDate(date)}
               markedDates={engagementDates}
+              aria-label="한 달 보기로 확인할 수 있습니다"
             />
           )}
 
-          <Category activeTab={activeTab} onChange={setActiveTab} />
+          <Category
+            activeTab={activeTab}
+            onChange={setActiveTab}
+            aria-label="전체, 하루도움, 지속도움 중 선택하여서 확인할 수 있습니다."
+          />
         </StickyBox>
 
         <ScrollArea>

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { chatApi } from "../api/chatApi";
+import { chatApi } from "../../../api/chatApi";
 import type {
   ChatroomResponse,
   ChatroomListItem,

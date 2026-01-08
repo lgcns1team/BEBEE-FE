@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useChatStore } from "../store/useChatStore";
 import { useChatHandler } from "../../../hooks/useChatHandler";
 import { formatChatTime } from "../utils/date";
-import { chatApi } from "../api/chatApi"; // API 임포트 추가
+import { chatApi } from "../../../api/chatApi"; 
 
 /* Components */
 import Header from "../../../components/Header";
