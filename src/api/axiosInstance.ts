@@ -1,6 +1,5 @@
 import axios, { type InternalAxiosRequestConfig, type AxiosResponse, type AxiosError } from 'axios';
 import { useUserStore } from '../store/useUserStore';
-import { reissueToken } from './authApi';
 
 // 임시 토큰 (헤더에 고정)
 //export const TEMP_TOKEN =
@@ -68,7 +67,8 @@ instance.interceptors.response.use(
                 isRefreshing = true;
 
                 try {
-                    // 토큰 재발급 시도
+                    // 토큰 재발급 시도 (동적 import로 순환 참조 해결)
+                    const { reissueToken } = await import('./authApi');
                     const { accessToken } = await reissueToken();
                     useUserStore.getState().setAccessToken(accessToken);
 
