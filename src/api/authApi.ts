@@ -5,7 +5,7 @@ import axios from 'axios';
 
 // 토큰 갱신 전용 인스턴스 (인터셉터 없음)
 const refreshInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://be-bee.link",
+  baseURL: import.meta.env.VITE_API_URL || "https://api.be-bee.link",
   headers: {
     'Content-Type': 'application/json',
   },

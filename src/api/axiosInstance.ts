@@ -10,7 +10,7 @@ import { useUserStore } from '../store/useUserStore';
 
 
 export const instance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "https://be-bee.link",
+    baseURL: import.meta.env.VITE_API_URL || "https://api.be-bee.link",
     headers: {
         'Content-Type': 'application/json',
     },
@@ -36,9 +36,11 @@ instance.interceptors.request.use(
         // useUserStore에서 accessToken 가져오기
         const userStore = useUserStore.getState();
         const accessToken = userStore.accessToken;
+        console.log("accessToken");
+        console.log(accessToken);
 
         if (accessToken) {
-            config.headers.Authorization = `Bearer ${accessToken}`;
+            config.headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
         // 사용자가 X-Member-Id 헤더 추가를 원했으므로 여기서 설정
@@ -52,7 +54,7 @@ instance.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-
+/*
 // 응답 인터셉터 - 401 에러 시 자동 토큰 갱신 (Race Condition 방지)
 instance.interceptors.response.use(
     (response: AxiosResponse) => response,
@@ -105,3 +107,4 @@ instance.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+*/
