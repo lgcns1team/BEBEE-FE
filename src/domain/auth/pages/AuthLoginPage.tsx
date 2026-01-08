@@ -82,9 +82,9 @@ const AuthLoginPage = () => {
         </FormContainer>
 
         <UtilContainer>
-          <UtilLink onClick={() => {}}>아이디 찾기</UtilLink>
+          <UtilLink onClick={() => { }}>아이디 찾기</UtilLink>
           <Divider>|</Divider>
-          <UtilLink onClick={() => {}}>비밀번호 찾기</UtilLink>
+          <UtilLink onClick={() => { }}>비밀번호 찾기</UtilLink>
           <Divider>|</Divider>
           <SignUpLink onClick={() => navigate("/signup/step1")}>
             회원가입
