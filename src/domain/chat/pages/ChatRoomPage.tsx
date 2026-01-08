@@ -149,7 +149,7 @@ const ChatRoom = () => {
   useEffect(() => {
     if (import.meta.env.DEV && historyMessages.length % 100 === 0) {
       // 100개 단위로만 로그 출력
-      console.log("📨 [ChatRoomPage] API 메시지 상태:", {
+      console.log("API 메시지 상태:", {
         개수: historyMessages.length,
         isEmpty: historyMessages.length === 0,
       });
@@ -162,7 +162,7 @@ const ChatRoom = () => {
   useEffect(() => {
     if (import.meta.env.DEV && socketMessages.length > 0) {
       const latestMessage = socketMessages[socketMessages.length - 1];
-      console.log("🆕 [ChatRoomPage] 최신 실시간 메시지:", latestMessage);
+      console.log("최신 실시간 메시지:", latestMessage);
     }
   }, [socketMessages.length]);
 
@@ -173,7 +173,7 @@ const ChatRoom = () => {
     if (import.meta.env.DEV) {
       const prevLength = prevMessagesLengthRef.current;
       if (allMessages.length !== prevLength) {
-        console.log("💬 [ChatRoomPage] 전체 메시지 통합 상태:", {
+        console.log("전체 메시지 통합 상태:", {
           총개수: allMessages.length,
           API메시지개수: historyMessages.length,
           실시간메시지개수: socketMessages.length,
@@ -262,14 +262,11 @@ const ChatRoom = () => {
 
         // localStorage에 메시지가 있으면 서버와 동기화만 수행 (기존 메시지 유지)
         if (existingMessages.length > 0) {
-          console.log("메시지 개수:", existingMessages.length);
           // 서버에서 최신 메시지만 가져와서 동기화 (기존 메시지는 유지)
           await useChatStore.getState().fetchHistory(chatroomId, null);
         } else {
           // localStorage에 메시지가 없으면 서버에서 처음부터 불러오기
-          console.log(
-            "📡 localStorage에 메시지 없음, 서버에서 처음부터 불러오기"
-          );
+
           await useChatStore.getState().fetchHistory(chatroomId, null);
         }
 
