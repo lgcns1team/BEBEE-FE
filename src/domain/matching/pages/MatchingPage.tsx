@@ -76,7 +76,6 @@ const MatchingPage = () => {
     Promise.all(
       types.map((type) =>
         getEngagements({
-          memberId: "100",
           date: selectedDate,
           engagementType: type,
         })

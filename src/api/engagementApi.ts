@@ -8,7 +8,6 @@ export interface GetEngagementsResponse {
 }
 
 export const getEngagements = (params: {
-  memberId: "100";
   date: string;
   engagementType?: EngagementType;
 }) => {
