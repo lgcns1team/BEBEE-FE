@@ -5,16 +5,29 @@ import MapBasePage from "./MapBasePage";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../components/Header";
 import styled from "styled-components";
-
+import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
+import { mapApi } from "../../../api/mapApi";
+import { getDistanceMeter } from "../utils/distance";
+import { MapFindType } from "../../../types/map.type";
+import { PostItem } from "../../../types/post.type";
 const pxToRem = (px: number) => `${px / 16}rem`;
 const HEADER_HEIGHT_REM = pxToRem(73);
 
 const MapDisabledPage = () => {
+  // 회원 가입 시 저장된 집 정보
+  const {
+    latitude: homeLat,
+    longitude: homeLng,
+    addressRoad,
+  } = useAuthSignUpForm();
   const navigate = useNavigate();
   const [center, setCenter] = useState({ lat: 33.450701, lng: 126.570667 });
-  const [locationLabel, setLocationLabel] = useState("장충동");
+  const [locationLabel, setLocationLabel] = useState("현재 위치");
   const [radiusKm, setRadiusKm] = useState(1);
   const mapRef = useRef<kakao.maps.Map | null>(null);
+  const [locationSouce, setLocationSource] = useState<MapFindType>("CURRENT");
+  const [allPosts, setAllPosts] = useState<PostItem[]>([]);
+  const [filteredPosts, sse];
 
   const moveToCurrentLocation = useCallback(() => {
     if (!navigator.geolocation) return;
