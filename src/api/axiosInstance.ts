@@ -10,7 +10,7 @@ import { useUserStore } from '../store/useUserStore';
 
 
 export const instance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "https://api.be-bee.link",
+    baseURL: import.meta.env.VITE_API_URL || "https://be-bee.link",
     headers: {
         'Content-Type': 'application/json',
     },
