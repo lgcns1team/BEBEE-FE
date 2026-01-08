@@ -125,17 +125,31 @@ export const useMatchAgreement = ({
       console.error("❌ 매칭 확인서 수락 실패:", error);
 
       // 서버 응답 상세 확인
-      if (error.response) {
-        console.error("서버 응답 상태:", error.response.status);
-        console.error("서버 응답 데이터:", error.response.data);
-        console.error("서버 응답 헤더:", error.response.headers);
-      } else if (error.request) {
+      let errorMessage = "이미 매칭이 완료되었습니다";
+
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: {
+            status?: number;
+            data?: { message?: string; e?: string };
+          };
+        };
+
+        if (axiosError.response?.data?.message) {
+          errorMessage = axiosError.response.data.message;
+        } else if (axiosError.response?.data) {
+          console.error("서버 응답 데이터:", axiosError.response.data);
+        }
+
+        console.error("서버 응답 상태:", axiosError.response?.status);
+        console.error("서버 응답 데이터:", axiosError.response?.data);
+      } else if (error && typeof error === "object" && "request" in error) {
         console.error("요청은 전송되었지만 응답을 받지 못함:", error.request);
-      } else {
+      } else if (error instanceof Error) {
         console.error("요청 설정 중 오류:", error.message);
       }
 
-      alert("이미 매칭이 완료되었습니다");
+      alert(errorMessage);
     }
   };
 
@@ -191,17 +205,31 @@ export const useMatchAgreement = ({
       console.error("❌ 매칭 확인서 거절 실패:", error);
 
       // 서버 응답 상세 확인
-      if (error.response) {
-        console.error("서버 응답 상태:", error.response.status);
-        console.error("서버 응답 데이터:", error.response.data);
-        console.error("서버 응답 헤더:", error.response.headers);
-      } else if (error.request) {
+      let errorMessage = "이미 매칭이 완료되었습니다.";
+
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: {
+            status?: number;
+            data?: { message?: string; e?: string };
+          };
+        };
+
+        if (axiosError.response?.data?.message) {
+          errorMessage = axiosError.response.data.message;
+        } else if (axiosError.response?.data) {
+          console.error("서버 응답 데이터:", axiosError.response.data);
+        }
+
+        console.error("서버 응답 상태:", axiosError.response?.status);
+        console.error("서버 응답 데이터:", axiosError.response?.data);
+      } else if (error && typeof error === "object" && "request" in error) {
         console.error(" 요청은 전송되었지만 응답을 받지 못함:", error.request);
-      } else {
+      } else if (error instanceof Error) {
         console.error("요청 설정 중 오류:", error.message);
       }
 
-      alert("이미 매칭이 완료되었습니다.");
+      alert(errorMessage);
     }
   };
 
