@@ -868,27 +868,20 @@ const InputContainer = styled.div`
 
 const BalanceCheckButton = styled.button<{ $isSufficient?: boolean }>`
   padding: 1rem;
-  background: ${({ theme, $isSufficient }) =>
-    $isSufficient ? "#ffc107" : theme.color.natural100};
+  background-color: ${({ theme, $isSufficient }) =>
+    $isSufficient ? theme.color.subColor2 : theme.color.natural100};
   border: 1px solid
     ${({ theme, $isSufficient }) =>
-      $isSufficient ? "#ffc107" : theme.color.natural200};
+      $isSufficient ? theme.color.subColor2 : theme.color.natural200};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme, $isSufficient }) =>
-    $isSufficient ? theme.color.text : theme.color.text};
+    $isSufficient ? theme.color.main : theme.color.text};
   cursor: pointer;
   white-space: nowrap;
   transition: background-color 0.2s, border-color 0.2s;
   height: 51.5px; /* GeneralInput과 동일한 높이 */
   font-weight: ${({ $isSufficient }) => ($isSufficient ? "600" : "400")};
-
-  &:hover:not(:disabled) {
-    background: ${({ theme, $isSufficient }) =>
-      $isSufficient ? "#ffb300" : theme.color.natural200};
-    border-color: ${({ $isSufficient }) =>
-      $isSufficient ? "#ffb300" : undefined};
-  }
 
   &:active:not(:disabled) {
     background: ${({ theme, $isSufficient }) =>

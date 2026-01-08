@@ -2,8 +2,8 @@ import axios, { type InternalAxiosRequestConfig, type AxiosError } from "axios";
 
 // 임시 토큰 (헤더에 고정)
 export const TEMP_TOKEN =
-  "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJiZWJlZSIsInN1YiI6IjEwMCIsInJvbGUiOiJESVNBQkxFRCIsImlhdCI6MTc2Nzc5MjY0MywiZXhwIjoxNzY3ODc5MDQzfQ.a2REWYLQTM-vQGeRk-l9qcNMb9MlxLODw9RHC2mP4rU";
-
+  "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJiZWJlZSIsInN1YiI6IjcwMCIsInJvbGUiOiJIRUxQRVIiLCJpYXQiOjE3Njc4NDU1ODEsImV4cCI6MTc2NzkzMTk4MX0.WtBWzuVNryV7UxUU3mKRUKw3kpzJZYke8wwxNAF--L8";
+// "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJiZWJlZSIsInN1YiI6IjEwMCIsInJvbGUiOiJESVNBQkxFRCIsImlhdCI6MTc2Nzg0NTY4NiwiZXhwIjoxNzY3OTMyMDg2fQ.mO0sY2GvLHvw05KJvzs-G0Uck57TmOKnpO1yGhPtlqg";
 // localStorage에 토큰 강제 설정
 localStorage.setItem("accessToken", TEMP_TOKEN);
 

@@ -79,7 +79,6 @@ const ChatRoom = () => {
   }, [chatroomId, getMessages, socketMessagesByChatroom]);
 
   const [inputValue, setInputValue] = useState("");
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
   const prevScrollHeight = useRef<number>(0);
@@ -338,10 +337,15 @@ const ChatRoom = () => {
 
     try {
       // 스크롤 위치 유지를 위해 현재 스크롤 높이 저장
-      if (scrollContainerRef.current) {
-        prevScrollHeight.current = scrollContainerRef.current.scrollHeight;
+      if (observerTarget.current) {
+        prevScrollHeight.current = observerTarget.current.scrollHeight;
       }
-      // nextChatId를 lastChatId로 사용하여 이전 메시지 조회
+
+      console.log("이전 메시지 조회 요청:", {
+        chatroomId,
+        lastChatId: nextChatId,
+        messageHasNext,
+      });
       await useChatStore.getState().fetchHistory(chatroomId, nextChatId);
     } finally {
       // 로딩 완료 (성공/실패 관계없이)
@@ -353,7 +357,7 @@ const ChatRoom = () => {
    * 6. 스크롤 위치 제어
    */
   useEffect(() => {
-    if (!scrollContainerRef.current) return;
+    if (!observerTarget.current) return;
 
     const currentLength = allMessages.length;
     const prevLength = prevMessagesLengthRef.current;
@@ -365,7 +369,7 @@ const ChatRoom = () => {
 
       // 다음 프레임에서 스크롤 (DOM 렌더링 완료 후)
       setTimeout(() => {
-        if (scrollContainerRef.current && messagesEndRef.current) {
+        if (observerTarget.current && messagesEndRef.current) {
           messagesEndRef.current.scrollIntoView({ behavior: "auto" });
           setTimeout(() => {
             isScrollingRef.current = false;
@@ -379,7 +383,7 @@ const ChatRoom = () => {
 
     // 이전 메시지를 불러올 때는 스크롤 위치 유지
     if (prevScrollHeight.current > 0) {
-      const container = scrollContainerRef.current;
+      const container = observerTarget.current;
       const newScrollHeight = container.scrollHeight;
       const heightDiff = newScrollHeight - prevScrollHeight.current;
 
@@ -397,7 +401,7 @@ const ChatRoom = () => {
     } else if (currentLength > prevLength && prevLength > 0) {
       // 새 메시지가 하단에 추가되었을 때만 맨 아래로 스크롤
       // (초기 로드가 아닐 때만)
-      const container = scrollContainerRef.current;
+      const container = observerTarget.current;
       const isNearBottom =
         container.scrollHeight - container.scrollTop - container.clientHeight <
         100; // 하단 100px 이내에 있으면
@@ -518,9 +522,7 @@ const ChatRoom = () => {
   return (
     <ChatRoomLayout role="main" aria-label="채팅방">
       <ChatRoomCard />
-
       <MessageList
-        ref={scrollContainerRef}
         role="log"
         aria-label="채팅 메시지 목록"
         aria-live="polite"
@@ -542,7 +544,6 @@ const ChatRoom = () => {
 
         {allMessages.map((msg) => {
           // 고유한 key 생성: id가 있으면 사용하고, 없으면 여러 속성을 조합하여 고유성 보장
-          // idx를 포함하지 않도록 주의 (메시지 순서가 바뀌면 key가 바뀌어 문제 발생)
           const uniqueKey = msg.id
             ? `msg-${msg.id}`
             : `${msg.chatroomId || chatroomId}-${msg.type}-${msg.senderId}-${
@@ -664,28 +665,14 @@ export default ChatRoom;
 const ChatRoomLayout = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
   padding: 0 16px;
   box-sizing: border-box;
+  min-height: 100vh;
 `;
 
 const MessageList = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 20px 0;
-  min-height: 0; /* flex 컨테이너 내에서 스크롤 가능하도록 */
-  overflow-anchor: auto;
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-  }
+  padding-top: 180px;
+  padding-bottom: 40px;
 `;
 const LoadingText = styled.div`
   text-align: center;
@@ -743,6 +730,9 @@ const InputArea = styled.div`
   padding: 16px 0;
   background-color: white;
   border-top: 1px solid #ebebeb;
+  position: fixed;
+  width: 343px;
+  bottom: 0;
 `;
 
 const StyledInput = styled.input`
