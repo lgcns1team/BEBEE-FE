@@ -11,20 +11,29 @@ const ApplicantPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { postId } = useParams<{ postId: string }>();
-  const { applicants, setApplicants } = useApplicationStore();
+  const { applicants, setApplicants, setCurrentPost } = useApplicationStore();
   const [isSharing, setIsSharing] = useState(false);
   const memberId = location.state?.memberId;
   // 전달받은 title이 없으면 기본값 표시
   const title = location.state?.headerTitle || "지원 현황 상세";
+  const helpCategoryIds: number[] = location.state?.helpCategoryIds ?? [];
 
   useEffect(() => {
+    if (postId) {
+      setCurrentPost({
+        postId,
+        postTitle: title,
+        helpCategoryIds,
+      });
+    }
+
     getApplicantsByPostId({
       postId,
       memberId,
     }).then((res) => {
       setApplicants(res.data.applicants);
     });
-  }, [postId, memberId]);
+  }, [postId, memberId, title, helpCategoryIds, setCurrentPost, setApplicants]);
 
   return (
     <Container>
@@ -50,6 +59,7 @@ const ApplicantPage: React.FC = () => {
 
       <PostList>
         <ApplicantCard applicants={applicants} isSharing={isSharing} />
+        {/* postId={postId} postTitle={title} helpCategoryIds={helpCategoryIds} */}
       </PostList>
     </Container>
   );

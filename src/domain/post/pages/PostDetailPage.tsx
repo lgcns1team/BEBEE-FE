@@ -1,9 +1,9 @@
 import styled from "styled-components";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FiCalendar, FiClock, FiMapPin } from "react-icons/fi";
+import { TbMoneybag } from "react-icons/tb";
 import { getErrorMessage } from "../../../utils/error";
 import { useNavigate, useParams } from "react-router-dom";
-import { RxIconjarLogo } from "react-icons/rx";
 import HelpTagBee from "../../../assets/images/helptag-bee.png";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
@@ -31,6 +31,12 @@ const PostDetailPage = () => {
   const [isApplied, setIsApplied] = useState(false);
   const [applyLoading, setApplyLoading] = useState(false);
 
+  // 이미지 슬라이드
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const imageSliderRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+
   useEffect(() => {
     const fetchDetail = async () => {
       try {
@@ -49,6 +55,13 @@ const PostDetailPage = () => {
     if (postId) fetchDetail();
   }, [postId]);
 
+  // 이미지가 변경되면 인덱스 리셋
+  useEffect(() => {
+    if (post?.postImageUrls) {
+      setCurrentImageIndex(0);
+    }
+  }, [post?.postImageUrls]);
+
   if (loading) return <div>로딩 중...</div>;
   if (error) return <div>{error}</div>;
   if (!post) return <div>게시글이 없습니다.</div>;
@@ -56,10 +69,10 @@ const PostDetailPage = () => {
   // 임시 memberId
 
   // 장애인용 아이디 100
-  const MEMBER_ID = "100";
+  // const MEMBER_ID = "100";
 
   // 도우미용 아이디 700
-  // const MEMBER_ID = "700";
+  const MEMBER_ID = "700";
 
   // 지원하기 및 나눔하기
   const handleApply = async () => {
@@ -108,9 +121,74 @@ const PostDetailPage = () => {
     }
   };
 
+  // 공통 슬라이드 로직
+  const handleSlide = (startX: number, endX: number) => {
+    if (!post?.postImageUrls) return;
+
+    const diff = startX - endX;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(diff) > minSwipeDistance) {
+      if (diff > 0) {
+        // 왼쪽으로 스와이프/드래그 (다음 이미지)
+        setCurrentImageIndex((prev) =>
+          prev < post.postImageUrls.length - 1 ? prev + 1 : prev
+        );
+      } else {
+        // 오른쪽으로 스와이프/드래그 (이전 이미지)
+        setCurrentImageIndex((prev) => (prev > 0 ? prev - 1 : prev));
+      }
+    }
+  };
+
+  // 터치 이벤트 핸들러
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+
+    handleSlide(touchStartX.current, touchEndX.current);
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
+  // 마우스 이벤트 핸들러
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    touchStartX.current = e.clientX;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (touchStartX.current !== null) {
+      touchEndX.current = e.clientX;
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (touchStartX.current !== null && touchEndX.current !== null) {
+      handleSlide(touchStartX.current, touchEndX.current);
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
+  const handleMouseLeave = () => {
+    // 마우스가 영역을 벗어나면 드래그 취소
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
   return (
     <Layout>
-      <Container>
+      <Container style={{ paddingBottom: "40px" }}>
         <Header onBack={() => navigate(-1)} showRight showBack />
 
         {/* 
@@ -146,7 +224,7 @@ const PostDetailPage = () => {
 
         <InfoList>
           <InfoItem>
-            <RxIconjarLogo size={16} />
+            <TbMoneybag size={18} />
             <span>{post?.unitHoney}꿀</span>
             {post.engagementType == "TERM" ? (
               <TotalHoney>/회 (총 {post.totalHoney}꿀)</TotalHoney>
@@ -209,7 +287,35 @@ const PostDetailPage = () => {
         <Description>{post?.content}</Description>
 
         <ApplicantCount>지원자 수 {post?.applicantCount}</ApplicantCount>
-        {post?.postImages && <PostImage src={post.postImages[0]} />}
+        {post?.postImageUrls && post.postImageUrls.length > 0 && (
+          <ImageSliderContainer>
+            <ImageSlider
+              ref={imageSliderRef}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              style={{
+                transform: `translateX(-${currentImageIndex * 100}%)`,
+                cursor: "grab",
+              }}
+            >
+              {post.postImageUrls.map((imageUrl, index) => (
+                <PostImage key={index} src={imageUrl} alt={`게시글 이미지 ${index + 1}`} />
+              ))}
+            </ImageSlider>
+            {post.postImageUrls.length > 1 && (
+              <ImageIndicator>
+                {currentImageIndex + 1}/{post.postImageUrls.length}
+              </ImageIndicator>
+            )}
+          </ImageSliderContainer>
+         
+        )}
+         
         {/* ---------------- Bottom Buttons ---------------- */}
         <BottomBar>
           <BottomInner>
@@ -342,8 +448,43 @@ const ApplicantCount = styled.div`
   margin-bottom: 12px;
 `;
 
+const ImageSliderContainer = styled.div`
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  margin-bottom: 16px;
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+`;
+
+const ImageSlider = styled.div`
+  display: flex;
+  transition: transform 0.3s ease-in-out;
+  width: 100%;
+  user-select: none;
+  
+  &:active {
+    cursor: grabbing;
+  }
+`;
+
 const PostImage = styled.img`
   width: 100%;
+  flex-shrink: 0;
+  object-fit: cover;
+  display: block;
+`;
+
+const ImageIndicator = styled.div`
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: ${({ theme }) => theme.size.sm};
+  font-weight: ${({ theme }) => theme.weight.medium};
+  z-index: 10;
 `;
 
 const BottomBar = styled.div`
@@ -381,16 +522,6 @@ const ShareButton = styled.button<{ disabled?: boolean }>`
   -webkit-tap-highlight-color: transparent;
 `;
 
-// const ApplyButton = styled.button`
-//   flex: 2;
-//   height: 48px;
-//   border-radius: ${({ theme }) => theme.borderRadius.sm};
-//   background: ${({ theme }) => theme.color.main};
-//   color: ${({ theme }) => theme.color.white};
-//   font-size: ${({ theme }) => theme.size.md};
-//   border: none;
-//   font-weight: ${({ theme }) => theme.weight.medium};
-// `;
 
 const ApplyButton = styled.button<{ disabled?: boolean }>`
   flex: 2;

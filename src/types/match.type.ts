@@ -37,6 +37,7 @@ export interface TermEngagementTime {
 export type EngagementTime = DayEngagementTime | TermEngagementTime;
 
 export interface Engagement {
+  myRole: "DISABLED" | "HELPER";
   agreementId: string;
   postId: string;
   title: string;
