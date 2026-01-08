@@ -27,27 +27,47 @@ const loadMessagesFromStorage = (): Record<
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      const parsed = JSON.parse(stored) as Record<
+      const parsed = JSON.parse(stored);
+
+      // 데이터 구조 검증
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        localStorage.removeItem(STORAGE_KEY);
+        return {};
+      }
+
+      // 각 room의 구조 검증 및 정리
+      const validated: Record<
         string,
         {
           messages: ChatMessage[];
           messageHasNext: boolean;
           nextChatId: string | null;
         }
-      >;
-      const chatroomCount = Object.keys(parsed).length;
-      const totalMessages = Object.values(parsed).reduce(
-        (sum, room) => sum + (room.messages?.length || 0),
-        0
-      );
-      console.log(` localStorage에서 메시지 복원:`, {
-        채팅방수: chatroomCount,
-        총메시지수: totalMessages,
+      > = {};
+
+      Object.keys(parsed).forEach((key) => {
+        const room = parsed[key];
+        if (room && typeof room === "object" && !Array.isArray(room)) {
+          // messages가 배열인지 확인
+          const messages = Array.isArray(room.messages) ? room.messages : [];
+          validated[key] = {
+            messages,
+            messageHasNext: Boolean(room.messageHasNext),
+            nextChatId: room.nextChatId || null,
+          };
+        }
       });
-      return parsed;
+
+      return validated;
     }
   } catch (error) {
-    console.error("localStorage에서 메시지 복원 실패:", error);
+    console.error("복원 실패:", error);
+    // 오류 발생 시 localStorage 초기화
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.error("localStorage 초기화 실패:", e);
+    }
   }
   console.log("localStorage에 저장된 메시지 없음");
   return {};
@@ -74,7 +94,7 @@ const loadAgreementMetadataFromStorage = (): Record<
   } catch (error) {
     console.error(" localStorage에서 메타데이터 복원 실패:", error);
   }
-  console.log("localStorage에 저장된 메타데이터 없음");
+
   return {};
 };
 
@@ -105,22 +125,50 @@ const saveMessagesToStorage = (
   >
 ) => {
   try {
-    const chatroomCount = Object.keys(messagesByChatroom).length;
-    const totalMessages = Object.values(messagesByChatroom).reduce(
-      (sum, room) => sum + (room.messages?.length || 0),
+    if (
+      !messagesByChatroom ||
+      typeof messagesByChatroom !== "object" ||
+      Array.isArray(messagesByChatroom)
+    ) {
+      console.warn("메시지 데이터 형식이 올바르지 않음");
+      return;
+    }
+
+    // 안전한 접근을 위한 검증 및 정리
+    const validated: Record<
+      string,
+      {
+        messages: ChatMessage[];
+        messageHasNext: boolean;
+        nextChatId: string | null;
+      }
+    > = {};
+
+    Object.keys(messagesByChatroom).forEach((key) => {
+      const room = messagesByChatroom[key];
+      if (room && typeof room === "object" && !Array.isArray(room)) {
+        validated[key] = {
+          messages: Array.isArray(room.messages) ? room.messages : [],
+          messageHasNext: Boolean(room.messageHasNext),
+          nextChatId: room.nextChatId || null,
+        };
+      }
+    });
+
+    const chatroomCount = Object.keys(validated).length;
+    const totalMessages = Object.values(validated).reduce(
+      (sum, room) =>
+        sum + (Array.isArray(room.messages) ? room.messages.length : 0),
       0
     );
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(messagesByChatroom));
-    console.log(`localStorage에 메시지 저장:`, {
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(validated));
+    console.log(`💾 localStorage에 메시지 저장:`, {
       채팅방수: chatroomCount,
       총메시지수: totalMessages,
     });
   } catch (error) {
-    console.error("localStorage에 메시지 저장 실패:", error);
-    // localStorage 용량 초과 시 오래된 메시지 정리 시도
-    if (error instanceof DOMException && error.name === "QuotaExceededError") {
-      console.warn("⚠️ localStorage 용량 초과, 오래된 메시지 정리 필요");
-    }
+    console.error("메시지 저장 실패:", error);
   }
 };
 
@@ -281,10 +329,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
           nextChatId: null,
         };
 
+        // 안전한 접근 보장
+        const safeMessages = Array.isArray(currentChatroomMessages.messages)
+          ? currentChatroomMessages.messages
+          : [];
+
         console.log(`🔍 [fetchHistory] 현재 상태 확인:`, {
           chatroomId,
-          기존메시지개수: currentChatroomMessages.messages.length,
-          전체채팅방수: Object.keys(state.messagesByChatroom).length,
+          기존메시지개수: safeMessages.length,
+          전체채팅방수: state.messagesByChatroom
+            ? Object.keys(state.messagesByChatroom).length
+            : 0,
         });
 
         let updatedMessages: ChatMessage[];
@@ -293,14 +348,23 @@ export const useChatStore = create<ChatState>((set, get) => ({
         // lastChatId가 있으면 이전 메시지 로드: 기존 메시지 앞에 추가
         if (lastChatId) {
           // 이전 메시지 로드: 기존 메시지 앞에 추가
-          updatedMessages = [
-            ...(data?.messages ?? []),
-            ...currentChatroomMessages.messages,
-          ];
+          const safeExistingMessages = Array.isArray(
+            currentChatroomMessages.messages
+          )
+            ? currentChatroomMessages.messages
+            : [];
+          const safeServerMessages = Array.isArray(data?.messages)
+            ? data.messages
+            : [];
+          updatedMessages = [...safeServerMessages, ...safeExistingMessages];
         } else {
           // 초기 로드 시: 서버 메시지와 기존 메시지(로컬 저장소에서 복원된 메시지 포함) 병합
           // localStorage에서 복원된 모든 메시지를 유지
-          const existingMessages = currentChatroomMessages.messages;
+          const existingMessages = Array.isArray(
+            currentChatroomMessages.messages
+          )
+            ? currentChatroomMessages.messages
+            : [];
           console.log(
             `📥 [fetchHistory] 초기 로드 - 기존 메시지 개수: ${existingMessages.length}`,
             {
@@ -310,7 +374,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
             }
           );
 
-          let serverMessages = data?.messages ?? [];
+          let serverMessages = Array.isArray(data?.messages)
+            ? data.messages
+            : [];
 
           // 서버 메시지 배열 내에서도 중복 제거 (agreementId 기준)
           const seenAgreementIds = new Set<string>();
@@ -494,14 +560,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
         nextChatId: null,
       };
 
+      // 안전한 접근 보장
+      const safeMessages = Array.isArray(currentChatroomMessages.messages)
+        ? currentChatroomMessages.messages
+        : [];
+
       // 중복 체크: 같은 ID나 agreementId를 가진 메시지가 이미 있으면 추가하지 않음
       const existingIds = new Set(
-        currentChatroomMessages.messages.map((m) => m.id)
+        safeMessages.map((m) => m?.id).filter(Boolean)
       );
       const existingAgreementIds = new Set(
-        currentChatroomMessages.messages
-          .filter((m) => m.agreementId)
+        safeMessages
+          .filter((m) => m?.agreementId)
           .map((m) => m.agreementId)
+          .filter(Boolean)
       );
 
       // 이미 존재하는 메시지면 추가하지 않음
@@ -559,10 +631,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }
 
       const updatedMessagesByChatroom = {
-        ...state.messagesByChatroom,
+        ...(state.messagesByChatroom || {}),
         [targetChatroomId]: {
           ...currentChatroomMessages,
-          messages: [...currentChatroomMessages.messages, message],
+          messages: [...safeMessages, message],
         },
       };
 

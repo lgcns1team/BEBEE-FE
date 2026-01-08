@@ -92,14 +92,22 @@ const ChatRoom = () => {
    * 중복 제거: 같은 id를 가진 메시지는 소켓 메시지가 우선됩니다.
    */
   const allMessages = useMemo(() => {
+    // 안전한 배열 초기화
+    const safeHistoryMessages = Array.isArray(historyMessages)
+      ? historyMessages
+      : [];
+    const safeSocketMessages = Array.isArray(socketMessages)
+      ? socketMessages
+      : [];
+
     // 소켓 메시지의 id Set 생성 (중복 체크용)
     const socketMessageIds = new Set(
-      socketMessages.map((msg) => msg.id).filter(Boolean)
+      safeSocketMessages.map((msg) => msg?.id).filter(Boolean)
     );
 
     // historyMessages에서 소켓 메시지와 중복되지 않는 메시지만 필터링
-    const uniqueHistoryMessages = historyMessages.filter(
-      (msg) => !msg.id || !socketMessageIds.has(msg.id)
+    const uniqueHistoryMessages = safeHistoryMessages.filter(
+      (msg) => !msg?.id || !socketMessageIds.has(msg.id)
     );
 
     // 최종 중복 제거: 같은 id를 가진 메시지가 있으면 소켓 메시지가 우선
@@ -117,21 +125,23 @@ const ChatRoom = () => {
     });
 
     // 그 다음 소켓 메시지를 추가 (같은 id가 있으면 덮어씀)
-    socketMessages.forEach((msg) => {
-      if (msg.id) {
+    safeSocketMessages.forEach((msg) => {
+      if (msg?.id) {
         seenIds.set(msg.id, msg);
-      } else {
+      } else if (msg) {
         // id가 없는 소켓 메시지도 추가 (고유 키 생성)
-        const uniqueKey = `socket-no-id-${msg.createdAt}-${msg.senderId}-${seenIds.size}`;
+        const uniqueKey = `socket-no-id-${msg.createdAt || "no-date"}-${
+          msg.senderId || "unknown"
+        }-${seenIds.size}`;
         seenIds.set(uniqueKey, msg);
       }
     });
 
     // Map에서 배열로 변환하고 시간순 정렬
-    const result = Array.from(seenIds.values());
+    const result = Array.from(seenIds.values()).filter(Boolean);
     result.sort((a, b) => {
-      const timeA = new Date(a.createdAt).getTime();
-      const timeB = new Date(b.createdAt).getTime();
+      const timeA = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const timeB = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
       return timeA - timeB;
     });
 
