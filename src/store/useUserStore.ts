@@ -36,7 +36,7 @@ export const useUserStore = create(
         {
             name: 'user-session', // sessionStorage 키 이름
             storage: createJSONStorage(() => sessionStorage), // 탭 닫으면 삭제되는 sessionStorage 사용 (localStorage보다 보안 우수)
-            partialize: (state) => ({ user: state.user, isLoggedIn: state.isLoggedIn }) as any, // accessToken 제외하고 저장
+            partialize: (state) => ({ user: state.user, isLoggedIn: state.isLoggedIn, accessToken: state.accessToken }) as any, // accessToken 제외하고 저장
         }
     )
 );
