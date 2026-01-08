@@ -45,7 +45,11 @@ const HomePage = () => {
     }
 
     // 이미 초기화했거나 게시글이 있으면 다시 로드하지 않음
-    if (hasInitialized.current || (posts.length > 0 && !isLoading)) {
+    // posts가 undefined/null이거나 배열이 아닐 경우를 대비해 안전하게 체크
+    if (
+      hasInitialized.current ||
+      (Array.isArray(posts) && posts.length > 0 && !isLoading)
+    ) {
       return;
     }
 
