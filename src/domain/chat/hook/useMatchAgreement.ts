@@ -122,7 +122,7 @@ export const useMatchAgreement = ({
 
       alert("매칭이 성공적으로 수락되었습니다!");
     } catch (error) {
-      console.error("❌ 매칭 확인서 수락 실패:", error);
+      console.error(" 매칭 확인서 수락 실패:", error);
 
       // 서버 응답 상세 확인
       let errorMessage = "이미 매칭이 완료되었습니다";
