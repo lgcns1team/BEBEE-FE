@@ -78,7 +78,7 @@ function App() {
       }
     };
     silentLogin();
-  }, [setAccessToken, setUser]);
+  }, []);
 
   // 인증 체크 중에는 로딩 표시 (사용자 경험 개선)
   if (isAuthChecking) {

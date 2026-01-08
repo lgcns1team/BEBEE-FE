@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useChatStore } from "../store/useChatStore";
 import { useChatHandler } from "../../../hooks/useChatHandler";
-import { formatChatTime } from "../utils/date";
+import { formatChatTime } from "../utils/date";
 import { chatApi } from "../api/chatApi"; // API 임포트 추가
 
 /* Components */
@@ -112,61 +112,60 @@ const ChatListPage = () => {
         <ChatList role="list" aria-label="채팅방 목록">
           {chatrooms && chatrooms.length > 0
             ? chatrooms.map((room) => (
-                <ChatItem
-                  key={room.chatroomId}
-                  role="listitem"
-                  onClick={() => {
-                    console.log("채팅방 클릭:", {
-                      chatroomId: room.chatroomId,
-                      room,
-                    });
+              <ChatItem
+                key={room.chatroomId}
+                role="listitem"
+                onClick={() => {
+                  console.log("채팅방 클릭:", {
+                    chatroomId: room.chatroomId,
+                    room,
+                  });
+                  handleChatOpen({
+                    chatroomId: room.chatroomId,
+                  });
+                }}
+                aria-label={`${room.otherNickname}님과의 채팅방, ${room.title
+                  }, 마지막 메시지: ${room.lastMessage || "없음"}`}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
                     handleChatOpen({
                       chatroomId: room.chatroomId,
                     });
-                  }}
-                  aria-label={`${room.otherNickname}님과의 채팅방, ${
-                    room.title
-                  }, 마지막 메시지: ${room.lastMessage || "없음"}`}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      handleChatOpen({
-                        chatroomId: room.chatroomId,
-                      });
-                    }
-                  }}
-                >
-                  <ProfileImage
-                    src={room.otherProfileImageUrl}
-                    alt={`${room.otherNickname}님의 프로필 사진`}
-                  />
-                  <ChatInfo>
-                    <ChatFirstRow>
-                      <Nickname>{room.otherNickname}</Nickname>
-                      <ChatLastTime
-                        aria-label={`마지막 메시지 시간: ${formatChatTime(
-                          room.updatedAt
-                        )}`}
-                      >
-                        {formatChatTime(room.updatedAt)}
-                      </ChatLastTime>
-                    </ChatFirstRow>
-                    <PostTitle>
-                      {room.title}
-                      <span className="sr-only">게시글 제목</span>
-                    </PostTitle>
-                    <PostTitle>
-                      {room.lastMessage || "메시지 없음"}
-                      <span className="sr-only">마지막 메시지</span>
-                    </PostTitle>
-                  </ChatInfo>
-                </ChatItem>
-              ))
+                  }
+                }}
+              >
+                <ProfileImage
+                  src={room.otherProfileImageUrl}
+                  alt={`${room.otherNickname}님의 프로필 사진`}
+                />
+                <ChatInfo>
+                  <ChatFirstRow>
+                    <Nickname>{room.otherNickname}</Nickname>
+                    <ChatLastTime
+                      aria-label={`마지막 메시지 시간: ${formatChatTime(
+                        room.updatedAt
+                      )}`}
+                    >
+                      {formatChatTime(room.updatedAt)}
+                    </ChatLastTime>
+                  </ChatFirstRow>
+                  <PostTitle>
+                    {room.title}
+                    <span className="sr-only">게시글 제목</span>
+                  </PostTitle>
+                  <PostTitle>
+                    {room.lastMessage || "메시지 없음"}
+                    <span className="sr-only">마지막 메시지</span>
+                  </PostTitle>
+                </ChatInfo>
+              </ChatItem>
+            ))
             : !isLoading && (
-                <EmptyState role="status" aria-live="polite">
-                  진행 중인 채팅이 없습니다.
-                </EmptyState>
-              )}
+              <EmptyState role="status" aria-live="polite">
+                진행 중인 채팅이 없습니다.
+              </EmptyState>
+            )}
 
           {/* 하단 스크롤 감지 영역 */}
           {hasNext && (

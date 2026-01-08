@@ -3,7 +3,7 @@ import { useUserStore } from '../store/useUserStore';
 import { reissueToken } from './authApi';
 
 export const instance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "https://api.be-bee.link",
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080",
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
@@ -34,6 +34,12 @@ instance.interceptors.request.use(
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
+
+        // 사용자가 X-Member-Id 헤더 추가를 원했으므로 여기서 설정
+        if (userStore.user?.memberId) {
+            config.headers['X-Member-Id'] = userStore.user.memberId;
+        }
+
         return config;
     },
     (error: AxiosError) => {

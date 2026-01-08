@@ -11,6 +11,7 @@ export const uploadDocument = async (memberId: string, file?: File, fileUrl?: st
     params.append("fileUrl", fileUrl);
   }
 
+  // FE 에서 해당 URL로 S3에 저장
   // S3 URL이 있는 경우 전용 쿼리 파라미터로 전송
   if (fileUrl) {
     const response = await instance.post(`/member/documents/upload?${params.toString()}`);

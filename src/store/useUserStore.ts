@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 // 백엔드 /api/test/me 응답 구조 (Compatible with both string/number memberId)
 interface User {
@@ -21,12 +22,21 @@ interface UserStore {
     clearUser: () => void;
 }
 
-export const useUserStore = create<UserStore>((set) => ({
-    user: null,
-    accessToken: null,
-    isLoggedIn: false,
+export const useUserStore = create(
+    persist<UserStore>(
+        (set) => ({
+            user: null,
+            accessToken: null,
+            isLoggedIn: false,
 
-    setUser: (user) => set({ user, isLoggedIn: true }),
-    setAccessToken: (token) => set({ accessToken: token }),
-    clearUser: () => set({ user: null, accessToken: null, isLoggedIn: false }),
-}));
+            setUser: (user) => set({ user, isLoggedIn: true }),
+            setAccessToken: (token) => set({ accessToken: token }),
+            clearUser: () => set({ user: null, accessToken: null, isLoggedIn: false }),
+        }),
+        {
+            name: 'user-session', // sessionStorage 키 이름
+            storage: createJSONStorage(() => sessionStorage), // 탭 닫으면 삭제되는 sessionStorage 사용 (localStorage보다 보안 우수)
+            partialize: (state) => ({ user: state.user, isLoggedIn: state.isLoggedIn }) as any, // accessToken 제외하고 저장
+        }
+    )
+);
