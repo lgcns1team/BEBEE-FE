@@ -102,7 +102,7 @@ const ChatListPage = () => {
       <Layout>
         <Header title="채팅" onBack={() => navigate("/")} />
         <ChatList role="list" aria-label="채팅방 목록">
-          {chatrooms && chatrooms.length > 0
+          {Array.isArray(chatrooms) && chatrooms.length > 0
             ? chatrooms.map((room) => (
                 <ChatItem
                   key={room.chatroomId}

@@ -4,6 +4,8 @@ export const AUTH_API_URLS = {
   REISSUE: "/member/auth/reissue",
   LOGOUT: "/member/auth/logout",
   GET_MY_INFO: "/member/members/me",
+  CHECK_EMAIL: "/member/auth/check-email",
+  CHECK_NICKNAME: "/member/auth/check-nickname",
 } as const;
 
 export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

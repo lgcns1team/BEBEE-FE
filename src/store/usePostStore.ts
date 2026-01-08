@@ -65,9 +65,10 @@ export const usePostStore = create<PostState>((set, get) => ({
       });
 
       set({
-        posts: response.posts,
-        hasNext: response.hasNext,
-        nextPostId: response.nextPostId,
+        // response.posts가 undefined/null이거나 배열이 아니면 빈 배열로 처리
+        posts: Array.isArray(response.posts) ? response.posts : [],
+        hasNext: response.hasNext ?? false,
+        nextPostId: response.nextPostId ?? null,
         isLoading: false,
       });
     } catch (error) {
@@ -106,10 +107,14 @@ export const usePostStore = create<PostState>((set, get) => ({
         reqDTO: filters,
       });
 
+      // 안전한 배열 처리: response.posts가 undefined/null이거나 배열이 아니면 빈 배열로 처리
+      const safeNewPosts = Array.isArray(response.posts) ? response.posts : [];
+      const safeExistingPosts = Array.isArray(posts) ? posts : [];
+
       set({
-        posts: [...posts, ...response.posts], // 기존 데이터에 추가
-        hasNext: response.hasNext,
-        nextPostId: response.nextPostId,
+        posts: [...safeExistingPosts, ...safeNewPosts], // 기존 데이터에 추가
+        hasNext: response.hasNext ?? false,
+        nextPostId: response.nextPostId ?? null,
         isLoadingMore: false,
       });
     } catch (error) {

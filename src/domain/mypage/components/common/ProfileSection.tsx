@@ -1,14 +1,26 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import Image from "../../../../assets/images/helptag-bee.png";
 import { IoChevronForward } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { useUserStore } from "../../../../store/useUserStore";
 import { useProfileStore } from "../../../../store/useProfileStore";
 
 const ProfileSection = () => {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("프로필");
   const { role, disabledProfiles, helperProfiles } = useProfileStore();
   // 일단은 맨 첫번째 유저의 정보 보여줌
   const profile = role === "DISABLED" ? disabledProfiles[0] : helperProfiles[0];
+
+  const user = useUserStore((state) => state.user);
+
+  useEffect(() => {
+    console.log("/////user값 확인/////");
+    console.log(user);
+    if (!user) return;
+    setUserName(user.name);
+  }, [user]);
 
   const handleClick = () => {
     if (!profile) return;
@@ -22,7 +34,7 @@ const ProfileSection = () => {
           src={profile?.profileImageUrl ?? Image}
           alt="프로필 이미지"
         />
-        <Nickname>{profile?.name ?? "프로필"}</Nickname>
+        <Nickname>{userName}</Nickname>
       </ProfileWrapper>
 
       <GoProfile>

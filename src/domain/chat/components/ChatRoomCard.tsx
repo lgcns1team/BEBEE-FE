@@ -67,7 +67,7 @@ const ChatRoomCard = () => {
   useEffect(() => {
     // currentPost에서 postId를 우선 사용, 없으면 activeRoom.postId 사용
     const postIdToUse = currentPost?.postId || activeRoom?.postId;
-    
+
     if (!postIdToUse) {
       console.log("postId가 없습니다:", { currentPost, activeRoom });
       return;
@@ -118,7 +118,7 @@ const ChatRoomCard = () => {
   }
 
   return (
-    <>
+    <Wrapper>
       <Header
         title={activeRoom.otherNickname}
         onBack={() => navigate("/chat")}
@@ -191,13 +191,17 @@ const ChatRoomCard = () => {
           )}
         </HelpTagBox>
       </ChatHeader>
-    </>
+    </Wrapper>
   );
 };
-
+const Wrapper = styled.div`
+  position: fixed;
+  width: 343px;
+  background-color: ${({ theme }) => theme.color.white};
+`;
 const ChatHeader = styled.div`
   width: 100%;
-  padding: 20px 0;
+  padding: 10px 0;
   color: ${({ theme }) => theme.color.text};
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural200};
 `;

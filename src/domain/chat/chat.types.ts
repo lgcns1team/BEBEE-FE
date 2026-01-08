@@ -1,5 +1,9 @@
 // 메시지 타입 구분 (일반 텍스트, 이미지, 매칭 확인서, 매칭 성공)
-export type MessageType = "TEXT" | "IMAGE" | "MATCH_CONFIRMATION" | "MATCH_SUCCESS";
+export type MessageType =
+  | "TEXT"
+  | "IMAGE"
+  | "MATCH_CONFIRMATION"
+  | "MATCH_SUCCESS";
 export type MatchStatus = "NON_MATCHED" | "PROCEEDING" | "MATCHED";
 export interface ChatMessage {
   id: string;
@@ -24,6 +28,9 @@ export interface ChatMessage {
   title?: string; // 게시글 제목 (매칭 확인서 수락 시 필요)
   helperId?: string; // 도우미 ID (매칭 확인서 수락 시 필요)
   disabledId?: string; // 장애인 ID (매칭 확인서 수락 시 필요)
+  isVolunteer?: boolean; // 나눔 여부
+  usedHoney?: number; // 사용된 꿀
+  currentHoney?: number; // 현재 꿀 잔액
 }
 
 export interface ChatMessagesGetResDTO {
@@ -37,6 +44,7 @@ export interface ChatroomOpenReqDTO {
   postId?: string;
   postTitle?: string;
   helpCategoryIds?: number[];
+  isVolunteer?: boolean;
 }
 
 /** 채팅방 상세 정보 응답 (조회/생성 시) */

@@ -55,7 +55,13 @@ export const chatApi = {
         },
       }
     );
-    console.log("채팅방 생성", response.data);
+    const responseData = response.data;
+    console.log("✅ [chatApi.createChatRoom] 채팅방 생성 응답:", {
+      전체응답: responseData,
+      isVolunteer:
+        "isVolunteer" in responseData ? responseData.isVolunteer : undefined,
+      전달한body: body,
+    });
     return response.data;
   },
 
@@ -93,26 +99,40 @@ export const chatApi = {
 
   getMessages: async (
     chatroomId: string,
-    nextChatId?: string | null,
+    lastChatId?: string | null,
     count: number = 5
   ) => {
     try {
+      const params: {
+        chatroomId: string;
+        lastChatId?: string | null;
+        count?: number;
+      } = {
+        chatroomId,
+        count,
+      };
+
+      // lastChatId가 있으면 포함 (null이어도 명시적으로 전달하지 않음)
+      if (lastChatId !== undefined && lastChatId !== null) {
+        params.lastChatId = lastChatId;
+      }
+
+      console.log(" API 요청:", {
+        chatroomId,
+        lastChatId: params.lastChatId,
+        count: params.count,
+        params,
+      });
+
       const response = await instance.get<ChatMessagesGetResDTO>(
         "chat/chatrooms/chats",
         {
-          params: {
-            chatroomId,
-            nextChatId,
-            count,
-          },
+          params,
           headers: {
             accept: "application/json",
           },
         }
       );
-
-      // axios는 서버 응답 데이터를 .data에 담아서 반환합니다.
-      console.log("[chatApi] chats response data:", response.data);
       return response.data;
     } catch (error) {
       // axios는 4xx, 5xx 에러 발생 시 자동으로 catch 문으로 넘어옵니다.
