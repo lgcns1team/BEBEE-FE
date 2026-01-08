@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useChatStore } from "../store/useChatStore";
 import { useChatHandler } from "../../../hooks/useChatHandler";
-import { formatChatTime } from "../utils/date";
+import { formatChatTime } from "../utils/date";
 import { chatApi } from "../../../api/chatApi";
 
 /* Components */
