@@ -3,6 +3,7 @@ import type { HelperProfile } from "../../../../../types/profile.type";
 import type { PostItem } from "../../../../../types/post.type";
 import HelpTag from "../../../../../components/HelpTag";
 import { useNavigate } from "react-router-dom";
+import { HELP_TAG_MAP } from "../../../../../constants/helpTags";
 interface Props {
   post: PostItem;
   profile: HelperProfile;
@@ -24,8 +25,8 @@ const MapDisabledBottomSheetPostCard = ({ profile, post }: Props) => {
           <Age>{profile?.age}</Age>
         </Row>
         <TagWrapper>
-          {post.helpCategories.map((tag) => (
-            <HelpTag key={tag}>{tag}</HelpTag>
+          {post?.helpCategories.map((cat) => (
+            <HelpTag key={cat}>{HELP_TAG_MAP[cat]}</HelpTag>
           ))}
         </TagWrapper>
       </Content>
