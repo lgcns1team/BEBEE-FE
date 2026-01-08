@@ -3,11 +3,11 @@ import { useUserStore } from '../store/useUserStore';
 import { reissueToken } from './authApi';
 
 // 임시 토큰 (헤더에 고정)
-export const TEMP_TOKEN =
-    "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJiZWJlZSIsInN1YiI6IjEwMCIsInJvbGUiOiJESVNBQkxFRCIsImlhdCI6MTc2Nzc5MjY0MywiZXhwIjoxNzY3ODc5MDQzfQ.a2REWYLQTM-vQGeRk-l9qcNMb9MlxLODw9RHC2mP4rU";
+//export const TEMP_TOKEN =
+// ;
 
 // localStorage에 토큰 강제 설정
-localStorage.setItem("accessToken", TEMP_TOKEN);
+//localStorage.setItem("accessToken", TEMP_TOKEN);
 
 
 export const instance = axios.create({
