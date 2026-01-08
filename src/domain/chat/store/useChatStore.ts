@@ -287,22 +287,33 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setChatrooms: (data, isMore = false) =>
     set((state) => {
+      // 안전한 배열 처리: undefined/null이거나 배열이 아니면 빈 배열로 처리
+      // Array.isArray(undefined) = false → [] 반환
+      // Array.isArray(null) = false → [] 반환
+      // Array.isArray([]) = true → 원본 배열 반환
+      const safeExistingChatrooms = Array.isArray(state.chatrooms)
+        ? state.chatrooms
+        : [];
+      const safeNewChatrooms = Array.isArray(data?.chatrooms)
+        ? data.chatrooms
+        : [];
+
       if (isMore) {
         // 중복 제거: 기존 chatroomId를 Set으로 관리하여 중복 방지
         const existingIds = new Set(
-          state.chatrooms.map((room) => room.chatroomId)
+          safeExistingChatrooms.map((room) => room?.chatroomId).filter(Boolean)
         );
-        const newRooms = (data?.chatrooms ?? []).filter(
-          (room) => !existingIds.has(room.chatroomId)
+        const newRooms = safeNewChatrooms.filter(
+          (room) => room?.chatroomId && !existingIds.has(room.chatroomId)
         );
         return {
-          chatrooms: [...(state.chatrooms ?? []), ...newRooms],
+          chatrooms: [...safeExistingChatrooms, ...newRooms],
           hasNext: data?.hasNext ?? false,
           nextChatroomId: data?.nextChatroomId ?? null,
         };
       }
       return {
-        chatrooms: data?.chatrooms ?? [],
+        chatrooms: safeNewChatrooms,
         hasNext: data?.hasNext ?? false,
         nextChatroomId: data?.nextChatroomId ?? null,
       };
