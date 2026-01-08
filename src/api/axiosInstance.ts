@@ -36,8 +36,6 @@ instance.interceptors.request.use(
         // useUserStore에서 accessToken 가져오기
         const userStore = useUserStore.getState();
         const accessToken = userStore.accessToken;
-        console.log("accessToken");
-        console.log(accessToken);
 
         if (accessToken) {
             config.headers['Authorization'] = `Bearer ${accessToken}`;
