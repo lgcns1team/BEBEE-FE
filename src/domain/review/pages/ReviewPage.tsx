@@ -70,7 +70,7 @@ const ReviewPage = () => {
 
   return (
     <Layout>
-      <Header title="리뷰 보내기" onBack={() => navigate(-1)} />
+      <Header title="리뷰 보내기" onBack={() => navigate(-1)} showBack />
       <Title>{postTitle}</Title>
       <TagWrapper>
         {helpCategories.map((category) => {

@@ -71,14 +71,18 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
   return (
     <PostItemWrapper>
       {filteredApplicants.map((applicant) => (
-        <Card key={applicant.memberId}>
+        // <Card key={applicant.memberId}>
+        <Card>
           <UserRow>
             <UserText>
-              <div className="top-row">
+              <div className="top-row" aria-label="도우미의 닉네임 입니다">
                 <span className="nickname">{applicant.nickname}</span>
               </div>
 
-              <div className="sub-info">
+              <div
+                className="sub-info"
+                aria-label="도우미의 성별 및 나이 입니다"
+              >
                 {GENDER_KR[applicant.gender]} · {applicant.ageGroup}대
               </div>
             </UserText>
@@ -93,7 +97,7 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
           </UserRow>
 
           {applicant.isVolunteer && (
-            <SharingBadge>
+            <SharingBadge aria-label="나눔으로 지원한 도우미 입니다">
               나눔 <FaHeart size={14} color="#FFA2A2" />
             </SharingBadge>
           )}

@@ -29,7 +29,6 @@ const ApplicantPage: React.FC = () => {
 
     getApplicantsByPostId({
       postId,
-      memberId,
     }).then((res) => {
       setApplicants(res.data.applicants);
     });
@@ -38,12 +37,18 @@ const ApplicantPage: React.FC = () => {
   return (
     <Container>
       <Section>
-        <Header onBack={() => navigate(-1)} title={title} showBack />
+        <Header
+          onBack={() => navigate(-1)}
+          title={title}
+          showBack
+          aria-label="지원자 목록을 확인하실 수 있습니다"
+        />
 
-        <FilterSection>
+        <FilterSection aria-label="모든 지원자와 나눔으로 지원한 지원자를 필터링 할 수 있습니다">
           <button
             className={!isSharing ? "active" : ""}
             onClick={() => setIsSharing(false)}
+            aria-label="모든 지원자 목록입니다"
           >
             전체
           </button>
@@ -51,6 +56,7 @@ const ApplicantPage: React.FC = () => {
           <button
             className={isSharing ? "active" : ""}
             onClick={() => setIsSharing(true)}
+            aria-label="나눔으로 지원한 지원자 목록입니다"
           >
             나눔
           </button>

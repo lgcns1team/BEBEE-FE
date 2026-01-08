@@ -19,15 +19,18 @@ import type {
 
 interface Props {
   engagement: Engagement;
+  onComplete: (agreementId: string) => void;
 }
 
-const MatchingPostCard = ({ engagement }: Props) => {
+const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   const navigate = useNavigate();
 
   const isCompleted =
     engagement.type === "DAY"
       ? engagement.isDayComplete
       : engagement.isTermComplete;
+
+  const canReview = isCompleted && engagement.isLastActivity;
   const goMatchingInfo = () => {
     if (!engagement) return;
     navigate(`/match-info/${engagement.agreementId}`);
@@ -125,18 +128,30 @@ const MatchingPostCard = ({ engagement }: Props) => {
             <span>채팅하기</span>
           </ChatButton>
 
-          {isCompleted ? (
-            <DoneButton aria-label="활동이 완료 되었다면 홛동 완료 버튼을 눌러주세요">
+          {!isCompleted ? (
+            <DoneButton
+              onClick={() => {
+                onComplete(engagement.agreementId);
+              }}
+              aria-label="활동을 완료했을 경우 눌러주세요"
+            >
               <span>활동 완료</span>
             </DoneButton>
-          ) : (
+          ) : canReview ? (
             <ReviewButton
               onClick={goReviewPage}
-              aria-label="리뷰를 작성하려면 리뷰 작성하기 버튼을 눌러주세요"
+              aria-label="리뷰를 작성하실 경우 눌러주세요"
             >
               <BsPencil size={12} />
               <span>리뷰 작성하기</span>
             </ReviewButton>
+          ) : (
+            <DoneButton
+              disabled
+              aria-label="아직 마지막 활동이 종료되지 않았어요"
+            >
+              <span>다음 일정 대기</span>
+            </DoneButton>
           )}
         </BottomInner>
       </BottomBar>
