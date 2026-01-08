@@ -1,11 +1,11 @@
 export const AUTH_API_URLS = {
-  LOGIN: "/api/members/auth/login",
-  SIGN_UP: "/api/members/auth/signup",
-  REISSUE: "/api/members/auth/reissue",
-  LOGOUT: "/api/members/auth/logout",
-  GET_MY_INFO: "/api/members/members/me",
-  CHECK_EMAIL: "/api/members/auth/check-email",
-  CHECK_NICKNAME: "/api/members/auth/check-nickname",
+  LOGIN: "/member/auth/login",
+  SIGN_UP: "/member/auth/signup",
+  REISSUE: "/member/auth/reissue",
+  LOGOUT: "/member/auth/logout",
+  GET_MY_INFO: "/member/members/me",
+  CHECK_EMAIL: "/member/auth/check-email",
+  CHECK_NICKNAME: "/member/auth/check-nickname",
 } as const;
 
 export const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
