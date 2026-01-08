@@ -2,16 +2,15 @@ import styled from "styled-components";
 import { FaHeart } from "react-icons/fa";
 import type { Applicant } from "../../../types/application.type";
 import type { Gender } from "../../auth/auth.types";
-// import { useNavigate } from "react-router-dom";
-// import { chatApi } from "../../chat/api/chatApi";
-// import { IoChevronForward } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import { chatApi } from "../../chat/api/chatApi";
 
 interface Props {
   applicants: Applicant[];
   isSharing: boolean;
-  // postId: number;
-  // postTitle: string;
-  // helpCategoryIds: number[];
+  postId: string;
+  postTitle: string;
+  helpCategoryIds: number[];
 }
 
 const GENDER_KR: Record<Gender, string> = {
@@ -23,32 +22,33 @@ const GENDER_KR: Record<Gender, string> = {
 const ApplicantList = ({
   applicants,
   isSharing,
-}: // postId,
-// postTitle,
-// helpCategoryIds,
-Props) => {
+  postId,
+  postTitle,
+  helpCategoryIds,
+}: Props) => {
   const filteredApplicants = isSharing
     ? applicants.filter((applicant) => applicant.isVolunteer)
     : applicants;
-  // const navigate = useNavigate();
-  // const goChat = async (otherMemberId: string) => {
-  //   try {
-  //     const res = await chatApi.openChatRoom(otherMemberId, undefined, {
-  //       postId,
-  //       postTitle,
-  //       helpCategoryIds,
-  //     });
-  //     const chatroomId = res.chatroomId;
-  //     navigate(`/chat/${chatroomId}`);
-  //   } catch (e) {
-  //     console.error(e);
-  //     alert("채팅방을 열 수 없습니다");
-  //   }
-  // };
+  const navigate = useNavigate();
+  const goChat = async (otherMemberId: string) => {
+    try {
+      const res = await chatApi.openChatRoom(otherMemberId, undefined, {
+        postId,
+        postTitle,
+        helpCategoryIds,
+      });
+      const chatroomId = res.chatroomId;
+      navigate(`/chat/${chatroomId}`);
+    } catch (e) {
+      console.error(e);
+      alert("채팅방을 열 수 없습니다");
+    }
+  };
   return (
     <PostItemWrapper>
       {filteredApplicants.map((applicant) => (
-        <Card key={applicant.memberId}>
+        // <Card key={applicant.memberId}>
+        <Card>
           <UserRow>
             <UserText>
               <div className="top-row">
@@ -61,7 +61,9 @@ Props) => {
             </UserText>
 
             {/* <GoProfile onClick={() => goChat(applicant.memberId)}> */}
-            <GoProfile>채팅하기</GoProfile>
+            <GoProfile onClick={() => goChat(applicant.memberId)}>
+              채팅하기
+            </GoProfile>
           </UserRow>
 
           {applicant.isVolunteer && (

@@ -8,14 +8,15 @@ import { Checkbox } from "../../../components/Checkbox";
 import { useApplicationStore } from "../store/useApplicationStore";
 import { getApplicationPosts } from "../../../api/applicationApi";
 
-const MEMBER_ID = "100";
+// const MEMBER_ID = "100";
 const ApplicateStatusPage = () => {
   const [excludeDone, setExcludeDone] = useState(false);
   const navigate = useNavigate();
   const { posts, setPosts } = useApplicationStore();
 
   useEffect(() => {
-    getApplicationPosts({ memberId: MEMBER_ID }).then((res) => {
+    // getApplicationPosts({ memberId: MEMBER_ID }).then((res) => {
+    getApplicationPosts().then((res) => {
       setPosts(res.data.posts);
     });
   }, []);

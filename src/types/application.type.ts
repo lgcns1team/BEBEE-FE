@@ -40,7 +40,7 @@ export interface GetApplicationPostsResponse {
 
 // 도우미 지원
 export interface ApplyHelperRequest {
-  memberId: string;
+  // memberId: string;
   postId: string;
   isVolunteer: boolean;
 }

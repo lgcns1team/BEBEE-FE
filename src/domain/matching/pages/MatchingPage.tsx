@@ -13,8 +13,10 @@ import WeeklyCalendar from "../components/common/WeeklyCalendar";
 import { useMatchStore } from "../store/useMatchStore";
 import { getEngagements } from "../../../api/engagementApi";
 import { getEngagementDateSet } from "../utils/engagementDates";
+import { getEngagementCompleteStatus } from "../../../api/engagementApi";
+import { useUserStore } from "../../../store/useUserStore";
 
-const MEMBER_ID = "100";
+// const MEMBER_ID = "100";
 
 const MatchingPage = () => {
   const { engagements, setEngagements } = useMatchStore();
@@ -25,6 +27,45 @@ const MatchingPage = () => {
   const [engagementDates, setEngagementDates] = useState<Set<string>>(
     new Set()
   );
+  const { user } = useUserStore();
+  const memberId = user?.memberId;
+  const handleComplete = async (engagementId: string) => {
+    try {
+      const res = await getEngagementCompleteStatus({
+        engagementId,
+        currentMemberId: "100",
+      });
+      const { status, isLastActivity } = res.data;
+
+      setEngagements(
+        engagements.map((e) =>
+          e.engagementId === engagementId
+            ? {
+                ...e,
+                isDayComplete: status === "COMPLETED" ? true : e.isDayComplete,
+                isTermComplete:
+                  status === "COMPLETED" ? true : e.isTermComplete,
+                isLastActivity,
+              }
+            : e
+        )
+      );
+
+      if (status === "COMPLETED") {
+        alert(
+          isLastActivity
+            ? "모든 활동이 완료되었습니다. 리뷰를 작성해 주세요"
+            : "활동이 완료되었습니다."
+        );
+      } else {
+        alert("상대방의 확인을 기다리고 있습니다.");
+      }
+    } catch (error) {
+      console.error("활동 완료 처리 실패", error);
+      alert("활동 완료 처리에 실패했습니다.");
+    }
+  };
+
   useEffect(() => {
     const types: ("DAY" | "TERM")[] =
       activeTab === "전체"
@@ -35,7 +76,7 @@ const MatchingPage = () => {
     Promise.all(
       types.map((type) =>
         getEngagements({
-          memberId: MEMBER_ID,
+          memberId: "100",
           date: selectedDate,
           engagementType: type,
         })
@@ -77,6 +118,7 @@ const MatchingPage = () => {
             <MatchingPostCard
               key={engagement.agreementId}
               engagement={engagement}
+              onComplete={handleComplete}
             />
           ))}
         </ScrollArea>

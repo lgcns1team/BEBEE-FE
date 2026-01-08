@@ -1,5 +1,9 @@
 // 메시지 타입 구분 (일반 텍스트, 이미지, 매칭 확인서, 매칭 성공)
-export type MessageType = "TEXT" | "IMAGE" | "MATCH_CONFIRMATION" | "MATCH_SUCCESS";
+export type MessageType =
+  | "TEXT"
+  | "IMAGE"
+  | "MATCH_CONFIRMATION"
+  | "MATCH_SUCCESS";
 export type MatchStatus = "NON_MATCHED" | "PROCEEDING" | "MATCHED";
 export interface ChatMessage {
   id: string;
@@ -34,7 +38,8 @@ export interface ChatMessagesGetResDTO {
 
 /** 채팅방 생성/열기 요청 DTO */
 export interface ChatroomOpenReqDTO {
-  postId?: number;
+  // postId?: number;
+  postId?: string;
   postTitle?: string;
   helpCategoryIds?: number[];
 }

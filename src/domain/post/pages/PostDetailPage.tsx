@@ -59,7 +59,7 @@ const PostDetailPage = () => {
   // const MEMBER_ID = "100";
 
   // 도우미용 아이디 700
-  const MEMBER_ID = "700";
+  // const MEMBER_ID = "700";
 
   // 지원하기 및 나눔하기
   const handleApply = async () => {
@@ -69,7 +69,7 @@ const PostDetailPage = () => {
       setApplyLoading(true);
 
       await applyHelper({
-        memberId: MEMBER_ID,
+        // memberId: MEMBER_ID,
         postId: postId,
         isVolunteer: false,
       });
@@ -92,7 +92,7 @@ const PostDetailPage = () => {
       setApplyLoading(true);
 
       await applyHelper({
-        memberId: MEMBER_ID,
+        // memberId: MEMBER_ID,
         postId: postId,
         isVolunteer: true,
       });

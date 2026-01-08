@@ -39,6 +39,7 @@ export type EngagementTime = DayEngagementTime | TermEngagementTime;
 export interface Engagement {
   myRole: "DISABLED" | "HELPER";
   agreementId: string;
+  engagementId: string;
   postId: string;
   title: string;
   thumbnailImageUrl?: string;
@@ -60,6 +61,12 @@ export interface Engagement {
 
   isDayComplete: boolean;
   isTermComplete: boolean;
-
+  isLastActivity?: boolean;
   chatRoomId: string;
+}
+
+// 활동 완료 체크 응답
+export interface getEngagementCompleteResponse {
+  status: "COMPLETED" | "PENDING";
+  isLastActivity: boolean;
 }
