@@ -42,7 +42,7 @@ instance.interceptors.request.use(
         }
 
         // 사용자가 X-Member-Id 헤더 추가를 원했으므로 여기서 설정
-        if (userStore.user?.memberId) {
+        if (userStore.user?.memberId != null) {
             config.headers['X-Member-Id'] = userStore.user.memberId;
         }
 
