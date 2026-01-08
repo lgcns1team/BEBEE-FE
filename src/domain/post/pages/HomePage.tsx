@@ -45,7 +45,11 @@ const HomePage = () => {
     }
 
     // 이미 초기화했거나 게시글이 있으면 다시 로드하지 않음
-    if (hasInitialized.current || (posts.length > 0 && !isLoading)) {
+    // posts가 undefined/null이거나 배열이 아닐 경우를 대비해 안전하게 체크
+    if (
+      hasInitialized.current ||
+      (Array.isArray(posts) && posts.length > 0 && !isLoading)
+    ) {
       return;
     }
 
@@ -136,17 +140,20 @@ const HomePage = () => {
 
         {/* ---------------- Post List ---------------- */}
         <ListWrapper>
-          {posts.map((post) => (
-            <div
-              key={post.postId}
-              onClick={() => navigate(`/post/${post.postId}`)}
-            >
-              <PostCard post={post} />
-            </div>
-          ))}
+          {posts?.map((post) => {
+            if (!post) return null;
+            return (
+              <div
+                key={post.postId}
+                onClick={() => navigate(`/post/${post.postId}`)}
+              >
+                <PostCard post={post} />
+              </div>
+            );
+          })}
 
           {isLoading && <span>불러오는 중...</span>}
-          {!isLoading && posts.length === 0 && (
+          {!isLoading && posts?.length === 0 && (
             <span>조건에 맞는 게시글이 없습니다.</span>
           )}
           {/* 무한 스크롤 감지용 타겟 (바닥) */}
@@ -155,7 +162,7 @@ const HomePage = () => {
             style={{ height: "50px", textAlign: "center" }}
           >
             {isLoadingMore && <p> 불러오는 중...</p>}
-            {!hasNext && posts.length > 0 && <p>마지막 게시글입니다.</p>}
+            {!hasNext && posts?.length > 0 && <p>마지막 게시글입니다.</p>}
           </div>
         </ListWrapper>
 
@@ -217,7 +224,7 @@ const Tab = styled.button<{ $active?: boolean }>`
 
     /* 활성화 상태일 때만 theme.color.text(검은색계열)를 보여줌 */
     background-color: ${({ theme, $active }) =>
-      $active ? theme.color.text : "transparent"};
+    $active ? theme.color.text : "transparent"};
 
     border-radius: ${({ theme }) => theme.borderRadius.sm};
 

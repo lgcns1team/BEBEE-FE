@@ -78,7 +78,7 @@ export const postApi = {
       }
     }
 
-    const response = await instance.get<GetPostsResponse>("match/posts", {
+    const response = await instance.get<GetPostsResponse>("/match/posts", {
       params: queryParams,
     });
 
@@ -86,14 +86,24 @@ export const postApi = {
   },
 
   createPost: async (data: PostCreateReqDTO) => {
-    const response = await instance.post("match/posts", data);
+    const response = await instance.post("/match/posts", data);
     return response.data;
   },
 
-  getPostDetail: async (postId: string): Promise<PostDetailResponse> => {
+  getPostDetail: async (
+    postId: string | number
+  ): Promise<PostDetailResponse> => {
     // postId를 문자열로 변환하여 URL에 사용
     const postIdStr = String(postId);
-    const response = await instance.get(`match/posts/${postIdStr}`);
+    console.log("📡 [postApi.getPostDetail] 요청:", {
+      postId,
+      postIdStr,
+      url: `/api/match/posts/${postIdStr}`,
+    });
+
+    const response = await instance.get(`/match/posts/${postIdStr}`);
+    console.log("✅ [postApi.getPostDetail] 응답:", response.data);
+
     return response.data;
   },
 };

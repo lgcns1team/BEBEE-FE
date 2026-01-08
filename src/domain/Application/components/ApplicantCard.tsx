@@ -24,7 +24,7 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
     ? applicants.filter((applicant) => applicant.isVolunteer)
     : applicants;
 
-  const goChat = async (otherMemberId: string) => {
+  const goChat = async (otherMemberId: string, isVolunteer: boolean) => {
     if (!currentPost) {
       alert("게시글 정보를 불러올 수 없습니다.");
       return;
@@ -37,18 +37,21 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
           postId: currentPost.postId,
           postTitle: currentPost.postTitle,
           helpCategoryIds: currentPost.helpCategoryIds,
+          isVolunteer,
         },
       });
       const res = await chatApi.createChatRoom(otherMemberId, {
         postId: currentPost.postId,
         postTitle: currentPost.postTitle,
         helpCategoryIds: currentPost.helpCategoryIds,
+        isVolunteer,
       });
-      console.log("채팅방 생성 응답:", {
+      console.log("[ApplicantCard] 채팅방 생성 응답:", {
         chatroomId: res.chatroomId,
         postId: res.postId,
         postIdType: typeof res.postId,
-        전체데이터: res,
+        isVolunteer: isVolunteer,
+        응답전체데이터: res,
       });
       const chatroomId = res.chatroomId;
       // 채팅방 생성 응답의 postId를 store에 저장
@@ -85,8 +88,9 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
             </UserText>
 
             <GoProfile
-              onClick={() => goChat(applicant.memberId)}
-              aria-label="지원한 도우미와 채팅할 수 있습니다"
+              onClick={() => {
+                goChat(applicant.memberId, applicant.isVolunteer);
+              }}
             >
               채팅하기
             </GoProfile>
