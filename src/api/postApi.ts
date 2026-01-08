@@ -78,7 +78,7 @@ export const postApi = {
       }
     }
 
-    const response = await instance.get<GetPostsResponse>("/api/match/posts", {
+    const response = await instance.get<GetPostsResponse>("/match/posts", {
       params: queryParams,
     });
 
@@ -86,7 +86,7 @@ export const postApi = {
   },
 
   createPost: async (data: PostCreateReqDTO) => {
-    const response = await instance.post("/api/match/posts", data);
+    const response = await instance.post("/match/posts", data);
     return response.data;
   },
 
@@ -101,7 +101,7 @@ export const postApi = {
       url: `/api/match/posts/${postIdStr}`,
     });
 
-    const response = await instance.get(`/api/match/posts/${postIdStr}`);
+    const response = await instance.get(`/match/posts/${postIdStr}`);
     console.log("✅ [postApi.getPostDetail] 응답:", response.data);
 
     return response.data;
