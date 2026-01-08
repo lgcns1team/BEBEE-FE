@@ -59,7 +59,7 @@ const ChargePage = () => {
 
   return (
     <Layout>
-      <Header onBack={() => navigate(-1)} title="꿀 충전" />
+      <Header onBack={() => navigate(-1)} showBack title="꿀 충전" />
 
       <Content>
         <MainTitle>꿀 충전</MainTitle>

@@ -6,6 +6,7 @@ import { useSocketStore } from "../../../store/useSocketStore";
 import { postApi } from "../../../api/postApi";
 import { createAgreement } from "../api/agreementApi";
 import { chatApi } from "../../../api/chatApi";
+import { getCurrentHoney } from "../../../api/walletApi";
 import type { PostDetailResponse } from "../../../types/post.type";
 import type {
   AgreementRequest,
@@ -24,6 +25,7 @@ import {
 
 import DayHelpForm from "../components/matchConfirm/DayHelpForm";
 import LongHelpForm from "../components/matchConfirm/LongHelpForm";
+import InsufficientHoneyModal from "../components/matchConfirm/InsufficientHoneyModal";
 import BaseLongButton from "../../../components/BaseLongButton";
 import LocationInput from "../../../components/LocationInput";
 import GeneralInput from "../../../components/GeneralInput";
@@ -71,6 +73,11 @@ const MatchFormPage = () => {
   const [selectedTags, setSelectedTags] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
+  const [isInsufficientModalOpen, setIsInsufficientModalOpen] = useState(false);
+  const [currentHoney, setCurrentHoney] = useState<number | null>(null);
+  const [isBalanceChecked, setIsBalanceChecked] = useState(false);
+  const [isBalanceSufficient, setIsBalanceSufficient] = useState(false);
 
   // Date 객체 사용
   const [dayEngagement, setDayEngagement] = useState<{
@@ -264,6 +271,57 @@ const MatchFormPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalCount, agreementRequest?.unitHoney, agreementRequest?.type]);
 
+  // unitHoney나 totalHoney가 변경되면 잔액 확인 상태 초기화
+  useEffect(() => {
+    setIsBalanceChecked(false);
+    setIsBalanceSufficient(false);
+  }, [agreementRequest?.unitHoney, agreementRequest?.totalHoney]);
+
+  // 잔액 확인 핸들러
+  const handleCheckBalance = async () => {
+    if (!agreementRequest) {
+      alert("매칭 정보를 먼저 입력해주세요.");
+      return;
+    }
+
+    // totalHoney 계산 (DAY 타입은 unitHoney, TERM 타입은 totalHoney 사용)
+    const requiredHoney =
+      agreementRequest.type === "DAY"
+        ? agreementRequest.unitHoney || 0
+        : agreementRequest.totalHoney || 0;
+
+    if (requiredHoney <= 0) {
+      alert("꿀 정보를 먼저 입력해주세요.");
+      return;
+    }
+
+    setIsCheckingBalance(true);
+    try {
+      const response = await getCurrentHoney();
+      const honey = response.currentHoney;
+      setCurrentHoney(honey);
+
+      if (honey < requiredHoney) {
+        setIsBalanceChecked(true);
+        setIsBalanceSufficient(false);
+        setIsInsufficientModalOpen(true);
+      } else {
+        setIsBalanceChecked(true);
+        setIsBalanceSufficient(true);
+        alert(
+          `잔액이 충분합니다. (보유: ${honey}꿀, 필요: ${requiredHoney}꿀)`
+        );
+      }
+    } catch (error) {
+      console.error("잔액 조회 실패:", error);
+      alert("잔액 조회에 실패했습니다.");
+      setIsBalanceChecked(false);
+      setIsBalanceSufficient(false);
+    } finally {
+      setIsCheckingBalance(false);
+    }
+  };
+
   const handleConfirm = async () => {
     console.log("현재 상태:", {
       agreementRequest,
@@ -283,6 +341,17 @@ const MatchFormPage = () => {
         activeRoom: !!activeRoom,
       });
       alert("필수 정보가 누락되었습니다.");
+      return;
+    }
+
+    // 잔액 확인 체크
+    if (!isBalanceChecked) {
+      alert("잔액 확인을 먼저 해주세요.");
+      return;
+    }
+
+    if (!isBalanceSufficient) {
+      alert("꿀이 부족합니다. 충전 후 다시 시도해주세요.");
       return;
     }
 
@@ -685,15 +754,26 @@ const MatchFormPage = () => {
             />
           ) : null}
 
-          <GeneralInput
-            inputLabel="1회 제공 꿀"
-            value={(agreementRequest.unitHoney || 0).toString()}
-            onChange={(e) => {
-              const value = parseInt(e.target.value) || 0;
-              updateField("unitHoney", value);
-            }}
-            required
-          />
+          <HoneyInputWrapper>
+            <InputContainer>
+              <GeneralInput
+                inputLabel="1회 제공 꿀"
+                value={(agreementRequest.unitHoney || 0).toString()}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value) || 0;
+                  updateField("unitHoney", value);
+                }}
+                required
+              />
+            </InputContainer>
+            <BalanceCheckButton
+              onClick={handleCheckBalance}
+              disabled={isCheckingBalance}
+              $isSufficient={isBalanceSufficient}
+            >
+              {isCheckingBalance ? "확인 중..." : "잔액확인"}
+            </BalanceCheckButton>
+          </HoneyInputWrapper>
           {agreementRequest.type === "TERM" &&
           termEngagement &&
           agreementRequest.unitHoney &&
@@ -737,6 +817,19 @@ const MatchFormPage = () => {
           />
         </div>
       </div>
+
+      {isInsufficientModalOpen && currentHoney !== null && (
+        <InsufficientHoneyModal
+          isOpen={isInsufficientModalOpen}
+          currentHoney={currentHoney}
+          requiredHoney={
+            agreementRequest?.type === "DAY"
+              ? agreementRequest.unitHoney || 0
+              : agreementRequest?.totalHoney || 0
+          }
+          onClose={() => setIsInsufficientModalOpen(false)}
+        />
+      )}
     </Layout>
   );
 };
@@ -758,4 +851,54 @@ const LocationInputWrapper = styled.div`
   position: relative;
   margin-bottom: 220px; /* 검색 리스트가 표시될 공간 확보 (max-height: 200px + 여유 공간) */
   z-index: 1;
+`;
+
+const HoneyInputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  align-items: flex-end;
+`;
+
+const InputContainer = styled.div`
+  flex: 1;
+  min-width: 0; /* flex item이 overflow 방지 */
+`;
+
+const BalanceCheckButton = styled.button<{ $isSufficient?: boolean }>`
+  padding: 1rem;
+  background: ${({ theme, $isSufficient }) =>
+    $isSufficient ? "#ffc107" : theme.color.natural100};
+  border: 1px solid
+    ${({ theme, $isSufficient }) =>
+      $isSufficient ? "#ffc107" : theme.color.natural200};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  font-size: ${({ theme }) => theme.size.sm};
+  color: ${({ theme, $isSufficient }) =>
+    $isSufficient ? theme.color.text : theme.color.text};
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s, border-color 0.2s;
+  height: 51.5px; /* GeneralInput과 동일한 높이 */
+  font-weight: ${({ $isSufficient }) => ($isSufficient ? "600" : "400")};
+
+  &:hover:not(:disabled) {
+    background: ${({ theme, $isSufficient }) =>
+      $isSufficient ? "#ffb300" : theme.color.natural200};
+    border-color: ${({ $isSufficient }) =>
+      $isSufficient ? "#ffb300" : undefined};
+  }
+
+  &:active:not(:disabled) {
+    background: ${({ theme, $isSufficient }) =>
+      $isSufficient ? "#ffb300" : theme.color.natural200};
+    border-color: ${({ $isSufficient }) =>
+      $isSufficient ? "#ffb300" : undefined};
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `;
