@@ -34,7 +34,7 @@ export interface ChatMessagesGetResDTO {
 
 /** 채팅방 생성/열기 요청 DTO */
 export interface ChatroomOpenReqDTO {
-  postId?: number;
+  postId?: string;
   postTitle?: string;
   helpCategoryIds?: number[];
 }
