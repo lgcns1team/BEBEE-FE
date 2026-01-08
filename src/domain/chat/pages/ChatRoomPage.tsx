@@ -4,6 +4,7 @@ import styled, { css } from "styled-components";
 import ChatRoomCard from "../components/ChatRoomCard";
 import MatchResultCard from "../components/MatchResultCard";
 import MatchFailCard from "../components/MatchFailCard";
+import MatchSuccessCard from "../components/MatchSuccessCard";
 import { useChatStore } from "../store/useChatStore";
 import { useSocketStore } from "../../../store/useSocketStore";
 import { chatApi } from "../../../api/chatApi";
@@ -12,14 +13,6 @@ import { FaArrowCircleUp } from "react-icons/fa";
 
 const ChatRoom = () => {
   const { chatroomId } = useParams<{ chatroomId: string }>();
-
-  // 매칭 성공 정보 (로컬스토리지에서 복원)
-  const [matchSuccessData, setMatchSuccessData] = useState<ChatMessage | null>(
-    null
-  );
-
-  // 매칭 거절 정보
-  const [matchFailData, setMatchFailData] = useState<boolean>(false);
 
   // chatroomId 확인 로그
   useEffect(() => {
@@ -82,10 +75,11 @@ const ChatRoom = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
   const prevScrollHeight = useRef<number>(0);
-  const isLoadingMoreRef = useRef<boolean>(false); // 중복 요청 방지용
-  const prevMessagesLengthRef = useRef<number>(0); // 이전 메시지 개수 추적
   const isScrollingRef = useRef<boolean>(false); // 스크롤 중인지 추적
   const isInitialLoadRef = useRef<boolean>(true); // 초기 로드 여부
+  const hasInitialized = useRef(false); // 초기화 여부 (HomePage 패턴)
+  const prevMessagesLengthRef = useRef<number>(0); // 이전 메시지 개수 추적
+  const initialLoadCompleteRef = useRef<boolean>(false); // 초기 로드 완료 여부
 
   /**
    * 3. 전체 메시지 통합
@@ -116,8 +110,9 @@ const ChatRoom = () => {
       if (msg.id && !socketMessageIds.has(msg.id)) {
         seenIds.set(msg.id, msg);
       } else if (!msg.id) {
-        // id가 없는 메시지는 모두 포함
-        seenIds.set(`no-id-${Math.random()}`, msg);
+        // id가 없는 메시지는 모두 포함 (고유 키 생성)
+        const uniqueKey = `no-id-${msg.createdAt}-${msg.senderId}-${seenIds.size}`;
+        seenIds.set(uniqueKey, msg);
       }
     });
 
@@ -126,8 +121,9 @@ const ChatRoom = () => {
       if (msg.id) {
         seenIds.set(msg.id, msg);
       } else {
-        // id가 없는 소켓 메시지도 추가
-        seenIds.set(`socket-no-id-${Math.random()}`, msg);
+        // id가 없는 소켓 메시지도 추가 (고유 키 생성)
+        const uniqueKey = `socket-no-id-${msg.createdAt}-${msg.senderId}-${seenIds.size}`;
+        seenIds.set(uniqueKey, msg);
       }
     });
 
@@ -183,39 +179,15 @@ const ChatRoom = () => {
   }, [allMessages.length, historyMessages.length, socketMessages.length]);
 
   /**
-   * 3.5. 로컬스토리지에서 매칭 성공/거절 정보 복원
-   */
-  useEffect(() => {
-    if (!chatroomId) return;
-
-    const successKey = `bebee-match-success-${chatroomId}`;
-    const storedSuccess = localStorage.getItem(successKey);
-    if (storedSuccess) {
-      try {
-        const successData = JSON.parse(storedSuccess) as ChatMessage;
-        setMatchSuccessData(successData);
-      } catch (error) {
-        console.error("로컬스토리지에서 매칭 성공 정보 복원 실패:", error);
-      }
-    } else {
-      setMatchSuccessData(null);
-    }
-
-    const failKey = `bebee-match-fail-${chatroomId}`;
-    const storedFail = localStorage.getItem(failKey);
-    setMatchFailData(storedFail === "true");
-  }, [chatroomId]);
-
-  /**
    * 매칭 수락 성공 콜백
    */
   const handleAcceptSuccess = useCallback(
-    (successData: ChatMessage) => {
-      setMatchSuccessData(successData);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (_successData: ChatMessage) => {
+      // store에 이미 저장되어 있으므로 추가 작업 불필요
       if (chatroomId) {
         localStorage.removeItem(`bebee-match-fail-${chatroomId}`);
       }
-      setMatchFailData(false);
     },
     [chatroomId]
   );
@@ -224,70 +196,66 @@ const ChatRoom = () => {
    * 매칭 거절 성공 콜백
    */
   const handleRefuseSuccess = useCallback(() => {
-    setMatchFailData(true);
-    if (chatroomId) {
-      localStorage.setItem(`bebee-match-fail-${chatroomId}`, "true");
-    }
+    // store에 이미 저장되어 있으므로 추가 작업 불필요
     setActiveRoom(
       activeRoom ? { ...activeRoom, matchStatus: "NON_MATCHED" } : activeRoom
     );
-  }, [chatroomId, setActiveRoom, activeRoom]);
+  }, [setActiveRoom, activeRoom]);
 
   /**
-   * 4. 채팅방 초기화 (API 및 소켓 연결)
+   * 4. 채팅방 초기화 (API 및 소켓 연결) - HomePage 패턴 적용
    */
   useEffect(() => {
-    // 채팅방이 바뀔 때마다 초기 로드 플래그 리셋
+    if (!chatroomId) {
+      console.log("chatroomId가 없습니다.");
+      return;
+    }
+
+    // 채팅방이 바뀔 때마다 초기화 플래그 리셋
+    hasInitialized.current = false;
     isInitialLoadRef.current = true;
-    prevMessagesLengthRef.current = 0;
+    initialLoadCompleteRef.current = false;
 
     const initChatRoom = async () => {
-      if (!chatroomId) {
-        console.log("chatroomId가 없습니다.");
+      // 이미 초기화했으면 다시 로드하지 않음 (HomePage 패턴)
+      if (hasInitialized.current) {
         return;
       }
 
+      // 로딩 중이면 대기
+      const currentState = useChatStore.getState();
+      if (currentState.isLoadingHistory) {
+        console.log("이미 로딩 중입니다. 대기...");
+        return;
+      }
+
+      hasInitialized.current = true;
+
       try {
-        // 채팅방 상세 정보 조회 (ChatRoomCard에서도 호출하지만, 여기서도 호출하여 스토어 동기화)
+        // 1. 채팅방 상세 정보 조회
         const roomInfo = await chatApi.openChatRoom(undefined, chatroomId);
         console.log("채팅방 정보:", roomInfo);
 
-        // 채팅방이 바뀌었는지 확인
-        const currentState = useChatStore.getState();
-
-        // 과거 내역 가져오기
-        // localStorage에서 복원된 메시지가 있으면 먼저 확인
-        const existingMessages = currentState.getHistoryMessages(chatroomId);
-
-        // localStorage에 메시지가 있으면 서버와 동기화만 수행 (기존 메시지 유지)
-        if (existingMessages.length > 0) {
-          // 서버에서 최신 메시지만 가져와서 동기화 (기존 메시지는 유지)
-          await useChatStore.getState().fetchHistory(chatroomId, null);
-        } else {
-          // localStorage에 메시지가 없으면 서버에서 처음부터 불러오기
-
-          await useChatStore.getState().fetchHistory(chatroomId, null);
-        }
-
-        // 주의: 소켓 메시지도 채팅방별로 관리되므로 초기화하지 않음
-        // 모든 메시지(매칭확인서, 채팅, 내용)가 나갔다 들어와도 유지됨
-
-        // 채팅방 정보 업데이트 (메시지 로드 후)
+        // 2. 채팅방 정보 업데이트 (먼저 설정하여 다른 로직에서 사용 가능하도록)
         useChatStore.getState().setActiveRoom(roomInfo);
 
-        // 소켓 연결 (SocketStore 내부적으로 '1'번으로 구독함)
-        console.log(" 소켓 연결 중...");
+        // 3. 메시지 초기 로드 (항상 서버에서 최신 메시지 가져오기)
+        // localStorage는 자동으로 복원되지만, 서버와 동기화는 항상 수행
+        await useChatStore.getState().fetchHistory(chatroomId, null);
+
+        // 4. 소켓 연결
+        console.log("소켓 연결 중...");
         useSocketStore.getState().connect();
         console.log("채팅방 초기화 완료");
       } catch (error) {
         console.error("채팅방 초기화 실패:", error);
-        // 에러 발생 시에도 메시지는 유지 (이미 로드된 메시지가 있으면 표시)
+        hasInitialized.current = false; // 실패 시 다시 시도할 수 있도록
         if (error && typeof error === "object" && "response" in error) {
           const axiosError = error as {
             response?: { status?: number; statusText?: string; data?: unknown };
             message?: string;
           };
-          console.error(" 에러 상세:", {
+          console.error("에러 상세:", {
             status: axiosError.response?.status,
             statusText: axiosError.response?.statusText,
             data: axiosError.response?.data,
@@ -301,55 +269,37 @@ const ChatRoom = () => {
 
     return () => {
       // cleanup: 채팅방이 바뀔 때만 소켓 연결 해제
-      // 메시지는 유지 (같은 채팅방으로 돌아올 때 메시지가 보이도록)
       console.log("cleanup:", chatroomId);
-
-      // 소켓 연결만 해제 (메시지는 유지)
       useSocketStore.getState().disconnect();
-
-      // 주의: 메시지를 초기화하지 않음
-      // 매칭확인서, 채팅, 내용 모두 나갔다 들어와도 유지됨
-      // 각 채팅방의 메시지는 독립적으로 관리됨
+      // 메시지는 유지 (같은 채팅방으로 돌아올 때 메시지가 보이도록)
     };
-  }, [chatroomId]); // 함수들을 dependency에서 제거하여 무한 루프 방지
+  }, [chatroomId]); // isLoadingHistory를 dependency에서 제거하여 무한 반복 방지
 
   /**
-   * 5. 무한 스크롤 (과거 내역 로드)
-   *
-   * 스웨거 명세에 따르면:
-   * - 응답의 nextChatId를 다음 요청의 lastChatId로 전달
-   * - hasNext가 true이면 더 불러올 메시지가 있음
+   * 5. 무한 스크롤 (과거 내역 로드) - HomePage 패턴 적용
    */
   const handleLoadMore = useCallback(async () => {
-    // 중복 요청 방지: 이미 로딩 중이거나 더 불러올 메시지가 없으면 중단
-    if (
-      isLoadingMoreRef.current ||
-      !messageHasNext ||
-      isLoadingHistory ||
-      !chatroomId ||
-      !nextChatId
-    ) {
+    // 더 가져올 데이터가 없거나 이미 로딩 중이면 종료 (HomePage 패턴)
+    if (isLoadingHistory || !messageHasNext || !chatroomId || !nextChatId) {
       return;
     }
 
-    // 로딩 시작
-    isLoadingMoreRef.current = true;
-
     try {
       // 스크롤 위치 유지를 위해 현재 스크롤 높이 저장
-      if (observerTarget.current) {
-        prevScrollHeight.current = observerTarget.current.scrollHeight;
+      const container = observerTarget.current?.parentElement;
+      if (container) {
+        prevScrollHeight.current = container.scrollHeight;
       }
 
-      console.log("이전 메시지 조회 요청:", {
+      // nextChatId를 lastChatId로 사용하여 이전 메시지 조회
+      console.log("📤 [handleLoadMore] 이전 메시지 조회 요청:", {
         chatroomId,
         lastChatId: nextChatId,
         messageHasNext,
       });
       await useChatStore.getState().fetchHistory(chatroomId, nextChatId);
-    } finally {
-      // 로딩 완료 (성공/실패 관계없이)
-      isLoadingMoreRef.current = false;
+    } catch (error) {
+      console.error("이전 메시지 로드 실패:", error);
     }
   }, [messageHasNext, isLoadingHistory, chatroomId, nextChatId]);
 
@@ -357,22 +307,30 @@ const ChatRoom = () => {
    * 6. 스크롤 위치 제어
    */
   useEffect(() => {
-    if (!observerTarget.current) return;
-
     const currentLength = allMessages.length;
-    const prevLength = prevMessagesLengthRef.current;
+    const prevLength = prevMessagesLengthRef.current || 0;
 
-    // 초기 로드 시: 메시지가 있고 첫 로드면 맨 아래로 스크롤
-    if (isInitialLoadRef.current && currentLength > 0) {
+    // 메시지가 없으면 스크롤하지 않음
+    if (currentLength === 0) {
+      return;
+    }
+
+    // 초기 로드 시: 메시지가 있고 첫 로드면 맨 아래로 스크롤 (한 번만)
+    if (
+      isInitialLoadRef.current &&
+      currentLength > 0 &&
+      !initialLoadCompleteRef.current
+    ) {
       isInitialLoadRef.current = false;
       isScrollingRef.current = true;
 
       // 다음 프레임에서 스크롤 (DOM 렌더링 완료 후)
       setTimeout(() => {
-        if (observerTarget.current && messagesEndRef.current) {
+        if (messagesEndRef.current && !initialLoadCompleteRef.current) {
           messagesEndRef.current.scrollIntoView({ behavior: "auto" });
           setTimeout(() => {
             isScrollingRef.current = false;
+            initialLoadCompleteRef.current = true; // 초기 로드 완료 표시
           }, 100);
         }
       }, 0);
@@ -381,106 +339,93 @@ const ChatRoom = () => {
       return;
     }
 
+    // 초기 로드가 완료되지 않았으면 스크롤하지 않음
+    if (!initialLoadCompleteRef.current) {
+      prevMessagesLengthRef.current = currentLength;
+      return;
+    }
+
     // 이전 메시지를 불러올 때는 스크롤 위치 유지
     if (prevScrollHeight.current > 0) {
-      const container = observerTarget.current;
-      const newScrollHeight = container.scrollHeight;
-      const heightDiff = newScrollHeight - prevScrollHeight.current;
+      const container = observerTarget.current?.parentElement;
+      if (container) {
+        const newScrollHeight = container.scrollHeight;
+        const heightDiff = newScrollHeight - prevScrollHeight.current;
 
-      // 스크롤 중 플래그 설정 (IntersectionObserver 트리거 방지)
-      isScrollingRef.current = true;
-
-      // 스크롤 위치 조정 (새로 추가된 메시지 높이만큼 위로 이동)
-      container.scrollTop = container.scrollTop + heightDiff;
-      prevScrollHeight.current = 0;
-
-      // 스크롤 완료 후 플래그 해제
-      setTimeout(() => {
-        isScrollingRef.current = false;
-      }, 100);
-    } else if (currentLength > prevLength && prevLength > 0) {
-      // 새 메시지가 하단에 추가되었을 때만 맨 아래로 스크롤
-      // (초기 로드가 아닐 때만)
-      const container = observerTarget.current;
-      const isNearBottom =
-        container.scrollHeight - container.scrollTop - container.clientHeight <
-        100; // 하단 100px 이내에 있으면
-
-      if (isNearBottom) {
+        // 스크롤 중 플래그 설정 (IntersectionObserver 트리거 방지)
         isScrollingRef.current = true;
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+
+        // 스크롤 위치 조정 (새로 추가된 메시지 높이만큼 위로 이동)
+        const newScrollTop = container.scrollTop + heightDiff;
+        container.scrollTo({ top: newScrollTop, behavior: "auto" });
+        prevScrollHeight.current = 0;
+
+        // 스크롤 완료 후 플래그 해제
         setTimeout(() => {
           isScrollingRef.current = false;
-        }, 300);
+        }, 100);
+      }
+
+      prevMessagesLengthRef.current = currentLength;
+      return;
+    }
+
+    // 새 메시지가 하단에 추가되었을 때만 맨 아래로 스크롤
+    // (초기 로드가 완료된 후, 이전 메시지 개수가 0보다 클 때만)
+    if (
+      currentLength > prevLength &&
+      prevLength > 0 &&
+      initialLoadCompleteRef.current
+    ) {
+      const container = observerTarget.current?.parentElement;
+      if (container) {
+        const isNearBottom =
+          container.scrollHeight -
+            container.scrollTop -
+            container.clientHeight <
+          100; // 하단 100px 이내에 있으면
+
+        if (isNearBottom) {
+          isScrollingRef.current = true;
+          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+          setTimeout(() => {
+            isScrollingRef.current = false;
+          }, 300);
+        }
       }
     }
 
+    // 이전 메시지 개수 업데이트
     prevMessagesLengthRef.current = currentLength;
   }, [allMessages]);
 
   /**
-   * 7. 상단 스크롤 감지
+   * 7. 상단 스크롤 감지 - HomePage 패턴 적용
    */
   useEffect(() => {
     // 더 불러올 메시지가 없으면 observer 생성하지 않음
-    if (!messageHasNext || !chatroomId) {
+    if (!observerTarget.current || !messageHasNext || !chatroomId) {
       return;
     }
 
-    let timeoutId: NodeJS.Timeout | null = null;
-
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        // 중복 실행 방지: 로딩 중이 아니고, 더 불러올 메시지가 있을 때만 실행
-        // 스크롤 중일 때는 트리거하지 않음
+      (entries) => {
+        // 요소가 화면에 나타나고, 로딩 중이 아닐 때만 다음 페이지 요청 (HomePage 패턴)
         if (
-          entry.isIntersecting &&
-          !isLoadingMoreRef.current &&
-          !isScrollingRef.current &&
-          messageHasNext &&
+          entries[0].isIntersecting &&
           !isLoadingHistory &&
-          chatroomId &&
-          nextChatId
+          !isScrollingRef.current
         ) {
-          // debounce: 짧은 시간 내 여러 번 트리거되는 것 방지
-          if (timeoutId) {
-            clearTimeout(timeoutId);
-          }
-
-          timeoutId = setTimeout(() => {
-            if (
-              !isLoadingMoreRef.current &&
-              !isScrollingRef.current &&
-              messageHasNext &&
-              !isLoadingHistory &&
-              chatroomId &&
-              nextChatId
-            ) {
-              handleLoadMore();
-            }
-          }, 200); // 200ms debounce
+          handleLoadMore();
         }
       },
-      { threshold: 0.1, rootMargin: "50px" } // rootMargin 추가로 조기 트리거 방지
+      { threshold: 1.0 } // 요소가 100% 다 보였을 때 실행 (HomePage 패턴)
     );
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current);
-    }
+    observer.observe(observerTarget.current);
 
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-      observer.disconnect();
-    };
-  }, [
-    handleLoadMore,
-    messageHasNext,
-    isLoadingHistory,
-    chatroomId,
-    nextChatId,
-  ]);
+    return () => observer.disconnect();
+  }, [handleLoadMore, messageHasNext, isLoadingHistory, chatroomId]);
 
   /**
    * 8. 메시지 전송
@@ -563,6 +508,29 @@ const ChatRoom = () => {
             );
           }
 
+          // MATCH_SUCCESS 타입 메시지는 MatchSuccessCard로 렌더링
+          if (msg.type === "MATCH_SUCCESS") {
+            return (
+              <MessageWrapper key={uniqueKey}>
+                <MatchSuccessCard message={msg} />
+              </MessageWrapper>
+            );
+          }
+
+          // MATCH_FAIL 타입 메시지는 MatchFailCard로 렌더링
+          if (msg.type === "MATCH_FAIL") {
+            return (
+              <MessageWrapper key={uniqueKey}>
+                <MatchFailCard />
+              </MessageWrapper>
+            );
+          }
+
+          // textContent가 빈 문자열이면 렌더링하지 않음 (MATCH_SUCCESS/MATCH_FAIL 등)
+          if (!msg.textContent || msg.textContent.trim() === "") {
+            return null;
+          }
+
           // 일반 텍스트 메시지
           // [중요] senderId를 number로 변환하여 비교
           // myId와 비교하여 내가 보낸 메시지인지 판단
@@ -602,20 +570,6 @@ const ChatRoom = () => {
             </MessageRow>
           );
         })}
-
-        {/* 매칭 성공 카드 (로컬스토리지에서 복원된 정보) */}
-        {/* {matchSuccessData && (
-          <MessageWrapper>
-            <MatchSuccessCard />
-          </MessageWrapper>
-        )} */}
-
-        {/* 매칭 거절 카드 */}
-        {matchFailData && (
-          <MessageWrapper>
-            <MatchFailCard />
-          </MessageWrapper>
-        )}
 
         <div
           ref={messagesEndRef}
@@ -672,7 +626,7 @@ const ChatRoomLayout = styled.div`
 
 const MessageList = styled.div`
   padding-top: 180px;
-  padding-bottom: 40px;
+  padding-bottom: 80px;
 `;
 const LoadingText = styled.div`
   text-align: center;

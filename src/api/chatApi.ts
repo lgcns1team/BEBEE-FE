@@ -111,7 +111,7 @@ export const chatApi = {
         params.lastChatId = lastChatId;
       }
 
-      console.log("📤 [chatApi.getMessages] API 요청:", {
+      console.log(" API 요청:", {
         chatroomId,
         lastChatId: params.lastChatId,
         count: params.count,

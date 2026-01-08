@@ -183,19 +183,40 @@ const MatchResultCard = ({
           </div>
           <div
             role="listitem"
-            aria-label={`보상 정보: 회당 ${
-              messageWithMetadata.unitPoints?.toLocaleString() || 0
-            }꿀, 총 ${
-              messageWithMetadata.totalPoints?.toLocaleString() || 0
-            }꿀`}
+            aria-label={
+              isDayType
+                ? `보상 정보: ${
+                    messageWithMetadata.unitPoints?.toLocaleString() || 0
+                  }꿀`
+                : `보상 정보: 회당 ${
+                    messageWithMetadata.unitPoints?.toLocaleString() || 0
+                  }꿀, 총 ${
+                    messageWithMetadata.totalPoints?.toLocaleString() || 0
+                  }꿀`
+            }
           >
-            꿀: {messageWithMetadata.unitPoints?.toLocaleString() || "-"}꿀
-            /회(총 {messageWithMetadata.totalPoints?.toLocaleString() || "-"}꿀)
-            <span className="sr-only">
-              {messageWithMetadata.unitPoints && messageWithMetadata.totalPoints
-                ? `회당 ${messageWithMetadata.unitPoints.toLocaleString()}꿀을 받으며, 총 ${messageWithMetadata.totalPoints.toLocaleString()}꿀을 받게 됩니다`
-                : "보상 정보가 없습니다"}
-            </span>
+            {isDayType ? (
+              <>
+                꿀: {messageWithMetadata.unitPoints?.toLocaleString() || "-"}꿀
+                <span className="sr-only">
+                  {messageWithMetadata.unitPoints
+                    ? `${messageWithMetadata.unitPoints.toLocaleString()}꿀을 받게 됩니다`
+                    : "보상 정보가 없습니다"}
+                </span>
+              </>
+            ) : (
+              <>
+                꿀: {messageWithMetadata.unitPoints?.toLocaleString() || "-"}꿀
+                /회(총{" "}
+                {messageWithMetadata.totalPoints?.toLocaleString() || "-"}꿀)
+                <span className="sr-only">
+                  {messageWithMetadata.unitPoints &&
+                  messageWithMetadata.totalPoints
+                    ? `회당 ${messageWithMetadata.unitPoints.toLocaleString()}꿀을 받으며, 총 ${messageWithMetadata.totalPoints.toLocaleString()}꿀을 받게 됩니다`
+                    : "보상 정보가 없습니다"}
+                </span>
+              </>
+            )}
           </div>
           {/* TODO: 카테고리 정보 추가 */}
         </Info>
@@ -242,7 +263,7 @@ export default MatchResultCard;
 
 const Card = styled.div`
   width: 100%;
-  max-width: 330px;
+  max-width: 90%;
   display: flex;
   flex-direction: column;
   gap: 16px;

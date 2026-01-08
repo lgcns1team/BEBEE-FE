@@ -599,7 +599,10 @@ const MatchFormPage = () => {
           );
 
           if (!serverHasMatchMessage) {
-            console.log("STOMP로 전송", matchConfirmationMessage);
+            console.log("📨 [MatchFormPage] STOMP로 매칭확인서 전송 시작:", {
+              matchConfirmationMessage,
+              agreementId: response.agreementId,
+            });
 
             // STOMP로 매칭확인서 전송
             const receiverId = activeRoom?.otherId
@@ -607,6 +610,22 @@ const MatchFormPage = () => {
               : null;
 
             if (receiverId && chatroomId) {
+              console.log("📨 [MatchFormPage] Socket 전송 호출:", {
+                receiverId,
+                chatroomId,
+                matchConfirmationData: {
+                  location: matchConfirmationMessage.location || "",
+                  unitPoints: matchConfirmationMessage.unitPoints || 0,
+                  totalPoints: matchConfirmationMessage.totalPoints || 0,
+                  startDate: matchConfirmationMessage.startDate,
+                  endDate: matchConfirmationMessage.endDate,
+                  scheduleDays: matchConfirmationMessage.scheduleDays,
+                  scheduleStartTimes:
+                    matchConfirmationMessage.scheduleStartTimes,
+                  scheduleEndTimes: matchConfirmationMessage.scheduleEndTimes,
+                },
+              });
+
               useSocketStore
                 .getState()
                 .sendMatchConfirmation(receiverId, chatroomId, {
@@ -622,8 +641,8 @@ const MatchFormPage = () => {
                 });
             } else {
               console.warn(
-                "receiverId 또는 chatroomId가 없어 STOMP 전송 실패",
-                { receiverId, chatroomId }
+                "⚠️ [MatchFormPage] receiverId 또는 chatroomId가 없어 STOMP 전송 실패",
+                { receiverId, chatroomId, activeRoom }
               );
             }
 
