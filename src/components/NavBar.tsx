@@ -6,7 +6,7 @@ const NavBar = () => {
   const location = useLocation();
 
   const navItems = [
-    { label: "홈", path: "/", icon: IoHomeOutline },
+    { label: "홈", path: "/home", icon: IoHomeOutline },
     { label: "동네지도", path: "/map", icon: IoMapOutline },
     { label: "매칭현황", path: "/engagements", icon: IoFolderOutline },
     { label: "채팅", path: "/chat", icon: IoChatbubbleOutline },

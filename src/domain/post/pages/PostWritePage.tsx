@@ -127,9 +127,7 @@ const PostWritePage = () => {
       console.error("파일 업로드 실패:", error);
       alert("파일 업로드에 실패했습니다. 다시 시도해주세요.");
       // 업로드 실패 시 미리보기도 제거
-      setImagePreviews((prev) =>
-        prev.slice(0, prev.length - fileArray.length)
-      );
+      setImagePreviews((prev) => prev.slice(0, prev.length - fileArray.length));
     }
 
     // input 초기화 (같은 파일 다시 선택 가능하도록)
@@ -150,7 +148,7 @@ const PostWritePage = () => {
 
   return (
     <ScrollWrapper>
-      <Header title="게시글 작성" onBack={() => navigate("/")} showBack />
+      <Header title="게시글 작성" onBack={() => navigate("/home")} showBack />
       {/* 헬프타입 선택 */}
 
       <Container>
