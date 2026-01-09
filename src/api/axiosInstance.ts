@@ -13,7 +13,7 @@ import { useUserStore } from "../store/useUserStore";
 //localStorage.setItem("accessToken", TEMP_TOKEN);
 
 export const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://be-bee.link",
+  baseURL: import.meta.env.VITE_API_URL || "https://api.be-bee.link",
   headers: {
     "Content-Type": "application/json",
   },
