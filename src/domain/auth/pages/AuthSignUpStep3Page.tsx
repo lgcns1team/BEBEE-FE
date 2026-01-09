@@ -56,10 +56,11 @@ const AuthSignUpStep3Page = () => {
       gender,
       phoneNumber,
       addressRoad: address,
-      latitude: 0,
-      longitude: 0,
-      districtCode: "",
+      latitude,
+      longitude,
+      districtCode,
     });
+    console.log("실제 Store 저장 결과:", useAuthSignUpForm.getState());
     navigate("/signup/step4");
   };
 
