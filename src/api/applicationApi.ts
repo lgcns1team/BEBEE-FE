@@ -8,10 +8,11 @@ import type {
 
 // 장애인 유저가 본인이 작성한 게시글 목록 조회
 
-export const getApplicationPosts = (params: { memberId: string }) => {
+// export const getApplicationPosts = (params: { memberId: string }) => {
+export const getApplicationPosts = () => {
   return instance.get<GetApplicationPostsResponse>(
-    "/match/helper-applications/posts",
-    { params }
+    "/match/helper-applications/posts"
+    // { params }
   );
 };
 
@@ -21,16 +22,10 @@ export const applyHelper = (body: ApplyHelperRequest) => {
 };
 // 특정 게시글의 지원자 목록 조회
 
-export const getApplicantsByPostId = (params: {
-  postId: string;
-  memberId: string;
-}) => {
-  const { postId, memberId } = params;
+export const getApplicantsByPostId = (params: { postId: string }) => {
+  const { postId } = params;
 
   return instance.get<GetApplicantsResponse>(
-    `/match/helper-applications/posts/${postId}/applicants`,
-    {
-      params: { memberId },
-    }
+    `/match/helper-applications/posts/${postId}/applicants`
   );
 };

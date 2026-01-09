@@ -96,7 +96,7 @@ const formatEngagementDate = (
    Component
 ====================== */
 const PostStatusItem = ({ posts, hideMatched = false }: Props) => {
-  const MEMBER_ID = "100";
+  // const MEMBER_ID = "100";
   const navigate = useNavigate();
 
   const filteredItems = hideMatched
@@ -110,7 +110,8 @@ const PostStatusItem = ({ posts, hideMatched = false }: Props) => {
   ) => {
     console.log("postId:", postId);
     navigate(`/applicant/${postId}`, {
-      state: { headerTitle: title, memberId: MEMBER_ID, helpCategoryIds },
+      // state: { headerTitle: title, memberId: MEMBER_ID, helpCategoryIds },
+      state: { headerTitle: title, helpCategoryIds },
     });
   };
 
