@@ -1,71 +1,3 @@
-// import { useEffect, useRef } from "react";
-// import {
-//   loadPaymentWidget,
-//   type PaymentWidgetInstance,
-// } from "@tosspayments/payment-widget-sdk";
-// import { useUserStore } from "../../../store/useUserStore";
-// import { useLocation } from "react-router-dom";
-
-// type CheckoutState = {
-//   orderId: string;
-//   amount: number;
-//   honey: number;
-// };
-
-// export default function Checkout() {
-//   // const memberId = useUserStore((s) => s.user.memberId);
-//   const memberId = "100";
-//   const location = useLocation();
-//   const clientKey = import.meta.env.VITE_TOSS_PAYMENTS_CLIENT_KEY;
-//   const customerKey = String(memberId);
-//   const state = location.state as CheckoutState;
-//   const paymentWidgetRef = useRef<PaymentWidgetInstance | null>(null);
-//   // useEffect 중복 렌더링 방지
-//   const didInitWidget = useRef(false);
-//   useEffect(() => {
-//     if (didInitWidget.current) return;
-//     didInitWidget.current = true;
-//     (async () => {
-//       const paymentWidget = await loadPaymentWidget(clientKey, customerKey);
-
-//       paymentWidget.renderPaymentMethods("#payment-widget", {
-//         value: state.amount,
-//       });
-//       paymentWidgetRef.current = paymentWidget;
-//     })();
-//   }, [clientKey, customerKey, state.amount]);
-
-//   const handleRequestPayment = async () => {
-//     const paymentWidget = paymentWidgetRef.current;
-
-//     const origin = window.location.origin;
-
-//     try {
-//       await paymentWidget.requestPayment({
-//         orderId: state.orderId,
-//         orderName: `꿀 충전 ${state.honey}꿀`,
-//         successUrl: `${origin}/payments/success`,
-//         failUrl: `${origin}/payments/fail`,
-//       });
-//     } catch (e) {
-//       console.log(e);
-//       alert("결제 요청에 실패했어요.");
-//     }
-//   };
-
-//   return (
-//     <div className="App">
-//       <h1>꿀 결제하기</h1>
-
-//       <p>
-//         {state.honey.toLocaleString()}꿀 / {state.amount.toLocaleString()}원
-//       </p>
-//       <div id="payment-widget" />
-//       <button onClick={handleRequestPayment}>결제하기</button>
-//     </div>
-//   );
-// }
-
 import { useEffect, useMemo, useRef, useState } from "react";
 // import { loadTossPayments } from "@tosspayments/payment-widget-sdk";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
@@ -73,13 +5,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { preparePayment } from "../../../api/paymentApi";
 import "../style/payStyle.css";
 type CheckoutState = {
-  amount: number;
-  honey: number; // 원화 (honey * 100 으로 계산한 값)
+  amount: number; // 실제 결제할 원화 금액
+  honey: number; // 충전할 꿀의 양
 };
 
 const clientKey = import.meta.env.VITE_TOSS_PAYMENTS_CLIENT_KEY;
 
 export function CheckoutPage() {
+  // useLocation: 이전페이지에서 navigate("/checkout", { state }) 로 넘긴 state 읽기
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as CheckoutState;
@@ -88,16 +21,21 @@ export function CheckoutPage() {
 
   const origin = useMemo(() => window.location.origin, []);
   const paymentMethodWidgetRef = useRef(null);
-
+  // 결제하기 버튼을 눌러도 괜찮은 상태인지 체크!
   const [ready, setReady] = useState(false);
+
+  // 토스 결제 위젯 SDK에서 만든 widgets 객체를 저장
   const [widgets, setWidgets] = useState(null);
 
+  // 백엔드 prepared 성공 결과를 저장
   const [prepared, setPrepared] = useState<{
     orderId: string;
     amount: number;
   } | null>(null);
 
   // state 방어
+  // 페이지 들어오면 state가 정상인지 확인
+  // state가 없거나 , amount가 숫자가 아니거나, amout가 0 이하이면 이전페이지로 돌아가기
   useEffect(() => {
     if (!state || !Number.isFinite(state.amount) || state.amount <= 0) {
       navigate(-1);
@@ -106,7 +44,8 @@ export function CheckoutPage() {
 
   useEffect(() => {
     let canceled = false;
-
+    // 토스 SDK 초기화
+    // clientKey로 초기화 해서 tossPayments 객체를 얻음
     async function fetchPaymentWidgets() {
       const tossPayments = await loadTossPayments(clientKey);
       const w = tossPayments.widgets({ customerKey });
@@ -155,7 +94,8 @@ export function CheckoutPage() {
           currency: "KRW",
           value: prepared.amount,
         });
-
+        // 결제 수단 UI를 #payment-method에 렌더
+        // 약관 UI를 렌더
         const [paymentMethodWidget] = await Promise.all([
           widgets.renderPaymentMethods({
             selector: "#payment-method",
@@ -188,7 +128,7 @@ export function CheckoutPage() {
       canceled = true;
     };
   }, [prepared, widgets]);
-
+  // 결제 요청 버튼 핸들러
   const handlePay = async () => {
     if (!widgets || !prepared || !state) return;
 
@@ -196,7 +136,9 @@ export function CheckoutPage() {
       const selectedPaymentMethod =
         await paymentMethodWidgetRef.current?.getSelectedPaymentMethod?.();
       console.log("selectedPaymentMethod:", selectedPaymentMethod);
-
+      // 실제 결제창 흐름
+      // 성공하면 successUrl로 리다이렉트 되면서 paymentKey, orderId, amount 같은 쿼리가 붙음
+      // 실패하면 failUrl로 이동
       await widgets.requestPayment({
         orderId: prepared.orderId,
         orderName: `꿀 충전 ${state.honey}꿀`,

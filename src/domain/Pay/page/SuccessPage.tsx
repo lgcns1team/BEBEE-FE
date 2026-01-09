@@ -1,58 +1,14 @@
-// import { useEffect, useRef } from "react";
-// import { useNavigate, useSearchParams } from "react-router-dom";
-// import { confirmPayment } from "../../../api/paymentApi";
-
-// export default function PaymentSuccessPage() {
-//   const [params] = useSearchParams();
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     const paymentKey = params.get("paymentKey");
-//     const orderId = params.get("orderId");
-//     const amountStr = params.get("amount");
-
-//     if (!paymentKey || !orderId || !amountStr) {
-//       navigate("/payments/fail");
-//       return;
-//     }
-
-//     const amount = Number(amountStr);
-//     if (!Number.isFinite(amount)) {
-//       navigate("/payments/fail");
-//       return;
-//     }
-
-//     const dedupKey = `toss_confirmed:${orderId}:${paymentKey}`;
-//     if (sessionStorage.getItem(dedupKey) === "1") {
-//       return;
-//     }
-//     sessionStorage.setItem(dedupKey, "1");
-//     (async () => {
-//       try {
-//         await confirmPayment({ paymentKey, orderId, amount });
-//         alert("결제가 완료 되었습니다!!");
-//         navigate("/mypage", { replace: true });
-//       } catch (e) {
-//         sessionStorage.removeItem(dedupKey);
-
-//         console.log("status", e?.response?.status);
-//         console.log("data", e?.response?.data);
-//         console.error(e);
-//         navigate("/payments/fail", { replace: true });
-//       }
-//     })();
-//   }, [navigate, params]);
-
-//   return <div style={{ padding: 16 }}>결제 승인 중...</div>;
-// }
-
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import "../style/payStyle.css";
 import { confirmPayment } from "../../../api/paymentApi";
+import { getCurrentHoney } from "../../../api/walletApi";
+import { useWalletStore } from "../store/useWalletStore";
+import { useWalletActions } from "../hooks/useWalletActions";
+
 type ConfirmResponse = {
   paymentKey: string;
-  currentBalance?: number;
+  currentBalance?: number; // 현재 잔액
   paymentId: string;
 };
 
@@ -69,6 +25,8 @@ export function SuccessPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [confirmData, setConfirmData] = useState<ConfirmResponse | null>(null);
+  const setCurrentHoney = useWalletStore((s) => s.setCurrentHoney);
+  const { refreshCurrentHoney } = useWalletActions();
   useEffect(() => {
     if (!paymentKey || !orderId || !Number.isFinite(amount)) {
       navigate("/payments/fail", { replace: true });
@@ -91,6 +49,7 @@ export function SuccessPage() {
     setErrorMsg(null);
 
     try {
+      // 결제 승인
       const data = (await confirmPayment({
         paymentKey,
         orderId,
@@ -99,6 +58,10 @@ export function SuccessPage() {
 
       setConfirmData(data);
       setIsConfirmed(true);
+
+      const currentHoneyRes = await getCurrentHoney();
+      setCurrentHoney(currentHoneyRes.currentHoney);
+      await refreshCurrentHoney();
       alert("결제가 완료 되었습니다!");
       navigate("/mypage", { replace: true });
     } catch (e: any) {
@@ -140,18 +103,6 @@ export function SuccessPage() {
               <span className="response-label">주문번호</span>
               <span className="response-text">{orderId}</span>
             </div>
-
-            <div className="flex justify-between">
-              <span className="response-label">paymentKey</span>
-              <span className="response-text">{paymentKey}</span>
-            </div>
-
-            {confirmData?.paymentId && (
-              <div className="flex justify-between">
-                <span className="response-label">paymentId</span>
-                <span className="response-text">{confirmData.paymentId}</span>
-              </div>
-            )}
 
             {typeof confirmData?.currentBalance === "number" && (
               <div className="flex justify-between">
