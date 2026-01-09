@@ -35,11 +35,14 @@ jobs:
       # 빌드
       - name: Build
         run: pnpm build
+        env:
+          VITE_KAKAO_MAP_KEY: ${{ secrets.VITE_KAKAO_MAP_KEY }}
+          VITE_TOSS_PAYMENTS_CLIENT_KEY: ${{ secrets.VITE_TOSS_PAYMENTS_CLIENT_KEY }}
 
         # env 생성
-      - name: Create .env file
-        run: |
-          echo "VITE_KAKAO_MAP_KEY=${{ secrets.VITE_KAKAO_MAP_KEY }}" >> .env
+      # - name: Create .env file
+      #   run: |
+      #     echo "VITE_KAKAO_MAP_KEY=${{ secrets.VITE_KAKAO_MAP_KEY }}" >> .env
 
       # 빌드
       - name: Build
