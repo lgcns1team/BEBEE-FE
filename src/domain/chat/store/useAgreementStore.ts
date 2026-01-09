@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import type { AgreementRequest } from "../agreement.types";
-import { createAgreement } from "../api/agreementApi";
+import type { AgreementRequest } from "../types/match.types";
+import { createAgreement } from "../../../api/matchApi";
 
 interface AgreementState {
   isLoading: boolean;

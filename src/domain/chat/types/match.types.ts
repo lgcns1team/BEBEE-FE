@@ -1,4 +1,4 @@
-import type { DayOfWeek } from "../../types/common.types";
+import type { DayOfWeek } from "../../../types/common.types";
 
 export type HelpType = "DAY" | "TERM";
 

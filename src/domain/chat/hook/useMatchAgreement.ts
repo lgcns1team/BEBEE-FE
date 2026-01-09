@@ -1,296 +1,56 @@
 import { useParams } from "react-router-dom";
-import { useChatStore } from "../store/useChatStore";
-import { confirmAgreement, refuseAgreement } from "../api/agreementApi";
-import { getCurrentHoney } from "../../../api/walletApi";
-import type { ChatMessage } from "../chat.types";
-import type {
-  AgreementConfirmRequest,
-  AgreementRefuseRequest,
-} from "../agreement.types";
-
+import { confirmAgreement, refuseAgreement } from "../../../api/matchApi";
+import type { ChatMessage } from "../types/chat.types";
+import { getErrorMessage } from "../../../utils/error";
+import { useToastStore } from "../../../store/useToastStore";
 interface UseMatchAgreementProps {
   message: ChatMessage;
-  onAcceptSuccess?: (successData: ChatMessage) => void;
-  onRefuseSuccess?: () => void;
 }
 
-export const useMatchAgreement = ({
-  message,
-  onAcceptSuccess,
-  onRefuseSuccess,
-}: UseMatchAgreementProps) => {
+export const useMatchAgreement = ({ message }: UseMatchAgreementProps) => {
   const { chatroomId } = useParams<{ chatroomId: string }>();
-  const { getMessageWithMetadata } = useChatStore();
+  const { showToast } = useToastStore();
 
-  // 메타데이터가 병합된 메시지 사용
-  const messageWithMetadata = getMessageWithMetadata(message);
-
+  // [수락 핸들러]
   const handleAccept = async () => {
-    if (!messageWithMetadata.agreementId || !chatroomId) {
-      console.error("매칭 확인서 수락 실패: 필수 정보가 없습니다.");
-      alert("매칭 확인서 수락에 필요한 정보가 없습니다.");
-      return;
-    }
-
-    // 매칭 확인서에서 필요한 데이터 확인 (메타데이터 병합된 메시지 사용)
-    if (
-      !messageWithMetadata.postId ||
-      !messageWithMetadata.helperId ||
-      !messageWithMetadata.disabledId ||
-      !messageWithMetadata.title
-    ) {
-      console.error(
-        "매칭 확인서 수락 실패: 매칭 확인서에 필수 정보가 없습니다.",
-        {
-          postId: messageWithMetadata.postId,
-          helperId: messageWithMetadata.helperId,
-          disabledId: messageWithMetadata.disabledId,
-          title: messageWithMetadata.title,
-          agreementId: messageWithMetadata.agreementId,
-        }
-      );
-      alert("매칭 확인서에 필요한 정보가 없습니다.");
-      return;
-    }
+    if (!message.agreementId || !chatroomId)
+      return alert("필수 정보가 누락되었습니다.");
 
     try {
-      console.log(
-        "매칭 확인서 수락 (확인서id):",
-        messageWithMetadata.agreementId
-      );
-
-      if (!chatroomId) {
-        console.error("chatroomId가 없습니다.");
-        alert("채팅방 정보가 없습니다.");
-        return;
-      }
-
-      const confirmRequest: AgreementConfirmRequest = {
-        disabledId: messageWithMetadata.disabledId,
-        postId: messageWithMetadata.postId,
-        title: messageWithMetadata.title,
+      await confirmAgreement(message.agreementId, {
+        disabledId: message.disabledId!,
+        postId: message.postId!,
+        title: message.title!,
         chatroomId: chatroomId,
-      };
+      });
 
-      console.log("🔵 [handleAccept] 수락 요청 데이터:", confirmRequest);
-
-      const response = await confirmAgreement(
-        messageWithMetadata.agreementId,
-        confirmRequest
-      );
-
-      console.log("✅ 매칭 확인서 수락 성공");
-      console.log(" 응답 객체:", response);
-      console.log(" matchId:", response.matchId);
-
-      // 나눔이 아닌 경우 매칭확인서에 입력된 꿀 값 사용
-      const isVolunteer = messageWithMetadata.isVolunteer ?? false;
-      // DAY면 unitPoints, TERM이면 totalPoints (매칭확인서 작성 시 입력한 값)
-      const usedHoney = !isVolunteer
-        ? messageWithMetadata.matchType === "DAY"
-          ? messageWithMetadata.unitPoints ?? 0
-          : messageWithMetadata.totalPoints ?? 0
-        : 0;
-
-      // 현재 꿀 잔액 조회 (영수증 표시용)
-      let currentHoney: number | undefined;
-      try {
-        if (!isVolunteer && usedHoney > 0) {
-          const honeyResponse = await getCurrentHoney();
-          currentHoney = honeyResponse.currentHoney;
-          console.log("현재 꿀 잔액:", currentHoney);
-        }
-      } catch (error) {
-        console.error("꿀 잔액 조회 실패:", error);
-        // 잔액 조회 실패해도 메시지는 생성
-      }
-
-      // 매칭 성공 데이터 생성 (메타데이터 병합된 메시지 사용)
-      const timestamp = new Date().getTime();
-      const successData: ChatMessage = {
-        id: `match-success-${timestamp}`,
-        senderId:
-          messageWithMetadata.disabledId || messageWithMetadata.senderId,
-        textContent: "", // 채팅방에 텍스트 메시지로 표시하지 않음 (MatchSuccessCard만 표시)
-        type: "MATCH_SUCCESS",
-        attachments: [],
-        agreementId: messageWithMetadata.agreementId,
-        matchType: messageWithMetadata.matchType,
-        startDate: messageWithMetadata.startDate,
-        endDate: messageWithMetadata.endDate,
-        scheduleDays: messageWithMetadata.scheduleDays,
-        scheduleStartTimes: messageWithMetadata.scheduleStartTimes,
-        scheduleEndTimes: messageWithMetadata.scheduleEndTimes,
-        location: messageWithMetadata.location,
-        unitPoints: messageWithMetadata.unitPoints,
-        totalPoints: messageWithMetadata.totalPoints,
-        createdAt: new Date().toISOString(),
-        chatroomId: chatroomId,
-        postId: messageWithMetadata.postId,
-        title: messageWithMetadata.title,
-        helperId: messageWithMetadata.helperId,
-        disabledId: messageWithMetadata.disabledId,
-        isVolunteer,
-        usedHoney, // 매칭확인서에 입력된 꿀 값
-        currentHoney, // 현재 꿀 잔액 (영수증 표시용)
-      };
-
-      // 스토어에 메시지로 추가 (배포 환경에서도 유지되도록)
-      useChatStore.getState().addMessage(successData, chatroomId);
-
-      // localStorage에 저장
-      localStorage.setItem(
-        `bebee-match-success-${chatroomId}`,
-        JSON.stringify(successData)
-      );
-
-      // 부모 컴포넌트에 알림
-      if (onAcceptSuccess) {
-        onAcceptSuccess(successData);
-      }
-
-      alert("매칭이 성공적으로 수락되었습니다!");
+      // 2. 이후 로직(메시지 추가, 상태 변경 등)은 소켓 수신 시 자동으로 처리됨
+      console.log("매칭 수락 요청 완료");
     } catch (error) {
-      console.error(" 매칭 확인서 수락 실패:", error);
-
-      // 서버 응답 상세 확인
-      let errorMessage = "이미 매칭이 완료되었습니다";
-
-      if (error && typeof error === "object" && "response" in error) {
-        const axiosError = error as {
-          response?: {
-            status?: number;
-            data?: { message?: string; e?: string };
-          };
-        };
-
-        if (axiosError.response?.data?.message) {
-          errorMessage = axiosError.response.data.message;
-        } else if (axiosError.response?.data) {
-          console.error("서버 응답 데이터:", axiosError.response.data);
-        }
-
-        console.error("서버 응답 상태:", axiosError.response?.status);
-        console.error("서버 응답 데이터:", axiosError.response?.data);
-      } else if (error && typeof error === "object" && "request" in error) {
-        console.error("요청은 전송되었지만 응답을 받지 못함:", error.request);
-      } else if (error instanceof Error) {
-        console.error("요청 설정 중 오류:", error.message);
-      }
-
-      alert(errorMessage);
+      showToast(
+        getErrorMessage(error, "매칭 수락 중 오류가 발생했습니다."),
+        "ERROR"
+      );
     }
   };
 
-  //매칭 확인서 거절
+  // [거절 핸들러]
   const handleRefuse = async () => {
-    if (!messageWithMetadata.agreementId || !chatroomId) {
-      console.error("매칭 확인서 거절 실패: 필수 정보가 없습니다.");
-      alert("매칭 확인서 거절 필수 정보가 누락되었습니다.");
-      return;
-    }
-
-    // 매칭 확인서에서 필요한 데이터 확인
-    if (!messageWithMetadata.disabledId) {
-      console.error(
-        "매칭 확인서 거절 실패: 매칭 확인서에 필수 정보가 없습니다.",
-        {
-          disabledId: messageWithMetadata.disabledId,
-          agreementId: messageWithMetadata.agreementId,
-        }
-      );
-      alert("매칭 확인서에 필요한 정보가 없습니다.");
-      return;
-    }
+    if (!message.agreementId || !chatroomId) return;
 
     try {
-      console.log("매칭 확인서 거절 시작:", messageWithMetadata.agreementId);
-      console.log(
-        "🔵 [handleRefuse] chatroomId 확인:",
-        chatroomId,
-        typeof chatroomId
-      );
-
-      const refuseRequest: AgreementRefuseRequest = {
-        disabledId: messageWithMetadata.disabledId,
+      await refuseAgreement(message.agreementId, {
+        disabledId: message.disabledId!,
         chatroomId: chatroomId,
-      };
-
-      console.log("거절 요청 데이터:", refuseRequest);
-
-      const response = await refuseAgreement(
-        messageWithMetadata.agreementId,
-        refuseRequest
-      );
-
-      console.log("✅ 매칭 확인서 거절 성공");
-      console.log("답 객체:", response);
-
-      // 매칭 실패 데이터 생성 및 store에 저장
-      const timestamp = new Date().getTime();
-      const failData: ChatMessage = {
-        id: `match-fail-${timestamp}`,
-        senderId:
-          messageWithMetadata.disabledId || messageWithMetadata.senderId,
-        textContent: "", // 채팅방에 텍스트 메시지로 표시하지 않음 (MatchFailCard만 표시)
-        type: "MATCH_FAIL",
-        attachments: [],
-        agreementId: messageWithMetadata.agreementId,
-        createdAt: new Date().toISOString(),
-        chatroomId: chatroomId,
-        postId: messageWithMetadata.postId,
-        title: messageWithMetadata.title,
-        helperId: messageWithMetadata.helperId,
-        disabledId: messageWithMetadata.disabledId,
-      };
-
-      // 스토어에 메시지로 추가 (배포 환경에서도 유지되도록)
-      useChatStore.getState().addMessage(failData, chatroomId);
-
-      // localStorage에 저장
-      localStorage.setItem(
-        `bebee-match-fail-${chatroomId}`,
-        JSON.stringify(failData)
-      );
-
-      // 부모 컴포넌트에 알림
-      if (onRefuseSuccess) {
-        onRefuseSuccess();
-      }
+      });
+      console.log("매칭 거절 요청 완료");
     } catch (error) {
-      console.error("❌ 매칭 확인서 거절 실패:", error);
-
-      // 서버 응답 상세 확인
-      let errorMessage = "이미 매칭이 완료되었습니다.";
-
-      if (error && typeof error === "object" && "response" in error) {
-        const axiosError = error as {
-          response?: {
-            status?: number;
-            data?: { message?: string; e?: string };
-          };
-        };
-
-        if (axiosError.response?.data?.message) {
-          errorMessage = axiosError.response.data.message;
-        } else if (axiosError.response?.data) {
-          console.error("서버 응답 데이터:", axiosError.response.data);
-        }
-
-        console.error("서버 응답 상태:", axiosError.response?.status);
-        console.error("서버 응답 데이터:", axiosError.response?.data);
-      } else if (error && typeof error === "object" && "request" in error) {
-        console.error(" 요청은 전송되었지만 응답을 받지 못함:", error.request);
-      } else if (error instanceof Error) {
-        console.error("요청 설정 중 오류:", error.message);
-      }
-
-      alert(errorMessage);
+      showToast(
+        getErrorMessage(error, "매칭 거절 중 오류가 발생했습니다."),
+        "ERROR"
+      );
     }
   };
 
-  return {
-    handleAccept,
-    handleRefuse,
-  };
+  return { handleAccept, handleRefuse };
 };
