@@ -1,3 +1,4 @@
+import type { DayOfWeek } from "./common.types";
 export type EngagementType = "DAY" | "TERM";
 
 export interface UserSummary {
@@ -36,37 +37,65 @@ export interface TermEngagementTime {
 
 export type EngagementTime = DayEngagementTime | TermEngagementTime;
 
+export type Status =
+  | "INACTIVE"
+  | "ACTIVE"
+  | "COMPLETED"
+  | "REVIEW_ACTIVE"
+  | "REVIEW_COMPLETED";
+
 export interface Engagement {
   myRole: "DISABLED" | "HELPER";
+  engagementId: string;
+  matchId: string;
   agreementId: string;
-  // engagementId: string;
-  postId: string;
+  otherId: string;
+  otherNickname: string;
+  thumbnailImageUrl: string;
   title: string;
-  thumbnailImageUrl?: string;
-
-  helper: UserSummary;
-  disabled: UserSummary;
-
-  confirmationDate: string;
+  chatRoomId: string;
+  region: string;
+  dayOfWeeks: DayOfWeek[];
+  date: string;
+  status: Status;
+  helpCategoryIds: number[];
   type: EngagementType;
-
-  helpCategories: HelpCategory[];
-
-  isVolunteer: boolean;
   unitHoney: number;
   totalHoney: number;
-  region: string;
-
   engagementTime: EngagementTime;
-
-  isDayComplete: boolean;
-  isTermComplete: boolean;
-  isLastActivity?: boolean;
-  chatRoomId: string;
 }
 
 // 활동 완료 체크 응답
 export interface getEngagementCompleteResponse {
-  status: "COMPLETED" | "PENDING";
-  isLastActivity: boolean;
+  status: "COMPLETED" | "REVIEW_ACTIVE";
+  isLastEngagement: boolean;
+}
+
+export interface EngagementSchedule {
+  dayOfWeek: DayOfWeek;
+  startTime: string;
+  endTime: string;
+}
+
+export interface EngagementDetail {
+  agreementId: string;
+  helpType: EngagementType;
+
+  // DAY
+  date: string | null;
+
+  // TERM
+  startDate: string | null;
+  endDate: string | null;
+
+  schedules: EngagementSchedule[];
+
+  unitHoney: number;
+  totalHoney: number;
+
+  otherId: string;
+  otherProfileImageUrl: string;
+  otherNickname: string;
+  otherGender: "MALE" | "FEMALE";
+  otherAgeGroup: number;
 }

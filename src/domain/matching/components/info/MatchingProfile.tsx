@@ -1,25 +1,25 @@
 import styled from "styled-components";
 import { SlArrowRight } from "react-icons/sl";
-import type { Engagement } from "../../../../types/match.type";
+import type { EngagementDetail } from "../../../../types/match.type";
 interface Props {
-  engagement: Engagement;
+  engagement: EngagementDetail;
 }
 
 const MatchingProfile = ({ engagement }: Props) => {
-  const gender = engagement.helper.gender === "MALE" ? "남성" : "여성";
+  const gender = engagement.otherGender;
   return (
     <Wrapper>
       <Left>
         <ProfileImage
-          src={engagement.helper.profileImageUrl}
+          src={engagement.otherProfileImageUrl}
           alt="사용자 프로필 사진"
         />
 
         <InfoBox>
-          <Name aria-label="닉네임">{engagement.helper.nickname}</Name>
+          <Name aria-label="닉네임">{engagement.otherNickname}</Name>
           <SubInfo aria-label="성별 및 나이">
             {gender}&nbsp;&nbsp;·&nbsp;&nbsp;
-            {engagement.helper.ageGroup}대
+            {engagement.otherAgeGroup}대
           </SubInfo>
         </InfoBox>
       </Left>

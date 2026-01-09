@@ -1,39 +1,34 @@
 import styled from "styled-components";
 import HelpInfo from "./HelpInfo";
 import MatchingProfile from "./MatchingProfile";
-import type {
-  DayEngagementTime,
-  Engagement,
-  TermEngagementTime,
-} from "../../../../types/match.type";
-
-const formatDate = (date: string) => {
-  const d = new Date(date);
-  return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
-};
+import type { EngagementDetail } from "../../../../types/match.type";
+import { formatDateToDot } from "../../../../types/common.types";
 
 interface Props {
-  engagement: Engagement;
+  engagement: EngagementDetail;
 }
 
 const MatchingInfo = ({ engagement }: Props) => {
-  const isOneDay = engagement.type === "DAY";
+  const isOneDay = engagement.helpType === "DAY";
+
+  // 상단 날짜 텍스트 생성
+  const renderDateText = () => {
+    if (isOneDay && engagement.date) {
+      return formatDateToDot(engagement.date);
+    }
+
+    if (!isOneDay && engagement.startDate && engagement.endDate) {
+      return `${formatDateToDot(engagement.startDate)} ~ ${formatDateToDot(
+        engagement.endDate
+      )}`;
+    }
+
+    return "";
+  };
   return (
     <>
       <MatchingDate aria-label="활동이 진행되는 날짜">
-        {isOneDay ? (
-          formatDate((engagement.engagementTime as DayEngagementTime).date)
-        ) : (
-          <>
-            {formatDate(
-              (engagement.engagementTime as TermEngagementTime).startDate
-            )}
-            {" ~ "}
-            {formatDate(
-              (engagement.engagementTime as TermEngagementTime).endDate
-            )}
-          </>
-        )}
+        {renderDateText()}
       </MatchingDate>
 
       <Wrapper>

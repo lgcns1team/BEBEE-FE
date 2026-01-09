@@ -1,9 +1,5 @@
 import styled from "styled-components";
-import type {
-  Engagement,
-  DayEngagementTime,
-  TermEngagementTime,
-} from "../../../../types/match.type";
+import type { EngagementDetail } from "../../../../types/match.type";
 import {
   DAY_OF_WEEK_FULL_MAP,
   formatDateToDot,
@@ -11,11 +7,11 @@ import {
 } from "../../../../types/common.types";
 
 interface Props {
-  engagement: Engagement;
+  engagement: EngagementDetail;
 }
 
 const HelpInfo = ({ engagement }: Props) => {
-  const isOneDay = engagement.type === "DAY";
+  const isOneDay = engagement.helpType === "DAY";
 
   return (
     <Wrapper>
@@ -29,22 +25,15 @@ const HelpInfo = ({ engagement }: Props) => {
       <Row>
         <Label aria-label="도움 날짜">날짜</Label>
         <Value>
-          {isOneDay ? (
-            formatDateToDot((engagement.engagementTime as DayEngagementTime).date)
-          ) : (
-            <>
-              {formatDateToDot(
-                (engagement.engagementTime as TermEngagementTime).startDate
-              )}
-              {" ~ "}
-              {formatDateToDot(
-                (engagement.engagementTime as TermEngagementTime).endDate
-              )}
-            </>
-          )}
+          {isOneDay && engagement.date
+            ? formatDateToDot(engagement.date)
+            : engagement.startDate && engagement.endDate
+            ? `${formatDateToDot(engagement.startDate)} ~ ${formatDateToDot(
+                engagement.endDate
+              )}`
+            : "-"}
         </Value>
       </Row>
-
       {/* 시간 / 일정 */}
       <Row>
         <Label aria-label="활동 시간 및 일정">
@@ -53,31 +42,22 @@ const HelpInfo = ({ engagement }: Props) => {
         <Value>
           {isOneDay ? (
             <>
-              {formatTimeToHHmm(
-                (engagement.engagementTime as DayEngagementTime).schedule
-                  .startTime
-              )}
-              {" ~ "}
-              {formatTimeToHHmm(
-                (engagement.engagementTime as DayEngagementTime).schedule
-                  .endTime
-              )}
+              {formatTimeToHHmm(engagement.schedules[0].startTime)} ~{" "}
+              {formatTimeToHHmm(engagement.schedules[0].endTime)}
             </>
           ) : (
             <ScheduleList>
-              {(engagement.engagementTime as TermEngagementTime).schedules.map(
-                (item, idx) => (
-                  <ScheduleItem key={idx}>
-                    {DAY_OF_WEEK_FULL_MAP[item.dayOfWeek]} · {formatTimeToHHmm(item.startTime)}{" "}
-                    ~ {formatTimeToHHmm(item.endTime)}
-                  </ScheduleItem>
-                )
-              )}
+              {engagement.schedules.map((item, idx) => (
+                <ScheduleItem key={idx}>
+                  {DAY_OF_WEEK_FULL_MAP[item.dayOfWeek]} ·{" "}
+                  {formatTimeToHHmm(item.startTime)} ~{" "}
+                  {formatTimeToHHmm(item.endTime)}
+                </ScheduleItem>
+              ))}
             </ScheduleList>
           )}
         </Value>
       </Row>
-
       {/* 제공 꿀 */}
       <Row>
         <Label>제공 꿀</Label>
@@ -94,10 +74,10 @@ const HelpInfo = ({ engagement }: Props) => {
       </Row>
 
       {/* 장소 */}
-      <Row>
+      {/* <Row>
         <Label aria-label="활동 시 만남 장소">만남 장소</Label>
-        <Value>{engagement.region}</Value>
-      </Row>
+        <Value>{engagement.}</Value>
+      </Row> */}
     </Wrapper>
   );
 };

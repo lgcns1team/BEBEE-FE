@@ -14,74 +14,44 @@ import { useMatchStore } from "../store/useMatchStore";
 import { getEngagements } from "../../../api/engagementApi";
 import { getEngagementDateSet } from "../utils/engagementDates";
 import { getEngagementCompleteStatus } from "../../../api/engagementApi";
-// import { useUserStore } from "../../../store/useUserStore";
-
-// const MEMBER_ID = "100";
+import type { Engagement, EngagementType } from "../../../types/match.type";
 
 const MatchingPage = () => {
   const { engagements, setEngagements } = useMatchStore();
-
-  const [activeTab, setActiveTab] = useState<TabType>("전체");
-  const [period, setPeriod] = useState<"week" | "month">("month");
-  const [selectedDate, setSelectedDate] = useState("2026-01-05");
   const [engagementDates, setEngagementDates] = useState<Set<string>>(
     new Set()
   );
-  // const { user } = useUserStore();
-  // const memberId = user?.memberId;
-  const handleComplete = async (agreementId: string) => {
-    try {
-      const res = await getEngagementCompleteStatus({
-        agreementId,
-        // currentMemberId: "700",
-      });
-      const { status, isLastActivity } = res.data;
+  const [activeTab, setActiveTab] = useState<TabType>("전체");
+  const [period, setPeriod] = useState<"week" | "month">("month");
+  const [selectedDate, setSelectedDate] = useState("2026-01-05");
 
-      setEngagements(
-        engagements.map((e) =>
-          e.agreementId === agreementId
-            ? {
-                ...e,
-                isDayComplete: status === "COMPLETED" ? true : e.isDayComplete,
-                isTermComplete:
-                  status === "COMPLETED" ? true : e.isTermComplete,
-                isLastActivity,
-              }
-            : e
-        )
-      );
+  const handleComplete = async (engagementId: string) => {
+    const res = await getEngagementCompleteStatus({ engagementId });
+    const { isLastEngagement } = res.data;
 
-      if (status === "COMPLETED") {
-        alert(
-          isLastActivity
-            ? "모든 활동이 완료되었습니다. 리뷰를 작성해 주세요"
-            : "활동이 완료되었습니다."
-        );
-      } else {
-        alert("상대방의 확인을 기다리고 있습니다.");
-      }
-    } catch (error) {
-      console.error("활동 완료 처리 실패", error);
-      alert("활동 완료 처리에 실패했습니다.");
-    }
+    setEngagements((prev: Engagement[]) =>
+      prev.map((e) => {
+        if (e.engagementId !== engagementId) return e;
+
+        return {
+          ...e,
+          status: isLastEngagement ? "REVIEW_ACTIVE" : "COMPLETED",
+        };
+      })
+    );
   };
-
   useEffect(() => {
-    const types: ("DAY" | "TERM")[] =
+    const types: EngagementType[] =
       activeTab === "전체"
         ? ["DAY", "TERM"]
         : activeTab === "하루 도움"
         ? ["DAY"]
         : ["TERM"];
+
     Promise.all(
-      types.map((type) =>
-        getEngagements({
-          date: selectedDate,
-          engagementType: type,
-        })
-      )
-    ).then((responses) => {
-      const merged = responses.flatMap((res) => res.data.matches);
+      types.map((type) => getEngagements({ date: selectedDate, type }))
+    ).then((res) => {
+      const merged = res.flatMap((r) => r.data.matches);
       setEngagements(merged);
       setEngagementDates(getEngagementDateSet(merged));
     });
@@ -125,7 +95,7 @@ const MatchingPage = () => {
         <ScrollArea>
           {engagements.map((engagement) => (
             <MatchingPostCard
-              key={engagement.agreementId}
+              key={engagement.engagementId}
               engagement={engagement}
               onComplete={handleComplete}
             />

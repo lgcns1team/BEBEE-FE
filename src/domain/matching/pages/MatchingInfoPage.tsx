@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 import { useNavigate, useParams } from "react-router-dom";
 import MatchingInfo from "../components/info/MatchingInfo";
 import MatchingActionSheetModal from "../components/common/MatchingActionSheetModal";
-import { useMatchStore } from "../store/useMatchStore";
+
+import type { EngagementDetail } from "../../../types/match.type";
+import { getEngagementDetail } from "../../../api/engagementApi";
 
 const MatchingInfoPage = () => {
   const navigate = useNavigate();
@@ -12,11 +14,14 @@ const MatchingInfoPage = () => {
     agreementId: string;
   }>();
 
-  const getEngagementById = useMatchStore((state) => state.getEngagementById);
-  const engagement = agreementId ? getEngagementById(agreementId) : undefined;
-
+  const [engagement, setEngagement] = useState<EngagementDetail | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
+  useEffect(() => {
+    getEngagementDetail(agreementId).then((res) => {
+      setEngagement(res.data);
+    });
+  }, [agreementId]);
   return (
     <Layout>
       <span className="sr-only">

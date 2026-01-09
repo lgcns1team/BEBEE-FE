@@ -3,20 +3,32 @@ import type { Engagement } from "../../../types/match.type";
 
 interface MatchState {
   engagements: Engagement[];
-  setEngagements: (data: Engagement[]) => void;
+  setEngagements: (
+    updater: Engagement[] | ((prev: Engagement[]) => Engagement[])
+  ) => void;
   clearEngagements: () => void;
-  getEngagementById: (agreementId: string) => Engagement | undefined;
+  getEngagementByAgreementId: (agreementId: string) => Engagement | undefined;
 }
 
 export const useMatchStore = create<MatchState>()((set, get) => ({
   engagements: [],
-  setEngagements: (data) => {
-    set({ engagements: data });
-  },
+
+  setEngagements: (updater) =>
+    set((state) => {
+      const next =
+        typeof updater === "function" ? updater(state.engagements) : updater;
+
+      return {
+        engagements: next.filter((e): e is Engagement =>
+          Boolean(e && e.engagementId)
+        ),
+      };
+    }),
+
   clearEngagements: () => {
     set({ engagements: [] });
   },
-  getEngagementById: (agreementId) => {
-    return get().engagements.find((e) => e.agreementId === agreementId);
-  },
+
+  getEngagementByAgreementId: (agreementId) =>
+    get().engagements.find((e) => e && e.agreementId === agreementId),
 }));

@@ -11,37 +11,60 @@ import { useNavigate } from "react-router-dom";
 import { useChatHandler } from "../../../../hooks/useChatHandler";
 
 import type { Engagement } from "../../../../types/match.type";
-import { formatDateWithDay } from "../../utils/dateFormat";
-import type {
-  DayEngagementTime,
-  TermEngagementTime,
-} from "../../../../types/match.type";
 
+import { HELP_TAG_MAP } from "../../../../constants/helpTags";
+import { getScheduleText } from "../../../../types/common.types";
 interface Props {
   engagement: Engagement;
-  onComplete: (agreementId: string) => void;
+  onComplete: (engagementId: string) => void;
 }
 
 const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   const navigate = useNavigate();
 
-  const isCompleted =
-    engagement.type === "DAY"
-      ? engagement.isDayComplete
-      : engagement.isTermComplete;
+  // const isCompleted =
+  //   engagement.type === "DAY"
+  //     ? engagement.isDayComplete
+  //     : engagement.isTermComplete;
 
-  const canReview = isCompleted && engagement.isLastActivity;
+  // const canReview = isCompleted && engagement.isLastActivity;
   const goMatchingInfo = () => {
     if (!engagement) return;
     navigate(`/match-info/${engagement.agreementId}`);
   };
 
-  const goReviewPage = () => {
-    navigate(`/review/${engagement.agreementId}`);
-  };
-
   /* 채팅 관련 */
   const { handleChatOpen } = useChatHandler();
+
+  const renderActionButton = () => {
+    switch (engagement.status) {
+      case "INACTIVE":
+        return <DoneButton disabled>활동 전</DoneButton>;
+
+      case "ACTIVE":
+        return (
+          <DoneButton onClick={() => onComplete(engagement.engagementId)}>
+            활동 완료
+          </DoneButton>
+        );
+      case "COMPLETED":
+        return <DoneButton disabled>상태 확인 대기</DoneButton>;
+      case "REVIEW_ACTIVE":
+        return (
+          <ReviewButton
+            onClick={() => navigate(`/review/${engagement.engagementId}`)}
+          >
+            <BsPencil size={12} />
+            리뷰 작성하기
+          </ReviewButton>
+        );
+      case "REVIEW_COMPLETED":
+        return <ReviewButton disabled>리뷰 완료</ReviewButton>;
+      default:
+        return null;
+    }
+  };
+
   const matchingItem = {
     id: 1,
     chatroomId: "791458418405204700",
@@ -67,9 +90,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
       <BottomArea>
         {/* 왼쪽 정보 */}
         <BottomLeft>
-          <User aria-label="장애인의 닉네임">
-            {engagement.disabled.nickname}
-          </User>
+          <User aria-label="장애인의 닉네임">{engagement.otherNickname}</User>
 
           <InfoLine>
             <MapPinIcon size={16} aria-label="활동 지역 아이콘" />
@@ -79,33 +100,17 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
           <InfoLine>
             <CalendarIcon size={16} aria-label="날짜 아이콘" />
             <InfoText aria-label="활동 날짜">
-              {engagement.type === "DAY" && (
-                <>
-                  {formatDateWithDay(
-                    (engagement.engagementTime as DayEngagementTime).date
-                  )}
-                </>
-              )}
-
-              {engagement.type === "TERM" && (
-                <>
-                  {formatDateWithDay(
-                    (engagement.engagementTime as TermEngagementTime).startDate
-                  )}
-                  {" ~ "}
-                  {formatDateWithDay(
-                    (engagement.engagementTime as TermEngagementTime).endDate
-                  )}
-                </>
+              {getScheduleText(
+                engagement.type,
+                engagement.date,
+                engagement.dayOfWeeks
               )}
             </InfoText>
           </InfoLine>
 
           <TagRow>
-            {engagement.helpCategories.map((category) => (
-              <HelpTag key={category.helpCategoryId} aria-label="활동 카테고리">
-                {category.helpCategoryName}
-              </HelpTag>
+            {engagement.helpCategoryIds.map((cat) => (
+              <HelpTag key={cat}>{HELP_TAG_MAP[cat]}</HelpTag>
             ))}
           </TagRow>
         </BottomLeft>
@@ -128,31 +133,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
             <span>채팅하기</span>
           </ChatButton>
 
-          {!isCompleted ? (
-            <DoneButton
-              onClick={() => {
-                onComplete(engagement.agreementId);
-              }}
-              aria-label="활동을 완료했을 경우 눌러주세요"
-            >
-              <span>활동 완료</span>
-            </DoneButton>
-          ) : canReview ? (
-            <ReviewButton
-              onClick={goReviewPage}
-              aria-label="리뷰를 작성하실 경우 눌러주세요"
-            >
-              <BsPencil size={12} />
-              <span>리뷰 작성하기</span>
-            </ReviewButton>
-          ) : (
-            <DoneButton
-              disabled
-              aria-label="아직 마지막 활동이 종료되지 않았어요"
-            >
-              <span>다음 일정 대기</span>
-            </DoneButton>
-          )}
+          {renderActionButton()}
         </BottomInner>
       </BottomBar>
     </Card>

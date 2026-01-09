@@ -1,4 +1,5 @@
 import { addDays } from "date-fns";
+import type { Engagement } from "../../../types/match.type";
 
 const DAY_OF_WEEK_MAP: Record<string, number> = {
   SUNDAY: 0,
@@ -10,19 +11,28 @@ const DAY_OF_WEEK_MAP: Record<string, number> = {
   SATURDAY: 6,
 };
 
-export const getEngagementDateSet = (engagements: any[]) => {
+export const getEngagementDateSet = (
+  engagements: (Engagement | undefined | null)[]
+) => {
   const result = new Set<string>();
 
   engagements.forEach((eng) => {
+    if (!eng || !eng.type || !eng.engagementTime) return;
+
     /** DAY */
     if (eng.type === "DAY") {
-      result.add(eng.engagementTime.date);
+      const date = (eng.engagementTime as any)?.date;
+      if (date) {
+        result.add(date);
+      }
       return;
     }
 
     /** TERM */
     if (eng.type === "TERM") {
-      const { startDate, endDate, schedules } = eng.engagementTime;
+      const { startDate, endDate, schedules } = eng.engagementTime as any;
+
+      if (!startDate || !endDate || !Array.isArray(schedules)) return;
 
       let cur = new Date(startDate);
       const end = new Date(endDate);
@@ -31,7 +41,7 @@ export const getEngagementDateSet = (engagements: any[]) => {
         const day = cur.getDay();
 
         const hasSchedule = schedules.some(
-          (s: any) => DAY_OF_WEEK_MAP[s.dayOfWeek] === day
+          (s: any) => s?.dayOfWeek && DAY_OF_WEEK_MAP[s.dayOfWeek] === day
         );
 
         if (hasSchedule) {
