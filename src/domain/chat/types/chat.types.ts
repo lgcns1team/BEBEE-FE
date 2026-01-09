@@ -23,7 +23,7 @@ export interface ChatMessage {
   // --- 매칭 관련 공통 (확인서, 성공, 실패 모두에서 사용 가능) ---
   agreementId?: string; // 매칭 고유 ID
   // --- MATCH_CONFIRMATION(매칭확인서) 전용 필드 ---
-  matchData?: AgreementRequest; // 텍스트 메시지에는 없음
+  matchData?: AgreementRequest;
   // --- 매칭 결과 및 메타데이터 (필요 시 서버에서 함께 내려줌) ---
   postId?: string;
   title?: string;
