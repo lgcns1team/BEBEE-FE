@@ -10,7 +10,7 @@ export interface GetHoneyResponse {
  */
 export const getCurrentHoney = async (): Promise<GetHoneyResponse> => {
   const response = await instance.get<GetHoneyResponse>(
-    "payment/wallets/honeys"
+    "/payment/wallets/honeys"
   );
   return response.data;
 };
@@ -24,7 +24,7 @@ export const deductHoney = async (
   matchId: string,
   useHoney: number
 ): Promise<void> => {
-  await instance.post<void>("payment/wallets/usage", {
+  await instance.post<void>("/payment/wallets/usage", {
     matchId,
     useHoney,
   });

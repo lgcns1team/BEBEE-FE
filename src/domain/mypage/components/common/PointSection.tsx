@@ -4,16 +4,26 @@
 
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { useWalletStore } from "../../../Pay/store/useWalletStore";
+import { useEffect } from "react";
+import { useWalletActions } from "../../../Pay/hooks/useWalletActions";
 const PointSection = () => {
   const navigate = useNavigate();
+  const currentHoney = useWalletStore((s) => s.currentHoney);
+  const { refreshCurrentHoney } = useWalletActions();
+
   const goPay = () => {
     navigate("/charge");
   };
+
+  useEffect(() => {
+    refreshCurrentHoney();
+  }, [refreshCurrentHoney]);
   return (
     <PaymentContainer>
       <PointWrapper>
         <Title>비비 포인트</Title>
-        <Point>1,235꿀</Point>
+        <Point>{currentHoney.toLocaleString()}꿀</Point>
       </PointWrapper>
       <PaymentWrapper>
         <ReceiptButton>내역</ReceiptButton>

@@ -29,7 +29,9 @@ import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
 import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
 import ChargePage from "./domain/Pay/page/ChargePage";
-import Checkout from "./domain/Pay/components/Checkout";
+import { CheckoutPage } from "./domain/Pay/page/CheckoutPage";
+import { SuccessPage } from "./domain/Pay/page/SuccessPage";
+import { FailPage } from "./domain/Pay/page/FailPage";
 
 function App() {
   return (
@@ -60,7 +62,7 @@ function App() {
           <Route path="/mypage" element={<DisabledMyPage />} />
 
           {/*동네지도*/}
-          <Route path="/map" element={<MapDisabledPage />} />
+          <Route path="/map" element={<MapHelperPage />} />
           <Route path="/map/disabled" element={<MapDisabledPage />} />
           <Route path="/map/helper" element={<MapHelperPage />} />
 
@@ -89,7 +91,9 @@ function App() {
           <Route path="/signup/step6" element={<AuthSignUpStep6Page />} />
           {/* 결제 */}
           <Route path="/charge" element={<ChargePage />} />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/payments/success" element={<SuccessPage />} />
+          <Route path="/payments/fail" element={<FailPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

@@ -13,8 +13,10 @@ import WeeklyCalendar from "../components/common/WeeklyCalendar";
 import { useMatchStore } from "../store/useMatchStore";
 import { getEngagements } from "../../../api/engagementApi";
 import { getEngagementDateSet } from "../utils/engagementDates";
+import { getEngagementCompleteStatus } from "../../../api/engagementApi";
+// import { useUserStore } from "../../../store/useUserStore";
 
-const MEMBER_ID = "100";
+// const MEMBER_ID = "100";
 
 const MatchingPage = () => {
   const { engagements, setEngagements } = useMatchStore();
@@ -25,6 +27,45 @@ const MatchingPage = () => {
   const [engagementDates, setEngagementDates] = useState<Set<string>>(
     new Set()
   );
+  // const { user } = useUserStore();
+  // const memberId = user?.memberId;
+  const handleComplete = async (agreementId: string) => {
+    try {
+      const res = await getEngagementCompleteStatus({
+        agreementId,
+        // currentMemberId: "700",
+      });
+      const { status, isLastActivity } = res.data;
+
+      setEngagements(
+        engagements.map((e) =>
+          e.agreementId === agreementId
+            ? {
+                ...e,
+                isDayComplete: status === "COMPLETED" ? true : e.isDayComplete,
+                isTermComplete:
+                  status === "COMPLETED" ? true : e.isTermComplete,
+                isLastActivity,
+              }
+            : e
+        )
+      );
+
+      if (status === "COMPLETED") {
+        alert(
+          isLastActivity
+            ? "모든 활동이 완료되었습니다. 리뷰를 작성해 주세요"
+            : "활동이 완료되었습니다."
+        );
+      } else {
+        alert("상대방의 확인을 기다리고 있습니다.");
+      }
+    } catch (error) {
+      console.error("활동 완료 처리 실패", error);
+      alert("활동 완료 처리에 실패했습니다.");
+    }
+  };
+
   useEffect(() => {
     const types: ("DAY" | "TERM")[] =
       activeTab === "전체"
@@ -35,7 +76,6 @@ const MatchingPage = () => {
     Promise.all(
       types.map((type) =>
         getEngagements({
-          memberId: MEMBER_ID,
           date: selectedDate,
           engagementType: type,
         })
@@ -56,20 +96,30 @@ const MatchingPage = () => {
         <Header title="활동 관리" />
 
         <StickyBox>
-          <PeriodToggle active={period} onChange={setPeriod} />
+          <PeriodToggle
+            active={period}
+            onChange={setPeriod}
+            aria-label="활동을 한 달 보기와 한 주 보기 중 선택하여 확인할 수 있습니다"
+          />
           {period === "week" ? (
             <WeeklyCalendar
               onSelectDate={(date) => setSelectedDate(date)}
               markedDates={engagementDates}
+              aria-label="한 주 보기로 확인할 수 있습니다"
             />
           ) : (
             <MonthlyCalendar
               onSelectDate={(date) => setSelectedDate(date)}
               markedDates={engagementDates}
+              aria-label="한 달 보기로 확인할 수 있습니다"
             />
           )}
 
-          <Category activeTab={activeTab} onChange={setActiveTab} />
+          <Category
+            activeTab={activeTab}
+            onChange={setActiveTab}
+            aria-label="전체, 하루도움, 지속도움 중 선택하여서 확인할 수 있습니다."
+          />
         </StickyBox>
 
         <ScrollArea>
@@ -77,6 +127,7 @@ const MatchingPage = () => {
             <MatchingPostCard
               key={engagement.agreementId}
               engagement={engagement}
+              onComplete={handleComplete}
             />
           ))}
         </ScrollArea>
