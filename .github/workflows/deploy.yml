@@ -32,7 +32,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # env 생성
+      # 빌드
+      - name: Build
+        run: pnpm build
+
+        # env 생성
       - name: Create .env file
         run: |
           echo "VITE_KAKAO_MAP_KEY=${{ secrets.VITE_KAKAO_MAP_KEY }}" >> .env
