@@ -2,10 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
 import { useChatStore } from "../store/useChatStore";
-import { useSocketStore } from "../../../store/useSocketStore";
-import { useApplicationStore } from "../../Application/store/useApplicationStore";
 import { postApi } from "../../../api/postApi";
-import { createAgreement } from "../api/agreementApi";
+import { createAgreement } from "../../../api/matchApi";
 import { chatApi } from "../../../api/chatApi";
 import { getCurrentHoney } from "../../../api/walletApi";
 import type { PostDetailResponse } from "../../../types/post.type";
@@ -13,8 +11,7 @@ import type {
   AgreementRequest,
   DayEngagementTime,
   TermEngagementTime,
-} from "../agreement.types";
-import type { ChatMessage } from "../chat.types";
+} from "../types/match.types";
 import {
   DAY_OF_WEEK_MAP,
   convertDayNameToDayOfWeek,
@@ -47,15 +44,14 @@ const MatchFormPage = () => {
     post: PostDetailResponse,
     postId: string,
     helperId: string,
-    chatroomId: string,
-    isVolunteer?: boolean
+    chatroomId: string
   ): Partial<AgreementRequest> => {
     // 기본 AgreementRequest 구조
     const baseRequest: Partial<AgreementRequest> = {
       postId: postId,
       helperId: helperId,
       type: post.engagementType,
-      isVolunteer: isVolunteer ?? false,
+      isVolunteer: false,
       helpCategoryIds: post.helpCategoryIds || [],
       unitHoney: post.unitHoney,
       totalHoney: post.totalHoney,
@@ -68,7 +64,6 @@ const MatchFormPage = () => {
   };
   const navigate = useNavigate();
   const { activeRoom, setActiveRoom } = useChatStore();
-  const { applicants } = useApplicationStore();
 
   const [postDetail, setPostDetail] = useState<PostDetailResponse | null>(null);
   const [agreementRequest, setAgreementRequest] =
@@ -114,21 +109,8 @@ const MatchFormPage = () => {
         if (!activeRoom || activeRoom.chatroomId !== chatroomId) {
           console.log("채팅방 정보를 가져오는 중...", chatroomId);
           const roomData = await chatApi.openChatRoom(undefined, chatroomId);
-          console.log("[MatchFormPage] 채팅방 정보 응답:", {
-            roomData전체: roomData,
-            chatroomId: roomData.chatroomId,
-            postId: roomData.postId,
-            otherId: roomData.otherId,
-          });
           setActiveRoom(roomData);
           currentActiveRoom = roomData;
-        } else {
-          console.log("[MatchFormPage] 기존 activeRoom 사용:", {
-            activeRoom전체: activeRoom,
-            chatroomId: activeRoom.chatroomId,
-            postId: activeRoom.postId,
-            otherId: activeRoom.otherId,
-          });
         }
 
         // 2. postId가 없으면 에러
@@ -147,16 +129,11 @@ const MatchFormPage = () => {
         const otherId = currentActiveRoom.otherId;
         const helperId = otherId;
 
-        // useApplicationStore의 applicants에서 isVolunteer 정보 가져오기
-        const applicant = applicants.find((app) => app.memberId === otherId);
-        const isVolunteer = applicant?.isVolunteer ?? false;
-
         const request = convertPostToAgreementRequest(
           detail,
           currentActiveRoom.postId,
           helperId,
-          chatroomId,
-          isVolunteer
+          chatroomId
         );
         // region을 postDetail.postAddress로 초기화 (LocationInput 초기값 설정)
         if (detail.postAddress) {
@@ -535,153 +512,27 @@ const MatchFormPage = () => {
       };
 
       const response = await createAgreement(finalRequest);
-      console.log("매칭 확인서 생성 성공:", response);
+      console.log("✅ 매칭 확인서 생성 성공:", response);
 
-      // 매칭 확인서 생성 성공 시 MATCH_CONFIRMATION 타입 메시지 생성 및 추가
+      // 서버에서 매칭확인서를 소켓으로 발행하므로 프론트에서는 받기만 하면 됨
+      // POST API 호출 성공 후 채팅방 정보만 업데이트하고 이동
       if (chatroomId) {
-        // engagementTime에서 스케줄 정보 추출
-        const isDayType = finalRequest.type === "DAY";
-        const dayEngagement = isDayType
-          ? (finalRequest.engagementTime as DayEngagementTime)
-          : null;
-        const termEngagement = !isDayType
-          ? (finalRequest.engagementTime as TermEngagementTime)
-          : null;
-
-        // 스케줄 정보 변환
-        const scheduleDays: string[] = [];
-        const scheduleStartTimes: string[] = [];
-        const scheduleEndTimes: string[] = [];
-
-        if (isDayType && dayEngagement?.schedule) {
-          scheduleDays.push(dayEngagement.schedule.dayOfWeek);
-          scheduleStartTimes.push(dayEngagement.schedule.startTime);
-          scheduleEndTimes.push(dayEngagement.schedule.endTime);
-        } else if (termEngagement?.schedules) {
-          termEngagement.schedules.forEach((schedule) => {
-            scheduleDays.push(schedule.dayOfWeek);
-            scheduleStartTimes.push(schedule.startTime);
-            scheduleEndTimes.push(schedule.endTime);
-          });
-        }
-
-        // MATCH_CONFIRMATION 타입 메시지 생성
-        const matchConfirmationMessage: ChatMessage = {
-          id: `match-${response.agreementId}-${Date.now()}`,
-          senderId: activeRoom?.myId || String(disabledId),
-          textContent: "매칭 확인서가 생성되었습니다.",
-          type: "MATCH_CONFIRMATION",
-          attachments: [],
-          agreementId: String(response.agreementId),
-          matchType: finalRequest.type,
-          startDate: isDayType
-            ? dayEngagement?.date
-            : termEngagement?.startDate,
-          endDate: isDayType ? undefined : termEngagement?.endDate,
-          scheduleDays: scheduleDays.length > 0 ? scheduleDays : undefined,
-          scheduleStartTimes:
-            scheduleStartTimes.length > 0 ? scheduleStartTimes : undefined,
-          scheduleEndTimes:
-            scheduleEndTimes.length > 0 ? scheduleEndTimes : undefined,
-          location: finalRequest.region,
-          unitPoints: finalRequest.unitHoney,
-          totalPoints: finalRequest.totalHoney,
-          matchStatus: "MATCHED",
-          createdAt: new Date().toISOString(),
-          postId: String(finalRequest.postId),
-          title:
-            postDetail?.title || activeRoom?.otherNickname || "매칭 확인서",
-          helperId: String(finalRequest.helperId),
-          disabledId: String(disabledId),
-        };
-
-        // 매칭 확인서 메타데이터를 store에 저장
-        const {
-          setAgreementMetadata,
-          fetchHistory,
-          getHistoryMessages,
-          addMessage: addMessageToStore,
-        } = useChatStore.getState();
-
-        // 메타데이터 저장 (서버 메시지와 병합 시 사용)
-        setAgreementMetadata(String(response.agreementId), {
-          agreementId: String(response.agreementId),
-          postId: String(finalRequest.postId),
-          title:
-            postDetail?.title || activeRoom?.otherNickname || "매칭 확인서",
-          helperId: String(finalRequest.helperId),
-          disabledId: String(disabledId),
-          chatroomId: chatroomId,
-        });
-
-        // 서버에서 최신 메시지 가져와서 중복 확인
-        try {
-          await fetchHistory(chatroomId, null);
-          console.log(" 동기화 완료");
-
-          // 서버 메시지 확인 후, 서버에 없는 경우에만 클라이언트 메시지 추가
-          const serverMessages = getHistoryMessages(chatroomId);
-          const serverHasMatchMessage = serverMessages.some(
-            (msg) =>
-              msg.type === "MATCH_CONFIRMATION" &&
-              msg.agreementId === String(response.agreementId)
-          );
-
-          if (!serverHasMatchMessage) {
-            // STOMP로 매칭확인서 전송
-            const receiverId = activeRoom?.otherId
-              ? Number(activeRoom.otherId)
-              : null;
-
-            if (receiverId && chatroomId) {
-              useSocketStore
-                .getState()
-                .sendMatchConfirmation(receiverId, chatroomId, {
-                  location: matchConfirmationMessage.location || "",
-                  unitPoints: matchConfirmationMessage.unitPoints || 0,
-                  totalPoints: matchConfirmationMessage.totalPoints || 0,
-                  startDate: matchConfirmationMessage.startDate,
-                  endDate: matchConfirmationMessage.endDate,
-                  scheduleDays: matchConfirmationMessage.scheduleDays,
-                  scheduleStartTimes:
-                    matchConfirmationMessage.scheduleStartTimes,
-                  scheduleEndTimes: matchConfirmationMessage.scheduleEndTimes,
-                });
-            } else {
-              console.warn(
-                " receiverId 또는 chatroomId가 없어 STOMP 전송 실패",
-                { receiverId, chatroomId, activeRoom }
-              );
-            }
-
-            addMessageToStore(matchConfirmationMessage, chatroomId);
-          } else {
-            console.log(
-              " 서버에 이미 매칭 확인서 메시지 존재, 클라이언트 메시지 추가 스킵"
-            );
-            // 서버 메시지가 있더라도 메타데이터는 이미 저장되었으므로 유지됨
-          }
-        } catch (error) {
-          console.error(" 서버 메시지 동기화 실패:", error);
-          // 실패해도 클라이언트 메시지 추가
-          console.log(matchConfirmationMessage);
-          addMessageToStore(matchConfirmationMessage, chatroomId);
-        }
-
-        // 채팅방 정보 업데이트
+        // 채팅방 정보 업데이트 (matchStatus가 PROCEEDING으로 변경될 수 있음)
         try {
           const updatedRoom = await chatApi.openChatRoom(undefined, chatroomId);
           setActiveRoom(updatedRoom);
-          console.log("채팅방 정보 업데이트 완료:", updatedRoom);
+          console.log("✅ 채팅방 정보 업데이트 완료:", updatedRoom);
         } catch (error) {
-          console.error(" 채팅방 정보 업데이트 실패:", error);
+          console.error("⚠️ 채팅방 정보 업데이트 실패:", error);
+          // 업데이트 실패해도 채팅방으로 이동은 진행
         }
 
         // 채팅방으로 이동
+        // 서버에서 소켓으로 매칭확인서 메시지가 발행되므로 채팅방에서 자동으로 수신됨
         navigate(`/chat/${chatroomId}`);
       } else {
-        // activeRoom이 없으면 바로 이동
-        navigate(`/chat/${chatroomId}`);
+        console.error("⚠️ chatroomId가 없습니다.");
+        alert("채팅방 정보를 찾을 수 없습니다.");
       }
     } catch (error) {
       console.error(" 매칭 확인서 생성 실패:", error);
@@ -904,20 +755,27 @@ const InputContainer = styled.div`
 
 const BalanceCheckButton = styled.button<{ $isSufficient?: boolean }>`
   padding: 1rem;
-  background-color: ${({ theme, $isSufficient }) =>
-    $isSufficient ? theme.color.subColor2 : theme.color.natural100};
+  background: ${({ theme, $isSufficient }) =>
+    $isSufficient ? "#ffc107" : theme.color.natural100};
   border: 1px solid
     ${({ theme, $isSufficient }) =>
-      $isSufficient ? theme.color.subColor2 : theme.color.natural200};
+      $isSufficient ? "#ffc107" : theme.color.natural200};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme, $isSufficient }) =>
-    $isSufficient ? theme.color.main : theme.color.text};
+    $isSufficient ? theme.color.text : theme.color.text};
   cursor: pointer;
   white-space: nowrap;
   transition: background-color 0.2s, border-color 0.2s;
   height: 51.5px; /* GeneralInput과 동일한 높이 */
   font-weight: ${({ $isSufficient }) => ($isSufficient ? "600" : "400")};
+
+  &:hover:not(:disabled) {
+    background: ${({ theme, $isSufficient }) =>
+      $isSufficient ? "#ffb300" : theme.color.natural200};
+    border-color: ${({ $isSufficient }) =>
+      $isSufficient ? "#ffb300" : undefined};
+  }
 
   &:active:not(:disabled) {
     background: ${({ theme, $isSufficient }) =>

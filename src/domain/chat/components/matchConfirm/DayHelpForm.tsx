@@ -9,7 +9,7 @@ import { ko } from "date-fns/locale";
 import { CiCalendar } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
 
-import type { AgreementRequest } from "../../agreement.types";
+import type { AgreementRequest } from "../../types/match.types";
 
 interface DailyHelpFormProps {
   dayEngagement: {
@@ -17,16 +17,24 @@ interface DailyHelpFormProps {
     startTime: Date | null;
     endTime: Date | null;
   };
-  setDayEngagement: React.Dispatch<React.SetStateAction<{
-    date: Date | null;
-    startTime: Date | null;
-    endTime: Date | null;
-  }>>;
+  setDayEngagement: React.Dispatch<
+    React.SetStateAction<{
+      date: Date | null;
+      startTime: Date | null;
+      endTime: Date | null;
+    }>
+  >;
   agreementRequest: Partial<AgreementRequest>;
-  updateField: <K extends keyof AgreementRequest>(key: K, value: AgreementRequest[K]) => void;
+  updateField: <K extends keyof AgreementRequest>(
+    key: K,
+    value: AgreementRequest[K]
+  ) => void;
 }
 
-const DayHelpForm = ({ dayEngagement, setDayEngagement }: DailyHelpFormProps) => {
+const DayHelpForm = ({
+  dayEngagement,
+  setDayEngagement,
+}: DailyHelpFormProps) => {
   const datePickerInputRef = useRef<HTMLInputElement>(null);
   const startTimeInputRef = useRef<HTMLInputElement>(null);
   const endTimeInputRef = useRef<HTMLInputElement>(null);

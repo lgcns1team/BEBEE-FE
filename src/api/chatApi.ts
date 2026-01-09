@@ -5,7 +5,7 @@ import type {
   ChatroomResponse,
   ChatroomListResponse,
   ChatMessagesGetResDTO,
-} from "../domain/chat/chat.types";
+} from "../domain/chat/types/chat.types";
 // chat instance
 
 export const chatApi = {
@@ -56,7 +56,7 @@ export const chatApi = {
       }
     );
     const responseData = response.data;
-    console.log("✅ [chatApi.createChatRoom] 채팅방 생성 응답:", {
+    console.log("[chatApi.createChatRoom] 채팅방 생성 응답:", {
       전체응답: responseData,
       isVolunteer:
         "isVolunteer" in responseData ? responseData.isVolunteer : undefined,
@@ -100,7 +100,7 @@ export const chatApi = {
   getMessages: async (
     chatroomId: string,
     lastChatId?: string | null,
-    count: number = 5
+    count: number = 20
   ) => {
     try {
       const params: {
@@ -117,13 +117,6 @@ export const chatApi = {
         params.lastChatId = lastChatId;
       }
 
-      console.log(" API 요청:", {
-        chatroomId,
-        lastChatId: params.lastChatId,
-        count: params.count,
-        params,
-      });
-
       const response = await instance.get<ChatMessagesGetResDTO>(
         "chat/chatrooms/chats",
         {
@@ -135,7 +128,6 @@ export const chatApi = {
       );
       return response.data;
     } catch (error) {
-      // axios는 4xx, 5xx 에러 발생 시 자동으로 catch 문으로 넘어옵니다.
       console.error("메시지 로드 실패:", error);
       throw error;
     }
