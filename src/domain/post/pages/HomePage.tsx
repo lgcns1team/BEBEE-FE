@@ -11,7 +11,7 @@ import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
 import WriteButton from "../components/common/WriteButton";
 import { Checkbox } from "../../../components/Checkbox";
-
+import { useUserStore } from "../../../store/useUserStore";
 const HomePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,7 +36,9 @@ const HomePage = () => {
 
   const observerTarget = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
-
+  const { user } = useUserStore();
+  const role = user?.role;
+  const isHelper = role === "HELPER";
   // 초기 데이터 로드 (필터 빈 값 상태로 요청)
   useEffect(() => {
     // 홈 경로가 아니면 초기화하지 않음
@@ -172,8 +174,7 @@ const HomePage = () => {
           isOpen={isFilterSheetOpen}
           onClose={() => setIsFilterSheetOpen(false)}
         />
-
-        <WriteButton onClick={() => navigate("/post/write")} />
+        {!isHelper && <WriteButton onClick={() => navigate("/post/write")} />}
         <NavBar />
       </Wrapper>
     </Layout>
