@@ -1,8 +1,10 @@
-{
-  /* import Header from "../../../components/Header";
+import Header from "../../../components/Header";
 import DisabledMyPage from "./DisabledMyPage";
 import HelperMyPage from "./HelperMyPage";
 import { useNavigate } from "react-router-dom";
+import { useUserStore } from "../../../store/useUserStore";
+import { Toast } from "../../../components/Toast";
+import { useToastStore } from "../../../store/useToastStore";
 
 const MY_PAGE_BY_ROLE = {
   DISABLED: DisabledMyPage,
@@ -11,22 +13,24 @@ const MY_PAGE_BY_ROLE = {
 
 const MyPage = () => {
   const navigate = useNavigate();
- const { role } = useUserStore();
+  const { user } = useUserStore();
 
- const RoleMyPage = role ? MY_PAGE_BY_ROLE[role] : null;
+  const RoleMyPage = user.role ? MY_PAGE_BY_ROLE[user.role] : null;
 
   if (!RoleMyPage) {
-    return null; // 또는 에러 페이지 / fallback UI
+    useToastStore.getState().showToast("로그인이 필요합니다.", "ERROR");
+    navigate("/login");
+
+    return null;
   }
 
   return (
-    <>
-      <Header title="마이페이지" />
+    <div style={{ paddingBottom: "80px" }}>
+      <Header title="나의 비비" />
       <RoleMyPage />
-    </>
+      <Toast />
+    </div>
   );
 };
 
 export default MyPage;
-*/
-}

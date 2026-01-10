@@ -28,6 +28,7 @@ import AuthSignUpStep5Page from "./domain/auth/pages/AuthSignUpStep5Page";
 import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
 import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
+import MyPage from "./domain/mypage/page/MyPage";
 import ChargePage from "./domain/Pay/page/ChargePage";
 import { CheckoutPage } from "./domain/Pay/page/CheckoutPage";
 import { SuccessPage } from "./domain/Pay/page/SuccessPage";
@@ -43,7 +44,7 @@ function App() {
           {/* 랜딩페이지 */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/landing" element={<LandingPage />} />
-          
+
           {/* 홈 */}
           <Route path="/home" element={<HomePage />} />
 
@@ -57,8 +58,8 @@ function App() {
           <Route path="/chat" element={<ChatListPage />} />
           <Route path="/chat/:chatroomId" element={<ChatRoomPage />} />
           <Route path="/chat/:chatroomId/match" element={<MatchFormPage />} />
-          {/*마이페이지*/}
-          {/* <Route path="/mypage" element={<MyPage />} /> */}
+
+          <Route path="/mypage" element={<MyPage />} />
 
           {/* 마이페이지에서 보는 프로필 정보 */}
           <Route path="/profile-info/:infoId" element={<ProfileInfoPage />} />
