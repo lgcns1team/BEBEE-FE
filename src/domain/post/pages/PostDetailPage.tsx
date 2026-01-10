@@ -66,14 +66,6 @@ const PostDetailPage = () => {
   if (error) return <div>{error}</div>;
   if (!post) return <div>게시글이 없습니다.</div>;
 
-  // 임시 memberId
-
-  // 장애인용 아이디 100
-  // const MEMBER_ID = "100";
-
-  // 도우미용 아이디 700
-  // const MEMBER_ID = "700";
-
   // 지원하기 및 나눔하기
   const handleApply = async () => {
     if (!postId) return;
@@ -304,7 +296,11 @@ const PostDetailPage = () => {
               }}
             >
               {post.postImageUrls.map((imageUrl, index) => (
-                <PostImage key={index} src={imageUrl} alt={`게시글 이미지 ${index + 1}`} />
+                <PostImage
+                  key={index}
+                  src={imageUrl}
+                  alt={`게시글 이미지 ${index + 1}`}
+                />
               ))}
             </ImageSlider>
             {post.postImageUrls.length > 1 && (
@@ -313,9 +309,8 @@ const PostDetailPage = () => {
               </ImageIndicator>
             )}
           </ImageSliderContainer>
-         
         )}
-         
+
         {/* ---------------- Bottom Buttons ---------------- */}
         <BottomBar>
           <BottomInner>
@@ -461,7 +456,7 @@ const ImageSlider = styled.div`
   transition: transform 0.3s ease-in-out;
   width: 100%;
   user-select: none;
-  
+
   &:active {
     cursor: grabbing;
   }
@@ -521,7 +516,6 @@ const ShareButton = styled.button<{ disabled?: boolean }>`
   outline: none;
   -webkit-tap-highlight-color: transparent;
 `;
-
 
 const ApplyButton = styled.button<{ disabled?: boolean }>`
   flex: 2;

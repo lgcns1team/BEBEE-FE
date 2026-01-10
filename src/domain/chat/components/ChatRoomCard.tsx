@@ -6,7 +6,7 @@ import { chatApi } from "../../../api/chatApi";
 import { postApi } from "../../../api/postApi";
 import type { PostDetailResponse } from "../../../types/post.type";
 import { HELP_TAG_MAP } from "../../../constants/helpTags";
-import type { MatchStatus } from "../chat.types";
+import type { MatchStatus } from "../types/chat.types";
 import { useApplicationStore } from "../../../domain/Application/store/useApplicationStore";
 
 /* Components */

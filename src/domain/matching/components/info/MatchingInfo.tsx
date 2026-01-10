@@ -1,3 +1,4 @@
+// components/info/MatchingInfo.tsx
 import styled from "styled-components";
 import HelpInfo from "./HelpInfo";
 import MatchingProfile from "./MatchingProfile";
@@ -9,27 +10,18 @@ interface Props {
 }
 
 const MatchingInfo = ({ engagement }: Props) => {
-  const isOneDay = engagement.helpType === "DAY";
+  const titleDate =
+    engagement.helpType === "DAY" && engagement.date
+      ? formatDateToDot(engagement.date)
+      : engagement.startDate && engagement.endDate
+      ? `${formatDateToDot(engagement.startDate)} ~ ${formatDateToDot(
+          engagement.endDate
+        )}`
+      : "";
 
-  // 상단 날짜 텍스트 생성
-  const renderDateText = () => {
-    if (isOneDay && engagement.date) {
-      return formatDateToDot(engagement.date);
-    }
-
-    if (!isOneDay && engagement.startDate && engagement.endDate) {
-      return `${formatDateToDot(engagement.startDate)} ~ ${formatDateToDot(
-        engagement.endDate
-      )}`;
-    }
-
-    return "";
-  };
   return (
     <>
-      <MatchingDate aria-label="활동이 진행되는 날짜">
-        {renderDateText()}
-      </MatchingDate>
+      <MatchingDate>{titleDate}</MatchingDate>
 
       <Wrapper>
         <Status>매칭 완료</Status>

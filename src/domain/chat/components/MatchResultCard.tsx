@@ -1,41 +1,122 @@
 import styled from "styled-components";
 import chatLight from "../../../assets/images/chat-light.png";
-import type { ChatMessage } from "../chat.types";
+import type { ChatMessage } from "../types/chat.types";
 import {
   formatDateToKoreanWithDay,
   formatTimeToHHmm,
   formatDayOfWeek,
 } from "../../../types/common.types";
-import { useChatStore } from "../store/useChatStore";
+import { useUserStore } from "../../../store/useUserStore";
 import { useMatchAgreement } from "../hook/useMatchAgreement";
-
-interface MatchResultCardProps {
-  message: ChatMessage;
-  onAcceptSuccess?: (successData: ChatMessage) => void;
-  onRefuseSuccess?: () => void;
+import type {
+  DayEngagementTime,
+  TermEngagementTime,
+} from "../types/match.types";
+interface Props {
+  data: ChatMessage;
 }
 
-const MatchResultCard = ({
-  message,
-  onAcceptSuccess,
-  onRefuseSuccess,
-}: MatchResultCardProps) => {
-  const { getMessageWithMetadata } = useChatStore();
-  const { handleAccept, handleRefuse } = useMatchAgreement({
-    message,
-    onAcceptSuccess,
-    onRefuseSuccess,
-  });
-
-  // 메타데이터가 병합된 메시지 사용
-  const messageWithMetadata = getMessageWithMetadata(message);
-
+const MatchResultCard = ({ data }: Props) => {
+  const { user } = useUserStore(); // 현재 로그인한 유저 정보
+  const { handleAccept, handleRefuse } = useMatchAgreement({ message: data });
   // 공통 유틸리티 함수 사용
   const formatDate = formatDateToKoreanWithDay;
   const formatTime = formatTimeToHHmm;
-  const formatDay = (day?: string) => formatDayOfWeek(day, true); // "요일" 포함
+  const formatDay = (day?: string) => formatDayOfWeek(day, true);
 
-  const isDayType = messageWithMetadata.matchType === "DAY";
+  // matchData가 없는 일반 텍스트 메시지일 경우를 대비한 방어 코드
+  const match = data.matchData;
+  if (!match) return null;
+
+  const isHelper = user?.role === "HELPER";
+
+  const isDayType = match.type === "DAY";
+
+  if (!match) return null;
+
+  const renderScheduleInfo = () => {
+    const engagement = match.engagementTime;
+
+    if (isDayType) {
+      const dayData = engagement as DayEngagementTime;
+      return (
+        <>
+          <div
+            role="listitem"
+            aria-label={`도움 날짜: ${formatDate(dayData.date)}`}
+          >
+            날짜: {formatDate(dayData.date)}
+            <span className="sr-only">
+              {dayData.date
+                ? `도움을 제공할 날짜는 ${formatDate(dayData.date)}입니다`
+                : "날짜 정보 없음"}
+            </span>
+          </div>
+          {dayData.schedule && (
+            <div role="list" aria-label="도움 일시 목록">
+              {formatTime(dayData.schedule.startTime)}~
+              {formatTime(dayData.schedule.endTime)}
+            </div>
+          )}
+        </>
+      );
+    }
+
+    const termData = engagement as TermEngagementTime;
+
+    return (
+      <>
+        {/* 기간 표시 영역 */}
+        <div
+          role="listitem"
+          aria-label={`도움 기간: ${formatDate(
+            termData.startDate
+          )}부터 ${formatDate(termData.endDate)}까지`}
+        >
+          기간: {formatDate(termData.startDate)} ~{" "}
+          {formatDate(termData.endDate)}
+          <span className="sr-only">
+            {termData.startDate && termData.endDate
+              ? `도움 기간은 ${formatDate(termData.startDate)}부터 ${formatDate(
+                  termData.endDate
+                )}까지입니다`
+              : "기간 정보 없음"}
+          </span>
+        </div>
+
+        {/* 요일 및 시간 목록 영역 */}
+        {termData.schedules && termData.schedules.length > 0 && (
+          <div
+            role="list"
+            aria-label="도움 요일 및 시간 목록"
+            style={{ marginTop: "8px" }}
+          >
+            일시:
+            {termData.schedules.map((schedule, idx) => {
+              const dayName = formatDay(schedule.dayOfWeek);
+              const startTime = formatTime(schedule.startTime);
+              const endTime = formatTime(schedule.endTime);
+
+              return (
+                <Indent
+                  key={idx}
+                  role="listitem"
+                  aria-label={`${dayName} ${startTime}부터 ${endTime}까지`}
+                >
+                  {dayName} {startTime} - {endTime}
+                  <span className="sr-only">
+                    {dayName && startTime && endTime
+                      ? `${dayName}에 ${startTime}부터 ${endTime}까지 도움을 제공합니다`
+                      : "요일 또는 시간 정보 없음"}
+                  </span>
+                </Indent>
+              );
+            })}
+          </div>
+        )}
+      </>
+    );
+  };
 
   return (
     <Card role="region" aria-label="매칭 확인서">
@@ -70,114 +151,15 @@ const MatchResultCard = ({
                 : "기간 단위 지속 도움 요청입니다"}
             </span>
           </div>
-          {isDayType ? (
-            <>
-              <div
-                role="listitem"
-                aria-label={`도움 날짜: ${formatDate(
-                  messageWithMetadata.startDate
-                )}`}
-              >
-                날짜: {formatDate(messageWithMetadata.startDate)}
-                <span className="sr-only">
-                  {messageWithMetadata.startDate
-                    ? `도움을 제공할 날짜는 ${formatDate(
-                        messageWithMetadata.startDate
-                      )}입니다`
-                    : "날짜 정보 없음"}
-                </span>
-              </div>
-              {messageWithMetadata.scheduleDays &&
-                messageWithMetadata.scheduleDays.length > 0 && (
-                  <div role="list" aria-label="도움 일시 목록">
-                    {messageWithMetadata.scheduleDays.map((day, idx) => {
-                      const startTime = formatTime(
-                        messageWithMetadata.scheduleStartTimes?.[idx]
-                      );
-                      const endTime = formatTime(
-                        messageWithMetadata.scheduleEndTimes?.[idx]
-                      );
-                      return (
-                        <div
-                          key={idx}
-                          role="listitem"
-                          aria-label={`일시 ${
-                            idx + 1
-                          }: ${startTime}부터 ${endTime}까지`}
-                        >
-                          일시: {startTime} - {endTime}
-                          <span className="sr-only">
-                            {startTime && endTime
-                              ? `${startTime}부터 ${endTime}까지 도움을 제공합니다`
-                              : "시간 정보 없음"}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-            </>
-          ) : (
-            <>
-              <div
-                role="listitem"
-                aria-label={`도움 기간: ${formatDate(
-                  messageWithMetadata.startDate
-                )}부터 ${formatDate(messageWithMetadata.endDate)}까지`}
-              >
-                기간: {formatDate(messageWithMetadata.startDate)} ~{" "}
-                {formatDate(messageWithMetadata.endDate)}
-                <span className="sr-only">
-                  {messageWithMetadata.startDate && messageWithMetadata.endDate
-                    ? `도움 기간은 ${formatDate(
-                        messageWithMetadata.startDate
-                      )}부터 ${formatDate(
-                        messageWithMetadata.endDate
-                      )}까지입니다`
-                    : "기간 정보 없음"}
-                </span>
-              </div>
-              {messageWithMetadata.scheduleDays &&
-                messageWithMetadata.scheduleDays.length > 0 && (
-                  <div role="list" aria-label="도움 요일 및 시간 목록">
-                    일시:
-                    {messageWithMetadata.scheduleDays.map((day, idx) => {
-                      const dayName = formatDay(day);
-                      const startTime = formatTime(
-                        messageWithMetadata.scheduleStartTimes?.[idx]
-                      );
-                      const endTime = formatTime(
-                        messageWithMetadata.scheduleEndTimes?.[idx]
-                      );
-                      return (
-                        <Indent
-                          key={idx}
-                          role="listitem"
-                          aria-label={`${dayName} ${startTime}부터 ${endTime}까지`}
-                        >
-                          {dayName} {startTime} - {endTime}
-                          <span className="sr-only">
-                            {dayName && startTime && endTime
-                              ? `${dayName}에 ${startTime}부터 ${endTime}까지 도움을 제공합니다`
-                              : "요일 또는 시간 정보 없음"}
-                          </span>
-                        </Indent>
-                      );
-                    })}
-                  </div>
-                )}
-            </>
-          )}
+          {renderScheduleInfo()}
           <div
             role="listitem"
-            aria-label={`도움 장소: ${
-              messageWithMetadata.location || "정보 없음"
-            }`}
+            aria-label={`도움 장소: ${match.region || "정보 없음"}`}
           >
-            장소: {messageWithMetadata.location || "-"}
+            장소: {match.region || "-"}
             <span className="sr-only">
-              {messageWithMetadata.location
-                ? `도움을 제공할 장소는 ${messageWithMetadata.location}입니다`
+              {match.region
+                ? `도움을 제공할 장소는 ${match.region}입니다`
                 : "도움 장소 정보가 없습니다"}
             </span>
           </div>
@@ -185,76 +167,67 @@ const MatchResultCard = ({
             role="listitem"
             aria-label={
               isDayType
-                ? `보상 정보: ${
-                    messageWithMetadata.unitPoints?.toLocaleString() || 0
-                  }꿀`
+                ? `보상 정보: ${match.unitHoney?.toLocaleString() || 0}꿀`
                 : `보상 정보: 회당 ${
-                    messageWithMetadata.unitPoints?.toLocaleString() || 0
-                  }꿀, 총 ${
-                    messageWithMetadata.totalPoints?.toLocaleString() || 0
-                  }꿀`
+                    match.unitHoney?.toLocaleString() || 0
+                  }꿀, 총 ${match.totalHoney.toLocaleString() || 0}꿀`
             }
           >
             {isDayType ? (
               <>
-                꿀: {messageWithMetadata.unitPoints?.toLocaleString() || "-"}꿀
+                꿀: {match.unitHoney?.toLocaleString() || "-"}꿀
                 <span className="sr-only">
-                  {messageWithMetadata.unitPoints
-                    ? `${messageWithMetadata.unitPoints.toLocaleString()}꿀을 받게 됩니다`
+                  {match.unitHoney
+                    ? `${match.unitHoney.toLocaleString()}꿀을 받게 됩니다`
                     : "보상 정보가 없습니다"}
                 </span>
               </>
             ) : (
               <>
-                꿀: {messageWithMetadata.unitPoints?.toLocaleString() || "-"}꿀
-                /회(총{" "}
-                {messageWithMetadata.totalPoints?.toLocaleString() || "-"}꿀)
+                꿀: {match.unitHoney?.toLocaleString() || "-"}꿀 /회(총{" "}
+                {match.unitHoney?.toLocaleString() || "-"}꿀)
                 <span className="sr-only">
-                  {messageWithMetadata.unitPoints &&
-                  messageWithMetadata.totalPoints
-                    ? `회당 ${messageWithMetadata.unitPoints.toLocaleString()}꿀을 받으며, 총 ${messageWithMetadata.totalPoints.toLocaleString()}꿀을 받게 됩니다`
+                  {match.unitHoney && match.totalHoney
+                    ? `회당 ${match.unitHoney.toLocaleString()}꿀을 받으며, 총 ${match.totalHoney.toLocaleString()}꿀을 받게 됩니다`
                     : "보상 정보가 없습니다"}
                 </span>
               </>
             )}
           </div>
-          {/* TODO: 카테고리 정보 추가 */}
         </Info>
       </Content>
-      <ButtonWrapper role="group" aria-label="매칭 확인서 응답 버튼">
-        <RefusalButton
-          onClick={handleRefuse}
-          aria-label="매칭 확인서 거절하기"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handleRefuse();
-            }
-          }}
-        >
-          거절
-          <span className="sr-only">
-            이 매칭 확인서를 거절합니다. Enter 키 또는 Space 키를 누르면
-            실행됩니다.
-          </span>
-        </RefusalButton>
-        <AcceptButton
-          onClick={handleAccept}
-          aria-label="매칭 확인서 수락하기"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handleAccept();
-            }
-          }}
-        >
-          수락
-          <span className="sr-only">
-            이 매칭 확인서를 수락하고 매칭을 완료합니다. Enter 키 또는 Space
-            키를 누르면 실행됩니다.
-          </span>
-        </AcceptButton>
-      </ButtonWrapper>
+      {isHelper && (
+        <ButtonWrapper role="group" aria-label="매칭 확인서 응답 버튼">
+          <RefusalButton
+            onClick={handleRefuse}
+            aria-label="매칭 확인서 거절하기"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleRefuse();
+              }
+            }}
+          >
+            거절
+            <span className="sr-only">이 매칭 확인서를 거절합니다.</span>
+          </RefusalButton>
+          <AcceptButton
+            onClick={handleAccept}
+            aria-label="매칭 확인서 수락하기"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleAccept();
+              }
+            }}
+          >
+            수락
+            <span className="sr-only">
+              이 매칭 확인서를 수락하고 매칭을 완료합니다.
+            </span>
+          </AcceptButton>
+        </ButtonWrapper>
+      )}
     </Card>
   );
 };

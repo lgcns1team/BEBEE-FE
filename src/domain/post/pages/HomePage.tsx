@@ -40,7 +40,7 @@ const HomePage = () => {
   // 초기 데이터 로드 (필터 빈 값 상태로 요청)
   useEffect(() => {
     // 홈 경로가 아니면 초기화하지 않음
-    if (location.pathname !== "/") {
+    if (location.pathname !== "/home") {
       return;
     }
 
@@ -224,7 +224,7 @@ const Tab = styled.button<{ $active?: boolean }>`
 
     /* 활성화 상태일 때만 theme.color.text(검은색계열)를 보여줌 */
     background-color: ${({ theme, $active }) =>
-    $active ? theme.color.text : "transparent"};
+      $active ? theme.color.text : "transparent"};
 
     border-radius: ${({ theme }) => theme.borderRadius.sm};
 

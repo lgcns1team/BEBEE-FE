@@ -1,21 +1,16 @@
 // MatchSuccessMessageCard.tsx
 import styled from "styled-components";
-import type { ChatMessage } from "../chat.types";
+import type { ChatMessage } from "../types/chat.types";
 import PayReceipt from "./PayReceipt";
-// import { useUserStore } from "../../../store/useUserStore";
+import { useUserStore } from "../../../store/useUserStore";
 
 interface MatchSuccessCardProps {
   message?: ChatMessage;
 }
 
 const MatchSuccessCard = ({ message }: MatchSuccessCardProps) => {
-  // TODO: userStore 연결 후 role로 구분
-  // const { user } = useUserStore();
-  // const userRole = user?.role; // 'DISABLED' | 'HELPER' | 'ADMIN'
-  // const isDisabled = userRole === "DISABLED"; // 장애인인지 확인
-
-  // 임시로 항상 true로 설정 (나중에 userStore 연결 시 주석 해제)
-  const isDisabled = true; // TODO: userStore 연결 후 제거
+  const { user } = useUserStore();
+  const userRole = user?.role; // 'DISABLED' | 'HELPER' | 'ADMIN'
 
   return (
     <Container>
@@ -26,19 +21,11 @@ const MatchSuccessCard = ({ message }: MatchSuccessCardProps) => {
         - 도우미(HELPER): MatchSuccessCard만 표시
         - 장애인(DISABLED): MatchSuccessCard + PayReceipt 영수증 표시
       */}
-      {isDisabled &&
+
+      {userRole === "DISABLED" &&
         message &&
         message.usedHoney !== undefined &&
         message.usedHoney > 0 && <PayReceipt message={message} />}
-      {/* 
-        userStore 연결 후 사용할 코드:
-        {userRole === "DISABLED" &&
-          message &&
-          message.usedHoney !== undefined &&
-          message.usedHoney > 0 && (
-            <PayReceipt message={message} />
-          )}
-      */}
     </Container>
   );
 };

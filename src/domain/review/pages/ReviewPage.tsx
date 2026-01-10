@@ -2,52 +2,70 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
 import HelpTag from "../../../components/HelpTag";
 import BaseLongButton from "../../../components/BaseLongButton";
-// import { reviewMockData } from "../mock/review.mock";
+
 import { useMatchStore } from "../../matching/store/useMatchStore";
-import { useParams } from "react-router-dom";
 import {
   getReviewKeywords,
   reviewWrite,
   type ReviewKeyword,
 } from "../../../api/reviewApi";
+
+import { HELP_TAG_MAP } from "../../../constants/helpTags";
+
 const ReviewPage = () => {
   const navigate = useNavigate();
-
   const { agreementId } = useParams<{ agreementId: string }>();
-  const { getEngagementById } = useMatchStore();
+
+  const { getByAgreementId } = useMatchStore();
+
+  const engagement = agreementId ? getByAgreementId(agreementId) : undefined;
 
   const [keywords, setKeywords] = useState<ReviewKeyword[]>([]);
-
   const [selectedKeywordIds, setSelectedKeywordIds] = useState<number[]>([]);
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const engagement = agreementId ? getEngagementById(agreementId) : undefined;
-  const myRole = engagement.myRole;
+  useEffect(() => {
+    const fetchKeywords = async () => {
+      try {
+        const res = await getReviewKeywords();
+        setKeywords(res.keywords);
+      } catch (e) {
+        console.error("리뷰 키워드 조회 실패", e);
+      }
+    };
 
-  const opponent =
-    myRole === "DISABLED" ? engagement.helper : engagement.disabled;
-  const revieweeId = "700";
-  const opponentNickname =
-    myRole === "DISABLED"
-      ? engagement.helper.nickname
-      : engagement.disabled.nickname;
+    fetchKeywords();
+  }, []);
 
+  if (!engagement) {
+    return (
+      <Layout>
+        <Header title="리뷰 보내기" showBack onBack={() => navigate(-1)} />
+      </Layout>
+    );
+  }
+
+  const opponentNickname = engagement.otherNickname;
+  const revieweeId = engagement.otherId;
   const postTitle = engagement.title;
-  const helpCategories = engagement.helpCategories;
+  const helpCategoryIds = engagement.helpCategoryIds;
 
+  // 리뷰 보내기
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
+
       await reviewWrite({
         revieweeId,
         keywordIds: selectedKeywordIds,
       });
+
       alert("리뷰가 성공적으로 등록되었습니다.");
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error(error);
       alert("리뷰 등록에 실패했습니다.");
@@ -56,35 +74,24 @@ const ReviewPage = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchKeywords = async () => {
-      try {
-        const res = await getReviewKeywords();
-        setKeywords(res.keywords);
-      } catch (e) {
-        console.error("리뷰 키워드 조회 실패");
-      }
-    };
-    fetchKeywords();
-  }, []);
-
   return (
     <Layout>
-      <Header title="리뷰 보내기" onBack={() => navigate(-1)} showBack />
+      <Header title="리뷰 보내기" showBack onBack={() => navigate(-1)} />
+
       <Title>{postTitle}</Title>
+
       <TagWrapper>
-        {helpCategories.map((category) => {
-          return (
-            <HelpTag key={category.helpCategoryId}>
-              {category.helpCategoryName}
-            </HelpTag>
-          );
-        })}
+        {helpCategoryIds.map((id) => (
+          <HelpTag key={id}>{HELP_TAG_MAP[id]}</HelpTag>
+        ))}
       </TagWrapper>
+
       <Divider />
+
       <Content>
         <Prompt>{opponentNickname}과의 동행은 어떠셨나요?</Prompt>
         <Info>상대방은 어떤 리뷰를 남겼는지 알 수 없어요.</Info>
+
         <SelectReview>
           {keywords.map((keyword) => {
             const isSelected = selectedKeywordIds.includes(keyword.keywordId);
@@ -93,13 +100,13 @@ const ReviewPage = () => {
               <ReviewCard
                 key={keyword.keywordId}
                 $active={isSelected}
-                onClick={() => {
+                onClick={() =>
                   setSelectedKeywordIds((prev) =>
                     isSelected
                       ? prev.filter((id) => id !== keyword.keywordId)
                       : [...prev, keyword.keywordId]
-                  );
-                }}
+                  )
+                }
               >
                 {keyword.description}
               </ReviewCard>
@@ -107,11 +114,17 @@ const ReviewPage = () => {
           })}
         </SelectReview>
       </Content>
-      <BaseLongButton onClick={handleSubmit} label="리뷰 보내기" />
+
+      <BaseLongButton
+        label="리뷰 보내기"
+        disabled={isSubmitting || selectedKeywordIds.length === 0}
+        onClick={handleSubmit}
+      />
     </Layout>
   );
 };
 
+export default ReviewPage;
 const Title = styled.div`
   font-size: ${({ theme }) => theme.size.md};
   color: ${({ theme }) => theme.color.text};
@@ -172,5 +185,3 @@ const ReviewCard = styled.span<{ $active: boolean }>`
   justify-content: flex-start;
   text-align: left;
 `;
-
-export default ReviewPage;

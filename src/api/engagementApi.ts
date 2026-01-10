@@ -1,31 +1,45 @@
-// src/apis/engagementApi.ts
 import { instance } from "./axiosInstance";
-import type { Engagement } from "../types/match.type";
-import type { EngagementType } from "../types/match.type";
-import type { getEngagementCompleteResponse } from "../types/match.type";
-import type { EngagementDetail } from "../types/match.type";
+import type {
+  Engagement,
+  EngagementType,
+  EngagementDetail,
+  EngagementCalendarResponse,
+  GetEngagementCompleteResponse,
+} from "../types/match.type";
 
 export interface GetEngagementsResponse {
-  matches: Engagement[];
+  engagements: Engagement[];
 }
 
+// 활동 관리
 export const getEngagements = (params: {
   date: string;
   type?: EngagementType;
 }) => {
-  return instance.get<GetEngagementsResponse>("/match/engagements", {
-    params,
-  });
+  return instance.get<GetEngagementsResponse>("/match/engagements", { params });
 };
 
-export const getEngagementCompleteStatus = (params: {
-  engagementId: string;
+// 활동 관리 캘린더
+export const getEngagementsCalendar = (params: {
+  year: number;
+  month: number;
 }) => {
-  return instance.post<getEngagementCompleteResponse>(
-    `/match/engagements/${params.engagementId}/complete`
+  return instance.get<EngagementCalendarResponse>(
+    "/match/engagements/calendar",
+    {
+      params,
+    }
   );
 };
 
-export const getEngagementDetail = (agreementId: string) => {
+// 활동 완료
+export const completeEngagement = (engagementId: string) => {
+  return instance.patch<GetEngagementCompleteResponse>(
+    `/match/engagements/${engagementId}/complete`
+  );
+};
+
+// 매칭 확인서 노출
+export const getAgreementDetail = (agreementId: string) => {
   return instance.get<EngagementDetail>(`/match/agreements/${agreementId}`);
 };

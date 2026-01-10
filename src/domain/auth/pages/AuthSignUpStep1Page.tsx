@@ -10,51 +10,51 @@ import type { UserRole } from "../auth.types";
 import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
 
 const AuthSignUpStep1Page = () => {
-    const navigate = useNavigate();
-    const { role, setRole } = useAuthSignUpForm();
-    const [selectedRole, setSelectedRole] = useState<UserRole | null>(role);
+  const navigate = useNavigate();
+  const { role, setRole } = useAuthSignUpForm();
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(role);
 
-    const handleNext = () => {
-        if (!selectedRole) return;
-        setRole(selectedRole); // Zustand store에 저장
-        navigate("/signup/step2");
-    };
+  const handleNext = () => {
+    if (!selectedRole) return;
+    setRole(selectedRole); // Zustand store에 저장
+    navigate("/signup/step2");
+  };
 
-    return (
-        <Layout>
-            <AuthSignUpHeader
-                currentStep={1}
-                totalSteps={5}
-                onBack={() => navigate("/")}
-            />
-            <PageContainer>
-                <ScrollArea>
-                    <FieldSet>
-                        <ModalLabel>어떤 역할로 가입하시나요?</ModalLabel>
-                        <RoleButtonGroup>
-                            <AuthRoleSelectButton
-                                role="HELPER"
-                                label="도우미"
-                                selected={selectedRole === "HELPER"}
-                                onClick={() => setSelectedRole("HELPER")}
-                            />
-                            <AuthRoleSelectButton
-                                role="DISABLED"
-                                label="장애인"
-                                selected={selectedRole === "DISABLED"}
-                                onClick={() => setSelectedRole("DISABLED")}
-                            />
-                        </RoleButtonGroup>
-                    </FieldSet>
-                </ScrollArea>
-            </PageContainer>
-            <BaseLongButton
-                label="다음"
-                onClick={handleNext}
-                disabled={!selectedRole}
-            />
-        </Layout>
-    );
+  return (
+    <Layout>
+      <AuthSignUpHeader
+        currentStep={1}
+        totalSteps={5}
+        onBack={() => navigate("/home")}
+      />
+      <PageContainer>
+        <ScrollArea>
+          <FieldSet>
+            <ModalLabel>어떤 역할로 가입하시나요?</ModalLabel>
+            <RoleButtonGroup>
+              <AuthRoleSelectButton
+                role="HELPER"
+                label="도우미"
+                selected={selectedRole === "HELPER"}
+                onClick={() => setSelectedRole("HELPER")}
+              />
+              <AuthRoleSelectButton
+                role="DISABLED"
+                label="장애인"
+                selected={selectedRole === "DISABLED"}
+                onClick={() => setSelectedRole("DISABLED")}
+              />
+            </RoleButtonGroup>
+          </FieldSet>
+        </ScrollArea>
+      </PageContainer>
+      <BaseLongButton
+        label="다음"
+        onClick={handleNext}
+        disabled={!selectedRole}
+      />
+    </Layout>
+  );
 };
 
 export default AuthSignUpStep1Page;

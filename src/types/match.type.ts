@@ -1,41 +1,6 @@
 import type { DayOfWeek } from "./common.types";
+
 export type EngagementType = "DAY" | "TERM";
-
-export interface UserSummary {
-  memberId: string;
-  nickname: string;
-  profileImageUrl?: string;
-  gender?: string;
-  ageGroup?: number;
-}
-
-export interface HelpCategory {
-  helpCategoryId: number;
-  helpCategoryName: string;
-}
-
-/* ---------- DAY ---------- */
-export interface DayEngagementTime {
-  date: string;
-  schedule: {
-    dayOfWeek: string;
-    startTime: string;
-    endTime: string;
-  };
-}
-
-/* ---------- TERM ---------- */
-export interface TermEngagementTime {
-  startDate: string;
-  endDate: string;
-  schedules: {
-    dayOfWeek: string;
-    startTime: string;
-    endTime: string;
-  }[];
-}
-
-export type EngagementTime = DayEngagementTime | TermEngagementTime;
 
 export type Status =
   | "INACTIVE"
@@ -45,32 +10,41 @@ export type Status =
   | "REVIEW_COMPLETED";
 
 export interface Engagement {
-  myRole: "DISABLED" | "HELPER";
   engagementId: string;
   matchId: string;
   agreementId: string;
+
   otherId: string;
   otherNickname: string;
+
   thumbnailImageUrl: string;
   title: string;
+
   chatRoomId: string;
   region: string;
-  dayOfWeeks: DayOfWeek[];
-  date: string;
+
+  helpType: EngagementType; // "DAY" | "TERM"
+  date: string | null;
+  dayOfWeeks: DayOfWeek[]; // TERM 요일들
+
   status: Status;
   helpCategoryIds: number[];
-  type: EngagementType;
-  unitHoney: number;
-  totalHoney: number;
-  engagementTime: EngagementTime;
+  unitHoney?: number;
+  totalHoney?: number;
+  myRole?: "DISABLED" | "HELPER";
 }
 
-// 활동 완료 체크 응답
-export interface getEngagementCompleteResponse {
-  status: "COMPLETED" | "REVIEW_ACTIVE";
+// 활동 완료 응답
+export interface GetEngagementCompleteResponse {
   isLastEngagement: boolean;
 }
 
+// 캘린더 마킹용
+export interface EngagementCalendarResponse {
+  activeDates: string[];
+}
+
+// 매칭 확인서 상세
 export interface EngagementSchedule {
   dayOfWeek: DayOfWeek;
   startTime: string;
@@ -98,4 +72,6 @@ export interface EngagementDetail {
   otherNickname: string;
   otherGender: "MALE" | "FEMALE";
   otherAgeGroup: number;
+
+  region?: string;
 }

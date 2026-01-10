@@ -7,7 +7,7 @@ import { CiCalendar } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { TbMinusVertical } from "react-icons/tb";
-import type { AgreementRequest } from "../../agreement.types";
+import type { AgreementRequest } from "../../types/match.types";
 import AddButton from "../../../../components/AddButton";
 import {
   FieldSet,

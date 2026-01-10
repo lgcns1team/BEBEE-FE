@@ -32,6 +32,7 @@ import ChargePage from "./domain/Pay/page/ChargePage";
 import { CheckoutPage } from "./domain/Pay/page/CheckoutPage";
 import { SuccessPage } from "./domain/Pay/page/SuccessPage";
 import { FailPage } from "./domain/Pay/page/FailPage";
+import LandingPage from "./domain/Landing/page/LandingPage";
 
 function App() {
   return (
@@ -39,8 +40,12 @@ function App() {
       <GlobalStyle />
       <BrowserRouter>
         <Routes>
+          {/* 랜딩페이지 */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/landing" element={<LandingPage />} />
+          
           {/* 홈 */}
-          <Route path="/" element={<HomePage />} />
+          <Route path="/home" element={<HomePage />} />
 
           {/* 게시글 상세 */}
           <Route path="/post/:postId" element={<PostDetailPage />} />
