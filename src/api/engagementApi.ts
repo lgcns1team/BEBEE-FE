@@ -23,6 +23,8 @@ export const getEngagements = (params: {
 export const getEngagementsCalendar = (params: {
   year: number;
   month: number;
+  type: EngagementType
+  
 }) => {
   return instance.get<EngagementCalendarResponse>(
     "/match/engagements/calendar",

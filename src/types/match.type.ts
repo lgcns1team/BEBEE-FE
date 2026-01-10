@@ -1,6 +1,6 @@
 import type { DayOfWeek } from "./common.types";
 
-export type EngagementType = "DAY" | "TERM";
+export type EngagementType = "DAY" | "TERM" | null;
 
 export type Status =
   | "INACTIVE"

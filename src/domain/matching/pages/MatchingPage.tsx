@@ -30,7 +30,7 @@ const MatchingPage = () => {
 
   const [selectedDate, setSelectedDate] = useState("2026-01-09");
 
-  const selectedType: EngagementType | undefined = useMemo(() => {
+  const selectedType: EngagementType | null = useMemo(() => {
     if (activeTab === "하루 도움") return "DAY";
     if (activeTab === "지속 도움") return "TERM";
     return undefined; // 전체
@@ -55,7 +55,7 @@ const MatchingPage = () => {
     const [y, m] = selectedDate.split("-").map(Number);
     if (!y || !m) return;
 
-    getEngagementsCalendar({ year: y, month: m })
+    getEngagementsCalendar({ year: y, month: m, type: selectedType })
       .then((res) => {
         setMarkedDates(toDateSet(res.data.activeDates));
       })
@@ -63,7 +63,7 @@ const MatchingPage = () => {
         console.error("calendar 조회 실패", e);
         setMarkedDates(new Set());
       });
-  }, [selectedDate]);
+  }, [selectedDate, selectedType]);
 
   useEffect(() => {
     getEngagements({ date: selectedDate, type: selectedType })
