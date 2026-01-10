@@ -1,5 +1,9 @@
-import axios, { type InternalAxiosRequestConfig, type AxiosResponse, type AxiosError } from 'axios';
-import { useUserStore } from '../store/useUserStore';
+import axios, {
+  type InternalAxiosRequestConfig,
+  type AxiosResponse,
+  type AxiosError,
+} from "axios";
+import { useUserStore } from "../store/useUserStore";
 
 // 임시 토큰 (헤더에 고정)
 //export const TEMP_TOKEN =
@@ -8,13 +12,12 @@ import { useUserStore } from '../store/useUserStore';
 // localStorage에 토큰 강제 설정
 //localStorage.setItem("accessToken", TEMP_TOKEN);
 
-
 export const instance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || "https://api.be-bee.link",
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    withCredentials: true,
+  baseURL: import.meta.env.VITE_API_URL || "https://api.be-bee.link",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
 });
 
 // 토큰 갱신 중복 방지를 위한 Promise 저장소
@@ -22,35 +25,35 @@ let isRefreshing = false;
 let refreshSubscribers: ((token: string | null) => void)[] = [];
 
 const onRefreshed = (token: string | null) => {
-    refreshSubscribers.forEach(callback => callback(token));
-    refreshSubscribers = [];
+  refreshSubscribers.forEach((callback) => callback(token));
+  refreshSubscribers = [];
 };
 
 const addRefreshSubscriber = (callback: (token: string | null) => void) => {
-    refreshSubscribers.push(callback);
+  refreshSubscribers.push(callback);
 };
 
 // 요청 인터셉터
 instance.interceptors.request.use(
-    (config: InternalAxiosRequestConfig) => {
-        // useUserStore에서 accessToken 가져오기
-        const userStore = useUserStore.getState();
-        const accessToken = userStore.accessToken;
+  (config: InternalAxiosRequestConfig) => {
+    // useUserStore에서 accessToken 가져오기
+    const userStore = useUserStore.getState();
+    const accessToken = userStore.accessToken;
 
-        if (accessToken) {
-            config.headers['Authorization'] = `Bearer ${accessToken}`;
-        }
-
-        // 사용자가 X-Member-Id 헤더 추가를 원했으므로 여기서 설정
-        if (userStore.user?.memberId != null) {
-            config.headers['X-Member-Id'] = userStore.user.memberId;
-        }
-
-        return config;
-    },
-    (error: AxiosError) => {
-        return Promise.reject(error);
+    if (accessToken) {
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
     }
+
+    // 사용자가 X-Member-Id 헤더 추가를 원했으므로 여기서 설정
+    if (userStore.user?.memberId != null) {
+      config.headers["X-Member-Id"] = userStore.user.memberId;
+    }
+
+    return config;
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error);
+  }
 );
 /*
 // 응답 인터셉터 - 401 에러 시 자동 토큰 갱신 (Race Condition 방지)

@@ -100,7 +100,7 @@ const ChatListPage = () => {
     <ChatContainer role="main" aria-label="채팅 목록">
       <h2 className="sr-only">채팅 메시지 목록</h2>
       <Layout>
-        <Header title="채팅" onBack={() => navigate("/")} />
+        <Header title="채팅" onBack={() => navigate("/home")} />
         <ChatList role="list" aria-label="채팅방 목록">
           {Array.isArray(chatrooms) && chatrooms.length > 0
             ? chatrooms.map((room) => (

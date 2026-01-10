@@ -1,11 +1,11 @@
-import { instance } from "../../../api/axiosInstance";
+import { instance } from ".//axiosInstance";
 import type {
   AgreementRequest,
   AgreementResponse,
   AgreementConfirmRequest,
   AgreementConfirmResponse,
   AgreementRefuseRequest,
-} from "../agreement.types";
+} from "../domain/chat/types/match.types";
 
 export const createAgreement = async (
   data: AgreementRequest

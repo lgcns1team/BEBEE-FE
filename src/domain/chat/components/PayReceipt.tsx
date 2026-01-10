@@ -1,16 +1,18 @@
 import React from "react";
 import styled from "styled-components";
-import type { ChatMessage } from "../chat.types";
+import type { ChatMessage } from "../types/chat.types";
 
 interface PayReceiptProps {
   message: ChatMessage;
 }
 
 const PayReceipt = ({ message }: PayReceiptProps) => {
+  const match = message.matchData;
+  if (!match) return null;
   const isVolunteer = message.isVolunteer ?? false;
-  const matchType = message.matchType;
-  const unitPoints = message.unitPoints ?? 0;
-  const totalPoints = message.totalPoints ?? 0;
+  const matchType = match.type;
+  const unitPoints = match.unitHoney ?? 0;
+  const totalPoints = match.totalHoney ?? 0;
 
   // DAY면 unitPoints, 아니면 totalPoints 사용 (매칭확인서 작성 시 입력한 값)
   const usedHoney = matchType === "DAY" ? unitPoints : totalPoints;

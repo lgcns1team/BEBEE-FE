@@ -1,13 +1,13 @@
 import { instance } from "./axiosInstance";
 import { AUTH_API_URLS } from "../domain/auth/auth.constants";
 import type { LoginRequest, SignUpRequest } from "../domain/auth/auth.types";
-import axios from 'axios';
+import axios from "axios";
 
 // 토큰 갱신 전용 인스턴스 (인터셉터 없음)
 const refreshInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "https://api.be-bee.link",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
   withCredentials: true,
 });

@@ -183,7 +183,7 @@ export const usePostWrite = (
     try {
       await postApi.createPost(formData as PostCreateReqDTO);
       alert("게시글 작성이 완료되었습니다.");
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error("게시글 작성 오류:", error);
       alert("작성에 실패했습니다.");

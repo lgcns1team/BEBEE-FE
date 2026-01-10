@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Client } from "@stomp/stompjs";
-import type { ChatMessage } from "../domain/chat/chat.types";
+import type { ChatMessage } from "../domain/chat/types/chat.types";
 import { useChatStore } from "../domain/chat/store/useChatStore";
 
 interface PendingMatchConfirmation {
@@ -59,14 +59,8 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
   client: null,
   pendingMatchConfirmations: [],
 
-  getMessages: (chatroomId: string) => {
-    const state = get();
-    if (!state.messagesByChatroom || !chatroomId) {
-      return [];
-    }
-    const messages = state.messagesByChatroom[chatroomId];
-    return Array.isArray(messages) ? messages : [];
-  },
+  getMessages: (chatroomId: string) =>
+    get().messagesByChatroom[chatroomId] || [],
 
   connect: () => {
     const token = 1;
@@ -265,24 +259,16 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
   addMessage: (msg, chatroomId) =>
     set((state) => {
-      const targetId = chatroomId || msg?.chatroomId;
-      if (!targetId || !msg) return state;
+      const targetId = chatroomId || msg.chatroomId;
+      if (!targetId) return state;
 
-      // 안전한 접근 보장
-      const currentMessages = state.messagesByChatroom?.[targetId];
-      const safeCurrentMessages = Array.isArray(currentMessages)
-        ? currentMessages
-        : [];
-
-      // 중복 체크
-      if (msg.id && safeCurrentMessages.find((m) => m?.id === msg.id)) {
-        return state;
-      }
+      const currentMessages = state.messagesByChatroom[targetId] || [];
+      if (currentMessages.find((m) => m.id === msg.id)) return state;
 
       return {
         messagesByChatroom: {
-          ...(state.messagesByChatroom || {}),
-          [targetId]: [...safeCurrentMessages, msg],
+          ...state.messagesByChatroom,
+          [targetId]: [...currentMessages, msg],
         },
       };
     }),

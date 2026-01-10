@@ -40,7 +40,7 @@ const AuthLoginPage = () => {
 
       // 로그인 성공 시 메인 페이지로 이동
       alert("로그인 성공!");
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error("로그인 실패:", error);
       alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
@@ -82,9 +82,9 @@ const AuthLoginPage = () => {
         </FormContainer>
 
         <UtilContainer>
-          <UtilLink onClick={() => { }}>아이디 찾기</UtilLink>
+          <UtilLink onClick={() => {}}>아이디 찾기</UtilLink>
           <Divider>|</Divider>
-          <UtilLink onClick={() => { }}>비밀번호 찾기</UtilLink>
+          <UtilLink onClick={() => {}}>비밀번호 찾기</UtilLink>
           <Divider>|</Divider>
           <SignUpLink onClick={() => navigate("/signup/step1")}>
             회원가입

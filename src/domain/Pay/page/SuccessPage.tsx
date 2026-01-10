@@ -119,7 +119,7 @@ export function SuccessPage() {
               <button className="btn w-100" onClick={() => navigate("/mypage")}>
                 마이페이지로
               </button>
-              <button className="btn w-100" onClick={() => navigate("/")}>
+              <button className="btn w-100" onClick={() => navigate("/home")}>
                 홈으로
               </button>
             </div>
