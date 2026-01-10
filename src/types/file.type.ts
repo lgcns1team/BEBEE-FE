@@ -13,7 +13,7 @@ export interface PresignedUrlResponse {
 }
 
 // 파일 디렉토리 타입
-export type FileDirectory = "posts" | "profiles" | "chats";
+export type FileDirectory = "posts" | "profiles" | "chats" | "badge";
 
 // 파일 업로드 상태
 export interface FileUploadState {
