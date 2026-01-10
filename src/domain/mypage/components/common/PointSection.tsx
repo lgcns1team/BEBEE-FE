@@ -7,11 +7,14 @@ import styled from "styled-components";
 import { useWalletStore } from "../../../Pay/store/useWalletStore";
 import { useEffect } from "react";
 import { useWalletActions } from "../../../Pay/hooks/useWalletActions";
+import { useUserStore } from "../../../../store/useUserStore";
 const PointSection = () => {
   const navigate = useNavigate();
   const currentHoney = useWalletStore((s) => s.currentHoney);
   const { refreshCurrentHoney } = useWalletActions();
-
+  const { user } = useUserStore();
+  const role = user.role;
+  const isHelper = role === "HELPER";
   const goPay = () => {
     navigate("/charge");
   };
@@ -27,7 +30,11 @@ const PointSection = () => {
       </PointWrapper>
       <PaymentWrapper>
         <ReceiptButton>내역</ReceiptButton>
-        <PayButton onClick={goPay}>충전</PayButton>
+        {isHelper ? (
+          <PayButton>인출</PayButton>
+        ) : (
+          <PayButton onClick={goPay}>충전</PayButton>
+        )}
       </PaymentWrapper>
     </PaymentContainer>
   );
