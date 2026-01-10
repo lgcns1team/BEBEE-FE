@@ -173,7 +173,7 @@ const HomePage = () => {
           onClose={() => setIsFilterSheetOpen(false)}
         />
 
-        <WriteButton onClick={() => navigate("post/write")} />
+        <WriteButton onClick={() => navigate("/post/write")} />
         <NavBar />
       </Wrapper>
     </Layout>
