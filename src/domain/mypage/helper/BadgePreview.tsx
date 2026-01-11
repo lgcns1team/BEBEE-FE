@@ -148,7 +148,7 @@ const BadgeScrollContainer = styled.div`
 
 const BadgeScrollContent = styled.div`
   display: flex;
-  gap: 12px;
+  gap: 8px;
   padding-bottom: 8px;
 `;
 
@@ -156,7 +156,7 @@ const BadgeCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 8px;
+  padding: 6px;
   border: 0.5px solid ${({ theme }) => theme.color.natural200};
   border-radius: 10px;
   gap: 8px;
