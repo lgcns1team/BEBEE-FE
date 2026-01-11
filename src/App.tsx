@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./domain/post/pages/HomePage";
 import PostDetailPage from "./domain/post/pages/PostDetailPage";
@@ -11,11 +12,11 @@ import PostWritePage from "./domain/post/pages/PostWritePage";
 import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
+import { initViewportHeight } from "./utils/viewport";
 import "./App.css";
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
 import MapDisabledPage from "./domain/map/pages/MapDisabledPage";
-import DisabledMyPage from "./domain/mypage/page/DisabledMyPage";
 import MatchFormPage from "./domain/chat/pages/MatchFormPage";
 import ApplicateLandingPage from "./domain/Application/page/ApplicateLandingPage";
 import ApplicateStatusPage from "./domain/Application/page/ApplicateStatusPage";
@@ -38,6 +39,12 @@ import BadgePage from "./domain/Badge/page/Badge";
 import BadgeDetailPage from "./domain/Badge/page/BadgeDetailPage";
 
 function App() {
+  // 모바일 브라우저 뷰포트 높이 초기화
+  useEffect(() => {
+    const cleanup = initViewportHeight();
+    return cleanup;
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />

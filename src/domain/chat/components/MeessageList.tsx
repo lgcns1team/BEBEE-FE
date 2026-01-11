@@ -27,7 +27,16 @@ const MessageList = () => {
   };
 
   return (
-    <ListContainer ref={scrollRef}>
+    <ListContainer
+      ref={scrollRef}
+      role="log"
+      aria-label="채팅 메시지 목록"
+      aria-live="polite"
+      aria-atomic="false"
+    >
+      <span className="sr-only">
+        채팅 메시지 목록입니다. 총 {messages.length}개의 메시지가 있습니다.
+      </span>
       {messages.map((msg, index) => {
         // 이전 메시지와 날짜 비교
         const prevMsg = messages[index - 1];
@@ -40,8 +49,11 @@ const MessageList = () => {
           <React.Fragment key={msg.id}>
             {/* 날짜가 바뀌었을 때만 구분선 표시 */}
             {isNewDay && (
-              <DateDivider>
+              <DateDivider role="separator" aria-label={`날짜 구분선: ${getFormatDate(msg.createdAt)}`}>
                 <span>{getFormatDate(msg.createdAt)}</span>
+                <span className="sr-only">
+                  {getFormatDate(msg.createdAt)}부터의 메시지입니다
+                </span>
               </DateDivider>
             )}
 
