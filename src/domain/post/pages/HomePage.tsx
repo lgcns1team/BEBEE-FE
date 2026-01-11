@@ -206,7 +206,6 @@ const Wrapper = styled.div`
 `;
 
 const TabBar = styled.div`
-  margin-bottom: 20px;
   position: fixed;
   display: flex;
   gap: 32px;
@@ -255,12 +254,12 @@ const Tab = styled.button<{ $active?: boolean }>`
 const FilterRow = styled.div`
   z-index: 90;
   position: fixed;
-  margin-top: 45px;
+  margin-top: 42px;
   display: flex;
   align-items: center;
   gap: 12px;
   padding-top: 20px;
-  background-color: white;
+  background-color: ${({ theme }) => theme.color.white};
   justify-content: space-between;
   width: 343px;
 `;

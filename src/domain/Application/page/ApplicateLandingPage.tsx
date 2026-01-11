@@ -4,7 +4,6 @@ import { letterVariants } from "../animation/letterVariants";
 
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
-import Header from "../../../components/Header";
 
 import letter from "../../../assets/images/letter.png";
 import bee_letter from "../../../assets/images/bee-letter.png";
@@ -37,8 +36,7 @@ const PointLandingPage = () => {
   const LETTER_COUNT = 5;
   return (
     <Layout>
-      <Header onBack={() => navigate(-1)} />
-      <Wrapper role="main" aria-label="지원자 랜딩 페이지">
+      <Wrapper>
         <HiConatiner>
           <span>반가워요 !</span>
           <span>
@@ -46,16 +44,7 @@ const PointLandingPage = () => {
           </span>
           <span>기다리고 있어요</span>
         </HiConatiner>
-        <ImgContainer
-          style={{
-            position: "relative",
-            width: "100%",
-            height: "300px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <ImgContainer>
           <LeftArea>
             {Array.from({ length: LETTER_COUNT }).map((_, i) => (
               <motion.img
@@ -122,13 +111,13 @@ export default PointLandingPage;
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  width: 100%;
-  box-sizing: border-box;
-  min-height: 0;
+  gap: 24px;
+
+  justify-content: center;
   flex: 1;
-  overflow: hidden;
-  padding-bottom: 16px;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 `;
 
 const HiConatiner = styled.div`
@@ -139,16 +128,16 @@ const HiConatiner = styled.div`
   font-size: ${({ theme }) => theme.size.xl};
   color: ${({ theme }) => theme.color.text};
   font-weight: ${({ theme }) => theme.weight.bold};
-  padding-top: 8px;
+  flex-shrink: 0;
 `;
 
 const ImgContainer = styled.div`
   width: 100%;
-  height: 260px;
-  min-height: 260px;
+  height: 220px;
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
 `;
 
 const LeftArea = styled.div`
@@ -162,21 +151,25 @@ const RightArea = styled.div`
   align-items: center;
   justify-content: flex-end;
 `;
+
 const InformationList = styled.ol`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   list-style: none;
+  flex-shrink: 0;
+  padding-bottom: 8px;
 `;
+
 const InfoItem = styled.li`
   display: flex;
   flex-direction: row;
   align-items: center;
-
   gap: 8px;
   font-size: ${({ theme }) => theme.size.md};
 `;
+
 const Icon = styled.span`
   display: flex;
   justify-content: center;
@@ -184,13 +177,15 @@ const Icon = styled.span`
   width: 30px;
   height: 30px;
   padding: 5px;
+  flex-shrink: 0;
 `;
+
 const Text = styled.span`
   color: ${({ theme }) => theme.color.text};
 `;
 
 const ButtonWrapper = styled.div`
   width: 100%;
-  padding-top: 16px;
+  padding-top: 12px;
   flex-shrink: 0;
 `;

@@ -13,25 +13,22 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
+    height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
     overflow-x: hidden;
-    /* 모바일 브라우저 주소창 높이를 고려한 뷰포트 높이 설정 */
-    height: calc(var(--vh, 1vh) * 100);
   }
 
   #root {
     width: 375px;
     max-width: 100%;
     margin: 0 auto;
-    min-height: calc(var(--vh, 1vh) * 100); 
-    height: 100%;
-    
+    height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+    max-height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
     background-color: transparent;
     color: ${theme.color.text};
-    
     font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: ${theme.size.md};
     line-height: 1.4;
+    overflow: hidden;
   }
 
   a {

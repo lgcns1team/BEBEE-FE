@@ -14,8 +14,8 @@ const Layout = ({ children, bg }: LayoutProps) => {
 const Wrapper = styled.main<{ bg?: boolean }>`
   width: 100%;
   max-width: 100%;
-  height: calc(var(--vh, 1vh) * 100);
-  max-height: calc(var(--vh, 1vh) * 100);
+  height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+  max-height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
   display: flex;
   flex-direction: column;
   padding: 0 16px 16px 16px;
