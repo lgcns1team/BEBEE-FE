@@ -25,31 +25,60 @@ const PayReceipt = ({ message }: PayReceiptProps) => {
   return (
     <ReceiptContainer role="contentinfo" aria-label="꿀 사용 영수증">
       <ReceiptHeader>
-        <ReceiptTitle>꿀 사용 영수증</ReceiptTitle>
-        <ReceiptSubtitle>꿀 사용 내역</ReceiptSubtitle>
+        <ReceiptTitle>
+          꿀 사용 영수증
+          <span className="sr-only">매칭 성사로 인한 꿀 사용 내역 영수증입니다</span>
+        </ReceiptTitle>
+        <ReceiptSubtitle>
+          꿀 사용 내역
+          <span className="sr-only">아래에 사용된 꿀과 잔액 정보가 표시됩니다</span>
+        </ReceiptSubtitle>
       </ReceiptHeader>
-      <ReceiptDivider />
-      <ReceiptBody>
+      <ReceiptDivider aria-hidden="true" />
+      <ReceiptBody role="group" aria-label="꿀 사용 내역 상세">
         <ReceiptItem>
           <ItemLabel>사용액</ItemLabel>
-          <ItemValue>{usedHoney.toLocaleString()} 꿀</ItemValue>
+          <ItemValue>
+            {usedHoney.toLocaleString()} 꿀
+            <span className="sr-only">
+              사용된 꿀은 {usedHoney.toLocaleString()}꿀입니다
+            </span>
+          </ItemValue>
         </ReceiptItem>
         {message.currentHoney !== undefined && (
           <ReceiptItem>
             <ItemLabel>잔액</ItemLabel>
-            <ItemValue>{message.currentHoney.toLocaleString()} 꿀</ItemValue>
+            <ItemValue>
+              {message.currentHoney.toLocaleString()} 꿀
+              <span className="sr-only">
+                현재 보유 잔액은 {message.currentHoney.toLocaleString()}꿀입니다
+              </span>
+            </ItemValue>
           </ReceiptItem>
         )}
       </ReceiptBody>
-      <ReceiptDivider />
+      <ReceiptDivider aria-hidden="true" />
       <ReceiptFooter>
-        <FooterText>매칭이 성사되어 꿀이 차감되었어요</FooterText>
+        <FooterText>
+          매칭이 성사되어 꿀이 차감되었어요
+          <span className="sr-only">
+            매칭이 성사되어 위의 금액만큼 꿀이 차감되었습니다
+          </span>
+        </FooterText>
         <FooterDate>
           {new Date(message.createdAt).toLocaleDateString("ko-KR", {
             year: "numeric",
             month: "long",
             day: "numeric",
           })}
+          <span className="sr-only">
+            차감 일시:{" "}
+            {new Date(message.createdAt).toLocaleDateString("ko-KR", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </span>
         </FooterDate>
       </ReceiptFooter>
     </ReceiptContainer>

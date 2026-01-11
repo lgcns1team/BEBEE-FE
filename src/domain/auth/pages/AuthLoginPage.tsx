@@ -101,8 +101,14 @@ const PageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 3rem 1.25rem;
+  justify-content: space-between;
+  padding: 2rem 1.25rem 1.5rem;
   flex: 1;
+  min-height: 0;
+  max-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 `;
 
 const LogoContainer = styled.div`
@@ -110,7 +116,6 @@ const LogoContainer = styled.div`
   flex-direction: column;
   align-items: center;
   margin-bottom: 1.5rem;
-  margin-top: 2rem;
 `;
 
 const LogoIcon = styled.img`
@@ -145,7 +150,7 @@ const UtilContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 2.5rem;
+  margin-top: 1.5rem;
   gap: 0.75rem;
 `;
 
