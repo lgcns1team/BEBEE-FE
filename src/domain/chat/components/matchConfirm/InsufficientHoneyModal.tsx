@@ -40,22 +40,52 @@ const InsufficientHoneyModal = ({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="insufficient-honey-title"
+            aria-describedby="insufficient-honey-description"
           >
+            <span className="sr-only">꿀 부족 알림 모달입니다</span>
             <TextWrapper>
-              <Title>앗! 꿀이 부족해요</Title>
-              <AvailableHoney>사용 가능한 꿀: {currentHoney}꿀</AvailableHoney>
+              <Title id="insufficient-honey-title">
+                앗! 꿀이 부족해요
+                <span className="sr-only">
+                  매칭 확인서를 작성하기에 보유한 꿀이 부족합니다
+                </span>
+              </Title>
+              <AvailableHoney id="insufficient-honey-description">
+                사용 가능한 꿀: {currentHoney}꿀
+                <span className="sr-only">
+                  현재 보유한 꿀은 {currentHoney}꿀입니다
+                </span>
+              </AvailableHoney>
             </TextWrapper>
             <RequiredHoneyWrapper>
-              <RequiredHoneyBox>
+              <RequiredHoneyBox role="group" aria-label="필요한 꿀 정보">
                 <RequiredLabel>필요한 꿀</RequiredLabel>
-                <RequiredAmount>{requiredHoney}꿀</RequiredAmount>
+                <RequiredAmount>
+                  {requiredHoney}꿀
+                  <span className="sr-only">
+                    매칭 확인서 작성에 필요한 꿀은 {requiredHoney}꿀입니다
+                  </span>
+                </RequiredAmount>
               </RequiredHoneyBox>
             </RequiredHoneyWrapper>
-            <RechargeButton onClick={handleRecharge}>
-              <HoneyIcon src={honey} alt={"꿀"}></HoneyIcon>꿀 충전하기
+            <RechargeButton
+              onClick={handleRecharge}
+              aria-label="꿀 충전 페이지로 이동"
+            >
+              <HoneyIcon src={honey} alt="" aria-hidden="true"></HoneyIcon>
+              꿀 충전하기
+              <span className="sr-only">
+                꿀 충전 페이지로 이동합니다. Enter 키 또는 Space 키를 누르면 실행됩니다.
+              </span>
             </RechargeButton>
 
-            <CancelButton onClick={onClose}>취소</CancelButton>
+            <CancelButton onClick={onClose} aria-label="모달 닫기">
+              취소
+              <span className="sr-only">이 모달을 닫고 이전 화면으로 돌아갑니다</span>
+            </CancelButton>
           </Modal>
         </ModalOverlay>
       )}

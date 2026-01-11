@@ -104,6 +104,7 @@ const ChatRoom = () => {
 
   return (
     <ChatRoomLayout role="main" aria-label="채팅방">
+      <span className="sr-only">채팅방 페이지입니다. </span>
       <ChatRoomCard />
       <MessageListContainer aria-live="polite" aria-relevant="additions">
         <MessageList />

@@ -81,7 +81,9 @@ export default LandingPage;
 
 const LandingContainer = styled.div`
   width: 100%;
-  min-height: 100vh;
+  height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+  max-height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+  overflow: hidden;
   flex: 1;
   background-color: ${({ theme }) => theme.color.main};
   display: flex;

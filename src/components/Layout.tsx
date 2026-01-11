@@ -14,11 +14,13 @@ const Layout = ({ children, bg }: LayoutProps) => {
 const Wrapper = styled.main<{ bg?: boolean }>`
   width: 100%;
   max-width: 100%;
-  min-height: 100vh;
+  height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+  max-height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
   display: flex;
   flex-direction: column;
   padding: 0 16px 16px 16px;
   box-sizing: border-box;
+  overflow: hidden;
   background-color: ${({ bg, theme }) =>
     bg ? theme.color.natural50 : theme.color.white};
 `;

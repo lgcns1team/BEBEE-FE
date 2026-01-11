@@ -9,27 +9,26 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   html, body {
-
     background-color: ${theme.color.white}; 
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
+    height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+    overflow-x: hidden;
   }
 
   #root {
     width: 375px;
     max-width: 100%;
     margin: 0 auto;
-    min-height: 100vh; 
-    
- background-color: transparent;
+    height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+    max-height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+    background-color: transparent;
     color: ${theme.color.text};
-    
     font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: ${theme.size.md};
     line-height: 1.4;
-    
+    overflow: hidden;
   }
 
   a {

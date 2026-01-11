@@ -47,10 +47,28 @@ const MessageItem = ({ message, isMe }: Props) => {
 
   // 2. 일반 텍스트 메시지인 경우 (말풍선 사용)
   return (
-    <MessageRow $isMe={isMe}>
-      {isMe && <MessageTime>{formatTime(message.createdAt)}</MessageTime>}
-      <MessageBubble $isMe={isMe}>{message.textContent}</MessageBubble>
-      {!isMe && <MessageTime>{formatTime(message.createdAt)}</MessageTime>}
+    <MessageRow
+      $isMe={isMe}
+      role="listitem"
+      aria-label={isMe ? "내가 보낸 메시지" : "받은 메시지"}
+    >
+      {isMe && (
+        <MessageTime aria-label={`전송 시간: ${formatTime(message.createdAt)}`}>
+          {formatTime(message.createdAt)}
+        </MessageTime>
+      )}
+      <MessageBubble $isMe={isMe}>
+        {message.textContent}
+        <span className="sr-only">
+          {isMe ? "내가 보낸 메시지" : "상대방이 보낸 메시지"}, 전송 시간:{" "}
+          {formatTime(message.createdAt)}
+        </span>
+      </MessageBubble>
+      {!isMe && (
+        <MessageTime aria-label={`수신 시간: ${formatTime(message.createdAt)}`}>
+          {formatTime(message.createdAt)}
+        </MessageTime>
+      )}
     </MessageRow>
   );
 };
