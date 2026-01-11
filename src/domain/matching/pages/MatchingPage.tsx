@@ -21,6 +21,14 @@ import { toDateSet } from "../utils/engagementDates";
 
 import type { EngagementType } from "../../../types/match.type";
 
+const getTodayYYYYMMDD = () => {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+
 const MatchingPage = () => {
   const { engagements, setEngagements } = useMatchStore();
 
@@ -28,7 +36,7 @@ const MatchingPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>("전체");
   const [period, setPeriod] = useState<"week" | "month">("month");
 
-  const [selectedDate, setSelectedDate] = useState("2026-01-09");
+  const [selectedDate, setSelectedDate] = useState(() => getTodayYYYYMMDD());
 
   const selectedType: EngagementType | null = useMemo(() => {
     if (activeTab === "하루 도움") return "DAY";

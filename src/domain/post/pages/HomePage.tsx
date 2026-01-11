@@ -39,6 +39,23 @@ const HomePage = () => {
   const { user } = useUserStore();
   const role = user?.role;
   const isHelper = role === "HELPER";
+
+  // HomePage에서 뒤로가기 방지
+  useEffect(() => {
+    // history 스택에 현재 상태를 추가하여 뒤로가기를 막음
+    window.history.pushState(null, "", window.location.href);
+
+    const handlePopState = () => {
+      // 뒤로가기를 눌렀을 때 다시 /home으로 이동 (replace로 history 스택에서 제거)
+      navigate("/home", { replace: true });
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [navigate]);
   // 초기 데이터 로드 (필터 빈 값 상태로 요청)
   useEffect(() => {
     // 홈 경로가 아니면 초기화하지 않음
