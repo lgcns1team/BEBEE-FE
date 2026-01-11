@@ -34,6 +34,8 @@ import { CheckoutPage } from "./domain/Pay/page/CheckoutPage";
 import { SuccessPage } from "./domain/Pay/page/SuccessPage";
 import { FailPage } from "./domain/Pay/page/FailPage";
 import LandingPage from "./domain/Landing/page/LandingPage";
+import BadgePage from "./domain/Badge/page/Badge";
+import BadgeDetailPage from "./domain/Badge/page/BadgeDetailPage";
 
 function App() {
   return (
@@ -64,9 +66,6 @@ function App() {
           {/* 마이페이지에서 보는 프로필 정보 */}
           <Route path="/profile-info/:infoId" element={<ProfileInfoPage />} />
 
-          {/* 마이페이지 */}
-          <Route path="/mypage" element={<DisabledMyPage />} />
-
           {/*동네지도*/}
           <Route path="/map" element={<MapHelperPage />} />
           <Route path="/map/disabled" element={<MapDisabledPage />} />
@@ -82,6 +81,9 @@ function App() {
           />
           {/* 리뷰 */}
           <Route path="/review/:agreementId" element={<ReviewPage />} />
+          {/*뱃지*/}
+          <Route path="/badge" element={<BadgePage />} />
+          <Route path="/badge/:disabilityId" element={<BadgeDetailPage />} />
           {/*  테스트 */}
           <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
           <Route path="/applicate-status" element={<ApplicateStatusPage />} />
