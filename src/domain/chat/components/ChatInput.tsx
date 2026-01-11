@@ -25,21 +25,33 @@ const ChatInput = ({ onSend }: Props) => {
   };
 
   return (
-    <InputArea>
+    <InputArea role="region" aria-label="메시지 입력 영역">
+      <span className="sr-only">채팅 메시지를 입력하는 영역입니다</span>
       <StyledInput
         placeholder="메시지를 입력하세요..."
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyPress}
+        aria-label="메시지 입력 필드"
       />
       {/* 텍스트가 있을 때만 강조되도록 버튼 스타일링 가능 */}
-      <SendButton onClick={handleSend} disabled={!text.trim()}>
+      <SendButton
+        onClick={handleSend}
+        disabled={!text.trim()}
+        aria-label={text.trim() ? "메시지 전송하기" : "메시지 전송하기 (메시지를 입력해주세요)"}
+      >
         <SendIcon
           fill={text.trim() ? "#FFE600" : "#BEBEBE"}
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
         </SendIcon>
+        <span className="sr-only">
+          {text.trim()
+            ? "입력한 메시지를 전송합니다. Enter 키 또는 Space 키를 누르면 실행됩니다."
+            : "메시지를 입력하면 전송할 수 있습니다."}
+        </span>
       </SendButton>
     </InputArea>
   );

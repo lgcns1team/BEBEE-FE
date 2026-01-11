@@ -68,13 +68,17 @@ const DayHelpForm = ({
   return (
     <>
       <DatePickerGlobalStyle />
-      <FieldSet>
+      <FieldSet role="group" aria-label="하루 도움 날짜 및 시간 입력">
         <ModalLabel>
           도움 날짜 {required && <RequiredMark>*</RequiredMark>}
+          <span className="sr-only">필수 입력 항목입니다</span>
         </ModalLabel>
         <DateInputWrapper>
-          <CalendarIconWrapper onClick={handleCalendarIconClick}>
-            <CiCalendar size={20} />
+          <CalendarIconWrapper
+            onClick={handleCalendarIconClick}
+            aria-label="날짜 선택 캘린더 열기"
+          >
+            <CiCalendar size={20} aria-hidden="true" />
           </CalendarIconWrapper>
 
           <DatePicker
@@ -82,14 +86,26 @@ const DayHelpForm = ({
             onChange={handleDateChange}
             dateFormat="yyyy.MM.dd"
             locale={ko}
-            customInput={<StyledDateInput ref={datePickerInputRef} readOnly />}
+            customInput={
+              <StyledDateInput
+                ref={datePickerInputRef}
+                readOnly
+                aria-label="도움 날짜 선택"
+              />
+            }
           />
+          <span className="sr-only">
+            {dayEngagement.date
+              ? `선택된 날짜: ${dayEngagement.date.toLocaleDateString("ko-KR")}`
+              : "날짜를 선택해주세요"}
+          </span>
         </DateInputWrapper>
       </FieldSet>
 
-      <FieldSet>
+      <FieldSet role="group" aria-label="도움 시간 입력">
         <ModalLabel>
           도움 시간 {required && <RequiredMark>*</RequiredMark>}
+          <span className="sr-only">필수 입력 항목입니다</span>
         </ModalLabel>
         <TimeWrapper>
           <TimeInputWrapper>
@@ -101,14 +117,34 @@ const DayHelpForm = ({
               timeIntervals={30}
               dateFormat="HH:mm"
               locale={ko}
-              customInput={<StyledTimeInput ref={startTimeInputRef} readOnly />}
+              customInput={
+                <StyledTimeInput
+                  ref={startTimeInputRef}
+                  readOnly
+                  aria-label="시작 시간 선택"
+                />
+              }
             />
-            <TimeIconWrapper onClick={handleStartTimeIconClick}>
-              <IoIosArrowDown size={20} />
+            <TimeIconWrapper
+              onClick={handleStartTimeIconClick}
+              aria-label="시작 시간 선택 드롭다운 열기"
+            >
+              <IoIosArrowDown size={20} aria-hidden="true" />
             </TimeIconWrapper>
+            <span className="sr-only">
+              {dayEngagement.startTime
+                ? `선택된 시작 시간: ${dayEngagement.startTime.toLocaleTimeString("ko-KR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}`
+                : "시작 시간을 선택해주세요"}
+            </span>
           </TimeInputWrapper>
 
-          <TimeSeparator>~</TimeSeparator>
+          <TimeSeparator aria-label="시간 범위 구분">
+            ~
+            <span className="sr-only">부터</span>
+          </TimeSeparator>
 
           <TimeInputWrapper>
             <DatePicker
@@ -119,11 +155,28 @@ const DayHelpForm = ({
               timeIntervals={30}
               dateFormat="HH:mm"
               locale={ko}
-              customInput={<StyledTimeInput ref={endTimeInputRef} readOnly />}
+              customInput={
+                <StyledTimeInput
+                  ref={endTimeInputRef}
+                  readOnly
+                  aria-label="종료 시간 선택"
+                />
+              }
             />
-            <TimeIconWrapper onClick={handleEndTimeIconClick}>
-              <IoIosArrowDown size={20} />
+            <TimeIconWrapper
+              onClick={handleEndTimeIconClick}
+              aria-label="종료 시간 선택 드롭다운 열기"
+            >
+              <IoIosArrowDown size={20} aria-hidden="true" />
             </TimeIconWrapper>
+            <span className="sr-only">
+              {dayEngagement.endTime
+                ? `선택된 종료 시간: ${dayEngagement.endTime.toLocaleTimeString("ko-KR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}`
+                : "종료 시간을 선택해주세요"}
+            </span>
           </TimeInputWrapper>
         </TimeWrapper>
       </FieldSet>

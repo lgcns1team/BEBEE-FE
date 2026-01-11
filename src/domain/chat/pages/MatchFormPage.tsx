@@ -588,6 +588,7 @@ const MatchFormPage = () => {
   return (
     <Layout>
       <div role="main" aria-label="매칭 확인서 작성">
+        <span className="sr-only">매칭 확인서 작성 페이지입니다.</span>
         <Header title="매칭 확인서" onBack={() => navigate(-1)} showBack />
         {/* === 공통 필드 === */}
         <div role="form" aria-label="매칭 확인서 작성 폼">
@@ -656,8 +657,22 @@ const MatchFormPage = () => {
                 isCheckingBalance || (agreementRequest.isVolunteer ?? false)
               }
               $isSufficient={isBalanceSufficient}
+              aria-label={
+                isCheckingBalance
+                  ? "잔액 확인 중"
+                  : agreementRequest.isVolunteer
+                  ? "나눔은 잔액 확인이 필요 없습니다"
+                  : "잔액 확인하기"
+              }
             >
               {isCheckingBalance ? "확인 중..." : "잔액확인"}
+              <span className="sr-only">
+                {isCheckingBalance
+                  ? "잔액을 확인하는 중입니다"
+                  : agreementRequest.isVolunteer
+                  ? "나눔은 꿀이 차감되지 않으므로 잔액 확인이 필요 없습니다"
+                  : "보유한 꿀 잔액을 확인합니다. Enter 키 또는 Space 키를 누르면 실행됩니다."}
+              </span>
             </BalanceCheckButton>
           </HoneyInputWrapper>
           {agreementRequest.type === "TERM" &&

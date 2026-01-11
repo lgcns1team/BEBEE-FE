@@ -202,6 +202,7 @@ export default HomePage;
 
 const Wrapper = styled.div`
   min-height: 100vh;
+  overflow-y: auto;
 `;
 
 const TabBar = styled.div`

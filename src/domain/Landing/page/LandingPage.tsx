@@ -81,7 +81,9 @@ export default LandingPage;
 
 const LandingContainer = styled.div`
   width: 100%;
-  min-height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  max-height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden;
   flex: 1;
   background-color: ${({ theme }) => theme.color.main};
   display: flex;
@@ -89,6 +91,7 @@ const LandingContainer = styled.div`
   justify-content: center;
   padding: 20px;
   position: relative;
+  box-sizing: border-box;
 `;
 
 const LogoContainer = styled.div`

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { letterVariants } from "../animation/letterVariants";
 
-import styeld from "styled-components";
+import styled from "styled-components";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 
@@ -38,7 +38,7 @@ const PointLandingPage = () => {
   return (
     <Layout>
       <Header onBack={() => navigate(-1)} />
-      <Wrapper>
+      <Wrapper role="main" aria-label="지원자 랜딩 페이지">
         <HiConatiner>
           <span>반가워요 !</span>
           <span>
@@ -106,81 +106,91 @@ const PointLandingPage = () => {
           ))}
         </InformationList>
       </Wrapper>
-      <BaseLongButton
-        label="지원자 보러가기"
-        onClick={() => navigate("/applicate-status")}
-        aria-label="지원자 보러가기 버튼"
-      />
+      <ButtonWrapper>
+        <BaseLongButton
+          label="지원자 보러가기"
+          onClick={() => navigate("/applicate-status")}
+          aria-label="지원자 보러가기 버튼"
+        />
+      </ButtonWrapper>
     </Layout>
   );
 };
 
 export default PointLandingPage;
 
-const Wrapper = styeld.div`
-display: flex;
-flex-direction: column;
-gap: 40px;
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  padding-bottom: 16px;
 `;
 
-const HiConatiner = styeld.div`
-    width: fit-content;
-    display: flex;
-    flex-direction: column;
-    gap:8px;
-    font-size: ${({ theme }) => theme.size.xl};
-    color: ${({ theme }) => theme.color.text};
-    font-weight: ${({ theme }) => theme.weight.bold};
-    padding-top: 16px;
-
+const HiConatiner = styled.div`
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: ${({ theme }) => theme.size.xl};
+  color: ${({ theme }) => theme.color.text};
+  font-weight: ${({ theme }) => theme.weight.bold};
+  padding-top: 8px;
 `;
 
-const ImgContainer = styeld.div`
-    width: 100%;
-    height: 300px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+const ImgContainer = styled.div`
+  width: 100%;
+  height: 260px;
+  min-height: 260px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
-const LeftArea = styeld.div`
+const LeftArea = styled.div`
   flex: 1;
   position: relative;
-
 `;
 
-const RightArea = styeld.div`
+const RightArea = styled.div`
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: flex-end;
 `;
-const InformationList = styeld.ol`
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    list-style: none;
-
-    `;
-const InfoItem = styeld.li`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    gap: 8px;
-    font-size: ${({ theme }) => theme.size.md};
-    
+const InformationList = styled.ol`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  list-style: none;
 `;
-const Icon = styeld.span`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 30px;
-    height: 30px;   
-    padding: 5px;
-   
+const InfoItem = styled.li`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  gap: 8px;
+  font-size: ${({ theme }) => theme.size.md};
 `;
-const Text = styeld.span`
-    color: ${({ theme }) => theme.color.text} ;
+const Icon = styled.span`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+`;
+const Text = styled.span`
+  color: ${({ theme }) => theme.color.text};
+`;
+
+const ButtonWrapper = styled.div`
+  width: 100%;
+  padding-top: 16px;
+  flex-shrink: 0;
 `;

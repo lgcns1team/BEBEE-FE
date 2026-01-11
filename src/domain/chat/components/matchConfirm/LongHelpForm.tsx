@@ -136,13 +136,17 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
     <>
       <DatePickerGlobalStyle />
       {/* 도움 기간 */}
-      <FieldSet>
+      <FieldSet role="group" aria-label="도움 기간 입력">
         <ModalLabel>
           도움 기간{required && <RequiredMark>*</RequiredMark>}
+          <span className="sr-only">필수 입력 항목입니다</span>
         </ModalLabel>
         <DateInputWrapper>
-          <CalendarIconWrapper onClick={handlePeriodIconClick}>
-            <CiCalendar size={20} />
+          <CalendarIconWrapper
+            onClick={handlePeriodIconClick}
+            aria-label="기간 선택 캘린더 열기"
+          >
+            <CiCalendar size={20} aria-hidden="true" />
           </CalendarIconWrapper>
           <DatePicker
             selectsRange
@@ -151,25 +155,51 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
             onChange={handleDateRangeChange}
             dateFormat="yyyy.MM.dd"
             locale={ko}
-            customInput={<StyledDateInput ref={periodInputRef} readOnly />}
+            customInput={
+              <StyledDateInput
+                ref={periodInputRef}
+                readOnly
+                aria-label="도움 기간 선택"
+              />
+            }
           />
+          <span className="sr-only">
+            {startDate && endDate
+              ? `선택된 기간: ${startDate.toLocaleDateString("ko-KR")}부터 ${endDate.toLocaleDateString("ko-KR")}까지`
+              : startDate
+              ? `시작 날짜: ${startDate.toLocaleDateString("ko-KR")}, 종료 날짜를 선택해주세요`
+              : "기간을 선택해주세요"}
+          </span>
         </DateInputWrapper>
       </FieldSet>
 
       {/* 도움 요일 및 시간 */}
-      <FieldSet>
+      <FieldSet role="group" aria-label="도움 요일 및 시간 입력">
         <ModalLabel>
           도움 요일 및 시간{required && <RequiredMark>*</RequiredMark>}
+          <span className="sr-only">필수 입력 항목입니다</span>
         </ModalLabel>
 
         {/* 추가된 스케줄 목록 */}
+        {weeks.length > 0 && (
+          <span className="sr-only">
+            등록된 스케줄 {weeks.length}개가 있습니다
+          </span>
+        )}
         {weeks.map((week, index) => (
-          <ScheduleBox key={index}>
-            <CloseButtonWrapper onClick={() => handleDeleteSchedule(index)}>
-              <IoClose size={20} />
+          <ScheduleBox key={index} role="group" aria-label={`스케줄 ${index + 1}`}>
+            <CloseButtonWrapper
+              onClick={() => handleDeleteSchedule(index)}
+              aria-label={`스케줄 ${index + 1} 삭제하기`}
+            >
+              <IoClose size={20} aria-hidden="true" />
+              <span className="sr-only">이 스케줄을 삭제합니다</span>
             </CloseButtonWrapper>
             <ScheduleContent>
-              <DayBadge>{week.day}</DayBadge>
+              <DayBadge>
+                {week.day}
+                <span className="sr-only">요일</span>
+              </DayBadge>
               <TimeText>
                 {week.start
                   ? `${week.start
@@ -190,6 +220,17 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
                       .toString()
                       .padStart(2, "0")}`
                   : "--"}
+                <span className="sr-only">
+                  {week.start && week.end
+                    ? `${week.day}요일, ${week.start.toLocaleTimeString("ko-KR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}부터 ${week.end.toLocaleTimeString("ko-KR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}까지`
+                    : "시간을 선택해주세요"}
+                </span>
               </TimeText>
             </ScheduleContent>
           </ScheduleBox>
@@ -197,7 +238,8 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
 
         {/* 스케줄 추가 모드 */}
         {isAddingSchedule ? (
-          <AddScheduleBox>
+          <AddScheduleBox role="group" aria-label="새 스케줄 추가">
+            <span className="sr-only">새로운 스케줄을 추가하는 폼입니다</span>
             <ScheduleForm>
               {/* 요일 선택 */}
               <DaySelectWrapper>
@@ -206,6 +248,7 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
                   onChange={(e) =>
                     setTempSchedule({ ...tempSchedule, day: e.target.value })
                   }
+                  aria-label="요일 선택"
                 >
                   {DAYS.map((day) => (
                     <option key={day} value={day}>
@@ -213,6 +256,9 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
                     </option>
                   ))}
                 </DaySelect>
+                <span className="sr-only">
+                  선택된 요일: {tempSchedule.day}요일
+                </span>
               </DaySelectWrapper>
 
               {/* 시작 시간 */}
@@ -226,15 +272,33 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
                   dateFormat="HH:mm"
                   locale={ko}
                   customInput={
-                    <StyledTimeInput ref={startTimeInputRef} readOnly />
+                    <StyledTimeInput
+                      ref={startTimeInputRef}
+                      readOnly
+                      aria-label="시작 시간 선택"
+                    />
                   }
                 />
-                <TimeIconWrapper onClick={handleStartTimeIconClick}>
-                  <IoIosArrowDown size={20} />
+                <TimeIconWrapper
+                  onClick={handleStartTimeIconClick}
+                  aria-label="시작 시간 선택 드롭다운 열기"
+                >
+                  <IoIosArrowDown size={20} aria-hidden="true" />
                 </TimeIconWrapper>
+                <span className="sr-only">
+                  {tempSchedule.start
+                    ? `선택된 시작 시간: ${tempSchedule.start.toLocaleTimeString("ko-KR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}`
+                    : "시작 시간을 선택해주세요"}
+                </span>
               </TimeInputWrapper>
 
-              <TimeSeparator>~</TimeSeparator>
+              <TimeSeparator aria-label="시간 범위 구분">
+                ~
+                <span className="sr-only">부터</span>
+              </TimeSeparator>
 
               {/* 끝 시간 */}
               <TimeInputWrapper>
@@ -247,29 +311,62 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
                   dateFormat="HH:mm"
                   locale={ko}
                   customInput={
-                    <StyledTimeInput ref={endTimeInputRef} readOnly />
+                    <StyledTimeInput
+                      ref={endTimeInputRef}
+                      readOnly
+                      aria-label="종료 시간 선택"
+                    />
                   }
                 />
-                <TimeIconWrapper onClick={handleEndTimeIconClick}>
-                  <IoIosArrowDown size={20} />
+                <TimeIconWrapper
+                  onClick={handleEndTimeIconClick}
+                  aria-label="종료 시간 선택 드롭다운 열기"
+                >
+                  <IoIosArrowDown size={20} aria-hidden="true" />
                 </TimeIconWrapper>
+                <span className="sr-only">
+                  {tempSchedule.end
+                    ? `선택된 종료 시간: ${tempSchedule.end.toLocaleTimeString("ko-KR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}`
+                    : "종료 시간을 선택해주세요"}
+                </span>
               </TimeInputWrapper>
             </ScheduleForm>
 
-            <ButtonGroup>
-              <CancelButton onClick={() => setIsAddingSchedule(false)}>
+            <ButtonGroup role="group" aria-label="스케줄 추가 버튼">
+              <CancelButton
+                onClick={() => setIsAddingSchedule(false)}
+                aria-label="스케줄 추가 취소"
+              >
                 취소
+                <span className="sr-only">스케줄 추가를 취소합니다</span>
               </CancelButton>
 
-              <TbMinusVertical size={20} color="#A1A1A1" />
+              <TbMinusVertical size={20} color="#A1A1A1" aria-hidden="true" />
 
-              <ConfirmButton onClick={handleConfirmSchedule}>
+              <ConfirmButton
+                onClick={handleConfirmSchedule}
+                aria-label="스케줄 추가 확인"
+              >
                 확인
+                <span className="sr-only">
+                  입력한 스케줄을 추가합니다. Enter 키 또는 Space 키를 누르면 실행됩니다.
+                </span>
               </ConfirmButton>
             </ButtonGroup>
           </AddScheduleBox>
         ) : (
-          <AddButton onClick={handleAddScheduleClick} />
+          <div role="group" aria-label="스케줄 추가">
+            <AddButton
+              onClick={handleAddScheduleClick}
+              aria-label="새 스케줄 추가하기"
+            />
+            <span className="sr-only">
+              새로운 요일 및 시간 스케줄을 추가합니다
+            </span>
+          </div>
         )}
       </FieldSet>
     </>
