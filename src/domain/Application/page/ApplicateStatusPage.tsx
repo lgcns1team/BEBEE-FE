@@ -75,6 +75,7 @@ const Container = styled.main`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow-y: auto;
 `;
 const Section1 = styled.div`
   padding: 0 16px 16px 16px;
