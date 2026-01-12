@@ -75,7 +75,7 @@ export interface Member {
   longitude: number;
   profileImageUrl: string;
   sweetness: number;
-  honeyPoint: number;
+  honey: number;
   addressRoad: string;
   gender: string;
   birthDate: string; // date 형식
