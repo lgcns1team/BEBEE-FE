@@ -53,56 +53,56 @@
 //   gap: 8px;
 // `;
 
-// import styled from "styled-components";
-// import ReviewBadge from "../../../../components/ReviewBadge";
-// import { useOtherProfileStore } from "../../store/useOtherProfileStore";
+import styled from "styled-components";
+import ReviewBadge from "../../../../components/ReviewBadge";
+import { useMemberStore } from "../../../../store/useMemberStore";
 
-// const ReceivedReview = () => {
-//   const { profile, isLoading } = useOtherProfileStore();
+const ReceivedReview = () => {
+  const { profile, isLoading } = useMemberStore();
 
-//   if (isLoading || !profile) return null;
+  if (isLoading || !profile) return null;
 
-//   const items = profile.reviews ?? [];
+  const items = profile.reviews ?? [];
 
-//   if (items.length === 0) return null;
+  if (items.length === 0) return null;
 
-//   return (
-//     <Container>
-//       <Title>받은 후기</Title>
+  return (
+    <Container>
+      <Title>받은 후기</Title>
 
-//       <BadgeWrap>
-//         {items.map((review, idx) => (
-//           <ReviewBadge key={`${review}-${idx}`}>
-//             {review}
-//           </ReviewBadge>
-//         ))}
-//       </BadgeWrap>
-//     </Container>
-//   );
-// };
+      <BadgeWrap>
+        {items.map((review, idx) => (
+          <ReviewBadge key={`${review}-${idx}`}>
+            {review}
+          </ReviewBadge>
+        ))}
+      </BadgeWrap>
+    </Container>
+  );
+};
 
-// export default ReceivedReview;
+export default ReceivedReview;
 
-// /* ================= styled ================= */
+/* ================= styled ================= */
 
-// const Container = styled.div`
-//   background-color: ${({ theme }) => theme.color.white};
-//   border-radius: ${({ theme }) => theme.borderRadius.lg};
-//   width: 100%;
-//   margin-top: 20px;
-//   padding: 20px;
-//   display: flex;
-//   flex-direction: column;
-//   gap: 12px;
-// `;
+const Container = styled.div`
+  background-color: ${({ theme }) => theme.color.white};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  width: 100%;
+  margin-top: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
 
-// const Title = styled.div`
-//   font-size: ${({ theme }) => theme.size.md};
-//   font-weight: ${({ theme }) => theme.weight.bold};
-// `;
+const Title = styled.div`
+  font-size: ${({ theme }) => theme.size.md};
+  font-weight: ${({ theme }) => theme.weight.bold};
+`;
 
-// const BadgeWrap = styled.div`
-//   display: flex;
-//   flex-wrap: wrap;
-//   gap: 8px;
-// `;
+const BadgeWrap = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;

@@ -4,12 +4,13 @@ import { IoChevronForward } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../../../../store/useUserStore";
 import { useProfileStore } from "../../../../store/useProfileStore";
+import { useEffect } from "react";
 
 const ProfileSection = () => {
   const navigate = useNavigate();
-  const user = useUserStore((state) => state.user);
-
   const profile = useProfileStore((state) => state.profile);
+
+
 
   const handleClick = () => {
     if (!profile) {
@@ -18,6 +19,14 @@ const ProfileSection = () => {
     }
     navigate("/profile-info");
   };
+
+  useEffect(() =>{
+    const fetchProfile = async () =>{
+      try{
+        const response = await
+      }
+    }
+  })
 
   return (
     <Container onClick={handleClick}>
