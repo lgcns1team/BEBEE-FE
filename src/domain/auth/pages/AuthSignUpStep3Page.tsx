@@ -56,9 +56,9 @@ const AuthSignUpStep3Page = () => {
       gender,
       phoneNumber,
       addressRoad: address,
-      latitude: 0,
-      longitude: 0,
-      districtCode: "",
+      latitude,
+      longitude,
+      districtCode,
     });
     navigate("/signup/step4");
   };
