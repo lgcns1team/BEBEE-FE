@@ -128,7 +128,7 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-bottom: 16px;
+  padding-bottom: 40px;
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural100};
 `;
 
