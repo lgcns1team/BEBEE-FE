@@ -62,7 +62,7 @@ const MatchResultCard = ({ data }: Props) => {
               <span className="sr-only">
                 {`도움을 제공받을 시간은 ${formatTime(
                   schedule.startTime
-                )}~{formatTime(schedule.endTime)}입니다`}
+                )}~${formatTime(schedule.endTime)}입니다`}
               </span>
             </div>
           )}
