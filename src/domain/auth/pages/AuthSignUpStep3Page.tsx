@@ -60,7 +60,6 @@ const AuthSignUpStep3Page = () => {
       longitude,
       districtCode,
     });
-    console.log("실제 Store 저장 결과:", useAuthSignUpForm.getState());
     navigate("/signup/step4");
   };
 
