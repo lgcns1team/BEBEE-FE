@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { IoIosSearch } from "react-icons/io";
 import { IoLocationOutline } from "react-icons/io5";
-import { useKakaoLoader, Map, MapMarker } from "react-kakao-maps-sdk";
+import { useKakaoLoader, Map as KakaoMap, MapMarker } from "react-kakao-maps-sdk";
 import { AnimatePresence, motion } from "framer-motion";
 import { createPortal } from "react-dom";
 import BaseInput from "./BaseInput";
@@ -55,11 +55,14 @@ const LocationInput = ({
   const isUserTypingRef = useRef(false);
   const prevValueRef = useRef<string | undefined>(value);
   const mapRef = useRef<kakao.maps.Map | null>(null);
+  const intervalRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+  const mapReadyRef = useRef(false);
 
 
   // 1. 카카오 맵 SDK 로드 (services 라이브러리 포함)
   const [loading, error] = useKakaoLoader({
-    appkey: import.meta.env.VITE_KAKAO_MAP_KEY || "3b0d933e76f3cc0c193ea806c0039988",
+    appkey: import.meta.env.VITE_KAKAO_MAP_KEY || "",
     libraries: ['services'], // Geocoder와 Places를 사용하기 위해 필요
   });
 
@@ -124,23 +127,44 @@ const LocationInput = ({
   // 맵 모달이 열릴 때 SDK 준비 상태 확인
   useEffect(() => {
     if (isMapModalOpen && !loading && !error) {
+      mapReadyRef.current = false;
       // SDK가 완전히 로드되었는지 확인
-      const checkSDK = setInterval(() => {
+      intervalRef.current = window.setInterval(() => {
         if (window.kakao && window.kakao.maps && window.kakao.maps.Map) {
           setIsMapReady(true);
-          clearInterval(checkSDK);
+          mapReadyRef.current = true;
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
         }
       }, 100);
 
       // 최대 5초 후 타임아웃
-      setTimeout(() => {
-        clearInterval(checkSDK);
-        if (!isMapReady) {
+      timeoutRef.current = window.setTimeout(() => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+        if (!mapReadyRef.current) {
           console.error("카카오 맵 SDK 로드 타임아웃");
         }
       }, 5000);
 
-      return () => clearInterval(checkSDK);
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+      };
     }
   }, [isMapModalOpen, loading, error]);
 
@@ -476,7 +500,7 @@ const LocationInput = ({
                 </ModalHeader>
                 <MapContainer>
                   {isMapReady && window.kakao && window.kakao.maps ? (
-                    <Map
+                    <KakaoMap
                       center={mapCenter}
                       style={{ width: "100%", height: "100%" }}
                       level={3}
@@ -499,7 +523,7 @@ const LocationInput = ({
                           clickable={false}
                         />
                       )}
-                    </Map>
+                    </KakaoMap>
                   ) : (
                     <MapLoadingContainer>
                       <MapLoadingText>지도를 불러오는 중...</MapLoadingText>

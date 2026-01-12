@@ -34,6 +34,12 @@ const AuthSignUpStep6Page = () => {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // systemFlag가 없으면 이전 단계로
+    if (!systemFlag) {
+        navigate("/signup/step5");
+        return null;
+    }
+
     // HIGH인 경우 재업로드 안내
     if (systemFlag === "HIGH") {
         return (
@@ -64,6 +70,11 @@ const AuthSignUpStep6Page = () => {
 
     // LOW/MID인 경우 회원가입 진행
     const handleSignUp = async () => {
+        if (!role) {
+            alert("역할이 선택되지 않았습니다. 처음부터 다시 시도해 주세요.");
+            navigate("/signup/step1");
+            return;
+        }
         if (isSubmitting) return;
         setIsSubmitting(true);
 
@@ -77,7 +88,7 @@ const AuthSignUpStep6Page = () => {
                 birthDate,
                 gender,
                 phoneNumber,
-                role: role!,
+                role,
                 addressRoad,
                 latitude,
                 longitude,
