@@ -1,31 +1,74 @@
-import type { PostItem } from "./post.type";
-export type Role = "DISABLED" | "HELPER";
+import type { Gender } from "./common.types";
 
-export interface DisabledProfile {
-  memberId: number;
-  name?: string;
-  nickname?: string;
-  profileImageUrl?: string;
-  gender?: string;
-  age?: string;
-  addressRoad?: string;
-  helpType?: string[];
-  introduction?: string;
-  disabilityType?: string;
-  description?: string;
-  helpRequestPost?: PostItem[];
-  receivedReviews?: string[];
+export type MyRole = "DISABLED" | "HELPER" | "ADMIN";
+
+// export interface Review {
+  
+// }
+
+// export interface Badge {
+ 
+// }
+
+export interface Badge {
+  disabilityCategoryId: number;
+  count: number;
+  badgeCode: string | null; 
+}
+// 내 프로필 조회
+export interface MyProfile {
+  nickname: string;
+  email: string;
+  role: MyRole;
+  profileImageUrl: string | null;
+
+  gender: Gender;
+  ageGroup: number;
+
+  address: string;
+
+  helpCategories: number[]; 
+
+  introduction: string;
+
+  honey: number;
+  // reviews: Review[];
+
+  // documents: any[] | null;
+  badges: Badge[] | null;
+
+  disabilityType: string | null;
+  disabilityDescription: string | null;
 }
 
-export interface HelperProfile {
-  memberId: number;
-  name: string;
-  nickname?: string;
-  profileImageUrl?: string;
-  gender?: string;
-  age?: string;
-  addressRoad?: string;
-  helpType?: string[];
-  introduction?: string;
-  receivedReviews?: string[];
+// 타인이 보는 프로필 조회
+
+export interface MemberProfile {
+  nickname: string;
+  email: string;
+  role: MyRole;
+
+  profileImageUrl: string | null;
+
+  gender: Gender;
+  ageGroup: number;
+
+  address: string;
+
+  helpCategories: number[]; 
+
+  introduction: string;
+
+  honey: number;
+
+  // reviews: any[]; 
+  // documents: any[] | null;
+
+  
+  badges: Badge[] | null;
+
+  
+  disabilityType: string | null;
+  disabilityDescription: string | null;
 }
+

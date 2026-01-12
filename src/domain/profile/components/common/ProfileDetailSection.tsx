@@ -1,38 +1,83 @@
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useProfileStore } from "../../../../store/useProfileStore";
-
 import styled from "styled-components";
+
+import { useOtherProfileStore } from "../../store/useOtherProfileStore";
+import { getMemberProfile } from "../../../../api/profileApi";
+
 const ProfileDetailSection = () => {
   const { profileId } = useParams<{ profileId: string }>();
 
-  const { role, disabledProfiles, helperProfiles } = useProfileStore();
+  const {
+    profile,
+    isLoading,
+    error,
+    setProfile,
+    setLoading,
+    setError,
+    clearProfile,
+  } = useOtherProfileStore();
 
-  const id = Number(profileId);
+  /* ================= 프로필 조회 ================= */
+  useEffect(() => {
+    if (!profileId) return;
 
-  const profile =
-    role === "DISABLED"
-      ? disabledProfiles.find((p) => p.memberId === id)
-      : helperProfiles.find((p) => p.memberId === id);
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        const res = await getMemberProfile(profileId);
+        setProfile(res.data);
+      } catch (e) {
+        console.error(e);
+        setError("프로필 정보를 불러오지 못했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+
+    return () => {
+      clearProfile();
+    };
+  }, [profileId, setProfile, setLoading, setError, clearProfile]);
+
+  /* ================= 상태 처리 ================= */
+  if (isLoading) {
+    return <Info>로딩 중...</Info>;
+  }
+
+  if (error || !profile) {
+    return <Info>프로필 정보를 불러올 수 없습니다.</Info>;
+  }
 
   const infoList = [
-    { label: "성별", value: profile?.gender },
-    { label: "나이", value: profile?.age },
-    { label: "주소", value: profile?.addressRoad },
-    { label: "주요 도움", value: profile?.helpType?.join(", ") },
-    { label: "한줄소개", value: profile?.introduction },
+    { label: "성별", value: profile.gender },
+    { label: "나이", value: `${profile.ageGroup}대` },
+    { label: "주소", value: profile.address },
+    {
+      label: "주요 도움",
+      value:
+        profile.helpCategories.length > 0
+          ? profile.helpCategories.join(", ")
+          : "-",
+    },
+    { label: "한줄소개", value: profile.introduction },
   ];
 
   return (
     <Info>
       <Top>
-        <ProfileImage src={profile?.profileImageUrl} />
+        <ProfileImage
+          src={profile.profileImageUrl ?? "/images/default-profile.png"}
+          alt="프로필 이미지"
+        />
         <TopRight>
-          <NickName>{profile?.name}</NickName>
+          <NickName>{profile.nickname}</NickName>
 
-          {role === "HELPER" && (
+          {profile.role === "HELPER" && (
             <>
-              <SubName>@시각 장애인 전문가</SubName>
-              <SubName>@발달 장애인 전문가</SubName>
+              <SubName>@도움 전문가</SubName>
             </>
           )}
         </TopRight>
@@ -116,3 +161,5 @@ const InfoValue = styled.div`
   line-height: 1.4;
   word-break: break-word;
 `;
+
+

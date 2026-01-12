@@ -71,7 +71,7 @@ function App() {
           <Route path="/mypage" element={<MyPage />} />
 
           {/* 마이페이지에서 보는 프로필 정보 */}
-          <Route path="/profile-info/:infoId" element={<ProfileInfoPage />} />
+          <Route path="/profile-info" element={<ProfileInfoPage />} />
 
           {/*동네지도*/}
           <Route path="/map" element={<MapHelperPage />} />
