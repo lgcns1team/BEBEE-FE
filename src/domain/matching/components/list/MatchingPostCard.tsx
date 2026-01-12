@@ -33,7 +33,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   const renderActionButton = () => {
     switch (engagement.status) {
       case "INACTIVE":
-        return <DoneButton disabled>활동 전</DoneButton>;
+        return <InactiveButton disabled>활동 전</InactiveButton>;
 
       case "ACTIVE":
         return (
@@ -56,7 +56,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
         );
 
       case "REVIEW_COMPLETED":
-        return <ReviewButton disabled>리뷰 완료</ReviewButton>;
+        return <ReviewButton disabled>리뷰 작성 완료</ReviewButton>;
 
       default:
         return null;
@@ -234,8 +234,18 @@ const DoneButton = styled.button`
   border: none;
 `;
 
+const InactiveButton = styled(DoneButton)`
+background: ${({ theme }) => theme.color.natural100};
+  color: ${({ theme }) => theme.color.text};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  
+`
+
 const ReviewButton = styled(DoneButton)`
-  background: ${({ theme }) => theme.color.natural100};
+  background: ${({ theme }) => theme.color.subColor};
   color: ${({ theme }) => theme.color.text};
   display: flex;
   align-items: center;
