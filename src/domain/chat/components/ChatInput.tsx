@@ -90,7 +90,7 @@ const StyledInput = styled.input`
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.color.natural100};
   background-color: ${({ theme }) => theme.color.natural100};
-  font-size: 14px;
+  font-size: ${({ theme }) => theme.size.md};
   outline: none;
   transition: all 0.2s ease;
 
