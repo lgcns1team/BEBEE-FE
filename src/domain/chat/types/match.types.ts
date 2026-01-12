@@ -35,6 +35,7 @@ export interface AgreementRequest {
   helpCategoryIds: number[];
   engagementTime: DayEngagementTime | TermEngagementTime;
   chatroomId: string;
+  createdAt: string;
 }
 
 // 응답 - help category
@@ -47,7 +48,7 @@ export interface HelpCategory {
 export interface AgreementResponse {
   agreementId: string;
   status: "BEFORE" | "AFTER" | "CANCEL";
-  confirmationDate: string; // YYYY-MM-DD
+  confirmationDate: string;
   type: HelpType;
   isVolunteer: boolean;
   helpCategories: HelpCategory[];
@@ -64,6 +65,8 @@ export interface AgreementConfirmRequest {
   postId: string;
   title: string;
   chatroomId: string;
+  chatId: string;
+  createdAt: string;
 }
 
 // 매칭 확인서 수락 응답 타입
@@ -75,6 +78,8 @@ export interface AgreementConfirmResponse {
 export interface AgreementRefuseRequest {
   disabledId: string;
   chatroomId: string;
+  chatId: string;
+  createdAt: string;
 }
 
 // 매칭 확인서 메타데이터 (localStorage 저장용, agreementId를 키로 사용)
@@ -85,4 +90,36 @@ export interface AgreementMetadata {
   helperId: string;
   disabledId: string;
   chatroomId: string;
+}
+
+// 웹소켓으로 수신되는 engagementTime 형식 (DAY/TERM 통합)
+export interface EngagementTimeResponse {
+  date?: string | null; // YYYY-MM-DD (DAY 타입용)
+  startDate?: string | null; // YYYY-MM-DD (TERM 타입용)
+  endDate?: string | null; // YYYY-MM-DD (TERM 타입용)
+  schedule?: {
+    dayOfWeek: DayOfWeek;
+    startTime: string; // HH:mm
+    endTime: string; // HH:mm
+  } | null; // DAY 타입용
+  schedules?: Array<{
+    dayOfWeek: DayOfWeek;
+    startTime: string; // HH:mm
+    endTime: string; // HH:mm
+  }> | null; // TERM 타입용
+}
+
+// 웹소켓으로 수신되는 매칭 확인서 데이터 (서버 응답 형식)
+export interface MatchDataResponse {
+  agreementId: string;
+  type: HelpType;
+  receiverId: string;
+  helperId: string;
+  isVolunteer: boolean;
+  unitHoney: number;
+  totalHoney: number;
+  region: string;
+  helpCategoryIds: number[];
+  status: "PROCEEDING" | "BEFORE" | "AFTER" | "CANCEL";
+  engagementTime: EngagementTimeResponse;
 }

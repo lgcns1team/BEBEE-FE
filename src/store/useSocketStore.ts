@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { Client } from "@stomp/stompjs";
 import type { ChatMessage } from "../domain/chat/types/chat.types";
 import { useChatStore } from "../domain/chat/store/useChatStore";
+import { useUserStore } from "./useUserStore";
 
 interface PendingMatchConfirmation {
   receiverId: number;
@@ -63,8 +64,10 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
     get().messagesByChatroom[chatroomId] || [],
 
   connect: () => {
-    const token = 1;
-    const memberId = 1;
+    const userStore = useUserStore.getState();
+    const token = userStore.accessToken;
+    const memberId = userStore.user?.memberId;
+
     if (!token || !memberId) {
       console.error("토큰 또는 멤버 ID가 없습니다.");
       return;
@@ -99,13 +102,61 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
           (message) => {
             try {
               const receivedMsg: ChatMessage = JSON.parse(message.body);
-              const chatroomId = receivedMsg.chatroomId;
+              console.log("[웹소켓] 파싱된 메시지:", receivedMsg);
+
+              // chatroomId 결정 로직
+              // 1. 메시지에 직접 포함된 chatroomId
+              // 2. MATCH_CONFIRMATION 타입인 경우 matchData에서 확인 (만약 서버가 여기에 포함시킨다면)
+              // 3. activeRoom의 chatroomId (현재 열려있는 채팅방)
+              let chatroomId = receivedMsg.chatroomId;
+
+              // MATCH_CONFIRMATION 타입이고 chatroomId가 없으면 activeRoom 확인
+              if (!chatroomId) {
+                const activeRoom = useChatStore.getState().activeRoom;
+                chatroomId = activeRoom?.chatroomId;
+                console.log(
+                  "📨 [웹소켓] chatroomId 없음, activeRoom 사용:",
+                  chatroomId,
+                  "메시지 타입:",
+                  receivedMsg.type
+                );
+              }
+
+              // chatroomId가 있어야만 메시지 추가
               if (chatroomId) {
-                get().addMessage(receivedMsg, chatroomId);
+                console.log(" [웹소켓] addMessage 호출:", {
+                  chatroomId,
+                  messageId: receivedMsg.id,
+                  messageType: receivedMsg.type,
+                  textContent: receivedMsg.textContent,
+                  hasMatchData: !!receivedMsg.matchData,
+                });
+                // useChatStore의 addMessage만 사용 (중복 체크 포함)
                 useChatStore.getState().addMessage(receivedMsg, chatroomId);
+
+                // MATCH_SUCCESS 또는 MATCH_FAILURE 메시지 수신 시 matchStatus 업데이트
+                if (receivedMsg.type === "MATCH_SUCCESS") {
+                  console.log(
+                    " MATCH_SUCCESS 수신, matchStatus를 MATCHED로 업데이트"
+                  );
+                  useChatStore.getState().updateMatchStatus("MATCHED");
+                } else if (receivedMsg.type === "MATCH_FAILURE") {
+                  console.log(
+                    "❌ MATCH_FAILURE 수신, matchStatus를 NON_MATCHED로 업데이트"
+                  );
+                  useChatStore.getState().updateMatchStatus("NON_MATCHED");
+                }
+              } else {
+                console.warn("chatroomId를 찾을 수 없어 메시지 무시:", {
+                  messageId: receivedMsg.id,
+                  messageType: receivedMsg.type,
+                  receivedChatroomId: receivedMsg.chatroomId,
+                  activeRoomChatroomId:
+                    useChatStore.getState().activeRoom?.chatroomId,
+                });
               }
             } catch (e) {
-              console.error("메시지 파싱 실패:", e);
+              console.error("❌ [웹소켓] 메시지 파싱 실패:", e, message.body);
             }
           },
           { id: `sub-${memberId}` } // ID 고유화
@@ -114,9 +165,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
         // 연결 완료 후 대기 중인 매칭확인서 전송
         const pending = get().pendingMatchConfirmations;
         if (pending.length > 0) {
-          console.log(
-            `📤 [onConnect] 대기 중인 매칭확인서 ${pending.length}개 전송 시작`
-          );
           pending.forEach((pendingConfirmation) => {
             get().sendMatchConfirmation(
               pendingConfirmation.receiverId,
@@ -160,26 +208,15 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
     const createdAt = new Date().toISOString();
     const payload = {
+      chatroomId,
       receiverId,
       type: "TEXT",
       textContent: text,
       createdAt,
-      chatroomId,
     };
 
-    // UI 즉시 반영 (Optimistic Update)
-    const tempMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,
-      senderId: String(senderId),
-      textContent: text,
-      type: "TEXT",
-      attachments: [],
-      createdAt,
-      chatroomId,
-    };
-
-    get().addMessage(tempMessage, chatroomId);
-    useChatStore.getState().addMessage(tempMessage, chatroomId);
+    // Optimistic Update 제거: 서버에서 받은 메시지만 표시하도록 변경
+    // (중복 메시지 방지를 위해)
 
     client.publish({
       destination: "/pub/chats",
@@ -212,48 +249,6 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
       }));
       get().connect();
       return;
-    }
-
-    const createdAt = new Date().toISOString();
-    const payload = {
-      receiverId,
-      type: "MATCH_CONFIRMATION",
-      location: matchConfirmationData.location,
-      unitPoints: matchConfirmationData.unitPoints,
-      totalPoints: matchConfirmationData.totalPoints,
-      startDate: matchConfirmationData.startDate,
-      endDate: matchConfirmationData.endDate,
-      scheduleDays: matchConfirmationData.scheduleDays,
-      scheduleStartTimes: matchConfirmationData.scheduleStartTimes,
-      scheduleEndTimes: matchConfirmationData.scheduleEndTimes,
-      createdAt,
-    };
-
-    console.log("매칭확인서 Payload:", {
-      receiverId,
-      chatroomId,
-      payload: JSON.stringify(payload, null, 2),
-      destination: "/pub/chats",
-    });
-
-    try {
-      client.publish({
-        destination: "/pub/chats",
-        body: JSON.stringify(payload),
-        headers: { "content-type": "application/json" },
-      });
-      console.log(" 매칭확인서 Socket 전송 완료:", {
-        receiverId,
-        chatroomId,
-        timestamp: createdAt,
-      });
-    } catch (error) {
-      console.error("매칭확인서 Socket 전송 실패:", {
-        error,
-        receiverId,
-        chatroomId,
-        payload,
-      });
     }
   },
 

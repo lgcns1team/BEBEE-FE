@@ -10,7 +10,7 @@ interface MatchSuccessCardProps {
 
 const MatchSuccessCard = ({ message }: MatchSuccessCardProps) => {
   const { user } = useUserStore();
-  const userRole = user?.role; // 'DISABLED' | 'HELPER' | 'ADMIN'
+  const userRole = user?.role;
 
   return (
     <Container role="region" aria-label="매칭 성공 알림">
@@ -32,10 +32,7 @@ const MatchSuccessCard = ({ message }: MatchSuccessCardProps) => {
         - 장애인(DISABLED): MatchSuccessCard + PayReceipt 영수증 표시
       */}
 
-      {userRole === "DISABLED" &&
-        message &&
-        message.usedHoney !== undefined &&
-        message.usedHoney > 0 && <PayReceipt message={message} />}
+      {userRole === "DISABLED" && message && <PayReceipt message={message} />}
     </Container>
   );
 };
@@ -64,5 +61,4 @@ const Title = styled.div`
 const Sub = styled.div`
   color: ${({ theme }) => theme.color.subText2};
   font-size: ${({ theme }) => theme.size.sm};
-  margin-bottom: 16px;
 `;

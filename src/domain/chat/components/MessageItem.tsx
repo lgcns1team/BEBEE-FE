@@ -1,8 +1,8 @@
 import styled, { css } from "styled-components";
 import type { ChatMessage } from "../types/chat.types";
-import MatchResult from "./MatchResultCard"; // 매칭확인서
-import MatchSuccess from "./MatchSuccessCard"; // 성공 카드
-import MatchFail from "./MatchFailCard"; // 거절 카드
+import MatchResult from "./MatchResultCard";
+import MatchSuccess from "./MatchSuccessCard";
+import MatchFail from "./MatchFailCard";
 
 interface Props {
   message: ChatMessage;
@@ -32,7 +32,7 @@ const MessageItem = ({ message, isMe }: Props) => {
   if (message.type === "MATCH_SUCCESS") {
     return (
       <MessageWrapper>
-        <MatchSuccess />
+        <MatchSuccess message={message} />
       </MessageWrapper>
     );
   }

@@ -8,7 +8,7 @@ import type { PostDetailResponse } from "../../../types/post.type";
 import { HELP_TAG_MAP } from "../../../constants/helpTags";
 import type { MatchStatus } from "../types/chat.types";
 import { useApplicationStore } from "../../../domain/Application/store/useApplicationStore";
-
+import { useUserStore } from "../../../store/useUserStore";
 /* Components */
 import HelpTag from "../../../components/HelpTag";
 import Header from "../../../components/Header";
@@ -20,11 +20,18 @@ const ChatRoomCard = () => {
   const { currentPost } = useApplicationStore();
   const [postDetail, setPostDetail] = useState<PostDetailResponse | null>(null);
   const [isLoadingPost, setIsLoadingPost] = useState(false);
-
+  const { user } = useUserStore();
+  const isHelper = user?.role === "HELPER";
   const matchStatus: MatchStatus = activeRoom?.matchStatus ?? "NON_MATCHED";
   const isInteractive = matchStatus === "NON_MATCHED";
 
   const handleMatchModalClick = () => {
+    // 도우미는 매칭하기 버튼을 클릭할 수 없음
+    if (isHelper) {
+      alert("매칭 확인서는 장애인만 작성할 수 있습니다.");
+      return;
+    }
+
     if (!isInteractive) return;
     if (chatroomId) {
       navigate(`/chat/${chatroomId}/match`);
@@ -73,6 +80,11 @@ const ChatRoomCard = () => {
       return;
     }
 
+    // 로딩 중이면 스킵 (중복 요청 방지)
+    if (isLoadingPost) {
+      return;
+    }
+
     const fetchPostDetail = async () => {
       setIsLoadingPost(true);
       try {
@@ -83,7 +95,6 @@ const ChatRoomCard = () => {
         });
 
         const detail = await postApi.getPostDetail(postIdToUse);
-        console.log("성공:", detail);
         setPostDetail(detail);
       } catch (error) {
         const axiosError = error as {
@@ -141,17 +152,21 @@ const ChatRoomCard = () => {
           </ChatTitle>
           {/* 매칭하기 버튼 누르면 매칭확인서로 페이지 이동*/}
           <MatchButton
-            status={matchStatus}
+            $status={matchStatus}
             onClick={handleMatchModalClick}
             aria-describedby="post-title"
-            aria-label="매칭 확인서 작성하기"
+            aria-label={
+              isHelper
+                ? "매칭 확인서는 장애인만 작성할 수 있습니다"
+                : "매칭 확인서 작성하기"
+            }
             onKeyDown={(e) => {
-              if ((e.key === "Enter" || e.key === " ") && isInteractive) {
+              if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 handleMatchModalClick();
               }
             }}
-            disabled={!isInteractive}
+            disabled={!isInteractive || isHelper}
           >
             {matchStatus === "NON_MATCHED"
               ? "매칭하기"
@@ -159,7 +174,9 @@ const ChatRoomCard = () => {
               ? "진행 중"
               : "매칭 완료"}
             <span className="sr-only">
-              {matchStatus === "NON_MATCHED"
+              {isHelper
+                ? "매칭 확인서는 장애인만 작성할 수 있습니다"
+                : matchStatus === "NON_MATCHED"
                 ? postDetail?.title
                   ? `${postDetail.title} 게시글에 대한 매칭 확인서 작성 페이지로 이동합니다. Enter 키 또는 Space 키를 누르면 실행됩니다.`
                   : "매칭 확인서 작성 페이지로 이동합니다. Enter 키 또는 Space 키를 누르면 실행됩니다."
@@ -224,24 +241,24 @@ const HelpTagBox = styled.div`
   gap: 8px;
 `;
 
-const MatchButton = styled.button<{ status: MatchStatus }>`
+const MatchButton = styled.button<{ $status: MatchStatus }>`
   padding: 4px 12px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   font-size: ${({ theme }) => theme.size.md};
   border: 0.5px solid
-    ${({ theme, status }) => {
-      if (status === "PROCEEDING") return theme.color.blue500;
-      if (status === "MATCHED") return theme.color.red500;
+    ${({ theme, $status }) => {
+      if ($status === "PROCEEDING") return theme.color.blue500;
+      if ($status === "MATCHED") return theme.color.red500;
       return theme.color.main;
     }};
-  background-color: ${({ theme, status }) => {
-    if (status === "PROCEEDING") return theme.color.blue50;
-    if (status === "MATCHED") return theme.color.red50;
+  background-color: ${({ theme, $status }) => {
+    if ($status === "PROCEEDING") return theme.color.blue50;
+    if ($status === "MATCHED") return theme.color.red50;
     return theme.color.subColor2;
   }};
   color: ${({ theme }) => theme.color.text};
-  cursor: ${({ status }) =>
-    status === "NON_MATCHED" ? "pointer" : "not-allowed"};
+  cursor: ${({ $status }) =>
+    $status === "NON_MATCHED" ? "pointer" : "not-allowed"};
   &:disabled {
     cursor: not-allowed;
   }

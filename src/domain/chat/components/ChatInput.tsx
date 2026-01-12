@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-
 interface Props {
   onSend: (text: string) => void;
 }
@@ -16,11 +15,16 @@ const ChatInput = ({ onSend }: Props) => {
     setText(""); // 전송 후 입력창 비우기
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // 엔터 키를 눌렀을 때 (Shift+Enter 제외) 전송
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 한국어 입력(IME) 조합 중일 때는 전송하지 않음
+    // compositionstart/compositionend 이벤트로 확인하거나
+    // isComposing 속성으로 확인
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      // IME 조합 중이 아니고, 조합이 끝났을 때만 전송
+      if (!e.nativeEvent.isComposing) {
+        handleSend();
+      }
     }
   };
 
@@ -31,17 +35,21 @@ const ChatInput = ({ onSend }: Props) => {
         placeholder="메시지를 입력하세요..."
         value={text}
         onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyPress}
+        onKeyDown={handleKeyDown}
         aria-label="메시지 입력 필드"
       />
       {/* 텍스트가 있을 때만 강조되도록 버튼 스타일링 가능 */}
       <SendButton
         onClick={handleSend}
         disabled={!text.trim()}
-        aria-label={text.trim() ? "메시지 전송하기" : "메시지 전송하기 (메시지를 입력해주세요)"}
+        aria-label={
+          text.trim()
+            ? "메시지 전송하기"
+            : "메시지 전송하기 (메시지를 입력해주세요)"
+        }
       >
         <SendIcon
-          fill={text.trim() ? "#FFE600" : "#BEBEBE"}
+          fill={text.trim() ? "#FFBE00" : "#BEBEBE"}
           viewBox="0 0 24 24"
           aria-hidden="true"
         >
@@ -80,9 +88,8 @@ const StyledInput = styled.input`
   flex: 1;
   padding: 10px 15px;
   border-radius: 20px;
-  /* 테마 컬러가 없을 경우를 대비해 기본색(#F5F5F5)을 fallback으로 지정했습니다 */
-  border: 1px solid ${({ theme }) => theme?.color?.natural100 || "#F5F5F5"};
-  background-color: ${({ theme }) => theme?.color?.natural100 || "#F5F5F5"};
+  border: 1px solid ${({ theme }) => theme.color.natural100};
+  background-color: ${({ theme }) => theme.color.natural100};
   font-size: 14px;
   outline: none;
   transition: all 0.2s ease;
