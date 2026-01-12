@@ -1,31 +1,30 @@
 import styled from "styled-components";
-import type { HelperProfile } from "../../../../../types/profile.type";
-import type { PostItem } from "../../../../../types/post.type";
 import HelpTag from "../../../../../components/HelpTag";
 import { useNavigate } from "react-router-dom";
 import { HELP_TAG_MAP } from "../../../../../constants/helpTags";
+import type { NearByHelperDto } from "../../../../../types/map.type";
 interface Props {
-  post: PostItem;
-  profile: HelperProfile;
+  helper: NearByHelperDto
 }
 
-const MapDisabledBottomSheetPostCard = ({ profile, post }: Props) => {
+const MapDisabledBottomSheetPostCard = ({ helper }: Props) => {
   const navigate = useNavigate();
-  const goProfileInfo = (profileId: number) => {
-    navigate(`/profile/helper/${profileId}`);
+  const goProfileInfo = (id: string) => {
+    navigate(`/profile/helper/${id}`);
   };
+  if (!helper) return null;
   return (
-    <Card onClick={() => goProfileInfo(profile.memberId)}>
+    <Card onClick={() => goProfileInfo(helper.id)}>
       <Content>
         <Row>
-          <Title>{profile?.name}</Title>
+          <Title>{}</Title>
         </Row>
         <Row>
-          <Gender>{profile?.gender} ·&nbsp;&nbsp;</Gender>
-          <Age>{profile?.age}</Age>
+          <Gender>{helper.gender} ·&nbsp;&nbsp;</Gender>
+          <Age>{helper.ageGroup}대</Age>
         </Row>
         <TagWrapper>
-          {post?.helpCategories.map((cat) => (
+          {helper?.helpCategories.map((cat) => (
             <HelpTag key={cat}>{HELP_TAG_MAP[cat]}</HelpTag>
           ))}
         </TagWrapper>

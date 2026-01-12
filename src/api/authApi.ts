@@ -18,6 +18,9 @@ export interface MyInfoResponse {
   name: string;
   nickname: string;
   role: string;
+  addressRoad: string;
+  latitude: number;  
+  longitude: number;
 }
 
 export const loginUser = async (data: LoginRequest) => {

@@ -15,9 +15,12 @@ import MapBottomSheetModalRadius from "./MapBottomSheetModalRadius";
 import Speaker from "../../../../../assets/images/speaker.png";
 import { IoMapOutline } from "react-icons/io5";
 import List from "../../../../../assets/images/list.svg";
+import { useUserStore } from "../../../../../store/useUserStore";
 
 interface Props {
   onClickCurrentLocation: () => void;
+  onClickHomeLocation: () => void;
+  addressRoad: string;
   locationLabel: string;
   radius: number;
   onChangeRadius: (r: number) => void;
@@ -28,11 +31,13 @@ function MapDisabledBottomSheet({
   locationLabel,
   radius,
   onChangeRadius,
+  onClickHomeLocation,
+  
 }: Props) {
   const { sheet, content, snap, updateSnap, sheetY } = useMapBottomSheet();
   const [openModalLoacation, setOpenModalLocation] = useState(false);
   const [openModalRadius, setOpenModalRadius] = useState(false);
-
+  const {user} = useUserStore();
   const handleGoMap = () => {
     updateSnap("HALF");
   };
@@ -46,6 +51,8 @@ function MapDisabledBottomSheet({
         <MapBottomSheetModalLocation
           onClose={() => setOpenModalLocation(false)}
           onClickCurrentLocation={onClickCurrentLocation}
+          onClickHomeLocation={onClickHomeLocation}
+          addressRoad = {user.addressRoad}
         />
       )}
 
@@ -155,6 +162,7 @@ const Wrapper = styled(motion.div)`
   height: 100vh;
   overflow: hidden;
   will-change: transform;
+  cursor: grab;
 `;
 
 const CurrentLocation = styled.div`
@@ -278,3 +286,4 @@ const ListImage = styled.img`
   width: 15px;
   height: 15px;
 `;
+

@@ -1,17 +1,15 @@
 import MapBottomSheetPostCard from "./MapDisabledBottomSheetPostCard";
-import { useProfileStore } from "../../../../../store/useProfileStore";
-import { usePostStore } from "../../../../../store/usePostStore";
-const MapDisabledBottomSheetContent = () => {
-  const helperProfiles = useProfileStore((state) => state.helperProfiles);
-  const posts = usePostStore((state) => state.posts);
 
+import { useMapStore } from "../../../store/useMapStore";
+
+const MapDisabledBottomSheetContent = () => {
+  const helpers = useMapStore((state) => state.helpers)
   return (
     <>
-      {helperProfiles.map((profile, index) => (
+      {helpers.map((helper) => (
         <MapBottomSheetPostCard
-          key={profile.memberId}
-          profile={profile}
-          post={posts[index]}
+          key={helper.id}
+          helper={helper}
         />
       ))}
     </>

@@ -2,8 +2,8 @@ import { instance } from "./axiosInstance";
 import type {
   NearByPostReqDto,
   NearByPostResDto,
-  NearByHelperDto,
   NearByHelperResDto,
+  NearByHelperReqDto,
 } from "../types/map.type";
 
 export const mapApi = {
@@ -20,7 +20,7 @@ export const mapApi = {
   },
 
   getNearByHelpers: async (
-    params: NearByHelperDto
+    params: NearByHelperReqDto
   ): Promise<NearByHelperResDto> => {
     const response = await instance.get<NearByHelperResDto>(
       "/match/maps/nearby-helpers",

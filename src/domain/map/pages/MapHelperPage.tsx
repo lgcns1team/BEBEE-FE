@@ -1,43 +1,87 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+
 import Header from "../../../components/Header";
 import MapBasePage from "./MapBasePage";
 import MapHelperBottomSheet from "../components/bottomsheet/components/MapHelperBottomSheet";
-
+import { mapApi } from "../../../api/mapApi";
+import type { MapFindType, NearByPostDto } from "../../../types/map.type";
+import { useUserStore } from "../../../store/useUserStore";
 const pxToRem = (px: number) => `${px / 16}rem`;
 const HEADER_HEIGHT_REM = pxToRem(73);
 
 const MapHelperPage = () => {
   const navigate = useNavigate();
-  const [center, setCenter] = useState({ lat: 33.450701, lng: 126.570667 });
-  const [locationLabel, setLocationLabel] = useState("장충동");
-  const [radiusKm, setRadiusKm] = useState(1);
-  const mapRef = useRef<kakao.maps.Map | null>(null);
+  const { user } = useUserStore();
 
+  /** 기준 상태 */
+  const [findType, setFindType] = useState<MapFindType>("CURRENT");
+  const [center, setCenter] = useState({ lat: 33.450701, lng: 126.570667 });
+  const [locationLabel, setLocationLabel] = useState("현재 위치");
+  const [radiusKm, setRadiusKm] = useState(1);
+
+  
+  const [posts, setPosts] = useState<NearByPostDto[]>([]);
+
+  /** 현재 위치 기준 */
   const moveToCurrentLocation = useCallback(() => {
     if (!navigator.geolocation) return;
 
     navigator.geolocation.getCurrentPosition((pos) => {
-      const nextCenter = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-      };
+      const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
 
-      setCenter(nextCenter);
+      setCenter(next);
+      setFindType("CURRENT");
       setLocationLabel("현재 위치");
-      if (mapRef.current) {
-        mapRef.current.setCenter(
-          new kakao.maps.LatLng(nextCenter.lat, nextCenter.lng)
-        );
-      }
     });
   }, []);
 
-  /** 최초 진입 시 현재 위치 */
+  const moveToHomeLocation = useCallback(() => {
+    if (!user) return;
+    const { latitude, longitude } = user;
+
+    //   if (
+    //   typeof latitude !== "number" ||
+    //   typeof longitude !== "number" ||
+    //   !Number.isFinite(latitude) ||
+    //   !Number.isFinite(longitude)
+    // ) {
+    //   return;
+    // }
+
+    setCenter({ lat: latitude, lng: longitude });
+    setFindType("HOME");
+    setLocationLabel("집");
+    console.log("회원가입할때의 위도,경도", latitude, longitude);
+    console.log("회원 정보", user);
+  }, [user]);
+
+  /** 최초 진입 → 현재 위치 */
   useEffect(() => {
     moveToCurrentLocation();
   }, [moveToCurrentLocation]);
+
+  /** 기준 위치 or 반경 변경 시 API 호출 */
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      const res = await mapApi.getNearByPosts({
+        type: findType,
+        latitude: center.lat,
+        longitude: center.lng,
+        radius: radiusKm * 1000,
+      });
+
+      if (!alive) return;
+      setPosts(res.nearByPosts);
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [center.lat, center.lng, radiusKm, findType]);
 
   return (
     <Container>
@@ -46,15 +90,22 @@ const MapHelperPage = () => {
       </HeaderWrapper>
 
       <Content>
-        <MapBasePage center={center} radius={radiusKm * 1000} />
+        <MapBasePage
+          mode="POST" 
+          center={center}
+          radius={radiusKm * 1000}
+          markers={posts}
+        />
       </Content>
 
       <BottomSheetWrapper>
         <MapHelperBottomSheet
           onClickCurrentLocation={moveToCurrentLocation}
+          onClickHomeLocation={moveToHomeLocation}
+          addressRoad={user.addressRoad} 
           locationLabel={locationLabel}
           radius={radiusKm}
-          onChangeRadius={setRadiusKm}
+          onChangeRadius={setRadiusKm} 
         />
       </BottomSheetWrapper>
     </Container>
