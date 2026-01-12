@@ -2,6 +2,11 @@ import type { Gender } from "./common.types";
 
 export type MyRole = "DISABLED" | "HELPER" | "ADMIN";
 
+export interface ReviewCount {
+  keywordId: number;
+  count: number;
+}
+
 export interface Badge {
   disabilityCategoryId: number;
   count: number;
@@ -75,7 +80,7 @@ export interface Member {
   longitude: number;
   profileImageUrl: string;
   sweetness: number;
-  honeyPoint: number;
+  honey: number;
   addressRoad: string;
   gender: string;
   birthDate: string; // date 형식

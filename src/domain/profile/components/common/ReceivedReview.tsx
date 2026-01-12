@@ -56,16 +56,59 @@
 import styled from "styled-components";
 import ReviewBadge from "../../../../components/ReviewBadge";
 import { useMemberStore } from "../../../../store/useMemberStore";
+import { useEffect, useMemo, useState } from "react";
+import { getReviewKeywords, ReviewKeyword } from "../../../../api/reviewApi";
 
-const ReceivedReview = () => {
-  const { profile, isLoading } = useMemberStore();
+type Mode = "me" | "other";
+
+interface Props {
+  mode: Mode
+}
+
+
+const ReceivedReview = ({mode} : Props) => {
+  const { member, isLoading } = useMemberStore();
+  const [keywords, setKeywords] = useState<ReviewKeyword[]>([]);
+
+  useEffect(() =>{
+    getReviewKeywords().then((res) => setKeywords(res.keywords ?? []))
+    .catch((e) => console.error("리뷰 키워드 조회 실패: ", e))
+  },[])
+
+  const keywordMap = useMemo(() =>{
+    const map = new Map<number, ReviewKeyword>();
+    keywords.forEach((k) => map.set(k.keywordId, k));
+    return map;
+  }, [keywords]);
+  
+  const items = useMemo(() => {
+    if (!member?. || profile.reviews.length === 0) return [];
+
+    return profile.reviews
+      .map((r) => {
+        const kw = keywordMap.get(r.keywordId);
+        if (!kw) return null;
+
+        // ✅ 타인 프로필: 긍정만
+        if (mode === "other" && kw.isPositive === false) return null;
+
+        return {
+          keywordId: r.keywordId,
+          description: kw.description,
+          isPositive: kw.isPositive,
+          count: r.count,
+        };
+      })
+      .filter(Boolean) as Array<{
+      keywordId: number;
+      description: string;
+      isPositive: boolean;
+      count: number;
+    }>;
+  }, [profile, keywordMap, mode]);
 
   if (isLoading || !profile) return null;
-
-  const items = profile.reviews ?? [];
-
   if (items.length === 0) return null;
-
   return (
     <Container>
       <Title>받은 후기</Title>
