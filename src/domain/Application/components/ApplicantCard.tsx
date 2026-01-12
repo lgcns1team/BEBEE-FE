@@ -5,6 +5,7 @@ import type { Applicant } from "../../../types/application.type";
 import type { Gender } from "../../auth/auth.types";
 import { chatApi } from "../../../api/chatApi";
 import { useApplicationStore } from "../store/useApplicationStore";
+import { useChatStore } from "../../chat/store/useChatStore";
 
 interface Props {
   applicants: Applicant[];
@@ -20,6 +21,7 @@ const GENDER_KR: Record<Gender, string> = {
 const ApplicantList = ({ applicants, isSharing }: Props) => {
   const navigate = useNavigate();
   const { currentPost, setCurrentPost } = useApplicationStore();
+  const { setActiveRoom } = useChatStore();
   const filteredApplicants = isSharing
     ? applicants.filter((applicant) => applicant.isVolunteer)
     : applicants;
@@ -54,6 +56,7 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
         응답전체데이터: res,
       });
       const chatroomId = res.chatroomId;
+
       // 채팅방 생성 응답의 postId를 store에 저장
       if (res.postId) {
         setCurrentPost({
@@ -62,6 +65,13 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
           helpCategoryIds: currentPost.helpCategoryIds,
         });
       }
+
+      // 채팅방 정보를 store에 저장 (응답에 isVolunteer가 없으므로 요청 시 전달한 값 포함)
+      setActiveRoom({
+        ...res,
+        isVolunteer,
+      });
+
       navigate(`/chat/${chatroomId}`);
     } catch (e) {
       console.error("채팅방 생성 실패:", e);
@@ -89,7 +99,7 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
 
             <GoProfile
               onClick={() => {
-                goChat(applicant.memberId, applicant.isVolunteer);
+                goChat(String(applicant.memberId), applicant.isVolunteer);
               }}
             >
               채팅하기
