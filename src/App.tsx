@@ -16,7 +16,7 @@ import { initViewportHeight } from "./utils/viewport";
 import "./App.css";
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
-import MapDisabledPage from "./domain/map/pages/MapDisabledPage";
+//import MapDisabledPage from "./domain/map/pages/MapDisabledPage";
 import MatchFormPage from "./domain/chat/pages/MatchFormPage";
 import ApplicateLandingPage from "./domain/Application/page/ApplicateLandingPage";
 import ApplicateStatusPage from "./domain/Application/page/ApplicateStatusPage";
@@ -37,6 +37,7 @@ import { FailPage } from "./domain/Pay/page/FailPage";
 import LandingPage from "./domain/Landing/page/LandingPage";
 import BadgePage from "./domain/Badge/page/Badge";
 import BadgeDetailPage from "./domain/Badge/page/BadgeDetailPage";
+import BadgeSharePage from "./domain/Badge/page/BadgeSharePage";
 
 function App() {
   // 모바일 브라우저 뷰포트 높이 초기화
@@ -71,11 +72,11 @@ function App() {
           <Route path="/mypage" element={<MyPage />} />
 
           {/* 마이페이지에서 보는 프로필 정보 */}
-          <Route path="/profile-info/:infoId" element={<ProfileInfoPage />} />
+          <Route path="/profile-info" element={<ProfileInfoPage />} />
 
           {/*동네지도*/}
           <Route path="/map" element={<MapHelperPage />} />
-          <Route path="/map/disabled" element={<MapDisabledPage />} />
+          {/* <Route path="/map/disabled" element={<MapDisabledPage />} /> */}
           <Route path="/map/helper" element={<MapHelperPage />} />
 
           {/* 매칭 */}
@@ -91,6 +92,7 @@ function App() {
           {/*뱃지*/}
           <Route path="/badge" element={<BadgePage />} />
           <Route path="/badge/:disabilityId" element={<BadgeDetailPage />} />
+          <Route path="/badge/share" element={<BadgeSharePage />} />
           {/*  테스트 */}
           <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
           <Route path="/applicate-status" element={<ApplicateStatusPage />} />

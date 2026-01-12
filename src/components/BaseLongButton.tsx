@@ -21,7 +21,6 @@ export default BaseLongButton;
 
 const ButtonArea = styled.div`
   width: 100%;
-  padding-top: 16px;
   margin-top: auto;
   position: sticky;
   z-index: 800;
@@ -50,8 +49,6 @@ const StyledButton = styled.button`
 
   &:hover {
     background-color: ${({ theme, disabled }) =>
-      disabled
-        ? theme.color.natural200
-        : theme.color.mainDark};
+      disabled ? theme.color.natural200 : theme.color.mainDark};
   }
 `;

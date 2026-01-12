@@ -1,3 +1,4 @@
+import styled from "styled-components";
 import Header from "../../../components/Header";
 import DisabledMyPage from "./DisabledMyPage";
 import HelperMyPage from "./HelperMyPage";
@@ -25,12 +26,38 @@ const MyPage = () => {
   }
 
   return (
-    <div style={{ paddingBottom: "80px" }}>
+    <Container>
       <Header title="나의 비비" />
-      <RoleMyPage />
+      <ContentArea>
+        <RoleMyPage />
+      </ContentArea>
       <Toast />
-    </div>
+    </Container>
   );
 };
 
 export default MyPage;
+
+const Container = styled.div`
+  width: 100%;
+  height: 100vh;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: ${({ theme }) => theme.color.white};
+`;
+
+const ContentArea = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 80px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;

@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
-import { badgeApi } from "../api/badgeApi";
-import type { BadgeStatusItem } from "../types/badge.type";
+import { useBadgeStore } from "../store/useBadgeStore";
 import { BADGE_RESOURCE_MAP } from "../types/badge.type";
 import { DISABILITY_TYPES } from "../../../constants/disabilityTypes";
 import ShareButton from "../components/ShareButton";
@@ -14,38 +13,37 @@ const BadgeDetailPage = () => {
   const { disabilityId } = useParams<{ disabilityId: string }>();
   const [searchParams] = useSearchParams();
   const level = searchParams.get("level");
-  const [badgeStatus, setBadgeStatus] = useState<BadgeStatusItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isLoading, error, fetchBadgeStatus, getBadgeStatusByDisabilityId } =
+    useBadgeStore();
 
   useEffect(() => {
-    const fetchBadgeStatus = async () => {
-      try {
-        const data = await badgeApi.getBadge();
-        setBadgeStatus(data.badge_status || []);
-      } catch (error) {
-        console.error("뱃지 상태 조회 실패:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchBadgeStatus();
-  }, []);
+  }, [fetchBadgeStatus]);
+
+  const id = disabilityId ? parseInt(disabilityId, 10) : null;
 
   if (isLoading) {
     return (
       <Layout>
-        <Header title="뱃지 상세" onBack={() => navigate(-1)} showBack />
+        <Header onBack={() => navigate(-1)} showBack />
         <LoadingContainer>뱃지 정보를 불러오는 중...</LoadingContainer>
       </Layout>
     );
   }
 
-  const id = disabilityId ? parseInt(disabilityId, 10) : null;
+  if (error) {
+    return (
+      <Layout>
+        <Header onBack={() => navigate(-1)} showBack />
+        <ErrorContainer>{error}</ErrorContainer>
+      </Layout>
+    );
+  }
+
   if (!id) {
     return (
       <Layout>
-        <Header title="뱃지 상세" onBack={() => navigate(-1)} showBack />
+        <Header onBack={() => navigate(-1)} showBack />
         <ErrorContainer>잘못된 장애 유형입니다.</ErrorContainer>
       </Layout>
     );
@@ -55,15 +53,13 @@ const BadgeDetailPage = () => {
   if (!disability) {
     return (
       <Layout>
-        <Header title="뱃지 상세" onBack={() => navigate(-1)} showBack />
+        <Header onBack={() => navigate(-1)} showBack />
         <ErrorContainer>장애 유형을 찾을 수 없습니다.</ErrorContainer>
       </Layout>
     );
   }
 
-  const status = badgeStatus.find((item) =>
-    item.disabilityCategoryIds.includes(id)
-  );
+  const status = getBadgeStatusByDisabilityId(id);
   const badgeCode = status?.badge_code || null;
   const count = status?.count || 0;
 
@@ -73,18 +69,28 @@ const BadgeDetailPage = () => {
   const isUnlocked = badgeCode === targetLevel || count >= targetCount;
 
   // 뱃지 이미지 가져오기
+  // 5회 달성 시 LEVEL_1 이미지, 10회 달성 시 LEVEL_2 이미지 표시
   const badgeResource = BADGE_RESOURCE_MAP[id];
-  const badgeImage =
-    isUnlocked && badgeCode === targetLevel
-      ? badgeResource[targetLevel]
-      : badgeResource.DEFAULT;
+  let badgeImage = badgeResource.DEFAULT;
+
+  if (isUnlocked) {
+    // count가 목표치 이상이면 해당 레벨의 이미지 표시
+    if (count >= targetCount) {
+      badgeImage = badgeResource[targetLevel];
+    } else if (badgeCode === targetLevel) {
+      // badgeCode가 목표 레벨과 일치하면 해당 레벨 이미지 표시
+      badgeImage = badgeResource[targetLevel];
+    }
+  }
 
   return (
     <Layout>
-      <Header title="뱃지 상세" onBack={() => navigate(-1)} showBack />
+      <Header onBack={() => navigate(-1)} showBack />
       <Container>
         <DisabilityInfo>
-          <DisabilityName>{disability.name} 전문가</DisabilityName>
+          <DisabilityName>
+            {disability.name} {targetCount === 5 ? "숙련자" : "전문가"}
+          </DisabilityName>
           <TargetCount>{targetCount}회 도움 완료 시 획득 가능</TargetCount>
         </DisabilityInfo>
 
@@ -111,14 +117,14 @@ const BadgeDetailPage = () => {
             </Text>
           )}
         </div>
-        <ShareButtonContainer>
-          <ShareButton
-            imageUrl={badgeImage}
-            disabilityName={disability.name}
-            disabled={false}
-          />
-        </ShareButtonContainer>
       </Container>
+
+      <ShareButton
+        imageUrl={badgeImage}
+        disabilityName={disability.name}
+        disabled={false}
+        level={level === "10" ? "10" : "5"}
+      />
     </Layout>
   );
 };
@@ -147,6 +153,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 32px;
+  align-items: center;
 `;
 
 const DisabilityInfo = styled.div`
@@ -183,7 +190,6 @@ const BadgeImage = styled.img`
   width: 100%;
   height: auto;
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 `;
 
 const LockOverlay = styled.div`
@@ -220,10 +226,4 @@ const Text = styled.div`
   text-align: center;
   font-size: ${({ theme }) => theme.size.md};
   color: ${({ theme }) => theme.color.text};
-`;
-
-const ShareButtonContainer = styled.div`
-  width: 100%;
-  padding: 0 16px;
-  margin-top: 8px;
 `;
