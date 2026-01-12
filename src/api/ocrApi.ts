@@ -10,7 +10,7 @@ export const extractOcr = async (
   formData.append("role", role);
 
   const response = await instance.post(
-    "/api/members/documents/ocr-extract",
+    "/member/documents/ocr-extract",
     formData,
     {
       headers: {

@@ -23,7 +23,7 @@ export const uploadFileToS3 = async (file: File, directory: string, entityId: st
     const contentType = file.type || 'application/octet-stream';
 
     // 1. Presigned URL 요청
-    const { data } = await instance.post("/api/file/files/presigned-url", {
+    const { data } = await instance.post("/file/files/presigned-url", {
       directory,
       entityId,
       originFileName: file.name,
@@ -65,7 +65,7 @@ export const uploadFileToS3ForSignup = async (file: File, email: string) => {
 
     // 1. 회원가입 전용 Presigned URL 요청 (JWT 불필요)
     const { data } = await axios.post(
-      `${import.meta.env.VITE_API_URL || "https://api.be-bee.link"}/api/file/files/signup/presigned-url`,
+      `${import.meta.env.VITE_API_URL || "https://api.be-bee.link"}/file/files/signup/presigned-url`,
       {
         email,
         originFileName: file.name,
