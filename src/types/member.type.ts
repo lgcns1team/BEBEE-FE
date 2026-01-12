@@ -2,18 +2,10 @@ import type { Gender } from "./common.types";
 
 export type MyRole = "DISABLED" | "HELPER" | "ADMIN";
 
-// export interface Review {
-  
-// }
-
-// export interface Badge {
- 
-// }
-
 export interface Badge {
   disabilityCategoryId: number;
   count: number;
-  badgeCode: string | null; 
+  badgeCode: string | null;
 }
 // 내 프로필 조회
 export interface MyProfile {
@@ -27,7 +19,7 @@ export interface MyProfile {
 
   address: string;
 
-  helpCategories: number[]; 
+  helpCategories: number[];
 
   introduction: string;
 
@@ -55,20 +47,42 @@ export interface MemberProfile {
 
   address: string;
 
-  helpCategories: number[]; 
+  helpCategories: number[];
 
   introduction: string;
 
   honey: number;
 
-  // reviews: any[]; 
+  // reviews: any[];
   // documents: any[] | null;
 
-  
   badges: Badge[] | null;
 
-  
   disabilityType: string | null;
   disabilityDescription: string | null;
 }
 
+// /member/members/profile/me 응답 타입
+export interface Member {
+  memberId: string;
+  email: string;
+  name: string;
+  nickname: string;
+  role: string;
+  phoneNumber: string;
+  introduction: string;
+  latitude: number;
+  longitude: number;
+  profileImageUrl: string;
+  sweetness: number;
+  honeyPoint: number;
+  addressRoad: string;
+  gender: string;
+  birthDate: string; // date 형식
+  ageGroup: number;
+  helpTypes: string[];
+  documents: object[];
+  disabilityType: string;
+  disabilityDescription: string;
+  badges: Badge[] | null;
+}

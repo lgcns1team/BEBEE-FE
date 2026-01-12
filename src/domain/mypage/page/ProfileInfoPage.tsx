@@ -5,16 +5,14 @@ import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 // import ReceivedReview from "../../profile/components/common/ReceivedReview";
 import { useEffect } from "react";
-import { getMyProfile } from "../../../api/profileApi";
+import { getMyProfile } from "../../../api/memberApi";
 const ProfileInfoPage = () => {
   const navigate = useNavigate();
-  const {profile, setProfile} = useProfileStore();
-
-  
+  const { profile, setProfile } = useProfileStore();
 
   const infoList = [
     { label: "성별", value: profile?.gender },
-    { label: "나이",value: `${profile.ageGroup}대` },
+    { label: "나이", value: `${profile.ageGroup}대` },
     { label: "주소", value: profile?.address },
     {
       label: "주요 도움",
@@ -26,15 +24,17 @@ const ProfileInfoPage = () => {
     { label: "한줄소개", value: profile?.introduction },
   ];
 
-  useEffect(() =>{
-    if(!profile){
-      getMyProfile().then((res) =>{
-        setProfile(res.data)
-      }).catch(() =>{
-        console.error("내 프로필 조회 실패")
-      })
+  useEffect(() => {
+    if (!profile) {
+      getMyProfile()
+        .then((res) => {
+          setProfile(res.data);
+        })
+        .catch(() => {
+          console.error("내 프로필 조회 실패");
+        });
     }
-  }, [profile, setProfile])
+  }, [profile, setProfile]);
   return (
     <Layout bg>
       <Header title="프로필" showBack onBack={() => navigate(-1)} bg />

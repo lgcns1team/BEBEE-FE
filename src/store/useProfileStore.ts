@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { MyProfile } from "../types/profile.type";
+import type { MyProfile } from "../types/member.type";
 
 interface ProfileState {
   profile: MyProfile | null;
@@ -23,5 +23,3 @@ export const useProfileStore = create<ProfileState>((set) => ({
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
 }));
-
-

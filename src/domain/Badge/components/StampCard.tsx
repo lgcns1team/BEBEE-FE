@@ -33,7 +33,9 @@ const StampCard = ({
       $isActive={isComplete || isLevel1 || isLevel2}
       onClick={onNavigate}
     >
-      <SectionTitle>{disability.name} 전문가</SectionTitle>
+      <SectionTitle>
+        {disability.name} {targetCount === 5 ? "숙련자" : "전문가"}
+      </SectionTitle>
       <SectionDescription>
         {disability.name}에게 {targetCount}회 도움을 주면 뱃지 획득!
       </SectionDescription>
@@ -65,9 +67,7 @@ const StampSection = styled.div<{ $isActive: boolean }>`
   cursor: pointer;
   transition: all 0.2s ease;
   flex: 1;
-  border: 2px solid
-    ${({ $isActive, theme }) =>
-      $isActive ? theme.color.main : theme.color.natural100};
+  border: 1px solid ${({ theme }) => theme.color.natural100};
 
   &:active {
     transform: translateY(0);

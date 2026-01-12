@@ -1,42 +1,38 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { badgeApi } from "../../Badge/api/badgeApi";
-import type { BadgeStatusItem } from "../../Badge/types/badge.type";
+import { useBadgeStore } from "../../Badge/store/useBadgeStore";
 import { BADGE_RESOURCE_MAP } from "../../Badge/types/badge.type";
 import { DISABILITY_TYPES } from "../../../constants/disabilityTypes";
 import { IoChevronForward } from "react-icons/io5";
+
 const BadgePreview = () => {
   const navigate = useNavigate();
-  const [badgeStatus, setBadgeStatus] = useState<BadgeStatusItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { badgeStatus, isLoading, error, fetchBadgeStatus } = useBadgeStore();
 
   useEffect(() => {
-    const fetchBadgeStatus = async () => {
-      try {
-        const data = await badgeApi.getBadge();
-        setBadgeStatus(data.badge_status || []);
-      } catch (error) {
-        console.error("뱃지 상태 조회 실패:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchBadgeStatus();
-  }, []);
+  }, [fetchBadgeStatus]);
 
-  // 장애 유형별 뱃지 상태 조회
-  const getBadgeStatus = (
-    disabilityId: number
-  ): BadgeStatusItem | undefined => {
-    return badgeStatus.find((item) =>
-      item.disabilityCategoryIds.includes(disabilityId)
-    );
-  };
+  // count가 높은 순으로 정렬하여 상위 5개만 표시
+  const displayDisabilities = useMemo(() => {
+    const disabilitiesWithCount = DISABILITY_TYPES.map((disability) => {
+      const status = badgeStatus.find((item) =>
+        item.disabilityCategoryIds.includes(disability.id)
+      );
+      return {
+        ...disability,
+        count: status?.count || 0,
+        badgeCode: status?.badge_code || null,
+      };
+    });
 
-  // 상위 5개 장애 유형만 표시
-  const displayDisabilities = DISABILITY_TYPES.slice(0, 5);
+    // count가 높은 순으로 정렬
+    const sorted = disabilitiesWithCount.sort((a, b) => b.count - a.count);
+
+    // 상위 5개만 반환
+    return sorted.slice(0, 5);
+  }, [badgeStatus]);
 
   const handleBadgeClick = () => {
     navigate("/badge");
@@ -48,6 +44,17 @@ const BadgePreview = () => {
         <BadgePreviewTitle>내 뱃지</BadgePreviewTitle>
         <BadgeScrollContainer>
           <LoadingText>뱃지 정보를 불러오는 중...</LoadingText>
+        </BadgeScrollContainer>
+      </BadgePreviewContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <BadgePreviewContainer>
+        <BadgePreviewTitle>내 뱃지</BadgePreviewTitle>
+        <BadgeScrollContainer>
+          <LoadingText>{error}</LoadingText>
         </BadgeScrollContainer>
       </BadgePreviewContainer>
     );
@@ -65,15 +72,24 @@ const BadgePreview = () => {
       <BadgeScrollContainer>
         <BadgeScrollContent>
           {displayDisabilities.map((disability) => {
-            const status = getBadgeStatus(disability.id);
-            const badgeCode = status?.badge_code || null;
+            const badgeCode = disability.badgeCode;
             const isUnlocked = badgeCode !== null;
 
             // 뱃지 이미지 결정 (가장 높은 레벨 표시)
             const badgeResource = BADGE_RESOURCE_MAP[disability.id];
-            const badgeImage = badgeCode
-              ? badgeResource[badgeCode]
-              : badgeResource.DEFAULT;
+
+            // badgeResource가 없으면 해당 뱃지는 렌더링하지 않음
+            if (!badgeResource) {
+              console.warn(
+                `뱃지 리소스를 찾을 수 없습니다: disabilityId=${disability.id}`
+              );
+              return null;
+            }
+
+            const badgeImage =
+              badgeCode && badgeResource[badgeCode]
+                ? badgeResource[badgeCode]
+                : badgeResource.DEFAULT;
 
             return (
               <BadgeCard key={disability.id} onClick={handleBadgeClick}>
@@ -86,7 +102,7 @@ const BadgePreview = () => {
                 </BadgeImageContainer>
                 <BadgeText>
                   <BadgeName>{disability.name}</BadgeName>
-                  <BadgeCount>달성{status?.count || 0}/5개</BadgeCount>
+                  <BadgeCount>달성{disability.count}/5개</BadgeCount>
                 </BadgeText>
               </BadgeCard>
             );
@@ -104,7 +120,6 @@ const BadgePreviewContainer = styled.div`
   padding: 20px 16px;
   background-color: ${({ theme }) => theme.color.white};
   border-radius: 12px;
-  margin-bottom: 16px;
 `;
 
 const BadgeHeader = styled.div`
@@ -176,9 +191,7 @@ const BadgeImageContainer = styled.div<{ $isUnlocked: boolean }>`
   border-radius: 12px;
   overflow: hidden;
   background-color: ${({ theme }) => theme.color.natural100};
-  border: 2px solid
-    ${({ $isUnlocked, theme }) =>
-      $isUnlocked ? theme.color.main : theme.color.natural200};
+
   opacity: ${({ $isUnlocked }) => ($isUnlocked ? 1 : 0.6)};
   transition: all 0.2s ease;
 `;
