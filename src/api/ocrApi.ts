@@ -10,13 +10,12 @@ export const extractOcr = async (
   formData.append("role", role);
 
   const response = await instance.post(
-    "/member/documents/ocr-extract",
+    "/api/members/documents/ocr-extract",
     formData,
     {
       headers: {
         "Content-Type": "multipart/form-data",
-      },
-      timeout: 30000, // 30초
+      },// 30초
     }
   );
   return response.data;

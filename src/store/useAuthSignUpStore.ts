@@ -25,10 +25,13 @@ interface SignUpFormData {
     helpTypes: string[];
     // 장애인: 장애 정보
     disabilityType: string;
+    disabilityGrade: string;        // "1" = 중증, "2" = 경증
     disabilityDescription: string;
 
     // Step 5: 문서
     uploadedFile: File | null;
+    fileUrl: string | null;        // S3 업로드 후 URL
+    systemFlag: string | null;     // 분석 결과 (LOW/MID/HIGH)
 
     // 가입 완료 후 생성된 ID (재업로드 시 필요)
     memberId: string | null;
@@ -49,8 +52,10 @@ interface SignUpFormActions {
         districtCode: string;
     }) => void;
     setHelpTypes: (helpTypes: string[]) => void;
-    setDisabilityInfo: (type: string, description: string) => void;
+    setDisabilityInfo: (type: string, grade: string, description: string) => void;
     setUploadedFile: (file: File | null) => void;
+    setFileUrl: (url: string | null) => void;
+    setSystemFlag: (flag: string | null) => void;
     setMemberId: (id: string) => void;
     reset: () => void;
 }
@@ -70,8 +75,11 @@ const initialState: SignUpFormData = {
     districtCode: "",
     helpTypes: [],
     disabilityType: "",
+    disabilityGrade: "",
     disabilityDescription: "",
     uploadedFile: null,
+    fileUrl: null,
+    systemFlag: null,
     memberId: null,
 };
 
@@ -87,10 +95,14 @@ export const useAuthSignUpForm = create<SignUpFormData & SignUpFormActions>(
 
         setHelpTypes: (helpTypes) => set({ helpTypes }),
 
-        setDisabilityInfo: (type, description) =>
-            set({ disabilityType: type, disabilityDescription: description }),
+        setDisabilityInfo: (type, grade, description) =>
+            set({ disabilityType: type, disabilityGrade: grade, disabilityDescription: description }),
 
         setUploadedFile: (file) => set({ uploadedFile: file }),
+
+        setFileUrl: (fileUrl) => set({ fileUrl }),
+
+        setSystemFlag: (systemFlag) => set({ systemFlag }),
 
         setMemberId: (memberId) => set({ memberId }),
 

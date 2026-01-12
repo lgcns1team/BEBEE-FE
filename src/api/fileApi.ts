@@ -8,6 +8,12 @@ export interface PresignedUrlParams {
   contentType: string;
 }
 
+export interface SignupPresignedUrlParams {
+  email: string;
+  originFileName: string;
+  contentType: string;
+}
+
 /**
  * 전용 파일 서비스(file-service)를 통해 S3 Presigned URL을 획득하고 파일을 직접 업로드합니다.
  */
@@ -17,7 +23,7 @@ export const uploadFileToS3 = async (file: File, directory: string, entityId: st
     const contentType = file.type || 'application/octet-stream';
 
     // 1. Presigned URL 요청
-    const { data } = await instance.post("/files/presigned-url", {
+    const { data } = await instance.post("/api/file/files/presigned-url", {
       directory,
       entityId,
       originFileName: file.name,
@@ -45,5 +51,38 @@ export const uploadFileToS3 = async (file: File, directory: string, entityId: st
     }
     console.error("Presigned URL 요청 실패:", error);
     throw new Error("파일 업로드 URL을 가져오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+  }
+};
+
+/**
+ * 회원가입 전용 S3 업로드 (JWT 없이 호출 가능)
+ * - /api/file/files/signup/presigned-url 엔드포인트 사용
+ * - email을 entityId로 사용
+ */
+export const uploadFileToS3ForSignup = async (file: File, email: string) => {
+  try {
+    const contentType = file.type || 'application/octet-stream';
+
+    // 1. 회원가입 전용 Presigned URL 요청 (JWT 불필요)
+    const { data } = await axios.post(
+      `${import.meta.env.VITE_API_URL || "https://api.be-bee.link"}/api/file/files/signup/presigned-url`,
+      {
+        email,
+        originFileName: file.name,
+        contentType,
+      }
+    );
+
+    const { uploadUrl, fileUrl } = data;
+
+    // 2. S3로 직접 업로드 (PUT 요청)
+    await axios.put(uploadUrl, file, {
+      headers: { "Content-Type": contentType },
+    });
+
+    return fileUrl;
+  } catch (error) {
+    console.error("회원가입 파일 업로드 실패:", error);
+    throw new Error("파일 업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
   }
 };

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { IoDocumentTextOutline } from "react-icons/io5";
@@ -11,20 +11,41 @@ import {
   RequiredMark,
 } from "../../../styles/FieldSetStyle";
 import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
+import { uploadFileToS3ForSignup } from "../../../api/fileApi";
+import { analyzeDocument } from "../../../api/documentApi";
 import authHelperImage from "../../../assets/images/auth-helper.png";
 import authDisabledImage from "../../../assets/images/auth-disabled.png";
 
 const AuthSignUpStep5Page = () => {
   const navigate = useNavigate();
-  const { role, setUploadedFile } = useAuthSignUpForm();
+  const { role, email, setUploadedFile, setFileUrl, setSystemFlag } = useAuthSignUpForm();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (!file || !role) return;
+
+    setIsUploading(true);
+    try {
+      // 1. 파일 저장 (store)
       setUploadedFile(file);
-      // 파일 선택 후 Step 6으로 이동
+
+      // 2. S3 업로드 (회원가입 전용 - JWT 불필요)
+      const fileUrl = await uploadFileToS3ForSignup(file, email);
+      setFileUrl(fileUrl);
+
+      // 3. 문서 분석 API 호출 (memberId 없이)
+      const result = await analyzeDocument(fileUrl, role);
+      setSystemFlag(result.systemFlag);
+
+      // 4. Step 6으로 이동
       navigate("/signup/step6");
+    } catch (error) {
+      console.error("문서 업로드/분석 실패:", error);
+      alert("문서 업로드 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -63,10 +84,12 @@ const AuthSignUpStep5Page = () => {
             </RoleImageContainer>
 
             {/* 파일 업로드 버튼 */}
-            <FileUploadButton type="button" onClick={handleFileClick}>
+            <FileUploadButton type="button" onClick={handleFileClick} disabled={isUploading}>
               <IoDocumentTextOutline size={40} />
-              <UploadText>파일 선택</UploadText>
-              <UploadSubText>이미지 또는 PDF 파일을 업로드하세요</UploadSubText>
+              <UploadText>{isUploading ? "업로드 중..." : "파일 선택"}</UploadText>
+              <UploadSubText>
+                {isUploading ? "잠시만 기다려주세요" : "이미지 또는 PDF 파일을 업로드하세요"}
+              </UploadSubText>
             </FileUploadButton>
 
             <HiddenInput
@@ -78,7 +101,11 @@ const AuthSignUpStep5Page = () => {
           </FieldSet>
         </ScrollArea>
       </PageContainer>
-      <BaseLongButton label="다음" onClick={handleFileClick} disabled={false} />
+      <BaseLongButton 
+        label={isUploading ? "업로드 중..." : "다음"} 
+        onClick={handleFileClick} 
+        disabled={isUploading} 
+      />
     </Layout>
   );
 };
