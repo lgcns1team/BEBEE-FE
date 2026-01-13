@@ -44,20 +44,20 @@ const MatchingPage = () => {
     return undefined; // 전체
   }, [activeTab]);
 
-  // 활동 완료
   const handleComplete = async (engagementId: string) => {
-    const res = await completeEngagement(engagementId);
-    const { isLastEngagement } = res.data;
+    try {
+      await completeEngagement(engagementId);
 
-    setEngagements((prev) =>
-      prev.map((e) =>
-        e.engagementId === engagementId
-          ? { ...e, status: isLastEngagement ? "REVIEW_ACTIVE" : "COMPLETED" }
-          : e
-      )
-    );
+      const res = await getEngagements({
+        date: selectedDate,
+        type: selectedType,
+      });
+
+      setEngagements(res.data.engagements ?? []);
+    } catch (e) {
+      console.error("활동 완료 처리 실패", e);
+    }
   };
-
   // 캘린더 조회
   useEffect(() => {
     const [y, m] = selectedDate.split("-").map(Number);
