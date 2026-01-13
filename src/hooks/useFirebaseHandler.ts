@@ -72,9 +72,22 @@ const setupServiceWorkerMessageListener = () => {
 
 /**
  * FCM 초기화 및 토큰 가져오기
+ * @param requestPermission - 알림 권한 요청 여부 (기본값: true)
  */
-export const initializeFCM = async (): Promise<string | null> => {
+export const initializeFCM = async (requestPermission: boolean = true): Promise<string | null> => {
   try {
+    // HTTPS 확인 (배포 환경에서 중요)
+    if (typeof window !== "undefined") {
+      const isSecureContext = window.isSecureContext || location.protocol === "https:" || location.hostname === "localhost";
+      if (!isSecureContext) {
+        const errorMsg = "FCM은 HTTPS 또는 localhost에서만 작동합니다.";
+        log.error(errorMsg);
+        // 배포 환경에서도 에러 표시
+        console.error("❌ [FCM]", errorMsg, { protocol: location.protocol, hostname: location.hostname });
+        return null;
+      }
+    }
+
     // 브라우저 지원 확인
     if (typeof window === "undefined" || !("Notification" in window)) {
       log.warn("This browser does not support notifications.");
@@ -162,10 +175,29 @@ export const initializeFCM = async (): Promise<string | null> => {
       messaging = getMessaging(app);
     }
 
-    // 알림 권한 요청
-    const permission = await Notification.requestPermission();
+    // 알림 권한 확인 및 요청
+    let permission = Notification.permission;
+    
+    if (permission === "default" && requestPermission) {
+      // 권한이 아직 요청되지 않은 경우에만 요청
+      try {
+        permission = await Notification.requestPermission();
+        // 배포 환경에서도 로깅
+        console.log("🔔 [FCM] 알림 권한 요청 결과:", permission);
+      } catch (error) {
+        const errorMsg = "알림 권한 요청 중 오류가 발생했습니다.";
+        log.error(errorMsg, error);
+        // 배포 환경에서도 에러 표시
+        console.error("❌ [FCM]", errorMsg, error);
+        return null;
+      }
+    }
+
     if (permission !== "granted") {
-      log.warn("Notification permission denied.");
+      const reason = permission === "denied" ? "사용자가 거부했습니다." : "권한이 요청되지 않았습니다.";
+      log.warn(`Notification permission denied. ${reason}`);
+      // 배포 환경에서도 로깅
+      console.warn("⚠️ [FCM] 알림 권한 거부:", reason);
       return null;
     }
 

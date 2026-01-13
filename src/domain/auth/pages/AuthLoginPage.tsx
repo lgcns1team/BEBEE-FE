@@ -5,15 +5,19 @@ import Layout from "../../../components/Layout";
 import GeneralInput from "../../../components/GeneralInput";
 import PasswordInput from "../components/PasswordInput";
 import BaseLongButton from "../../../components/BaseLongButton";
+import { Toast } from "../../../components/Toast";
 import logoIcon from "../../../assets/images/icon.png";
 import logoText from "../../../assets/images/application.png";
 import { loginUser, getMyInfo } from "../../../api/authApi";
 import { useUserStore } from "../../../store/useUserStore";
+import { useToastStore } from "../../../store/useToastStore";
+import { getErrorMessage } from "../../../utils/error";
 import type { LoginRequest } from "../auth.types";
 
 const AuthLoginPage = () => {
   const navigate = useNavigate();
   const { setAccessToken, setUser } = useUserStore();
+  const { showToast } = useToastStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -38,12 +42,17 @@ const AuthLoginPage = () => {
         role: myInfo.role as "DISABLED" | "HELPER" | "ADMIN",
       });
 
-      // 로그인 성공 시 메인 페이지로 이동 (replace: true로 history 스택에서 로그인 페이지 제거)
-      alert("로그인 성공!");
-      navigate("/home", { replace: true });
+      // 로그인 성공 시 Toast 표시 후 메인 페이지로 이동
+      showToast("로그인 성공!", "SUCCESS");
+      setTimeout(() => {
+        navigate("/home", { replace: true });
+      }, 100);
     } catch (error) {
       console.error("로그인 실패:", error);
-      alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+      showToast(
+        getErrorMessage(error, "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요."),
+        "ERROR"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -51,6 +60,7 @@ const AuthLoginPage = () => {
 
   return (
     <Layout>
+      <Toast />
       <LogoContainer>
         <LogoIcon src={logoIcon} alt="Bebee Icon" />
         <LogoText src={logoText} alt="Bebee Logo" />

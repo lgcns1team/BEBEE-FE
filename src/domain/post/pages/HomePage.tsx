@@ -140,7 +140,7 @@ const HomePage = () => {
     setIsMatched(checked ? false : undefined);
   };
 
-  // 6. FCM 초기화 및 토큰 등록
+  // 6. FCM 초기화 및 토큰 등록 (자동 요청)
   useEffect(() => {
     // 로그인하지 않았거나 이미 초기화했으면 스킵
     if (!user || fcmInitialized.current) {
@@ -152,15 +152,37 @@ const HomePage = () => {
       return;
     }
 
+    // PWA 모드 확인 (standalone, fullscreen 등)
+    const isPWA = 
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone === true ||
+      document.referrer.includes("android-app://");
+
     const setupFCM = async () => {
       try {
         const isDev = import.meta.env.DEV;
-        if (isDev) {
-          console.log("🔔 [FCM] 초기화 시작...");
+        
+        // Service Worker가 준비될 때까지 대기
+        if ("serviceWorker" in navigator) {
+          try {
+            await navigator.serviceWorker.ready;
+          } catch (error) {
+            // Service Worker가 없어도 계속 진행
+            if (isDev) {
+              console.warn("⚠️ [FCM] Service Worker 준비 대기 중 오류:", error);
+            }
+          }
         }
 
-        // FCM 초기화 및 토큰 가져오기 (알림 권한 요청 포함)
-        const token = await initializeFCM();
+        // 페이지 로드 후 약간의 지연 (PWA 및 일반 브라우저 모두에서 작동)
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        if (isDev) {
+          console.log("🔔 [FCM] 초기화 시작...", { isPWA, permission: Notification.permission });
+        }
+
+        // FCM 초기화 및 토큰 가져오기 (알림 권한 자동 요청)
+        const token = await initializeFCM(true);
 
         if (token) {
           if (isDev) {
@@ -176,9 +198,7 @@ const HomePage = () => {
             }
             fcmInitialized.current = true;
           } catch (error) {
-            if (isDev) {
-              console.error("❌ [FCM] 토큰 서버 등록 실패:", error);
-            }
+            console.error("❌ [FCM] 토큰 서버 등록 실패:", error);
           }
         } else {
           if (isDev) {
@@ -189,9 +209,7 @@ const HomePage = () => {
         // 포그라운드 메시지 리스너 설정
         setupFCMMessageListener();
       } catch (error) {
-        if (import.meta.env.DEV) {
-          console.error("❌ [FCM] 초기화 오류:", error);
-        }
+        console.error("❌ [FCM] 초기화 오류:", error);
       }
     };
 
