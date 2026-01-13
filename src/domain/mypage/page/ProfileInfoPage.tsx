@@ -1,58 +1,79 @@
+import { useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { useProfileStore } from "../../../store/useProfileStore";
+
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
-// import ReceivedReview from "../../profile/components/common/ReceivedReview";
-import { useEffect } from "react";
-import { getMyProfile } from "../../../api/memberApi";
+import { useMemberStore } from "../../../store/useMemberStore";
+import ReceivedReview from "../../profile/components/common/ReceivedReview";
+import BadgeChips from "../../Badge/components/BadgeChips";
+
 const ProfileInfoPage = () => {
   const navigate = useNavigate();
-  const { profile, setProfile } = useProfileStore();
+  const { member, isLoading, fetchMember } = useMemberStore();
+
+  useEffect(() => {
+    if (!member) fetchMember();
+  }, [member, fetchMember]);
+
+  if (isLoading && !member) {
+    return (
+      <Layout bg>
+        <Header title="프로필" showBack onBack={() => navigate(-1)} bg />
+        <div style={{ padding: 40, textAlign: "center" }}>불러오는 중...</div>
+      </Layout>
+    );
+  }
+
+  if (!member) {
+    return (
+      <Layout bg>
+        <Header title="프로필" showBack onBack={() => navigate(-1)} bg />
+        <div style={{ padding: 40, textAlign: "center" }}>
+          프로필 정보를 불러올 수 없습니다.
+        </div>
+      </Layout>
+    );
+  }
 
   const infoList = [
-    { label: "성별", value: profile?.gender },
-    { label: "나이", value: `${profile.ageGroup}대` },
-    { label: "주소", value: profile?.address },
+    { label: "성별", value: member.gender === "MALE" ? "남성" : "여성" },
+    { label: "나이", value: `${member.ageGroup}대` },
+    { label: "주소", value: member.address },
     {
       label: "주요 도움",
       value:
-        profile.helpCategories.length > 0
-          ? profile.helpCategories.join(", ")
+        member.helpTypes && member.helpTypes.length > 0
+          ? member.helpTypes.join(", ")
           : "-",
     },
-    { label: "한줄소개", value: profile?.introduction },
+    { label: "한줄소개", value: member.introduction || "-" },
   ];
 
-  useEffect(() => {
-    if (!profile) {
-      getMyProfile()
-        .then((res) => {
-          setProfile(res.data);
-        })
-        .catch(() => {
-          console.error("내 프로필 조회 실패");
-        });
-    }
-  }, [profile, setProfile]);
   return (
     <Layout bg>
       <Header title="프로필" showBack onBack={() => navigate(-1)} bg />
+
       <Info>
         <Top>
-          <ProfileImage src={profile?.profileImageUrl} />
-          <TopRight>
-            <NickName>{profile?.nickname}</NickName>
+          <ProfileImageWrapper>
+            <ProfileImage src={member.profileImageUrl ?? ""} alt="프로필" />
+          </ProfileImageWrapper>
 
-            {profile.role === "HELPER" && (
-              <>
-                <SubName>@시각 장애인 전문가</SubName>
-                <SubName>@발달 장애인 전문가</SubName>
-              </>
-            )}
+          <TopRight>
+            <NickName>{member.nickname}</NickName>
+            {member.role === "HELPER" &&
+              member.badges &&
+              member.badges.length > 0 && (
+                <BadgeWrapper>
+                  <BadgeChips badges={member.badges} />
+                </BadgeWrapper>
+              )}
           </TopRight>
         </Top>
+
         <Divider />
+
         <Bottom>
           {infoList.map(({ label, value }) => (
             <InfoRow key={label}>
@@ -64,12 +85,14 @@ const ProfileInfoPage = () => {
 
         <ProfileModifyButton>프로필 수정</ProfileModifyButton>
       </Info>
-      {/* <ReceivedReview/> */}
+      <ReceivedReview mode="me" />
     </Layout>
   );
 };
 
 export default ProfileInfoPage;
+
+/* ================= styled ================= */
 
 const Info = styled.div`
   background-color: ${({ theme }) => theme.color.white};
@@ -87,10 +110,18 @@ const Top = styled.div`
   align-items: center;
 `;
 
-const ProfileImage = styled.img`
+const ProfileImageWrapper = styled.div`
   width: 60px;
   height: 60px;
   border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: ${({ theme }) => theme.color.natural100};
+`;
+
+const ProfileImage = styled.img`
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 `;
 
@@ -105,9 +136,8 @@ const NickName = styled.div`
   font-weight: ${({ theme }) => theme.weight.medium};
 `;
 
-const SubName = styled.div`
-  font-size: ${({ theme }) => theme.size.sm};
-  color: ${({ theme }) => theme.color.subText2};
+const BadgeWrapper = styled.div`
+  margin-top: 4px;
 `;
 
 const Divider = styled.div`

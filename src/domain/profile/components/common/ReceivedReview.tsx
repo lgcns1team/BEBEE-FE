@@ -1,108 +1,111 @@
-// import styled from "styled-components";
-// import ReviewBadge from "../../../../components/ReviewBadge";
-// import { useProfileStore } from "../../../../store/useProfileStore";
+import styled from "styled-components";
+import ReviewBadge from "../../../../components/ReviewBadge";
+import { useMemberStore } from "../../../../store/useMemberStore";
+import { useOtherMemberStore } from "../../store/useOtherMemberStore";
+import { useEffect, useMemo, useState } from "react";
+import {
+  getReviewKeywords,
+  type ReviewKeyword,
+} from "../../../../api/reviewApi";
 
-// interface Props {
-//   profileId?: number;
-// }
+type Mode = "me" | "other";
 
-// const ReceivedReview = ({ profileId }: Props) => {
-//   const { role, disabledProfiles, helperProfiles } = useProfileStore();
+interface Props {
+  mode: Mode;
+}
 
-//   const profile =
-//     role === "DISABLED"
-//       ? disabledProfiles.find((p) => p.memberId === profileId)
-//       : helperProfiles.find((p) => p.memberId === profileId);
+const ReceivedReview = ({ mode }: Props) => {
+  
+  const myStore = useMemberStore();
+  const otherStore = useOtherMemberStore();
 
-//   if (!profile) return null;
-//   const items = profile.receivedReviews ?? [];
+  const profile = mode === "me" ? myStore.member : otherStore.profile;
 
-//   return (
-//     <Container>
-//       <Title>받은 후기</Title>
+  const isLoading = mode === "me" ? myStore.isLoading : otherStore.isLoading;
 
-//       <BadgeWrap>
-//         {items.map((review, idx) => (
-//           <ReviewBadge key={`${review}-${idx}`}>{review}</ReviewBadge>
-//         ))}
-//       </BadgeWrap>
-//     </Container>
-//   );
-// };
+  const [keywords, setKeywords] = useState<ReviewKeyword[]>([]);
+  useEffect(() => {
+    console.log("profile", profile);
+    console.log("reviews", profile?.reviews);
+  });
+ 
+  useEffect(() => {
+    getReviewKeywords()
+      .then((res) => setKeywords(res.keywords ?? []))
+      .catch((e) => console.error("리뷰 키워드 조회 실패:", e));
+  }, []);
 
-// export default ReceivedReview;
-// const Container = styled.div`
-//   background-color: ${({ theme }) => theme.color.white};
-//   border-radius: ${({ theme }) => theme.borderRadius.lg};
-//   width: 100%;
-//   margin-top: 20px;
-//   padding: 20px;
-//   display: flex;
-//   flex-direction: column;
-//   gap: 12px;
-// `;
+  /** keywordId → keyword 매핑 */
+  const keywordMap = useMemo(() => {
+    const map = new Map<number, ReviewKeyword>();
+    keywords.forEach((k) => map.set(k.keywordId, k));
+    return map;
+  }, [keywords]);
 
-// const Title = styled.div`
-//   font-size: ${({ theme }) => theme.size.md};
-//   font-weight: ${({ theme }) => theme.weight.bold};
-// `;
+  /** 화면에 표시할 리뷰 목록 */
+  const items = useMemo(() => {
+    if (!profile || !profile.reviews?.length) return [];
 
-// const BadgeWrap = styled.div`
-//   display: flex;
-//   flex-wrap: wrap;
-//   gap: 8px;
-// `;
+    return profile.reviews
+      .map((review) => {
+        const keyword = keywordMap.get(review.keywordId);
+        if (!keyword) return null;
 
-// import styled from "styled-components";
-// import ReviewBadge from "../../../../components/ReviewBadge";
-// import { useOtherProfileStore } from "../../store/useOtherProfileStore";
+        if (mode === "other" && !keyword.isPositive) return null;
 
-// const ReceivedReview = () => {
-//   const { profile, isLoading } = useOtherProfileStore();
+        return {
+          keywordId: review.keywordId,
+          description: keyword.description,
+          count: review.count,
+        };
+      })
+      .filter(Boolean) as {
+      keywordId: number;
+      description: string;
+      count: number;
+    }[];
+  }, [profile, keywordMap, mode]);
 
-//   if (isLoading || !profile) return null;
+  if (isLoading || !profile || items.length === 0) return null;
 
-//   const items = profile.reviews ?? [];
+  return (
+    <Container>
+      <Title>받은 후기</Title>
 
-//   if (items.length === 0) return null;
+      <BadgeWrap>
+        {items.map((item) => (
+          <ReviewBadge key={item.keywordId}>
+            {item.description}
+            {item.count > 1 && ` · ${item.count}`}
+          </ReviewBadge>
+        ))}
+      </BadgeWrap>
+    </Container>
+  );
+};
 
-//   return (
-//     <Container>
-//       <Title>받은 후기</Title>
+export default ReceivedReview;
 
-//       <BadgeWrap>
-//         {items.map((review, idx) => (
-//           <ReviewBadge key={`${review}-${idx}`}>
-//             {review}
-//           </ReviewBadge>
-//         ))}
-//       </BadgeWrap>
-//     </Container>
-//   );
-// };
+/* ================= styled ================= */
 
-// export default ReceivedReview;
+const Container = styled.div`
+  background-color: ${({ theme }) => theme.color.white};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  width: 100%;
+  margin-top: 20px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
 
-// /* ================= styled ================= */
+const Title = styled.div`
+  font-size: ${({ theme }) => theme.size.md};
+  font-weight: ${({ theme }) => theme.weight.bold};
+`;
 
-// const Container = styled.div`
-//   background-color: ${({ theme }) => theme.color.white};
-//   border-radius: ${({ theme }) => theme.borderRadius.lg};
-//   width: 100%;
-//   margin-top: 20px;
-//   padding: 20px;
-//   display: flex;
-//   flex-direction: column;
-//   gap: 12px;
-// `;
-
-// const Title = styled.div`
-//   font-size: ${({ theme }) => theme.size.md};
-//   font-weight: ${({ theme }) => theme.weight.bold};
-// `;
-
-// const BadgeWrap = styled.div`
-//   display: flex;
-//   flex-wrap: wrap;
-//   gap: 8px;
-// `;
+const BadgeWrap = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;

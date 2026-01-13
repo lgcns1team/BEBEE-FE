@@ -29,6 +29,9 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   const goChatPage = () => {
     handleChatOpen({ chatroomId: engagement.chatRoomId });
   };
+  const handleProfileClick = () =>{
+    navigate(`/profile/${engagement.otherId}`)
+  }
 
   const renderActionButton = () => {
     switch (engagement.status) {
@@ -72,7 +75,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
 
       <BottomArea>
         <BottomLeft>
-          <User>{engagement.otherNickname}</User>
+          <User onClick={handleProfileClick}>{engagement.otherNickname}</User>
 
           <InfoLine>
             <MapPinIcon size={16} />
