@@ -6,6 +6,7 @@ const HelpTag = styled.span`
   font-size: ${({ theme }) => theme.size.sm};
   background-color: ${({ theme }) => theme.color.natural100};
   color: ${({ theme }) => theme.color.text};
+  border: 1px solid ${({ theme }) => theme.color.natural100};
   border-radius: ${({ theme }) => theme.borderRadius.md};
 `;
 
