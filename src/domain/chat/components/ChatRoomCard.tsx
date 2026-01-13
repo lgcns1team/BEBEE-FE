@@ -127,6 +127,10 @@ const ChatRoomCard = () => {
       </div>
     );
   }
+  // 프로필 페이지로 이동
+  const handleProfileClick = () =>{
+    navigate(`/profile/${activeRoom.otherId}`)
+  }
 
   return (
     <Wrapper>
@@ -135,6 +139,7 @@ const ChatRoomCard = () => {
         onBack={() => navigate("/chat")}
         showBack
         showRight
+        onTitleClick={() => handleProfileClick()}
       />
       <ChatHeader role="region" aria-label="채팅방 정보">
         <HeaderTop>

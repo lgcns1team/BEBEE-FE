@@ -20,6 +20,7 @@ import { applyHelper } from "../../../api/applicationApi";
 
 import { formatDateToKoreanWithDay } from "../../../types/common.types";
 const PostDetailPage = () => {
+  
   const navigate = useNavigate();
   const { showToast } = useToastStore();
 
@@ -180,7 +181,11 @@ const PostDetailPage = () => {
     touchStartX.current = null;
     touchEndX.current = null;
   };
-
+  // 프로필 정보로 이동
+  const handleProfileClick = () =>{
+    navigate(`/profile/${post.memberId}`)
+  }
+  
   return (
     <Layout>
       <Container style={{ paddingBottom: "40px" }}>
@@ -202,7 +207,7 @@ const PostDetailPage = () => {
 
         <Title>{post?.title}</Title>
 
-        <UserSection>
+        <UserSection onClick={handleProfileClick} >
           <UserLeft>
             {post?.memberProfileImageUrl ? (
               <UserImage src={post.memberProfileImageUrl} />

@@ -1,4 +1,4 @@
-/*뒤로가기 아이콘은 무조건 있음
+/*
 더보기 ? showRight : 없음
 onRightClick ? 더보기 클릭시 실행할 함수 : 없음
 
@@ -24,6 +24,7 @@ interface HeaderProps {
   onRightClick?: () => void;
   showRight?: boolean;
   bg?: boolean;
+  onTitleClick? : () => void;
 }
 
 const Header = ({
@@ -34,6 +35,7 @@ const Header = ({
   onRightClick,
   showRight,
   bg,
+  onTitleClick
 }: HeaderProps) => {
   return (
     <Container bg={bg}>
@@ -46,7 +48,7 @@ const Header = ({
       )}
       {/* 타이틀 영역 */}
       {(title || subTitle) && (
-        <HeaderTitleBox>
+        <HeaderTitleBox onClick={onTitleClick}>
           {title && <Title>{title}</Title>}
           {subTitle && <SubTitle>{subTitle}</SubTitle>}
         </HeaderTitleBox>

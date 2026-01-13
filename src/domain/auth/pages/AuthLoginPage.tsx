@@ -1,22 +1,78 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
 import GeneralInput from "../../../components/GeneralInput";
 import PasswordInput from "../components/PasswordInput";
 import BaseLongButton from "../../../components/BaseLongButton";
+import { Toast } from "../../../components/Toast";
 import logoIcon from "../../../assets/images/icon.png";
 import logoText from "../../../assets/images/application.png";
 import { loginUser, getMyInfo } from "../../../api/authApi";
 import { useUserStore } from "../../../store/useUserStore";
+import { useToastStore } from "../../../store/useToastStore";
+import { getErrorMessage } from "../../../utils/error";
 import type { LoginRequest } from "../auth.types";
+import {
+  initializeFCM,
+  setupFCMMessageListener,
+} from "../../../hooks/useFirebaseHandler";
+import { registerFCMToken } from "../../../api/notificationApi";
+
+// 모바일 기기 감지 유틸리티
+const detectDeviceType = (): "WEB_PC" | "WEB_MOBILE" => {
+  if (typeof window === "undefined") return "WEB_PC";
+  const userAgent = navigator.userAgent || navigator.vendor || "";
+  const isMobile =
+    /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+      userAgent.toLowerCase()
+    );
+  return isMobile ? "WEB_MOBILE" : "WEB_PC";
+};
 
 const AuthLoginPage = () => {
   const navigate = useNavigate();
   const { setAccessToken, setUser } = useUserStore();
+  const { showToast } = useToastStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const notificationRequestedRef = useRef(false);
+
+  // 알림 권한 요청 함수
+  const requestNotificationPermission = async () => {
+    // 이미 요청했거나 권한이 이미 있는 경우 스킵
+    if (notificationRequestedRef.current) return;
+    if (typeof window === "undefined" || !("Notification" in window)) return;
+
+    const permission = Notification.permission;
+    if (permission !== "default") return;
+
+    notificationRequestedRef.current = true;
+
+    try {
+      const token = await initializeFCM(true);
+
+      if (token) {
+        // 서버에 토큰 등록
+        try {
+          const deviceType = detectDeviceType();
+          await registerFCMToken(token, deviceType);
+          // 포그라운드 메시지 리스너 설정
+          setupFCMMessageListener();
+        } catch (error) {
+          console.error("❌ [FCM] 토큰 서버 등록 실패:", error);
+        }
+      }
+    } catch (error) {
+      console.error("❌ [FCM] 알림 권한 요청 오류:", error);
+    }
+  };
+
+  // Input 클릭 핸들러
+  const handleInputClick = () => {
+    requestNotificationPermission();
+  };
 
   const handleLogin = async () => {
     if (isLoading) return;
@@ -38,12 +94,20 @@ const AuthLoginPage = () => {
         role: myInfo.role as "DISABLED" | "HELPER" | "ADMIN",
       });
 
-      // 로그인 성공 시 메인 페이지로 이동 (replace: true로 history 스택에서 로그인 페이지 제거)
-      alert("로그인 성공!");
-      navigate("/home", { replace: true });
+      // 로그인 성공 시 Toast 표시 후 메인 페이지로 이동
+      showToast("로그인 성공!", "SUCCESS");
+      setTimeout(() => {
+        navigate("/home", { replace: true });
+      }, 100);
     } catch (error) {
       console.error("로그인 실패:", error);
-      alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+      showToast(
+        getErrorMessage(
+          error,
+          "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요."
+        ),
+        "ERROR"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -51,6 +115,7 @@ const AuthLoginPage = () => {
 
   return (
     <Layout>
+      <Toast />
       <LogoContainer>
         <LogoIcon src={logoIcon} alt="Bebee Icon" />
         <LogoText src={logoText} alt="Bebee Logo" />
@@ -63,12 +128,14 @@ const AuthLoginPage = () => {
           placeholder="example@bebee.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          onClick={handleInputClick}
         />
         <PasswordInput
           inputLabel="비밀번호"
           placeholder="비밀번호를 입력해주세요"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          onClick={handleInputClick}
         />
       </FormContainer>
       <LoginButtonWrapper>

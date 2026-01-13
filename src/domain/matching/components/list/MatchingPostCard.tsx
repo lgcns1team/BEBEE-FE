@@ -20,7 +20,11 @@ interface Props {
 const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   const navigate = useNavigate();
   const { handleChatOpen } = useChatHandler();
-
+  const scheduleText = getScheduleText(
+    engagement.helpType,
+    engagement.date,
+    engagement.dayOfWeeks
+  );
   // 매칭 확인서 이동
   const goMatchingInfo = () => {
     navigate(`/match-info/${engagement.agreementId}`);
@@ -28,6 +32,9 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
 
   const goChatPage = () => {
     handleChatOpen({ chatroomId: engagement.chatRoomId });
+  };
+  const handleProfileClick = () => {
+    navigate(`/profile/${engagement.otherId}`);
   };
 
   const renderActionButton = () => {
@@ -37,18 +44,22 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
 
       case "ACTIVE":
         return (
-          <DoneButton onClick={() => onComplete(engagement.engagementId)}>
+          <DoneButton onClick={() => onComplete(engagement.engagementId)}
+          aria-label="활동을 완료 처리합니다">
             활동 완료
           </DoneButton>
         );
 
       case "COMPLETED":
-        return <CompletedButton disabled>활동 완료</CompletedButton>;
+        return <CompletedButton disabled
+        aria-label="이미 활동 완료 처리가 되었습니다."
+        >활동 완료</CompletedButton>;
 
       case "REVIEW_ACTIVE":
         return (
           <ReviewButton
-            onClick={() => navigate(`/review/${engagement.matchId}`)}
+            onClick={() => navigate(`/review/${engagement.matchId}`)
+          } aria-label="리뷰 작성 페이지로 이동합니다"
           >
             <BsPencil size={12} />
             리뷰 작성하기
@@ -56,7 +67,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
         );
 
       case "REVIEW_COMPLETED":
-        return <ReviewButton disabled>리뷰 작성 완료</ReviewButton>;
+        return <ReviewButton disabled aria-label="이미 리뷰를 작성한 활동 입니다.">리뷰 작성 완료</ReviewButton>;
 
       default:
         return null;
@@ -66,31 +77,47 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   return (
     <Card>
       <TopArea>
-        <Title onClick={goMatchingInfo}>{engagement.title}</Title>
-        {engagement.helpType === "DAY" && <OneDayBadge>하루 도움</OneDayBadge>}
+       <Title
+          role="button"
+          tabIndex={0}
+          onClick={goMatchingInfo}
+          aria-label={`활동 제목 ${engagement.title} 입니다. 매칭 상세 정보로 이동합니다`}
+        >
+          {engagement.title}
+        </Title>
+        {engagement.helpType === "DAY" && (
+          <OneDayBadge aria-label="하루 도움에 해당하는 활동입니다">
+            하루 도움
+          </OneDayBadge>
+        )}
       </TopArea>
 
       <BottomArea>
         <BottomLeft>
-          <User>{engagement.otherNickname}</User>
+         <User
+            role="button"
+            tabIndex={0}
+            onClick={handleProfileClick}
+            aria-label={`매칭된 상대 ${engagement.otherNickname} 님의 프로필로 이동합니다`}
+          >
+            {engagement.otherNickname}
+          </User>
 
           <InfoLine>
-            <MapPinIcon size={16} />
-            <InfoText>{engagement.region}</InfoText>
-          </InfoLine>
-
-          <InfoLine>
-            <CalendarIcon size={16} />
-            <InfoText>
-              {getScheduleText(
-                engagement.helpType,
-                engagement.date,
-                engagement.dayOfWeeks
-              )}
+            <MapPinIcon size={16} aria-hidden="true" />
+           <InfoText aria-label={`활동 지역 ${engagement.region} 입니다`}>
+              {engagement.region}
             </InfoText>
           </InfoLine>
 
-          <TagRow>
+          <InfoLine>
+            <CalendarIcon size={16} aria-hidden="true" />
+            <InfoText aria-label={`도움 날짜 ${scheduleText} 입니다`}>
+              {scheduleText}
+            </InfoText>
+          </InfoLine>
+
+          <TagRow aria-label="도움 유형 태그 목록">
             {engagement.helpCategoryIds.map((cat) => (
               <HelpTag key={cat}>{HELP_TAG_MAP[cat]}</HelpTag>
             ))}
@@ -100,7 +127,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
         {engagement.thumbnailImageUrl && (
           <BottomRight>
             <Thumbnail>
-              <img src={engagement.thumbnailImageUrl} alt="활동 이미지" />
+              <img src={engagement.thumbnailImageUrl} alt="활동과 관련된 이미지 입니다" />
             </Thumbnail>
           </BottomRight>
         )}
@@ -108,8 +135,9 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
 
       <BottomBar>
         <BottomInner>
-          <ChatButton onClick={goChatPage}>
-            <BsChat size={12} />
+          <ChatButton onClick={goChatPage}
+          aria-label="채팅 화면으로 이동합니다">
+            <BsChat size={12} aria-hidden="true" />
             <span>채팅하기</span>
           </ChatButton>
 
@@ -235,24 +263,22 @@ const DoneButton = styled.button`
 `;
 
 const CompletedButton = styled(DoneButton)`
-
   background: ${({ theme }) => theme.color.natural100};
   color: ${({ theme }) => theme.color.text};
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-`
+`;
 
 const InactiveButton = styled(DoneButton)`
-background: ${({ theme }) => theme.color.natural100};
+  background: ${({ theme }) => theme.color.natural100};
   color: ${({ theme }) => theme.color.text};
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  
-`
+`;
 
 const ReviewButton = styled(DoneButton)`
   background: ${({ theme }) => theme.color.subColor};

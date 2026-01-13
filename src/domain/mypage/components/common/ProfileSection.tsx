@@ -13,6 +13,8 @@ const ProfileSection = () => {
     fetchMember();
   }, [fetchMember]);
 
+
+
   const handleClick = () => {
     if (!member) {
       console.log("회원 정보 없음!");

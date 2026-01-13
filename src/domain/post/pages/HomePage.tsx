@@ -13,6 +13,36 @@ import WriteButton from "../components/common/WriteButton";
 import { Checkbox } from "../../../components/Checkbox";
 import { useUserStore } from "../../../store/useUserStore";
 import { Toast } from "../../../components/Toast";
+import {
+  initializeFCM,
+  setupFCMMessageListener,
+} from "../../../hooks/useFirebaseHandler";
+import { registerFCMToken } from "../../../api/notificationApi";
+import Alarm from "../../../components/Alarm";
+// 모바일 기기 감지 유틸리티
+const detectDeviceType = (): "WEB_PC" | "WEB_MOBILE" => {
+  if (typeof window === "undefined") return "WEB_PC";
+
+  const userAgent = navigator.userAgent || navigator.vendor || "";
+  const isMobile =
+    /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+      userAgent.toLowerCase()
+    );
+
+  const deviceType = isMobile ? "WEB_MOBILE" : "WEB_PC";
+
+  const isDev = import.meta.env.DEV;
+  if (isDev) {
+    console.log("📱 [디바이스 감지]", {
+      userAgent,
+      detectedType: deviceType,
+      isMobile,
+    });
+  }
+
+  return deviceType;
+};
+
 const HomePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,6 +67,7 @@ const HomePage = () => {
 
   const observerTarget = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
+  const fcmInitialized = useRef(false);
   const { user } = useUserStore();
   const role = user?.role;
   const isHelper = role === "HELPER";
@@ -107,10 +138,96 @@ const HomePage = () => {
     console.log("클릭:", checked);
     setIsMatched(checked ? false : undefined);
   };
+
+  // 6. FCM 초기화 및 토큰 등록 (권한이 이미 있는 경우에만 자동 등록)
+  useEffect(() => {
+    // 로그인하지 않았거나 이미 초기화했으면 스킵
+    if (!user || fcmInitialized.current) {
+      return;
+    }
+
+    // 홈 페이지에서만 실행
+    if (location.pathname !== "/home") {
+      return;
+    }
+
+    // PWA 모드 확인 (standalone, fullscreen 등)
+    const isPWA =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      ("standalone" in window.navigator &&
+        (window.navigator as { standalone?: boolean }).standalone === true) ||
+      document.referrer.includes("android-app://");
+
+    const setupFCM = async () => {
+      try {
+        const isDev = import.meta.env.DEV;
+
+        // Service Worker가 준비될 때까지 대기
+        if ("serviceWorker" in navigator) {
+          try {
+            await navigator.serviceWorker.ready;
+          } catch (error) {
+            // Service Worker가 없어도 계속 진행
+            if (isDev) {
+              console.warn("⚠️ [FCM] Service Worker 준비 대기 중 오류:", error);
+            }
+          }
+        }
+
+        // 알림 권한 확인
+        const permission = Notification.permission;
+
+        if (isDev) {
+          console.log("🔔 [FCM] 권한 상태 확인...", { isPWA, permission });
+        }
+
+        // 권한이 이미 허용된 경우에만 자동으로 토큰 등록
+        // 권한 요청은 로그인 페이지의 input 클릭 시 수행됨
+        if (permission === "granted") {
+          // 알림 권한 요청 없이 토큰만 가져오기
+          const token = await initializeFCM(false);
+
+          if (token) {
+            if (isDev) {
+              console.log("✅ [FCM] 토큰 획득 성공:", token);
+            }
+
+            // 서버에 토큰 등록
+            try {
+              const deviceType = detectDeviceType();
+              await registerFCMToken(token, deviceType);
+              if (isDev) {
+                console.log("✅ [FCM] 토큰 서버 등록 성공");
+              }
+              fcmInitialized.current = true;
+            } catch (error) {
+              console.error("❌ [FCM] 토큰 서버 등록 실패:", error);
+            }
+          }
+
+          // 포그라운드 메시지 리스너 설정
+          setupFCMMessageListener();
+        } else {
+          // 권한이 없는 경우: 로그인 페이지에서 input 클릭 시 요청됨
+          if (isDev) {
+            console.log(
+              "ℹ️ [FCM] 알림 권한이 없습니다. 로그인 페이지에서 input을 클릭하거나 Alarm 아이콘을 클릭하여 권한을 요청하세요."
+            );
+          }
+        }
+      } catch (error) {
+        console.error("❌ [FCM] 초기화 오류:", error);
+      }
+    };
+
+    setupFCM();
+  }, [user, location.pathname]);
   return (
     <Layout>
       <Toast position="top" />
+
       <Wrapper>
+        <Alarm />
         {/* ---------------- Tabs ---------------- */}
         <TabBar>
           {/* filters.type 대신 Store의 type 상태를 직접 사용 */}
@@ -213,7 +330,6 @@ const TabBar = styled.div`
   position: fixed;
   display: flex;
   gap: 32px;
-  padding-top: 12px;
   padding-bottom: 0;
   border-bottom: 0.5px solid #d4d4d8;
   z-index: 90;
@@ -258,11 +374,11 @@ const Tab = styled.button<{ $active?: boolean }>`
 const FilterRow = styled.div`
   z-index: 90;
   position: fixed;
-  margin-top: 42px;
+  margin-top: 30px;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-top: 20px;
+  padding-top: 18px;
   background-color: ${({ theme }) => theme.color.white};
   justify-content: space-between;
   width: 343px;
