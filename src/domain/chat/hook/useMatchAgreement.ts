@@ -84,6 +84,7 @@ export const useMatchAgreement = ({ message }: UseMatchAgreementProps) => {
 
       // 2. 이후 로직(메시지 추가, 상태 변경 등)은 소켓 수신 시 자동으로 처리됨
       console.log("✅ [매칭확인서 수락] 요청 완료");
+      showToast("매칭 수락이 완료되었습니다.", "SUCCESS");
     } catch (error) {
       console.error("❌ [매칭확인서 수락] 오류:", error);
       if (error && typeof error === "object" && "response" in error) {
@@ -132,6 +133,7 @@ export const useMatchAgreement = ({ message }: UseMatchAgreementProps) => {
         createdAt: new Date().toISOString(),
       });
       console.log("매칭 거절 요청 완료");
+      showToast("매칭 거절이 완료되었습니다.", "SUCCESS");
     } catch (error) {
       showToast(
         getErrorMessage(error, "매칭 거절 중 오류가 발생했습니다."),

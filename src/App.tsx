@@ -88,7 +88,7 @@ function App() {
             element={<MatchingInfoPage />}
           />
           {/* 리뷰 */}
-          <Route path="/review/:agreementId" element={<ReviewPage />} />
+          <Route path="/review/:matchId" element={<ReviewPage />} />
           {/*뱃지*/}
           <Route path="/badge" element={<BadgePage />} />
           <Route path="/badge/:disabilityId" element={<BadgeDetailPage />} />

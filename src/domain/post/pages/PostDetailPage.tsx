@@ -7,6 +7,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import HelpTagBee from "../../../assets/images/helptag-bee.png";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
+import { Toast } from "../../../components/Toast";
+import { useToastStore } from "../../../store/useToastStore";
 import { postApi } from "../../../api/postApi";
 import {
   type PostDetailResponse,
@@ -19,6 +21,7 @@ import { applyHelper } from "../../../api/applicationApi";
 import { formatDateToKoreanWithDay } from "../../../types/common.types";
 const PostDetailPage = () => {
   const navigate = useNavigate();
+  const { showToast } = useToastStore();
 
   const { postId } = useParams<{ postId: string }>();
 
@@ -66,14 +69,6 @@ const PostDetailPage = () => {
   if (error) return <div>{error}</div>;
   if (!post) return <div>게시글이 없습니다.</div>;
 
-  // 임시 memberId
-
-  // 장애인용 아이디 100
-  // const MEMBER_ID = "100";
-
-  // 도우미용 아이디 700
-  // const MEMBER_ID = "700";
-
   // 지원하기 및 나눔하기
   const handleApply = async () => {
     if (!postId) return;
@@ -90,9 +85,9 @@ const PostDetailPage = () => {
       setPost((prev) =>
         prev ? { ...prev, applicantCount: prev.applicantCount + 1 } : prev
       );
-      alert("지원이 완료 되었습니다!");
+      showToast("지원이 완료되었습니다.", "SUCCESS");
     } catch (error) {
-      setError(getErrorMessage(error, "지원에 실패했습니다."));
+      showToast(getErrorMessage(error, "지원에 실패했습니다."), "ERROR");
     } finally {
       setApplyLoading(false);
     }
@@ -113,9 +108,9 @@ const PostDetailPage = () => {
       setPost((prev) =>
         prev ? { ...prev, applicantCount: prev.applicantCount + 1 } : prev
       );
-      alert("나눔 신청이 완료 되었습니다!");
+      showToast("나눔 신청이 완료되었습니다.", "SUCCESS");
     } catch (error) {
-      setError(getErrorMessage(error, "나눔 신청에 실패했습니다."));
+      showToast(getErrorMessage(error, "나눔 신청에 실패했습니다."), "ERROR");
     } finally {
       setApplyLoading(false);
     }
@@ -190,6 +185,7 @@ const PostDetailPage = () => {
     <Layout>
       <Container style={{ paddingBottom: "40px" }}>
         <Header onBack={() => navigate(-1)} showRight showBack />
+        <Toast position="bottom" />
 
         {/* 
         <ActionSheetModal
