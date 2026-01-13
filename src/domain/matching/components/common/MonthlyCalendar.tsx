@@ -52,7 +52,7 @@ const MonthlyCalendar = ({
   };
 
   return (
-    <StyledWrapper role="region" aria-label="월간 일정 달력">
+    <StyledWrapper role="region" aria-label="월간 일정 달력" lang="ko">
       <span className="sr-only" aria-live="polite">
         {announce}
       </span>
@@ -76,6 +76,8 @@ const MonthlyCalendar = ({
 
           return (
             <span
+              role="button"
+              aria-roledescription="날짜"
               aria-label={`${formatKoreanDate(date)}${
                 hasHelp ? ", 도움이 있는 날짜" : ""
               }`}
