@@ -125,7 +125,7 @@ const ChatRoom = () => {
     <Layout aria-label="채팅방">
       <span className="sr-only">채팅방 페이지입니다. </span>
       <ChatRoomCard />
-      <MessageList />
+        <MessageList />
       <ChatInput onSend={handleSend} />
     </Layout>
   );

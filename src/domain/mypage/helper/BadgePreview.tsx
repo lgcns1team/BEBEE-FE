@@ -16,10 +16,13 @@ const BadgePreview = () => {
 
   // count가 높은 순으로 정렬하여 상위 5개만 표시
   const displayDisabilities = useMemo(() => {
-    const disabilitiesWithCount = DISABILITY_TYPES.map((disability) => {
+    // BADGE_RESOURCE_MAP에 있는 disability만 필터링
+    const disabilitiesWithCount = DISABILITY_TYPES.filter(
+      (disability) => BADGE_RESOURCE_MAP[disability.id]
+    ).map((disability) => {
       const status = badgeStatus.find((item) =>
         item.disabilityCategoryIds.includes(disability.id)
-      );
+    );
       return {
         ...disability,
         count: status?.count || 0,
@@ -77,19 +80,10 @@ const BadgePreview = () => {
 
             // 뱃지 이미지 결정 (가장 높은 레벨 표시)
             const badgeResource = BADGE_RESOURCE_MAP[disability.id];
-
-            // badgeResource가 없으면 해당 뱃지는 렌더링하지 않음
-            if (!badgeResource) {
-              console.warn(
-                `뱃지 리소스를 찾을 수 없습니다: disabilityId=${disability.id}`
-              );
-              return null;
-            }
-
             const badgeImage =
               badgeCode && badgeResource[badgeCode]
-                ? badgeResource[badgeCode]
-                : badgeResource.DEFAULT;
+              ? badgeResource[badgeCode]
+              : badgeResource.DEFAULT;
 
             return (
               <BadgeCard key={disability.id} onClick={handleBadgeClick}>

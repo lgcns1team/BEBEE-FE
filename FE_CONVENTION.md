@@ -6,20 +6,18 @@
 
 ### **📄 파일명**
 
-1) 도메인 내부 파일
+1. 도메인 내부 파일
 
 - 상위 디렉토리명을 prefix로 붙이고, 파스칼케이스(PascalCase)로 작성
 - 예:
-    
-    `domain/post/components/list/PostListItem.tsx`
-    
+  `domain/post/components/list/PostListItem.tsx`
 
-2) assets 내 리소스
+2. assets 내 리소스
 
 - 케밥케이스(kebab-case) 사용
 - icons/는 `ic_` prefix 고정
 
-3) 도메인 전용 설정 파일
+3. 도메인 전용 설정 파일
 
 - {도메인명}.{역할}.ts 로 작성
 - 역할 구분: constants, types, route 등
@@ -30,16 +28,16 @@
 
 - 각 도메인의 루트는 `src/domain/{domain}/` 디렉토리입니다.
 - 루트 하위에는 다음과 같은 폴더를 둘 수 있습니다:
-    - `components/`
-    - `layouts/`
-    - `hooks/`
-    - `utils/`
-    - `pages/`
-    - 기타 필요에 따라 확장 가능
+  - `components/`
+  - `layouts/`
+  - `hooks/`
+  - `utils/`
+  - `pages/`
+  - 기타 필요에 따라 확장 가능
 - 하위 폴더는 **common**과 **세부 도메인별 폴더**로 구분합니다.
-    - common/은 도메인 내부에서 공통으로 사용하는 리소스를 관리하며, 반드시 존재합니다.
+  - common/은 도메인 내부에서 공통으로 사용하는 리소스를 관리하며, 반드시 존재합니다.
 - 도메인 내 라우팅, 상수, 타입 정의 파일은 각각 하나씩만 생성합니다.
-    - 상수와 enum은 `*.constants.ts` 파일에서 함께 관리합니다.
+  - 상수와 enum은 `*.constants.ts` 파일에서 함께 관리합니다.
 
 ### 🚫 세부 도메인 제한
 
@@ -59,7 +57,7 @@ src/
 │   ├── Button/
 │   ├── Modal/
 │   └── ...
-│── types/            
+│── types/
 │   ├── user.ts/
 │   ├── post.ts/
 │   └── ..
@@ -136,9 +134,9 @@ src/
 │   │   └── chat.route.ts
 │   │
 │   └ notification/    //알림
-│       ├── components/    
+│       ├── components/
 │       ├── hooks/
-│       ├── pages/         
+│       ├── pages/
 │       ├── notification.types.ts
 │       ├── notification.constants.ts
 │       └── notification.route.ts
@@ -156,12 +154,13 @@ src/
 │   ├── useUserStore.ts    # 로그인 유저 정보 관리
 │   └── useSocketStore.ts  # (예외) 소켓 연결 및 이벤트 관리
 └── types/
-    └── post.ts            # 타입 정의는 별도 관리 
+    └── post.ts            # 타입 정의는 별도 관리
 ├── utils/
 ├── app.constants.ts
 └── index.tsx
 
 ```
+
 ## 1️⃣ 공통 컨벤션(JSX , TSX)
 
 ### 1-1) 디렉토리명 / 파일명 규칙
@@ -170,8 +169,8 @@ src/
 
 - **kebab-case 사용**
 - 예시
-    - ✔️ `hello-world`
-    - ❌ `helloWorld`
+  - ✔️ `hello-world`
+  - ❌ `helloWorld`
 
 ### 📝 컴포넌트 파일명
 
@@ -228,8 +227,8 @@ src/
 ### 1-4) **JSX 작성 스타일**
 
 - self-closing 태그는 반드시 self-closing
-    - `<Button />`
-    - `<img />`
+  - `<Button />`
+  - `<img />`
 
 ---
 
@@ -237,7 +236,7 @@ src/
 
 - 위치: `src/store`
 - action 네이밍 규칙:
-    - `add`, `update`, `remove`, `fetch`, `set`
+  - `add`, `update`, `remove`, `fetch`, `set`
 
 ---
 
@@ -248,38 +247,36 @@ src/
 - 함수가 수행하는 역할을 한 줄로 간단하게 주석으로 설명한다.
 - 약어는 사용하지 않는다.
 - 변수/함수: camelCase
-    
-    예) `helloWorld`
-    
+  예) `helloWorld`
 
 ### 🟩 역할별 규칙
 
 - 이벤트 핸들러: **handle**
-    - `handleClick`, `handleSubmit`
+  - `handleClick`, `handleSubmit`
 - 생성: **create**
-    - `createUser`
+  - `createUser`
 - 변환: **convert**
-    - `convertDate`
+  - `convertDate`
 - 특정 값 반환: **get**
-    - `getHoneyPoint`
+  - `getHoneyPoint`
 - 더하기/빼기: **add / minus**
-    - `addHoney`, `minusHoney`
+  - `addHoney`, `minusHoney`
 - 필터링: **filter**
 - 배열에서 찾기: **find**
-    - `findUserById`
+  - `findUserById`
 - 배열 변환: **convert**
-    - `convertUserList`
+  - `convertUserList`
 
 ### 🟧 boolean 규칙
 
 - boolean 변수/함수는 `is`,`has`로 시작
-    - is: 어떤 상태나 성질을 표현할 때 / has: 어떤 속성이나 권한 보유
-    - `isActive`, `isHelper`, `isDisabledUser` ,`hasItems`
+  - is: 어떤 상태나 성질을 표현할 때 / has: 어떤 속성이나 권한 보유
+  - `isActive`, `isHelper`, `isDisabledUser` ,`hasItems`
 
 ### 🟥 상수 규칙
 
 - **대문자 스네이크케이스**
-    - `HELLO_WORLD`, `DEFAULT_PAGE_SIZE`
+  - `HELLO_WORLD`, `DEFAULT_PAGE_SIZE`
 
 ---
 
@@ -292,13 +289,7 @@ src/
 예)
 
 ```jsx
-<Button
-  primary
-  size="lg"
-  id="submitButton"
-  onClick={handleClick}
-/>
-
+<Button primary size="lg" id="submitButton" onClick={handleClick} />
 ```
 
 ### **1-8) import 정렬 규칙**
@@ -320,10 +311,10 @@ src/
 레이아웃 → 박스 → 타이포 → 컬러 → 효과 → 애니메이션
 
 ```jsx
-"flex items-center gap-4 p-4 text-lg font-bold text-yellow-600 hover:opacity-90"
-
+"flex items-center gap-4 p-4 text-lg font-bold text-yellow-600 hover:opacity-90";
 ```
-## 📢  State & API 컨벤션 (서버 배포 이후)
+
+## 📢 State & API 컨벤션 (서버 배포 이후)
 
 우리 프로젝트의 유지보수성과 코드 일관성을 위해 아래와 같이 작성 규칙을 정했습니다. 개발 시 참고해 주세요!
 
@@ -355,28 +346,28 @@ API 폴더는 **"서버와 통신하여 데이터를 주고받는 역할"**만 �
 1. **공통 인스턴스 사용**: 모든 API 요청은 `src/utils/axiosInstance.ts`에서 export한 `instance`를 사용합니다. (헤더, 토큰 자동 처리 위함)
 2. **도메인별 파일 분리**: `postApi.ts`, `authApi.ts` 처럼 도메인 단위로 파일을 나눕니다.
 3. **함수명 규칙**: 동사+목적어 형태로 작성합니다.
-    - 조회: `getPost`, `getPostList`
-    - 생성: `createPost`
-    - 수정: `updatePost`
-    - 삭제: `deletePost`
+   - 조회: `getPost`, `getPostList`
+   - 생성: `createPost`
+   - 수정: `updatePost`
+   - 삭제: `deletePost`
 
 ---
 
 ### 3. Store 작성 규칙 (
 
-**API 호출 금지** : Store의 `actions` 내부에서 직접 API를 호출하지 않습니다. 
+**API 호출 금지** : Store의 `actions` 내부에서 직접 API를 호출하지 않습니다.
 
-- *예외: `useSocketStore`는 연결 유지를 위해 Store 내에서 통신 로직을 포함합니다.*
-- 이외에도 예외 상황  발생 시 말씀해주세요 !
+- _예외: `useSocketStore`는 연결 유지를 위해 Store 내에서 통신 로직을 포함합니다._
+- 이외에도 예외 상황 발생 시 말씀해주세요 !
 
 ```tsx
 // src/stores/usePostStore.ts
 // ⭕️ : 오직 상태 변경 로직만 존재
 setTitle: (title) => set((state) => ({ formData: { ...state.formData, title } })),`
 
-// ❌ : Store 안에서 비동기 통신까지 다 하려고 함 
+// ❌ : Store 안에서 비동기 통신까지 다 하려고 함
 submitPost: async () => {
-  const result = await axios.post(...); 
+  const result = await axios.post(...);
   set({ data: result });
 }
 ```

@@ -12,6 +12,38 @@ import NavBar from "../../../components/NavBar";
 import WriteButton from "../components/common/WriteButton";
 import { Checkbox } from "../../../components/Checkbox";
 import { useUserStore } from "../../../store/useUserStore";
+import { Toast } from "../../../components/Toast";
+import {
+  initializeFCM,
+  setupFCMMessageListener,
+} from "../../../hooks/useFirebaseHandler";
+import { registerFCMToken } from "../../../api/notificationApi";
+import Alarm from "../../../components/Alarm";
+// 모바일 기기 감지 유틸리티
+const detectDeviceType = (): "WEB_PC" | "WEB_MOBILE" => {
+  if (typeof window === "undefined") return "WEB_PC";
+
+  const userAgent =
+    navigator.userAgent || navigator.vendor || (window as any).opera;
+  const isMobile =
+    /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+      userAgent.toLowerCase()
+    );
+
+  const deviceType = isMobile ? "WEB_MOBILE" : "WEB_PC";
+
+  const isDev = import.meta.env.DEV;
+  if (isDev) {
+    console.log("📱 [디바이스 감지]", {
+      userAgent,
+      detectedType: deviceType,
+      isMobile,
+    });
+  }
+
+  return deviceType;
+};
+
 const HomePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,6 +68,7 @@ const HomePage = () => {
 
   const observerTarget = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
+  const fcmInitialized = useRef(false);
   const { user } = useUserStore();
   const role = user?.role;
   const isHelper = role === "HELPER";
@@ -106,9 +139,70 @@ const HomePage = () => {
     console.log("클릭:", checked);
     setIsMatched(checked ? false : undefined);
   };
+
+  // 6. FCM 초기화 및 토큰 등록
+  useEffect(() => {
+    // 로그인하지 않았거나 이미 초기화했으면 스킵
+    if (!user || fcmInitialized.current) {
+      return;
+    }
+
+    // 홈 페이지에서만 실행
+    if (location.pathname !== "/home") {
+      return;
+    }
+
+    const setupFCM = async () => {
+      try {
+        const isDev = import.meta.env.DEV;
+        if (isDev) {
+          console.log("🔔 [FCM] 초기화 시작...");
+        }
+
+        // FCM 초기화 및 토큰 가져오기 (알림 권한 요청 포함)
+        const token = await initializeFCM();
+
+        if (token) {
+          if (isDev) {
+            console.log("✅ [FCM] 토큰 획득 성공:", token);
+          }
+
+          // 서버에 토큰 등록
+          try {
+            const deviceType = detectDeviceType();
+            await registerFCMToken(token, deviceType);
+            if (isDev) {
+              console.log("✅ [FCM] 토큰 서버 등록 성공");
+            }
+            fcmInitialized.current = true;
+          } catch (error) {
+            if (isDev) {
+              console.error("❌ [FCM] 토큰 서버 등록 실패:", error);
+            }
+          }
+        } else {
+          if (isDev) {
+            console.warn("⚠️ [FCM] 토큰 획득 실패 (권한 거부 또는 기타 오류)");
+          }
+        }
+
+        // 포그라운드 메시지 리스너 설정
+        setupFCMMessageListener();
+      } catch (error) {
+        if (import.meta.env.DEV) {
+          console.error("❌ [FCM] 초기화 오류:", error);
+        }
+      }
+    };
+
+    setupFCM();
+  }, [user, location.pathname]);
   return (
     <Layout>
+      <Toast position="top" />
+
       <Wrapper>
+        <Alarm />
         {/* ---------------- Tabs ---------------- */}
         <TabBar>
           {/* filters.type 대신 Store의 type 상태를 직접 사용 */}
@@ -211,7 +305,6 @@ const TabBar = styled.div`
   position: fixed;
   display: flex;
   gap: 32px;
-  padding-top: 12px;
   padding-bottom: 0;
   border-bottom: 0.5px solid #d4d4d8;
   z-index: 90;
@@ -256,11 +349,11 @@ const Tab = styled.button<{ $active?: boolean }>`
 const FilterRow = styled.div`
   z-index: 90;
   position: fixed;
-  margin-top: 42px;
+  margin-top: 30px;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-top: 20px;
+  padding-top: 18px;
   background-color: ${({ theme }) => theme.color.white};
   justify-content: space-between;
   width: 343px;

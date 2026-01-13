@@ -13,6 +13,7 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import { initViewportHeight } from "./utils/viewport";
+import { FCMMessageModal } from "./components/FCMMessageModal";
 import "./App.css";
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
@@ -50,6 +51,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
+      <FCMMessageModal />
       <BrowserRouter>
         <Routes>
           {/* 랜딩페이지 */}
