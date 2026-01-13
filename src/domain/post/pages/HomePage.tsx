@@ -12,6 +12,7 @@ import NavBar from "../../../components/NavBar";
 import WriteButton from "../components/common/WriteButton";
 import { Checkbox } from "../../../components/Checkbox";
 import { useUserStore } from "../../../store/useUserStore";
+import { Toast } from "../../../components/Toast";
 const HomePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -108,6 +109,7 @@ const HomePage = () => {
   };
   return (
     <Layout>
+      <Toast position="top" />
       <Wrapper>
         {/* ---------------- Tabs ---------------- */}
         <TabBar>

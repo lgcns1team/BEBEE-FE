@@ -10,6 +10,8 @@ import {
 import { postApi } from "../../../api/postApi";
 import { calculateTotalOccurrences } from "../../../types/common.types";
 import { usePostStore } from "../../../store/usePostStore";
+import { useToastStore } from "../../../store/useToastStore";
+import { getErrorMessage } from "../../../utils/error";
 
 export const usePostWrite = (
   formData: Partial<PostCreateReqDTO>,
@@ -17,6 +19,7 @@ export const usePostWrite = (
 ) => {
   const navigate = useNavigate();
   const fetchPosts = usePostStore((state) => state.fetchPosts);
+  const { showToast } = useToastStore();
 
   /* ---------------- 1. 유틸리티 함수 (utils) ---------------- */
   const utils = {
@@ -184,13 +187,16 @@ export const usePostWrite = (
 
     try {
       await postApi.createPost(formData as PostCreateReqDTO);
-      alert("게시글 작성이 완료되었습니다.");
-      // 게시글 목록 갱신 후 홈으로 이동
+      // 게시글 목록 갱신
       await fetchPosts();
-      navigate("/home");
+      // Toast를 표시하고 HomePage에서 보이도록 딜레이 후 이동
+      showToast("게시글 작성이 완료되었습니다.", "SUCCESS");
+      setTimeout(() => {
+        navigate("/home");
+      }, 100);
     } catch (error) {
       console.error("게시글 작성 오류:", error);
-      alert("작성에 실패했습니다.");
+      showToast(getErrorMessage(error, "작성에 실패했습니다."), "ERROR");
     }
   };
 
