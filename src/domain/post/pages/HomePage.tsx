@@ -23,8 +23,7 @@ import Alarm from "../../../components/Alarm";
 const detectDeviceType = (): "WEB_PC" | "WEB_MOBILE" => {
   if (typeof window === "undefined") return "WEB_PC";
 
-  const userAgent =
-    navigator.userAgent || navigator.vendor || (window as any).opera;
+  const userAgent = navigator.userAgent || navigator.vendor || "";
   const isMobile =
     /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
       userAgent.toLowerCase()
@@ -140,7 +139,7 @@ const HomePage = () => {
     setIsMatched(checked ? false : undefined);
   };
 
-  // 6. FCM 초기화 및 토큰 등록 (자동 요청)
+  // 6. FCM 초기화 및 토큰 등록 (권한이 이미 있는 경우에만 자동 등록)
   useEffect(() => {
     // 로그인하지 않았거나 이미 초기화했으면 스킵
     if (!user || fcmInitialized.current) {
@@ -153,15 +152,16 @@ const HomePage = () => {
     }
 
     // PWA 모드 확인 (standalone, fullscreen 등)
-    const isPWA = 
+    const isPWA =
       window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as any).standalone === true ||
+      ("standalone" in window.navigator &&
+        (window.navigator as { standalone?: boolean }).standalone === true) ||
       document.referrer.includes("android-app://");
 
     const setupFCM = async () => {
       try {
         const isDev = import.meta.env.DEV;
-        
+
         // Service Worker가 준비될 때까지 대기
         if ("serviceWorker" in navigator) {
           try {
@@ -174,40 +174,91 @@ const HomePage = () => {
           }
         }
 
-        // 페이지 로드 후 약간의 지연 (PWA 및 일반 브라우저 모두에서 작동)
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // 알림 권한 확인
+        const permission = Notification.permission;
 
         if (isDev) {
-          console.log("🔔 [FCM] 초기화 시작...", { isPWA, permission: Notification.permission });
+          console.log("🔔 [FCM] 권한 상태 확인...", { isPWA, permission });
         }
 
-        // FCM 초기화 및 토큰 가져오기 (알림 권한 자동 요청)
-        const token = await initializeFCM(true);
+        if (permission === "granted") {
+          // 권한이 이미 허용된 경우: 토큰만 가져오기
+          const token = await initializeFCM(false);
 
-        if (token) {
-          if (isDev) {
-            console.log("✅ [FCM] 토큰 획득 성공:", token);
+          if (token) {
+            if (isDev) {
+              console.log("✅ [FCM] 토큰 획득 성공:", token);
+            }
+
+            // 서버에 토큰 등록
+            try {
+              const deviceType = detectDeviceType();
+              await registerFCMToken(token, deviceType);
+              if (isDev) {
+                console.log("✅ [FCM] 토큰 서버 등록 성공");
+              }
+              fcmInitialized.current = true;
+            } catch (error) {
+              console.error("❌ [FCM] 토큰 서버 등록 실패:", error);
+            }
           }
 
-          // 서버에 토큰 등록
-          try {
-            const deviceType = detectDeviceType();
-            await registerFCMToken(token, deviceType);
+          // 포그라운드 메시지 리스너 설정
+          setupFCMMessageListener();
+        } else if (permission === "default") {
+          // 권한이 아직 요청되지 않은 경우: 자동 요청 시도
+          // 배포 환경에서는 브라우저 정책에 따라 차단될 수 있지만 시도합니다
+          // PWA 모드에서는 더 높은 성공률을 가집니다
+
+          // 페이지 로드 후 약간의 지연 (일부 브라우저에서 필요)
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+
+          if (isDev) {
+            console.log("🔔 [FCM] 알림 권한 자동 요청 시도...", { isPWA });
+          }
+
+          // 자동으로 알림 권한 요청 시도
+          const token = await initializeFCM(true);
+
+          if (token) {
             if (isDev) {
-              console.log("✅ [FCM] 토큰 서버 등록 성공");
+              console.log("✅ [FCM] 토큰 획득 성공:", token);
             }
-            fcmInitialized.current = true;
-          } catch (error) {
-            console.error("❌ [FCM] 토큰 서버 등록 실패:", error);
+
+            // 서버에 토큰 등록
+            try {
+              const deviceType = detectDeviceType();
+              await registerFCMToken(token, deviceType);
+              if (isDev) {
+                console.log("✅ [FCM] 토큰 서버 등록 성공");
+              }
+              fcmInitialized.current = true;
+            } catch (error) {
+              console.error("❌ [FCM] 토큰 서버 등록 실패:", error);
+            }
+
+            // 포그라운드 메시지 리스너 설정
+            setupFCMMessageListener();
+          } else {
+            // 자동 요청이 실패한 경우 (브라우저 정책에 의해 차단됨)
+            if (isDev) {
+              console.warn(
+                "⚠️ [FCM] 자동 알림 권한 요청이 차단되었습니다. Alarm 아이콘을 클릭하여 수동으로 요청하세요."
+              );
+            }
+            // 배포 환경에서도 로깅
+            console.log(
+              "ℹ️ [FCM] 알림 권한이 필요합니다. Alarm 아이콘을 클릭하여 권한을 요청하세요."
+            );
           }
         } else {
+          // 권한이 거부된 경우
           if (isDev) {
-            console.warn("⚠️ [FCM] 토큰 획득 실패 (권한 거부 또는 기타 오류)");
+            console.log(
+              "ℹ️ [FCM] 알림 권한이 거부되었습니다. 브라우저 설정에서 변경하거나 Alarm 아이콘을 클릭하세요."
+            );
           }
         }
-
-        // 포그라운드 메시지 리스너 설정
-        setupFCMMessageListener();
       } catch (error) {
         console.error("❌ [FCM] 초기화 오류:", error);
       }
