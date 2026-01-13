@@ -105,7 +105,7 @@ const WeeklyCalendar = ({ onSelectDate, markedDates }: Props) => {
   };
 
   return (
-    <Wrapper role="region" aria-label="주간 일정 달력">
+    <Wrapper role="region" aria-label="주간 일정 달력" lang="ko">
       <span className="sr-only" aria-live="polite">
         {announce}
       </span>
