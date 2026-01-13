@@ -153,7 +153,7 @@ const Bell = styled.div<{ $hasPermission?: boolean; $isRequesting?: boolean }>`
   font-size: 20px;
   cursor: ${({ $isRequesting }) => ($isRequesting ? "not-allowed" : "pointer")};
   opacity: ${({ $isRequesting }) => ($isRequesting ? 0.6 : 1)};
-  color: ${({ theme }) => theme.color.text};
+  color: ${({ theme }) => theme.color.main};
 
   &:hover {
     opacity: ${({ $isRequesting }) => ($isRequesting ? 0.6 : 0.8)};
