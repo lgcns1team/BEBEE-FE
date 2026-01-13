@@ -1,3 +1,4 @@
+// src/domain/auth/auth.constants.ts
 export const AUTH_API_URLS = {
   LOGIN: "/member/auth/login",
   LOGOUT: "/member/auth/logout",
