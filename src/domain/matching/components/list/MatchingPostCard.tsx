@@ -1,158 +1,122 @@
-// src/components/MatchingPostCard.tsx
 import styled from "styled-components";
 import { FiCalendar, FiMapPin } from "react-icons/fi";
 import { BsPencil, BsChat } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
 
 import HelpTag from "../../../../components/HelpTag";
 import OneDayBadge from "../../../../components/OneDayBadge";
-import { useNavigate } from "react-router-dom";
 
-//hook
 import { useChatHandler } from "../../../../hooks/useChatHandler";
-
 import type { Engagement } from "../../../../types/match.type";
-import { formatDateWithDay } from "../../utils/dateFormat";
-import type {
-  DayEngagementTime,
-  TermEngagementTime,
-} from "../../../../types/match.type";
+
+import { HELP_TAG_MAP } from "../../../../constants/helpTags";
+import { getScheduleText } from "../../../../types/common.types";
 
 interface Props {
   engagement: Engagement;
-  onComplete: (agreementId: string) => void;
+  onComplete: (engagementId: string) => void;
 }
 
 const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   const navigate = useNavigate();
+  const { handleChatOpen } = useChatHandler();
 
-  const isCompleted =
-    engagement.type === "DAY"
-      ? engagement.isDayComplete
-      : engagement.isTermComplete;
-
-  const canReview = isCompleted && engagement.isLastActivity;
+  // 매칭 확인서 이동
   const goMatchingInfo = () => {
-    if (!engagement) return;
     navigate(`/match-info/${engagement.agreementId}`);
   };
 
-  const goReviewPage = () => {
-    navigate(`/review/${engagement.agreementId}`);
-  };
-
-  /* 채팅 관련 */
-  const { handleChatOpen } = useChatHandler();
-  const matchingItem = {
-    id: 1,
-    chatroomId: "791458418405204700",
-    partnerNickname: "꿀벌님",
-  };
-
   const goChatPage = () => {
-    console.log("기존 채팅방 조회 및 이동 시도...");
-    handleChatOpen({ chatroomId: matchingItem.chatroomId });
+    handleChatOpen({ chatroomId: engagement.chatRoomId });
+  };
+  const handleProfileClick = () =>{
+    navigate(`/profile/${engagement.otherId}`)
+  }
+
+  const renderActionButton = () => {
+    switch (engagement.status) {
+      case "INACTIVE":
+        return <InactiveButton disabled>활동 전</InactiveButton>;
+
+      case "ACTIVE":
+        return (
+          <DoneButton onClick={() => onComplete(engagement.engagementId)}>
+            활동 완료
+          </DoneButton>
+        );
+
+      case "COMPLETED":
+        return <CompletedButton disabled>활동 완료</CompletedButton>;
+
+      case "REVIEW_ACTIVE":
+        return (
+          <ReviewButton
+            onClick={() => navigate(`/review/${engagement.matchId}`)}
+          >
+            <BsPencil size={12} />
+            리뷰 작성하기
+          </ReviewButton>
+        );
+
+      case "REVIEW_COMPLETED":
+        return <ReviewButton disabled>리뷰 작성 완료</ReviewButton>;
+
+      default:
+        return null;
+    }
   };
 
   return (
     <Card>
-      {/* ---------- Top ---------- */}
       <TopArea>
-        <Title onClick={goMatchingInfo} aria-label="매칭된 도움의 제목">
-          {engagement.title}
-        </Title>
-        {engagement.type === "DAY" && <OneDayBadge>하루 도움</OneDayBadge>}
+        <Title onClick={goMatchingInfo}>{engagement.title}</Title>
+        {engagement.helpType === "DAY" && <OneDayBadge>하루 도움</OneDayBadge>}
       </TopArea>
 
-      {/* ---------- Bottom ---------- */}
       <BottomArea>
-        {/* 왼쪽 정보 */}
         <BottomLeft>
-          <User aria-label="장애인의 닉네임">
-            {engagement.disabled.nickname}
-          </User>
+          <User onClick={handleProfileClick}>{engagement.otherNickname}</User>
 
           <InfoLine>
-            <MapPinIcon size={16} aria-label="활동 지역 아이콘" />
-            <InfoText aria-label="활동 지역">{engagement.region}</InfoText>
+            <MapPinIcon size={16} />
+            <InfoText>{engagement.region}</InfoText>
           </InfoLine>
 
           <InfoLine>
-            <CalendarIcon size={16} aria-label="날짜 아이콘" />
-            <InfoText aria-label="활동 날짜">
-              {engagement.type === "DAY" && (
-                <>
-                  {formatDateWithDay(
-                    (engagement.engagementTime as DayEngagementTime).date
-                  )}
-                </>
-              )}
-
-              {engagement.type === "TERM" && (
-                <>
-                  {formatDateWithDay(
-                    (engagement.engagementTime as TermEngagementTime).startDate
-                  )}
-                  {" ~ "}
-                  {formatDateWithDay(
-                    (engagement.engagementTime as TermEngagementTime).endDate
-                  )}
-                </>
+            <CalendarIcon size={16} />
+            <InfoText>
+              {getScheduleText(
+                engagement.helpType,
+                engagement.date,
+                engagement.dayOfWeeks
               )}
             </InfoText>
           </InfoLine>
 
           <TagRow>
-            {engagement.helpCategories.map((category) => (
-              <HelpTag key={category.helpCategoryId} aria-label="활동 카테고리">
-                {category.helpCategoryName}
-              </HelpTag>
+            {engagement.helpCategoryIds.map((cat) => (
+              <HelpTag key={cat}>{HELP_TAG_MAP[cat]}</HelpTag>
             ))}
           </TagRow>
         </BottomLeft>
 
-        {/* 오른쪽 이미지 */}
         {engagement.thumbnailImageUrl && (
           <BottomRight>
             <Thumbnail>
-              <img src={engagement.thumbnailImageUrl} alt="활동 관련 이미지" />
+              <img src={engagement.thumbnailImageUrl} alt="활동 이미지" />
             </Thumbnail>
           </BottomRight>
         )}
       </BottomArea>
 
-      {/* ---------- Buttons ---------- */}
       <BottomBar>
         <BottomInner>
-          <ChatButton onClick={goChatPage} aria-label="채팅하기로 이동합니다.">
+          <ChatButton onClick={goChatPage}>
             <BsChat size={12} />
             <span>채팅하기</span>
           </ChatButton>
 
-          {!isCompleted ? (
-            <DoneButton
-              onClick={() => {
-                onComplete(engagement.agreementId);
-              }}
-              aria-label="활동을 완료했을 경우 눌러주세요"
-            >
-              <span>활동 완료</span>
-            </DoneButton>
-          ) : canReview ? (
-            <ReviewButton
-              onClick={goReviewPage}
-              aria-label="리뷰를 작성하실 경우 눌러주세요"
-            >
-              <BsPencil size={12} />
-              <span>리뷰 작성하기</span>
-            </ReviewButton>
-          ) : (
-            <DoneButton
-              disabled
-              aria-label="아직 마지막 활동이 종료되지 않았어요"
-            >
-              <span>다음 일정 대기</span>
-            </DoneButton>
-          )}
+          {renderActionButton()}
         </BottomInner>
       </BottomBar>
     </Card>
@@ -161,15 +125,14 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
 
 export default MatchingPostCard;
 
-/* ---------------- styled ---------------- */
+/* ================= styled ================= */
 
 const Card = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-bottom: 16px;
+  padding-bottom: 40px;
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural100};
-  background: ${({ theme }) => theme.color.white};
 `;
 
 const TopArea = styled.div`
@@ -181,7 +144,6 @@ const TopArea = styled.div`
 const BottomArea = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
   gap: 12px;
 `;
 
@@ -199,18 +161,18 @@ const BottomRight = styled.div`
 const Title = styled.div`
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
+  cursor: pointer;
 `;
 
 const User = styled.div`
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
-  margin-bottom: 6px;
 `;
 
 const InfoLine = styled.div`
   display: flex;
-  gap: 6px;
   align-items: center;
+  gap: 6px;
 `;
 
 const InfoText = styled.span`
@@ -260,6 +222,7 @@ const ChatButton = styled.button`
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   border: 0.5px solid ${({ theme }) => theme.color.natural200};
   background: ${({ theme }) => theme.color.white};
+
   span {
     margin-left: 4px;
   }
@@ -272,12 +235,33 @@ const DoneButton = styled.button`
   background: ${({ theme }) => theme.color.main};
   color: ${({ theme }) => theme.color.white};
   border: none;
-  span {
-    margin-left: 4px;
-  }
 `;
 
-const ReviewButton = styled(DoneButton)`
+const CompletedButton = styled(DoneButton)`
+
   background: ${({ theme }) => theme.color.natural100};
   color: ${({ theme }) => theme.color.text};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+`
+
+const InactiveButton = styled(DoneButton)`
+background: ${({ theme }) => theme.color.natural100};
+  color: ${({ theme }) => theme.color.text};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  
+`
+
+const ReviewButton = styled(DoneButton)`
+  background: ${({ theme }) => theme.color.subColor};
+  color: ${({ theme }) => theme.color.text};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 `;

@@ -2,6 +2,8 @@ import type { Gender } from "./common.types";
 
 export type MyRole = "DISABLED" | "HELPER" | "ADMIN";
 
+export type BadgeCode = "LEVEL_1" | "LEVEL_2" | null;
+
 export interface ReviewCount {
   keywordId: number;
   count: number;
@@ -10,7 +12,7 @@ export interface ReviewCount {
 export interface Badge {
   disabilityCategoryId: number;
   count: number;
-  badgeCode: string | null;
+  badgeCode: BadgeCode
 }
 // 내 프로필 조회
 export interface MyProfile {
@@ -29,7 +31,7 @@ export interface MyProfile {
   introduction: string;
 
   honey: number;
-  // reviews: Review[];
+  reviews: ReviewCount[];
 
   // documents: any[] | null;
   badges: Badge[] | null;
@@ -43,7 +45,7 @@ export interface MyProfile {
 export interface MemberProfile {
   nickname: string;
   email: string;
-  role: MyRole;
+  role: "DISABLED" | "HELPER" | "ADMIN";
 
   profileImageUrl: string | null;
 
@@ -58,7 +60,7 @@ export interface MemberProfile {
 
   honey: number;
 
-  // reviews: any[];
+  reviews: ReviewCount[];
   // documents: any[] | null;
 
   badges: Badge[] | null;
@@ -81,7 +83,7 @@ export interface Member {
   profileImageUrl: string;
   sweetness: number;
   honey: number;
-  addressRoad: string;
+  address: string;
   gender: string;
   birthDate: string; // date 형식
   ageGroup: number;
@@ -90,4 +92,7 @@ export interface Member {
   disabilityType: string;
   disabilityDescription: string;
   badges: Badge[] | null;
+  reviews: ReviewCount[];
+   helpCategories: number[];
+
 }

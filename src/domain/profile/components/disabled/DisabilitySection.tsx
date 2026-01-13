@@ -1,21 +1,21 @@
 import styled from "styled-components";
-import { useProfileStore } from "../../../../store/useProfileStore";
-
-
+import { useOtherMemberStore } from "../../store/useOtherMemberStore";
 
 const DisabilitySection = () => {
-  const { profile } = useProfileStore();
-  
+  const { profile, isLoading } = useOtherMemberStore();
+
+  if (isLoading || !profile) return null;
+
   return (
     <Description>
       <Title>이런 불편함이 있어요</Title>
 
       <DisabilityType>
-        <span>{profile?.disabilityType}</span>
+        <span>{profile.disabilityType ?? "-"}</span>
       </DisabilityType>
 
       <TypeDescription>
-        <span>{profile.disabilityDescription}</span>
+        <span>{profile.disabilityDescription ?? "-"}</span>
       </TypeDescription>
     </Description>
   );

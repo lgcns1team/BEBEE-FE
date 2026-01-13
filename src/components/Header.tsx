@@ -24,6 +24,7 @@ interface HeaderProps {
   onRightClick?: () => void;
   showRight?: boolean;
   bg?: boolean;
+  onTitleClick? : () => void;
 }
 
 const Header = ({
@@ -34,6 +35,7 @@ const Header = ({
   onRightClick,
   showRight,
   bg,
+  onTitleClick
 }: HeaderProps) => {
   return (
     <Container bg={bg}>
@@ -46,7 +48,7 @@ const Header = ({
       )}
       {/* 타이틀 영역 */}
       {(title || subTitle) && (
-        <HeaderTitleBox>
+        <HeaderTitleBox onClick={onTitleClick}>
           {title && <Title>{title}</Title>}
           {subTitle && <SubTitle>{subTitle}</SubTitle>}
         </HeaderTitleBox>

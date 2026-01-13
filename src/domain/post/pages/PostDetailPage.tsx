@@ -18,6 +18,7 @@ import { applyHelper } from "../../../api/applicationApi";
 
 import { formatDateToKoreanWithDay } from "../../../types/common.types";
 const PostDetailPage = () => {
+  
   const navigate = useNavigate();
 
   const { postId } = useParams<{ postId: string }>();
@@ -65,14 +66,6 @@ const PostDetailPage = () => {
   if (loading) return <div>로딩 중...</div>;
   if (error) return <div>{error}</div>;
   if (!post) return <div>게시글이 없습니다.</div>;
-
-  // 임시 memberId
-
-  // 장애인용 아이디 100
-  // const MEMBER_ID = "100";
-
-  // 도우미용 아이디 700
-  // const MEMBER_ID = "700";
 
   // 지원하기 및 나눔하기
   const handleApply = async () => {
@@ -185,7 +178,11 @@ const PostDetailPage = () => {
     touchStartX.current = null;
     touchEndX.current = null;
   };
-
+  // 프로필 정보로 이동
+  const handleProfileClick = () =>{
+    navigate(`/profile/${post.memberId}`)
+  }
+  
   return (
     <Layout>
       <Container style={{ paddingBottom: "40px" }}>
@@ -206,7 +203,7 @@ const PostDetailPage = () => {
 
         <Title>{post?.title}</Title>
 
-        <UserSection>
+        <UserSection onClick={handleProfileClick} >
           <UserLeft>
             {post?.memberProfileImageUrl ? (
               <UserImage src={post.memberProfileImageUrl} />

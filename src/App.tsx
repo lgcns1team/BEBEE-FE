@@ -38,6 +38,7 @@ import LandingPage from "./domain/Landing/page/LandingPage";
 import BadgePage from "./domain/Badge/page/Badge";
 import BadgeDetailPage from "./domain/Badge/page/BadgeDetailPage";
 import BadgeSharePage from "./domain/Badge/page/BadgeSharePage";
+import ProfilePage from "./domain/profile/pages/ProfilePage";
 
 function App() {
   // 모바일 브라우저 뷰포트 높이 초기화
@@ -73,7 +74,9 @@ function App() {
 
           {/* 마이페이지에서 보는 프로필 정보 */}
           <Route path="/profile-info" element={<ProfileInfoPage />} />
-
+          
+          {/* 타인이 보는 프로필 정보 */}
+          <Route path="/profile/:memberId" element={<ProfilePage />} />
           {/*동네지도*/}
           <Route path="/map" element={<MapHelperPage />} />
           {/* <Route path="/map/disabled" element={<MapDisabledPage />} /> */}
@@ -88,7 +91,7 @@ function App() {
             element={<MatchingInfoPage />}
           />
           {/* 리뷰 */}
-          <Route path="/review/:agreementId" element={<ReviewPage />} />
+          <Route path="/review/:matchId" element={<ReviewPage />} />
           {/*뱃지*/}
           <Route path="/badge" element={<BadgePage />} />
           <Route path="/badge/:disabilityId" element={<BadgeDetailPage />} />

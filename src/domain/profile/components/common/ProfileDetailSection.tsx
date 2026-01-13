@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 
-import { useProfileStore } from "../../../../store/useProfileStore";
-import { getMemberProfile } from "../../../../api/memberApi";
+import { useOtherMemberStore } from "../../store/useOtherMemberStore";
+import BadgeChips from "../../../Badge/components/BadgeChips";
 
 const ProfileDetailSection = () => {
   const { profileId } = useParams<{ profileId: string }>();
@@ -12,37 +12,22 @@ const ProfileDetailSection = () => {
     profile,
     isLoading,
     error,
-    setProfile,
-    setLoading,
-    setError,
+    fetchMemberProfile,
     clearProfile,
-  } = useProfileStore();
+  } = useOtherMemberStore();
 
-  /* ================= 프로필 조회 ================= */
+ 
   useEffect(() => {
     if (!profileId) return;
 
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const res = await getMemberProfile(profileId);
-        setProfile(res.data);
-      } catch (e) {
-        console.error(e);
-        setError("프로필 정보를 불러오지 못했습니다.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
+    fetchMemberProfile(profileId);
 
     return () => {
       clearProfile();
     };
-  }, [profileId, setProfile, setLoading, setError, clearProfile]);
+  }, [profileId, fetchMemberProfile, clearProfile]);
 
-  /* ================= 상태 처리 ================= */
+  
   if (isLoading) {
     return <Info>로딩 중...</Info>;
   }
@@ -52,7 +37,7 @@ const ProfileDetailSection = () => {
   }
 
   const infoList = [
-    { label: "성별", value: profile.gender },
+    { label: "성별", value: profile.gender === "MALE" ? "남성" : "여성" },
     { label: "나이", value: `${profile.ageGroup}대` },
     { label: "주소", value: profile.address },
     {
@@ -68,19 +53,20 @@ const ProfileDetailSection = () => {
   return (
     <Info>
       <Top>
-        <ProfileImage
-          src={profile.profileImageUrl ?? "/images/default-profile.png"}
-          alt="프로필 이미지"
-        />
-        <TopRight>
-          <NickName>{profile.nickname}</NickName>
+        <ProfileImageWrapper>
+            <ProfileImage src={profile.profileImageUrl ?? ""} alt="프로필" />
+          </ProfileImageWrapper>
 
-          {profile.role === "HELPER" && (
-            <>
-              <SubName>@도움 전문가</SubName>
-            </>
-          )}
-        </TopRight>
+          <TopRight>
+            <NickName>{profile.nickname}</NickName>
+            {profile.role === "HELPER" &&
+              profile.badges &&
+              profile.badges.length > 0 && (
+                <BadgeWrapper>
+                  <BadgeChips badges={profile.badges} />
+                </BadgeWrapper>
+              )}
+          </TopRight>
       </Top>
 
       <Bottom>
@@ -113,12 +99,21 @@ const Top = styled.div`
   align-items: center;
 `;
 
-const ProfileImage = styled.img`
+const ProfileImageWrapper = styled.div`
   width: 60px;
   height: 60px;
   border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: ${({ theme }) => theme.color.natural100};
+`;
+
+const ProfileImage = styled.img`
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 `;
+
 
 const TopRight = styled.div`
   display: flex;
@@ -131,11 +126,9 @@ const NickName = styled.div`
   font-weight: ${({ theme }) => theme.weight.medium};
 `;
 
-const SubName = styled.div`
-  font-size: ${({ theme }) => theme.size.sm};
-  color: ${({ theme }) => theme.color.subText2};
+const BadgeWrapper = styled.div`
+  margin-top: 4px;
 `;
-
 const Bottom = styled.div`
   display: flex;
   flex-direction: column;
@@ -161,3 +154,5 @@ const InfoValue = styled.div`
   line-height: 1.4;
   word-break: break-word;
 `;
+
+
