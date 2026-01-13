@@ -72,7 +72,6 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
 
   return (
     <Layout>
-      <DatePickerGlobalStyle />
 
       {/* 1. 도움 기간 (Range Picker) */}
       <FieldSet>

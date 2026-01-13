@@ -42,7 +42,6 @@ const DayHelpWrite = ({ formData, updateField }: DayProps) => {
 
   return (
     <Layout>
-      <DatePickerGlobalStyle />
 
       {/* 날짜 선택 */}
       <FieldSet>

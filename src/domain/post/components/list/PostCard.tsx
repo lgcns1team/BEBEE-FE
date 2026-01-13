@@ -47,25 +47,25 @@ const PostCard = ({ post }: PostCardProps) => {
                 )}
               </Honey>
             </HoneyRow>
+            <SubInfo>
+              <InfoLine>
+                <MapPinIcon size={16} />
+                {/* 지역명에서 동네 이름만 추출 (예: '장충동') */}
+                <InfoText>{post.legalDongName.split(" ").pop()}</InfoText>
+              </InfoLine>
 
-            <InfoLine>
-              <MapPinIcon size={16} />
-              {/* 지역명에서 동네 이름만 추출 (예: '장충동') */}
-              <InfoText>{post.legalDongName.split(" ").pop()}</InfoText>
-            </InfoLine>
-
-            <InfoLine>
-              <CalendarIcon size={16} />
-              <InfoText>
-                {getScheduleText(post.helpType, post.date, post.dayOfWeeks)}
-              </InfoText>
-            </InfoLine>
-
-            <InfoLine>
+              <InfoLine>
+                <CalendarIcon size={16} />
+                <InfoText>
+                  {getScheduleText(post.helpType, post.date, post.dayOfWeeks)}
+                </InfoText>
+              </InfoLine>
+            </SubInfo>
+            <Tag>
               {post.helpCategories.map((cat) => (
                 <HelpTag key={cat}>{HELP_TAG_MAP[cat]}</HelpTag>
               ))}
-            </InfoLine>
+            </Tag>
           </BottomLeft>
 
           {post.imageUrl && (
@@ -138,14 +138,22 @@ const MapPinIcon = styled(FiMapPin)`
 const CalendarIcon = styled(FiCalendar)`
   color: ${({ theme }) => theme.color.subText2};
 `;
-
+const SubInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
 const InfoLine = styled.div`
   display: flex;
   gap: 9px;
   align-items: center;
-  margin-bottom: 10px;
 `;
-
+const Tag = styled.div`
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding-top: 12px;
+`;
 const InfoText = styled.span`
   font-weight: ${({ theme }) => theme.weight.regular};
   color: ${({ theme }) => theme.color.subText2};
@@ -173,8 +181,10 @@ const BottomArea = styled.div`
 
 const BottomLeft = styled.div`
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
-
 const BottomRight = styled.div`
   flex-shrink: 0;
 `;
