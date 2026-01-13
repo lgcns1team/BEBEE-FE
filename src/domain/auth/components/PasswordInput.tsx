@@ -10,6 +10,7 @@ interface PasswordInputProps {
     disabled?: boolean;
     value?: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onClick?: () => void;
     required?: boolean;
     placeholder?: string;
 }
@@ -19,6 +20,7 @@ const PasswordInput = ({
     infoText,
     value,
     onChange,
+    onClick,
     ...rest
 }: PasswordInputProps) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -30,6 +32,7 @@ const PasswordInput = ({
                     type={showPassword ? "text" : "password"}
                     value={value}
                     onChange={onChange}
+                    onClick={onClick}
                     {...rest}
                 />
                 <ToggleButton
