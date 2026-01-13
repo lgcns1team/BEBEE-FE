@@ -22,7 +22,7 @@ export default defineConfig({
         name: "BeBee",
         short_name: "BeBee",
         description: "BeBee Progressive Web App",
-        theme_color: "#FFBE00",
+        theme_color: "#ffffff",
         background_color: "#ffffff",
         display: "standalone",
         lang: "ko",

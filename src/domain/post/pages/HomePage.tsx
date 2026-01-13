@@ -74,9 +74,7 @@ const HomePage = () => {
   const { user } = useUserStore();
   const role = user?.role;
   const isHelper = role === "HELPER";
-  const { hasShownModal, isModalOpen, showModal } =
-    useNotificationPermissionStore();
-  const touchStartRef = useRef<number | null>(null);
+  const { isModalOpen } = useNotificationPermissionStore();
 
   // HomePage에서 뒤로가기 방지
   useEffect(() => {
@@ -145,80 +143,6 @@ const HomePage = () => {
     setIsMatched(checked ? false : undefined);
   };
 
-  // 7. 알림 권한 요청 모달 표시 (스크롤/터치 이벤트 감지)
-  useEffect(() => {
-    // 로그인하지 않았거나 이미 모달을 표시했으면 스킵
-    if (!user || hasShownModal || isModalOpen) {
-      return;
-    }
-
-    // 홈 페이지에서만 실행
-    if (location.pathname !== "/home") {
-      return;
-    }
-
-    // 알림 권한이 이미 허용되었거나 거부된 경우 스킵
-    if (typeof window === "undefined" || !("Notification" in window)) {
-      return;
-    }
-
-    const permission = Notification.permission;
-    if (permission !== "default") {
-      return;
-    }
-
-    let hasTriggered = false;
-
-    // 스크롤 이벤트 핸들러
-    const handleScroll = () => {
-      // 스크롤이 발생하면 모달 표시 (한 번만)
-      if (!hasTriggered && !hasShownModal && !isModalOpen) {
-        hasTriggered = true;
-        showModal();
-      }
-    };
-
-    // 터치 시작 이벤트 핸들러 (모바일)
-    const handleTouchStart = (e: TouchEvent) => {
-      touchStartRef.current = e.touches[0].clientY;
-    };
-
-    // 터치 이동 이벤트 핸들러 (스크롤 감지)
-    const handleTouchMove = (e: TouchEvent) => {
-      if (touchStartRef.current === null || hasTriggered) return;
-
-      const touchEnd = e.touches[0].clientY;
-      const diff = touchStartRef.current - touchEnd;
-
-      // 위로 스크롤하려는 동작 감지 (10px 이상 이동)
-      if (Math.abs(diff) > 10 && !hasShownModal && !isModalOpen) {
-        hasTriggered = true;
-        showModal();
-        touchStartRef.current = null;
-      }
-    };
-
-    // 터치 종료 이벤트 핸들러
-    const handleTouchEnd = () => {
-      touchStartRef.current = null;
-    };
-
-    // Wrapper 요소 찾기
-    const wrapperElement = wrapperRef.current || window;
-
-    // 이벤트 리스너 등록
-    wrapperElement.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("touchstart", handleTouchStart, { passive: true });
-    window.addEventListener("touchmove", handleTouchMove, { passive: true });
-    window.addEventListener("touchend", handleTouchEnd, { passive: true });
-
-    return () => {
-      wrapperElement.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("touchstart", handleTouchStart);
-      window.removeEventListener("touchmove", handleTouchMove);
-      window.removeEventListener("touchend", handleTouchEnd);
-    };
-  }, [user, location.pathname, hasShownModal, isModalOpen, showModal]);
 
   // 6. FCM 초기화 및 토큰 등록 (권한이 이미 있는 경우에만 자동 등록)
   useEffect(() => {
@@ -263,7 +187,7 @@ const HomePage = () => {
         }
 
         // 권한이 이미 허용된 경우에만 자동으로 토큰 등록
-        // 권한 요청은 로그인 페이지의 input 클릭 시 수행됨
+        // 권한 요청은 마이페이지의 알림 토글 클릭 시 수행됨
         if (permission === "granted") {
           // 알림 권한 요청 없이 토큰만 가져오기
           const token = await initializeFCM(false);
