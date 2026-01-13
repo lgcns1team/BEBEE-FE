@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import styled, { keyframes } from "styled-components";
 import { useFCMMessageStore } from "../store/useFCMStore";
 import { IoClose } from "react-icons/io5";
-
+import bell from "../assets/images/bell.png";
 export const FCMMessageModal = () => {
   const { message, isOpen, closeMessage } = useFCMMessageStore();
 
@@ -31,8 +31,13 @@ export const FCMMessageModal = () => {
         <CloseButton onClick={closeMessage} aria-label="닫기">
           <IoClose size={20} />
         </CloseButton>
-        <Title>{message.title}</Title>
-        <Body>{message.body}</Body>
+        <MsgBox>
+          <AlarmImage src={bell} />
+          <div>
+            <Title>{message.title}</Title>
+            <Body>{message.body}</Body>
+          </div>
+        </MsgBox>
       </ModalContent>
     </ModalContainer>
   );
@@ -58,11 +63,15 @@ const ModalContainer = styled.div<{ $isOpen: boolean }>`
   padding: 20px;
   pointer-events: ${({ $isOpen }) => ($isOpen ? "auto" : "none")};
 `;
-
+const MsgBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
 const ModalContent = styled.div`
-  background-color: white;
+  background-color: ${({ theme }) => theme.color.white};
   border-radius: 12px;
-  padding: 20px;
+  padding: 14px;
   max-width: 400px;
   width: 100%;
   margin: 0 auto;
@@ -94,7 +103,15 @@ const CloseButton = styled.button`
     color: #333;
   }
 `;
-
+const AlarmImage = styled.img`
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  object-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 const Title = styled.h2`
   font-size: 18px;
   font-weight: 600;
