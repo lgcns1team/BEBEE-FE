@@ -11,6 +11,18 @@ importScripts(
 let firebaseApp = null;
 let messaging = null;
 
+// Fallback: 직접 설정이 필요한 경우 (메시지로 설정이 전달되지 않은 경우)
+// Service Worker에서는 import.meta.env를 사용할 수 없으므로 하드코딩된 설정 사용
+const fallbackConfig = {
+  apiKey: "AIzaSyAdvajxr9nwDEBFfuajsbDhuHuWdu0v4uk",
+  authDomain: "bebee-c4d61.firebaseapp.com",
+  projectId: "bebee-c4d61",
+  storageBucket: "bebee-c4d61.firebasestorage.app",
+  messagingSenderId: "1024519360208",
+  appId: "1:1024519360208:web:46d14c7ace75447756d8d5",
+  measurementId: "G-S2H4Q7TRCG",
+};
+
 // Firebase 초기화 및 Messaging 설정 함수
 const initializeFirebase = (config) => {
   if (!firebaseApp) {
@@ -38,68 +50,7 @@ self.addEventListener("message", (event) => {
   }
 });
 
-// Fallback: 직접 설정이 필요한 경우 (메시지로 설정이 전달되지 않은 경우)
-// Service Worker에서는 import.meta.env를 사용할 수 없으므로 하드코딩된 설정 사용
-const fallbackConfig = {
-  apiKey: "AIzaSyAdvajxr9nwDEBFfuajsbDhuHuWdu0v4uk",
-  authDomain: "bebee-c4d61.firebaseapp.com",
-  projectId: "bebee-c4d61",
-  storageBucket: "bebee-c4d61.firebasestorage.app",
-  messagingSenderId: "1024519360208",
-  appId: "1:1024519360208:web:46d14c7ace75447756d8d5",
-  measurementId: "G-S2H4Q7TRCG",
-};
-
-// Fallback 초기화
-// 일반적으로는 메인 스레드에서 FIREBASE_CONFIG 메시지로 설정이 전달됨
-if (fallbackConfig.apiKey) {
-  // 약간의 지연을 두어 메인 스레드에서 설정이 전달될 시간을 줌
-  setTimeout(() => {
-    if (!firebaseApp) {
-      initializeFirebase(fallbackConfig);
-    }
-  }, 100);
-}
-
-// 메시지 핸들러 설정 함수
-function setupMessageHandlers() {
-  if (!messaging) return;
-
-  // 백그라운드 메시지 수신 핸들러
-  messaging.onBackgroundMessage((payload) => {
-    const notificationTitle = payload.notification?.title || "새 메시지";
-    const notificationOptions = {
-      body: payload.notification?.body || "",
-      icon: "/icon.png",
-      badge: "/icon.png",
-      tag: payload.messageId,
-      requireInteraction: false,
-      data: {
-        ...payload.data,
-        fcmPayload: JSON.stringify(payload), // 메인 스레드로 전달하기 위해 저장
-      },
-    };
-
-    const notificationPromise = self.registration.showNotification(
-      notificationTitle,
-      notificationOptions
-    );
-
-    // 메인 스레드로 메시지 전달 (페이지가 열려있는 경우 모달 표시를 위해)
-    self.clients.matchAll().then((clients) => {
-      clients.forEach((client) => {
-        client.postMessage({
-          type: "FCM_BACKGROUND_MESSAGE",
-          payload: payload,
-        });
-      });
-    });
-
-    return notificationPromise;
-  });
-}
-
-// 알림 클릭 핸들러
+// 알림 클릭 핸들러 (최상위 레벨에서 등록 - 초기 평가 시점)
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
@@ -152,3 +103,47 @@ self.addEventListener("notificationclick", (event) => {
       })
   );
 });
+
+// Fallback 초기화 (최상위 레벨에서 실행)
+if (fallbackConfig.apiKey) {
+  // 즉시 초기화 (setTimeout 제거)
+  initializeFirebase(fallbackConfig);
+}
+
+// 메시지 핸들러 설정 함수
+function setupMessageHandlers() {
+  if (!messaging) return;
+
+  // 백그라운드 메시지 수신 핸들러
+  messaging.onBackgroundMessage((payload) => {
+    const notificationTitle = payload.notification?.title || "새 메시지";
+    const notificationOptions = {
+      body: payload.notification?.body || "",
+      icon: "/icon.png",
+      badge: "/icon.png",
+      tag: payload.messageId,
+      requireInteraction: false,
+      data: {
+        ...payload.data,
+        fcmPayload: JSON.stringify(payload), // 메인 스레드로 전달하기 위해 저장
+      },
+    };
+
+    const notificationPromise = self.registration.showNotification(
+      notificationTitle,
+      notificationOptions
+    );
+
+    // 메인 스레드로 메시지 전달 (페이지가 열려있는 경우 모달 표시를 위해)
+    self.clients.matchAll().then((clients) => {
+      clients.forEach((client) => {
+        client.postMessage({
+          type: "FCM_BACKGROUND_MESSAGE",
+          payload: payload,
+        });
+      });
+    });
+
+    return notificationPromise;
+  });
+}
