@@ -7,8 +7,11 @@ import App from './App.tsx'
 const loadKakaoMapScript = () => {
   const kakaoMapKey = import.meta.env.VITE_KAKAO_MAP_KEY;
 
-  console.log('=== Kakao Map SDK Loading ===');
-  console.log('VITE_KAKAO_MAP_KEY:', kakaoMapKey);
+  // 개발 환경에서만 디버그 로그 출력 (프로덕션에서 API 키 노출 방지)
+  if (import.meta.env.DEV) {
+    console.log('=== Kakao Map SDK Loading ===');
+    console.log('VITE_KAKAO_MAP_KEY:', kakaoMapKey ? '설정됨' : '설정 안됨');
+  }
 
   if (!kakaoMapKey) {
     console.warn('⚠️ VITE_KAKAO_MAP_KEY is not defined in .env file!');
@@ -21,7 +24,9 @@ const loadKakaoMapScript = () => {
   script.async = true;
 
   script.onload = () => {
-    console.log('✅ Kakao Map SDK loaded successfully');
+    if (import.meta.env.DEV) {
+      console.log('✅ Kakao Map SDK loaded successfully');
+    }
   };
 
   script.onerror = () => {
