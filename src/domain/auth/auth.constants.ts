@@ -1,8 +1,8 @@
 export const AUTH_API_URLS = {
   LOGIN: "/member/auth/login",
+  LOGOUT: "/member/auth/logout",
   SIGN_UP: "/member/auth/signup",
   REISSUE: "/member/auth/reissue",
-  LOGOUT: "/member/auth/logout",
   GET_MY_INFO: "/member/members/me",
   CHECK_EMAIL: "/member/auth/check-email",
   CHECK_NICKNAME: "/member/auth/check-nickname",

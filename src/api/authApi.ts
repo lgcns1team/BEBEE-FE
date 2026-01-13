@@ -30,8 +30,15 @@ export const signUpUser = async (data: SignUpRequest) => {
   return response.data;
 };
 
-export const logoutUser = async () => {
-  const response = await instance.delete(AUTH_API_URLS.LOGOUT);
+export const logoutUser = async (memberId: number | string) => {
+  console.log("[로그아웃 API] 요청 시작:", {
+    url: AUTH_API_URLS.LOGOUT,
+    memberId,
+  });
+  const response = await instance.delete(AUTH_API_URLS.LOGOUT, {
+    params: { memberId },
+  });
+  console.log("[로그아웃 API] 응답 성공:", response.data);
   return response.data;
 };
 
