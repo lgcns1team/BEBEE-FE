@@ -4,29 +4,31 @@
 
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { useWalletStore } from "../../../Pay/store/useWalletStore";
 import { useEffect } from "react";
-import { useWalletActions } from "../../../Pay/hooks/useWalletActions";
 import { useUserStore } from "../../../../store/useUserStore";
+import { useMemberStore } from "../../../../store/useMemberStore";
+
 const PointSection = () => {
   const navigate = useNavigate();
-  const currentHoney = useWalletStore((s) => s.currentHoney);
-  const { refreshCurrentHoney } = useWalletActions();
   const { user } = useUserStore();
+  const { member, fetchMember } = useMemberStore();
   const role = user.role;
   const isHelper = role === "HELPER";
+  const honeyPoint = member?.honey || 0;
+
   const goPay = () => {
     navigate("/charge");
   };
 
   useEffect(() => {
-    refreshCurrentHoney();
-  }, [refreshCurrentHoney]);
+    fetchMember();
+  }, [fetchMember]);
+
   return (
     <PaymentContainer>
       <PointWrapper>
         <Title>비비 포인트</Title>
-        <Point>{currentHoney.toLocaleString()}꿀</Point>
+        <Point>{honeyPoint.toLocaleString()}꿀</Point>
       </PointWrapper>
       <PaymentWrapper>
         <ReceiptButton>내역</ReceiptButton>

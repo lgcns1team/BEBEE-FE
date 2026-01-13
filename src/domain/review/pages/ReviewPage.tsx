@@ -18,11 +18,11 @@ import { HELP_TAG_MAP } from "../../../constants/helpTags";
 
 const ReviewPage = () => {
   const navigate = useNavigate();
-  const { agreementId } = useParams<{ agreementId: string }>();
 
-  const { getByAgreementId } = useMatchStore();
+  const { getByMatchId } = useMatchStore();
+  const { matchId } = useParams<{ matchId: string }>();
 
-  const engagement = agreementId ? getByAgreementId(agreementId) : undefined;
+  const engagement = matchId ? getByMatchId(matchId) : undefined;
 
   const [keywords, setKeywords] = useState<ReviewKeyword[]>([]);
   const [selectedKeywordIds, setSelectedKeywordIds] = useState<number[]>([]);
@@ -50,7 +50,7 @@ const ReviewPage = () => {
   }
 
   const opponentNickname = engagement.otherNickname;
-  const revieweeId = engagement.otherId;
+
   const postTitle = engagement.title;
   const helpCategoryIds = engagement.helpCategoryIds;
 
@@ -59,8 +59,7 @@ const ReviewPage = () => {
     try {
       setIsSubmitting(true);
 
-      await reviewWrite({
-        revieweeId,
+      await reviewWrite(matchId, {
         keywordIds: selectedKeywordIds,
       });
 

@@ -11,13 +11,14 @@ import { useMatchAgreement } from "../hook/useMatchAgreement";
 import type {
   DayEngagementTime,
   TermEngagementTime,
+  EngagementTimeResponse,
 } from "../types/match.types";
 interface Props {
   data: ChatMessage;
 }
 
 const MatchResultCard = ({ data }: Props) => {
-  const { user } = useUserStore(); // 현재 로그인한 유저 정보
+  const { user } = useUserStore();
   const { handleAccept, handleRefuse } = useMatchAgreement({ message: data });
   // 공통 유틸리티 함수 사용
   const formatDate = formatDateToKoreanWithDay;
@@ -37,85 +38,110 @@ const MatchResultCard = ({ data }: Props) => {
   const renderScheduleInfo = () => {
     const engagement = match.engagementTime;
 
+    // 1. DAY 타입 처리
     if (isDayType) {
-      const dayData = engagement as DayEngagementTime;
+      // 타입 가드: 필요한 속성이 어디에 있든 공통 변수로 추출
+      const data = engagement as EngagementTimeResponse & DayEngagementTime;
+      const date = data.date;
+      const schedule = data.schedule;
+
+      if (!date) return null;
+
       return (
         <>
-          <div
-            role="listitem"
-            aria-label={`도움 날짜: ${formatDate(dayData.date)}`}
-          >
-            날짜: {formatDate(dayData.date)}
+          <div role="listitem" aria-label={`도움 날짜: ${formatDate(date)}`}>
+            날짜: {formatDate(date)}
             <span className="sr-only">
-              {dayData.date
-                ? `도움을 제공할 날짜는 ${formatDate(dayData.date)}입니다`
-                : "날짜 정보 없음"}
+              {`도움을 제공받을 날짜는 ${formatDate(date)}입니다`}
             </span>
           </div>
-          {dayData.schedule && (
+          {schedule && (
             <div role="list" aria-label="도움 일시 목록">
-              {formatTime(dayData.schedule.startTime)}~
-              {formatTime(dayData.schedule.endTime)}
+              일시: {formatTime(schedule.startTime)}~
+              {formatTime(schedule.endTime)}
+              <span className="sr-only">
+                {`도움을 제공받을 시간은 ${formatTime(
+                  schedule.startTime
+                )}~${formatTime(schedule.endTime)}입니다`}
+              </span>
             </div>
           )}
         </>
       );
     }
 
-    const termData = engagement as TermEngagementTime;
+    // 2. TERM 타입 처리 (데이터 정규화)
+    const data = engagement as EngagementTimeResponse & TermEngagementTime;
+    const startDate = data.startDate;
+    const endDate = data.endDate;
+    const schedules = data.schedules || [];
 
-    return (
-      <>
-        {/* 기간 표시 영역 */}
-        <div
-          role="listitem"
-          aria-label={`도움 기간: ${formatDate(
-            termData.startDate
-          )}부터 ${formatDate(termData.endDate)}까지`}
-        >
-          기간: {formatDate(termData.startDate)} ~{" "}
-          {formatDate(termData.endDate)}
-          <span className="sr-only">
-            {termData.startDate && termData.endDate
-              ? `도움 기간은 ${formatDate(termData.startDate)}부터 ${formatDate(
-                  termData.endDate
-                )}까지입니다`
-              : "기간 정보 없음"}
-          </span>
-        </div>
-
-        {/* 요일 및 시간 목록 영역 */}
-        {termData.schedules && termData.schedules.length > 0 && (
-          <div
-            role="list"
-            aria-label="도움 요일 및 시간 목록"
-            style={{ marginTop: "8px" }}
+    if (startDate && endDate) {
+      return (
+        <>
+          <InfoRow
+            role="listitem"
+            aria-label={`도움 기간: ${formatDate(startDate)}부터 ${formatDate(
+              endDate
+            )}까지`}
           >
-            일시:
-            {termData.schedules.map((schedule, idx) => {
-              const dayName = formatDay(schedule.dayOfWeek);
-              const startTime = formatTime(schedule.startTime);
-              const endTime = formatTime(schedule.endTime);
+            <span className="label">기간:</span>
 
-              return (
-                <Indent
-                  key={idx}
-                  role="listitem"
-                  aria-label={`${dayName} ${startTime}부터 ${endTime}까지`}
-                >
-                  {dayName} {startTime} - {endTime}
-                  <span className="sr-only">
-                    {dayName && startTime && endTime
-                      ? `${dayName}에 ${startTime}부터 ${endTime}까지 도움을 제공합니다`
-                      : "요일 또는 시간 정보 없음"}
-                  </span>
-                </Indent>
-              );
-            })}
-          </div>
-        )}
-      </>
-    );
+            <div className="content">
+              <span>{formatDate(startDate)} ~</span>
+              <span>{formatDate(endDate)}</span>
+              <span className="sr-only">
+                {`도움 기간은 ${formatDate(startDate)}부터 ${formatDate(
+                  endDate
+                )}까지입니다`}
+              </span>
+            </div>
+          </InfoRow>
+
+          {schedules.length > 0 && (
+            <TermTime
+              role="list"
+              aria-label="도움 요일 및 시간 목록"
+              style={{ marginTop: "8px" }}
+            >
+              {" "}
+              <span>일시:</span>
+              <ScheduleList>
+                {schedules.map(
+                  (
+                    schedule: {
+                      dayOfWeek: string;
+                      startTime: string;
+                      endTime: string;
+                    },
+                    idx: number
+                  ) => {
+                    const dayName = formatDay(schedule.dayOfWeek);
+                    const startTime = formatTime(schedule.startTime);
+                    const endTime = formatTime(schedule.endTime);
+
+                    return (
+                      <span
+                        key={idx}
+                        role="listitem"
+                        aria-label={`${dayName} ${startTime}부터 ${endTime}까지`}
+                      >
+                        {dayName} {startTime} - {endTime}
+                        <span className="sr-only">
+                          {`${dayName}에 ${startTime}부터 ${endTime}까지 도움을 제공합니다`}
+                        </span>
+                      </span>
+                    );
+                  }
+                )}
+              </ScheduleList>
+            </TermTime>
+          )}
+        </>
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -166,14 +192,26 @@ const MatchResultCard = ({ data }: Props) => {
           <div
             role="listitem"
             aria-label={
-              isDayType
+              match.isVolunteer
+                ? "보상 정보: 나눔 서비스"
+                : isDayType
                 ? `보상 정보: ${match.unitHoney?.toLocaleString() || 0}꿀`
                 : `보상 정보: 회당 ${
                     match.unitHoney?.toLocaleString() || 0
                   }꿀, 총 ${match.totalHoney.toLocaleString() || 0}꿀`
             }
           >
-            {isDayType ? (
+            {match.isVolunteer ? (
+              <>
+                꿀: 나눔{" "}
+                <span aria-hidden="true" role="img">
+                  🩵
+                </span>
+                <span className="sr-only">
+                  나눔 서비스입니다. 꿀이 차감되지 않습니다.
+                </span>
+              </>
+            ) : isDayType ? (
               <>
                 꿀: {match.unitHoney?.toLocaleString() || "-"}꿀
                 <span className="sr-only">
@@ -184,8 +222,10 @@ const MatchResultCard = ({ data }: Props) => {
               </>
             ) : (
               <>
-                꿀: {match.unitHoney?.toLocaleString() || "-"}꿀 /회(총{" "}
-                {match.unitHoney?.toLocaleString() || "-"}꿀)
+                꿀: {match.unitHoney?.toLocaleString() || "-"}꿀{" "}
+                <Total>
+                  /회 (총 {match.totalHoney?.toLocaleString() || "-"}꿀)
+                </Total>
                 <span className="sr-only">
                   {match.unitHoney && match.totalHoney
                     ? `회당 ${match.unitHoney.toLocaleString()}꿀을 받으며, 총 ${match.totalHoney.toLocaleString()}꿀을 받게 됩니다`
@@ -242,7 +282,7 @@ const Card = styled.div`
   gap: 16px;
   /*세로선*/
   border-left: 3px solid ${({ theme }) => theme.color.main};
-  padding-left: 24px; /* 내용이 선에 붙지 않도록 */
+  padding-left: 24px;
 `;
 
 const Content = styled.div`
@@ -281,9 +321,36 @@ const Info = styled.div`
   line-height: 20px;
 `;
 
-const Indent = styled.div`
-  margin-left: 40px;
+const TermTime = styled.div`
+  display: flex;
+
+  margin-top: 8px;
+
+  span {
+    flex-shrink: 0;
+    margin-right: 4px;
+  }
 `;
+const InfoRow = styled.div`
+  display: flex;
+  gap: 8px;
+
+  .label {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+`;
+const ScheduleList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* 요일별 간격 */
+`;
+
 const ButtonWrapper = styled.div`
   width: 100%;
   margin-top: 1rem;
@@ -311,4 +378,10 @@ const RefusalButton = styled.button`
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   font-size: ${({ theme }) => theme.size.md};
   cursor: pointer;
+`;
+
+const Total = styled.span`
+  margin-left: 2px;
+  font-size: ${({ theme }) => theme.size.sm};
+  color: ${({ theme }) => theme.color.subText};
 `;

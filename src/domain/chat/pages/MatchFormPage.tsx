@@ -2,8 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { useParams, useNavigate } from "react-router-dom";
 import { useChatStore } from "../store/useChatStore";
+import { useAgreementStore } from "../store/useAgreementStore";
 import { postApi } from "../../../api/postApi";
-import { createAgreement } from "../../../api/matchApi";
 import { chatApi } from "../../../api/chatApi";
 import { getCurrentHoney } from "../../../api/walletApi";
 import type { PostDetailResponse } from "../../../types/post.type";
@@ -44,14 +44,15 @@ const MatchFormPage = () => {
     post: PostDetailResponse,
     postId: string,
     helperId: string,
-    chatroomId: string
+    chatroomId: string,
+    isVolunteer?: boolean
   ): Partial<AgreementRequest> => {
     // 기본 AgreementRequest 구조
     const baseRequest: Partial<AgreementRequest> = {
       postId: postId,
       helperId: helperId,
       type: post.engagementType,
-      isVolunteer: false,
+      isVolunteer: isVolunteer ?? false,
       helpCategoryIds: post.helpCategoryIds || [],
       unitHoney: post.unitHoney,
       totalHoney: post.totalHoney,
@@ -64,6 +65,7 @@ const MatchFormPage = () => {
   };
   const navigate = useNavigate();
   const { activeRoom, setActiveRoom } = useChatStore();
+  const { postAgreement } = useAgreementStore();
 
   const [postDetail, setPostDetail] = useState<PostDetailResponse | null>(null);
   const [agreementRequest, setAgreementRequest] =
@@ -129,11 +131,19 @@ const MatchFormPage = () => {
         const otherId = currentActiveRoom.otherId;
         const helperId = otherId;
 
+        // activeRoom에서 isVolunteer 값을 가져와서 사용
+        const isVolunteer = currentActiveRoom.isVolunteer ?? false;
+        console.log("📋 [MatchFormPage] activeRoom에서 isVolunteer 가져옴:", {
+          isVolunteer,
+          activeRoom: currentActiveRoom,
+        });
+
         const request = convertPostToAgreementRequest(
           detail,
           currentActiveRoom.postId,
           helperId,
-          chatroomId
+          chatroomId,
+          isVolunteer
         );
         // region을 postDetail.postAddress로 초기화 (LocationInput 초기값 설정)
         if (detail.postAddress) {
@@ -509,10 +519,19 @@ const MatchFormPage = () => {
         // engagementTime은 항상 새로 생성 (dayEngagement/termEngagement에서 변환)
         engagementTime: engagementTime,
         chatroomId: chatroomId,
+        createdAt: new Date().toISOString(),
       };
 
-      const response = await createAgreement(finalRequest);
+      // useAgreementStore의 postAgreement를 사용하여 agreementRequest를 저장
+      const response = await postAgreement(finalRequest);
       console.log("✅ 매칭 확인서 생성 성공:", response);
+      console.log("📋 [매칭확인서 생성] agreementId:", response.agreementId);
+      console.log("📋 [매칭확인서 생성] agreementRequest 저장됨:", {
+        unitHoney: finalRequest.unitHoney,
+        totalHoney: finalRequest.totalHoney,
+        type: finalRequest.type,
+        createdAt: finalRequest.createdAt,
+      });
 
       // 서버에서 매칭확인서를 소켓으로 발행하므로 프론트에서는 받기만 하면 됨
       // POST API 호출 성공 후 채팅방 정보만 업데이트하고 이동
@@ -535,33 +554,43 @@ const MatchFormPage = () => {
         alert("채팅방 정보를 찾을 수 없습니다.");
       }
     } catch (error) {
-      console.error(" 매칭 확인서 생성 실패:", error);
+      console.error("❌ [매칭확인서 생성] 오류:", error);
 
-      // Axios 에러인 경우 상세 정보 출력
+      // Axios 에러인 경우 서버 응답 상세 정보 출력
       if (error && typeof error === "object" && "response" in error) {
         const axiosError = error as {
-          response?: { status?: number; statusText?: string; data?: unknown };
+          response?: {
+            status?: number;
+            statusText?: string;
+            data?: unknown;
+          };
           message?: string;
           config?: unknown;
         };
-        console.error(" 에러 상세:", {
-          message: axiosError.message,
+
+        console.error(" [매칭확인서 생성] 서버 응답 오류:", {
           status: axiosError.response?.status,
           statusText: axiosError.response?.statusText,
           data: axiosError.response?.data,
-          request: axiosError.config,
         });
 
-        // 서버에서 보낸 에러 메시지가 있으면 표시
+        // 서버에서 보낸 에러 데이터 상세 출력
         const errorData = axiosError.response?.data as
-          | { message?: string }
+          | { message?: string; code?: string; [key: string]: unknown }
           | undefined;
+
+        console.error(" [매칭확인서 생성] 서버 에러 메시지:", errorData);
+
+        // 서버에서 보낸 에러 메시지가 있으면 표시
         const errorMessage =
           errorData?.message ||
           axiosError.message ||
-          "매칭 확인서 생성에 실패했습니다.";
+          `매칭 확인서 생성에 실패했습니다. (${
+            axiosError.response?.status || "알 수 없는 오류"
+          })`;
         alert(errorMessage);
       } else {
+        console.error("[매칭확인서 생성] 알 수 없는 오류 타입:", error);
         alert("매칭 확인서 생성에 실패했습니다.");
       }
     } finally {
@@ -586,7 +615,7 @@ const MatchFormPage = () => {
   }
 
   return (
-    <Layout>
+    <MatchLayout>
       <div role="main" aria-label="매칭 확인서 작성">
         <span className="sr-only">매칭 확인서 작성 페이지입니다.</span>
         <Header title="매칭 확인서" onBack={() => navigate(-1)} showBack />
@@ -732,12 +761,24 @@ const MatchFormPage = () => {
           onClose={() => setIsInsufficientModalOpen(false)}
         />
       )}
-    </Layout>
+    </MatchLayout>
   );
 };
 
 export default MatchFormPage;
-
+const MatchLayout = styled.div`
+  width: 100%;
+  max-width: 100%;
+  height: calc(var(--vh, 1vh) * 100);
+  max-height: calc(var(--vh, 1vh) * 100);
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px 16px 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+`;
 const TotlaHoney = styled.div`
   width: 100%;
   border: 0.5px solid ${({ theme }) => theme.color.blue500};
@@ -751,7 +792,7 @@ const TotlaHoney = styled.div`
 
 const LocationInputWrapper = styled.div`
   position: relative;
-  margin-bottom: 220px; /* 검색 리스트가 표시될 공간 확보 (max-height: 200px + 여유 공간) */
+  margin-bottom: 220px;
   z-index: 1;
 `;
 
@@ -771,32 +812,25 @@ const InputContainer = styled.div`
 const BalanceCheckButton = styled.button<{ $isSufficient?: boolean }>`
   padding: 1rem;
   background: ${({ theme, $isSufficient }) =>
-    $isSufficient ? "#ffc107" : theme.color.natural100};
+    $isSufficient ? theme.color.subColor2 : theme.color.natural100};
   border: 1px solid
     ${({ theme, $isSufficient }) =>
-      $isSufficient ? "#ffc107" : theme.color.natural200};
+      $isSufficient ? theme.color.subColor2 : theme.color.natural200};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme, $isSufficient }) =>
-    $isSufficient ? theme.color.text : theme.color.text};
+    $isSufficient ? theme.color.main : theme.color.text};
   cursor: pointer;
   white-space: nowrap;
   transition: background-color 0.2s, border-color 0.2s;
-  height: 51.5px; /* GeneralInput과 동일한 높이 */
+  height: 51.5px;
   font-weight: ${({ $isSufficient }) => ($isSufficient ? "600" : "400")};
-
-  &:hover:not(:disabled) {
-    background: ${({ theme, $isSufficient }) =>
-      $isSufficient ? "#ffb300" : theme.color.natural200};
-    border-color: ${({ $isSufficient }) =>
-      $isSufficient ? "#ffb300" : undefined};
-  }
 
   &:active:not(:disabled) {
     background: ${({ theme, $isSufficient }) =>
-      $isSufficient ? "#ffb300" : theme.color.natural200};
-    border-color: ${({ $isSufficient }) =>
-      $isSufficient ? "#ffb300" : undefined};
+      $isSufficient ? theme.color.subColor2 : theme.color.natural200};
+    border-color: ${({ theme, $isSufficient }) =>
+      $isSufficient ? theme.color.subColor2 : theme.color.natural200};
   }
 
   &:disabled {

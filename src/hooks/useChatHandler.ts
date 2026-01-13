@@ -19,6 +19,7 @@ export const useChatHandler = () => {
         otherMemberId,
         chatroomId,
         postData,
+        isVolunteer: postData?.isVolunteer,
       });
 
       // API 호출
@@ -31,6 +32,9 @@ export const useChatHandler = () => {
       console.log("✅ [handleChatOpen] 채팅방 정보 받음:", {
         요청chatroomId: chatroomId,
         응답chatroomId: roomInfo.chatroomId,
+        요청isVolunteer: postData?.isVolunteer,
+        응답isVolunteer:
+          "isVolunteer" in roomInfo ? roomInfo.isVolunteer : undefined,
         roomInfo,
       });
 

@@ -43,12 +43,12 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
         );
 
       case "COMPLETED":
-        return <DoneButton disabled>상태 확인 대기</DoneButton>;
+        return <CompletedButton disabled>활동 완료</CompletedButton>;
 
       case "REVIEW_ACTIVE":
         return (
           <ReviewButton
-            onClick={() => navigate(`/review/${engagement.agreementId}`)}
+            onClick={() => navigate(`/review/${engagement.matchId}`)}
           >
             <BsPencil size={12} />
             리뷰 작성하기
@@ -233,6 +233,16 @@ const DoneButton = styled.button`
   color: ${({ theme }) => theme.color.white};
   border: none;
 `;
+
+const CompletedButton = styled(DoneButton)`
+
+  background: ${({ theme }) => theme.color.natural100};
+  color: ${({ theme }) => theme.color.text};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+`
 
 const InactiveButton = styled(DoneButton)`
 background: ${({ theme }) => theme.color.natural100};

@@ -77,6 +77,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
   // 메시지 내역 불러오기 (GET API)
   // 메시지 내역 불러오기 (GET API)
   fetchHistory: async (chatroomId: string, isFirstLoad = false) => {
+    // 로딩 중이면 중복 요청 방지
+    if (get().isLoadingHistory) {
+      console.log("이미 메시지 로딩 중, 요청 스킵");
+      return;
+    }
+
     const roomState = get().messagesByChatroom[chatroomId] || {
       messages: [],
       hasNext: true,
@@ -89,7 +95,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const cursor = isFirstLoad ? null : roomState.lastChatId;
 
     try {
+      set({ isLoadingHistory: true });
       const data = await chatApi.getMessages(chatroomId, cursor);
+
+      // 첫 로딩 시에만 검증 (스크롤로 더 불러오기 시에는 검증하지 않음)
+      // 검증을 너무 엄격하게 하면 정상적인 경우에도 무시될 수 있으므로 주의
 
       set((state) => {
         const prevRoomData = state.messagesByChatroom[chatroomId] || {
@@ -97,6 +107,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         };
 
         return {
+          isLoadingHistory: false,
           messagesByChatroom: {
             ...state.messagesByChatroom,
             [chatroomId]: {
@@ -115,6 +126,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         };
       });
     } catch (error) {
+      set({ isLoadingHistory: false });
       console.error(`${chatroomId} 내역 로드 실패:`, error);
     }
   },
@@ -137,7 +149,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const isDuplicate = currentRoomData.messages.some(
         (m) => m.id === message.id
       );
-      if (isDuplicate) return state;
+      if (isDuplicate) {
+        console.log("⚠️ [useChatStore] 중복 메시지 무시:", {
+          messageId: message.id,
+          textContent: message.textContent,
+          chatroomId: targetId,
+        });
+        return state;
+      }
 
       // 4. 상태 업데이트
       return {
@@ -145,7 +164,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
           ...state.messagesByChatroom,
           [targetId]: {
             ...currentRoomData,
-            // [핵심] 실시간 메시지는 가장 최근 것이므로 배열의 '끝(뒤)'에 추가합니다.
             messages: [...currentRoomData.messages, message],
           },
         },

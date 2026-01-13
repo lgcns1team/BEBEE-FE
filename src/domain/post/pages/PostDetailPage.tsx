@@ -341,6 +341,9 @@ export default PostDetailPage;
 
 const Container = styled.div`
   margin-bottom: 30px;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 
 const HelpBeeImage = styled.img`

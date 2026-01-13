@@ -9,12 +9,14 @@ import {
 } from "../../../types/post.type";
 import { postApi } from "../../../api/postApi";
 import { calculateTotalOccurrences } from "../../../types/common.types";
+import { usePostStore } from "../../../store/usePostStore";
 
 export const usePostWrite = (
   formData: Partial<PostCreateReqDTO>,
   updateField: (updates: Partial<PostCreateReqDTO>) => void
 ) => {
   const navigate = useNavigate();
+  const fetchPosts = usePostStore((state) => state.fetchPosts);
 
   /* ---------------- 1. 유틸리티 함수 (utils) ---------------- */
   const utils = {
@@ -183,6 +185,8 @@ export const usePostWrite = (
     try {
       await postApi.createPost(formData as PostCreateReqDTO);
       alert("게시글 작성이 완료되었습니다.");
+      // 게시글 목록 갱신 후 홈으로 이동
+      await fetchPosts();
       navigate("/home");
     } catch (error) {
       console.error("게시글 작성 오류:", error);

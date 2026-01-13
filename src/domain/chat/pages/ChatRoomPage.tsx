@@ -1,6 +1,5 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
-import styled from "styled-components";
 import ChatRoomCard from "../components/ChatRoomCard";
 import ChatInput from "../components/ChatInput";
 import MessageList from "../components/MeessageList";
@@ -9,6 +8,7 @@ import { useSocketStore } from "../../../store/useSocketStore";
 import { useUserStore } from "../../../store/useUserStore";
 import { chatApi } from "../../../api/chatApi";
 import type { MatchStatus } from "../types/chat.types";
+import Layout from "../../../components/Layout";
 
 const ChatRoom = () => {
   const { chatroomId } = useParams<{ chatroomId: string }>();
@@ -19,22 +19,40 @@ const ChatRoom = () => {
     updateMatchStatus,
     getMessages,
   } = useChatStore();
-  const { connect, disconnect, sendMessage } = useSocketStore();
+  const { connect, sendMessage } = useSocketStore();
   const { user } = useUserStore();
+
+  // 현재 유효한 chatroomId를 추적하기 위한 ref
+  const currentChatroomIdRef = useRef<string | undefined>(chatroomId);
+  const isMountedRef = useRef(true);
 
   // 1. 채팅방 정보 조회 및 소켓 연결
   useEffect(() => {
     if (!chatroomId) return;
+
+    // 현재 chatroomId를 ref에 저장
+    currentChatroomIdRef.current = chatroomId;
+    isMountedRef.current = true;
 
     const initializeChatRoom = async () => {
       try {
         // 채팅방 정보 조회
         if (!activeRoom || activeRoom.chatroomId !== chatroomId) {
           const roomData = await chatApi.openChatRoom(undefined, chatroomId);
+
+          // 요청 완료 후 chatroomId가 변경되었는지 확인
+          if (
+            currentChatroomIdRef.current !== chatroomId ||
+            !isMountedRef.current
+          ) {
+            console.log("채팅방이 변경되어 응답 무시:", chatroomId);
+            return;
+          }
+
           setActiveRoom(roomData);
         }
 
-        // 소켓 연결
+        // 소켓 연결 (이미 연결되어 있으면 재연결하지 않음)
         connect();
       } catch (error) {
         console.error("채팅방 초기화 실패:", error);
@@ -43,9 +61,10 @@ const ChatRoom = () => {
 
     initializeChatRoom();
 
-    // 컴포넌트 언마운트 시 소켓 연결 해제
+    // 컴포넌트 언마운트 또는 chatroomId 변경 시 cleanup
     return () => {
-      disconnect();
+      isMountedRef.current = false;
+      // 소켓 연결은 유지 (다른 채팅방에서도 사용하므로)
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatroomId]);
@@ -83,7 +102,7 @@ const ChatRoom = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatroomId, activeRoom?.chatroomId, getMessages(chatroomId).length]);
+  }, [chatroomId, activeRoom?.chatroomId, activeRoom?.matchStatus]);
 
   // 4. 텍스트 메시지 전송 함수
   const handleSend = useCallback(
@@ -103,32 +122,13 @@ const ChatRoom = () => {
   );
 
   return (
-    <ChatRoomLayout role="main" aria-label="채팅방">
+    <Layout aria-label="채팅방">
       <span className="sr-only">채팅방 페이지입니다. </span>
       <ChatRoomCard />
-      <MessageListContainer aria-live="polite" aria-relevant="additions">
-        <MessageList />
-      </MessageListContainer>
+      <MessageList />
       <ChatInput onSend={handleSend} />
-    </ChatRoomLayout>
+    </Layout>
   );
 };
 
 export default ChatRoom;
-
-// --- 스타일 컴포넌트 (CSS) ---
-
-const ChatRoomLayout = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 0 16px;
-  box-sizing: border-box;
-  min-height: 100vh;
-`;
-
-const MessageListContainer = styled.div`
-  padding-top: 180px;
-  padding-bottom: 80px;
-  flex: 1;
-  overflow-y: auto;
-`;

@@ -71,10 +71,14 @@ export default ApplicateStatusPage;
 const Container = styled.main`
   width: 100%;
   min-height: 100vh;
+  max-height: 100vh;
   background-color: ${({ theme }) => theme.color.natural50};
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 const Section1 = styled.div`
   padding: 0 16px 16px 16px;

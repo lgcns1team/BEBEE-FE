@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useEffect } from "react";
 import AddButton from "../../../components/AddButton";
 import {
   ResumContainer,
@@ -8,31 +9,44 @@ import {
   ResumeYear,
   ResumeTitle,
 } from "../style/MyPageStyle";
+import { useMemberStore } from "../../../store/useMemberStore";
+
 const DisabledTypeSection = () => {
-  const disabled = [
-    {
-      id: 1,
-      step: "2급",
-      title: "지체 장애",
-      active: true,
-    },
-  ];
+  const { member, fetchMember } = useMemberStore();
+
+  useEffect(() => {
+    fetchMember();
+  }, [fetchMember]);
+
+  const disabilityType = member?.disabilityType || "";
+  const disabilityDescription = member?.disabilityDescription || "";
+
+  if (!disabilityType) {
+    return (
+      <Container>
+        <Title>장애 유형</Title>
+        <ResumContainer>
+          <AddButton />
+        </ResumContainer>
+      </Container>
+    );
+  }
 
   return (
     <Container>
       <Title>장애 유형</Title>
 
       <ResumContainer>
-        {disabled.map((disable) => (
-          <ResumeItem key={disable.id}>
-            <Indicator $active={disable.active} />
-            <ResumeContent>
-              <ResumeYear>{disable.step}</ResumeYear>
-              <ResumeTitle>{disable.title}</ResumeTitle>
-              <ResumeText>아 증말 불편하요</ResumeText>
-            </ResumeContent>
-          </ResumeItem>
-        ))}{" "}
+        <ResumeItem>
+          <Indicator $active={true} />
+          <ResumeContent>
+            <ResumeYear>급수</ResumeYear>
+            <ResumeTitle>{disabilityType}</ResumeTitle>
+            {disabilityDescription && (
+              <ResumeText>{disabilityDescription}</ResumeText>
+            )}
+          </ResumeContent>
+        </ResumeItem>
         <AddButton />
       </ResumContainer>
     </Container>
