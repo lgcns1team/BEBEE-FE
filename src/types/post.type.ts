@@ -68,6 +68,7 @@ export interface PostCreateReqDTO {
 /** 게시글 상세 정보 응답 타입 */
 export interface PostDetailResponse {
   // 회원 정보
+  memberId: string;
   memberNickname: string;
   memberLegalDongCode: string;
   memberProfileImageUrl: string;

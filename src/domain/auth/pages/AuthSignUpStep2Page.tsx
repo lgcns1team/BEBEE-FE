@@ -73,8 +73,7 @@ const AuthSignUpStep2Page = () => {
     if (!password) {
       newErrors.password = "비밀번호를 입력해주세요.";
     } else if (!validatePassword(password)) {
-      newErrors.password =
-        "비밀번호는 대/소문자, 숫자, 특수문자를 포함한 8~19자여야 합니다.";
+      newErrors.password = "위 규칙을 모두 충족해주세요.";
     }
 
     // 비밀번호 확인 검증
@@ -118,7 +117,23 @@ const AuthSignUpStep2Page = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          {errors.password && <ErrorText>{errors.password}</ErrorText>}
+          <PasswordRules>
+            <RuleItem $valid={password.length >= 8 && password.length <= 19}>
+              {password.length >= 8 && password.length <= 19 ? "✓" : "○"} 8~19자
+            </RuleItem>
+            <RuleItem $valid={/[A-Z]/.test(password)}>
+              {/[A-Z]/.test(password) ? "✓" : "○"} 대문자 포함
+            </RuleItem>
+            <RuleItem $valid={/[a-z]/.test(password)}>
+              {/[a-z]/.test(password) ? "✓" : "○"} 소문자 포함
+            </RuleItem>
+            <RuleItem $valid={/\d/.test(password)}>
+              {/\d/.test(password) ? "✓" : "○"} 숫자 포함
+            </RuleItem>
+            <RuleItem $valid={/[!@#$%&]/.test(password)}>
+              {/[!@#$%&]/.test(password) ? "✓" : "○"} 특수문자 (!@#$%&)
+            </RuleItem>
+          </PasswordRules>
 
           <PasswordInput
             inputLabel="비밀번호 확인"
@@ -165,4 +180,19 @@ const ErrorText = styled.p`
   margin-top: -1rem;
   margin-bottom: 1rem;
   padding-left: 0.25rem;
+`;
+
+const PasswordRules = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+  padding-left: 0.25rem;
+`;
+
+const RuleItem = styled.span<{ $valid: boolean }>`
+  font-size: 0.75rem;
+  color: ${({ $valid, theme }) => $valid ? theme.color.main : theme.color.subText3};
+  transition: color 0.2s ease;
 `;

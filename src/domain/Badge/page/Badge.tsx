@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Header from "../../../components/Header";
-import { badgeApi } from "../api/badgeApi";
-import type { BadgeStatusItem } from "../types/badge.type";
+import { useBadgeStore } from "../store/useBadgeStore";
 import { DISABILITY_TYPES } from "../../../constants/disabilityTypes";
 import badgeBanner from "../../../assets/images/badge-banner.png";
 import StampCard from "../components/StampCard";
@@ -12,8 +11,8 @@ const SNOW_COUNT = 60;
 
 const Badge = () => {
   const navigate = useNavigate();
-  const [badgeStatus, setBadgeStatus] = useState<BadgeStatusItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { isLoading, error, fetchBadgeStatus, getBadgeStatusByDisabilityId } =
+    useBadgeStore();
 
   // 눈송이 위치와 속도 초기화 (렌더링마다 변경되지 않도록)
   const snowflakes = useMemo(() => {
@@ -29,30 +28,37 @@ const Badge = () => {
   }, []);
 
   useEffect(() => {
-    const fetchBadgeStatus = async () => {
-      try {
-        const data = await badgeApi.getBadge();
-        setBadgeStatus(data.badge_status || []);
-      } catch (error) {
-        console.error("뱃지 상태 조회 실패:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchBadgeStatus();
-  }, []);
+  }, [fetchBadgeStatus]);
 
   // 장애 유형별 뱃지 상태 조회
-  const getBadgeStatus = (
-    disabilityId: number
-  ): BadgeStatusItem | undefined => {
-    return badgeStatus.find((item) =>
-      item.disabilityCategoryIds.includes(disabilityId)
-    );
-  };
+  const getBadgeStatus = getBadgeStatusByDisabilityId;
 
   const displayDisabilities = DISABILITY_TYPES.slice(0, 5);
+
+  if (isLoading) {
+    return (
+      <BadgeContainer>
+        <BannerSection>
+          <Header title="뱃지" onBack={() => navigate(-1)} showBack />
+          <BannerImage src={badgeBanner} alt="뱃지 배너" />
+        </BannerSection>
+        <LoadingContainer>뱃지 정보를 불러오는 중...</LoadingContainer>
+      </BadgeContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <BadgeContainer>
+        <BannerSection>
+          <Header title="뱃지" onBack={() => navigate(-1)} showBack />
+          <BannerImage src={badgeBanner} alt="뱃지 배너" />
+        </BannerSection>
+        <ErrorContainer>{error}</ErrorContainer>
+      </BadgeContainer>
+    );
+  }
 
   return (
     <BadgeContainer>
@@ -132,10 +138,10 @@ const BadgeContainer = styled.div`
 `;
 
 const BannerSection = styled.div`
-  position: fixed; /* 상단에 고정 */
+  position: fixed;
   top: 0;
   width: 375px;
-  height: 220px; /* 배너의 고정 높이 */
+  height: 220px;
   z-index: 1;
 `;
 
@@ -146,6 +152,7 @@ const BadgeSections = styled.div`
   height: 100vh;
   display: flex;
   flex-direction: column;
+  gap: 6px;
   overflow-y: auto;
   padding: 0 16px 280px 16px;
   &::-webkit-scrollbar {
@@ -208,4 +215,20 @@ const Snowflake = styled.div<SnowflakeProps>`
       opacity: ${({ $opacity }) => $opacity * 0.5};
     }
   }
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: ${({ theme }) => theme.color.subText2};
+`;
+
+const ErrorContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: ${({ theme }) => theme.color.subText2};
 `;

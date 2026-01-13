@@ -107,6 +107,7 @@ const ChatListPage = () => {
                 <ChatItem
                   key={room.chatroomId}
                   role="listitem"
+                  tabIndex={0}
                   onClick={() => {
                     console.log("채팅방 클릭:", {
                       chatroomId: room.chatroomId,
@@ -116,9 +117,9 @@ const ChatListPage = () => {
                       chatroomId: room.chatroomId,
                     });
                   }}
-                  aria-label={`${room.otherNickname}님과의 채팅방, ${
-                    room.title
-                  }, 마지막 메시지: ${room.lastMessage || "없음"}`}
+                  aria-label={`${room.otherNickname}, ${room.title}, ${
+                    room.lastMessage || "메시지 없음"
+                  }, 채팅방 입장 클릭`}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
@@ -130,27 +131,18 @@ const ChatListPage = () => {
                 >
                   <ProfileImage
                     src={room.otherProfileImageUrl}
-                    alt={`${room.otherNickname}님의 프로필 사진`}
+                    alt=""
+                    aria-hidden="true"
                   />
-                  <ChatInfo>
+                  <ChatInfo aria-hidden="true">
                     <ChatFirstRow>
                       <Nickname>{room.otherNickname}</Nickname>
-                      <ChatLastTime
-                        aria-label={`마지막 메시지 시간: ${formatChatTime(
-                          room.updatedAt
-                        )}`}
-                      >
+                      <ChatLastTime>
                         {formatChatTime(room.updatedAt)}
                       </ChatLastTime>
                     </ChatFirstRow>
-                    <PostTitle>
-                      {room.title}
-                      <span className="sr-only">게시글 제목</span>
-                    </PostTitle>
-                    <PostTitle>
-                      {room.lastMessage || "메시지 없음"}
-                      <span className="sr-only">마지막 메시지</span>
-                    </PostTitle>
+                    <PostTitle>{room.title}</PostTitle>
+                    <PostTitle>{room.lastMessage || "메시지 없음"}</PostTitle>
                   </ChatInfo>
                 </ChatItem>
               ))
@@ -190,6 +182,8 @@ const ChatContainer = styled.div`
 
 const ChatList = styled.div`
   overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
   height: calc(100vh - 73px);
   padding-bottom: 70px;
 `;

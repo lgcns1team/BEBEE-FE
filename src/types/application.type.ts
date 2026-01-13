@@ -32,6 +32,7 @@ export interface ApplicationPost {
     | ApplicationPostDayEngagementTime
     | ApplicationPostTermEngagementTime;
   helpCategories: number[];
+
 }
 
 export interface GetApplicationPostsResponse {

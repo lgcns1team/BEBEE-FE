@@ -1,23 +1,21 @@
 import styled from "styled-components";
-import { useProfileStore } from "../../../../store/useProfileStore";
+import { useOtherMemberStore } from "../../store/useOtherMemberStore";
 
-interface Props {
-  profileId?: number;
-}
+const DisabilitySection = () => {
+  const { profile, isLoading } = useOtherMemberStore();
 
-const DisabilitySection = ({ profileId }: Props) => {
-  const { disabledProfiles } = useProfileStore();
-  const profile = disabledProfiles.find((p) => p.memberId === profileId);
+  if (isLoading || !profile) return null;
+
   return (
     <Description>
       <Title>이런 불편함이 있어요</Title>
 
       <DisabilityType>
-        <span>{profile?.disabilityType}</span>
+        <span>{profile.disabilityType ?? "-"}</span>
       </DisabilityType>
 
       <TypeDescription>
-        <span>{profile?.description}</span>
+        <span>{profile.disabilityDescription ?? "-"}</span>
       </TypeDescription>
     </Description>
   );

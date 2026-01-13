@@ -13,12 +13,14 @@ import {
 import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
 import { HELP_TAG_NAMES } from "../../../constants/helpTags";
 import { DISABILITY_TYPE } from "../../../constants/disabilityTypes";
+import { DISABILITY_GRADES } from "../../../constants/disabilityGrades";
 
 const AuthSignUpStep4Page = () => {
   const navigate = useNavigate();
   const { role, setHelpTypes, setDisabilityInfo } = useAuthSignUpForm();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedDisabilityType, setSelectedDisabilityType] = useState("");
+  const [selectedDisabilityGrade, setSelectedDisabilityGrade] = useState("");
   const [disabilityDescription, setDisabilityDescription] = useState("");
 
   const handleTagClick = (tag: string) => {
@@ -31,12 +33,18 @@ const AuthSignUpStep4Page = () => {
     setSelectedDisabilityType(type);
   };
 
+  const handleDisabilityGradeClick = (grade: string) => {
+    setSelectedDisabilityGrade(grade);
+  };
+
   const handleNext = () => {
     // Zustand store에 저장
     if (role === "HELPER") {
       setHelpTypes(selectedTags);
     } else {
-      setDisabilityInfo(selectedDisabilityType, disabilityDescription);
+      // 장애인: 도움 유형 + 장애 정보 모두 저장
+      setHelpTypes(selectedTags);
+      setDisabilityInfo(selectedDisabilityType, selectedDisabilityGrade, disabilityDescription);
     }
     navigate("/signup/step5");
   };
@@ -44,7 +52,7 @@ const AuthSignUpStep4Page = () => {
   const isFormValid =
     role === "HELPER"
       ? selectedTags.length > 0
-      : selectedDisabilityType !== "" && disabilityDescription !== "";
+      : selectedTags.length > 0 && selectedDisabilityType !== "" && selectedDisabilityGrade !== "" && disabilityDescription !== "";
 
   return (
     <Layout>
@@ -75,8 +83,26 @@ const AuthSignUpStep4Page = () => {
               </Row>
             </FieldSet>
           ) : (
-            // 장애인: 장애 정보 입력
+            // 장애인: 도움 유형 선택 + 장애 정보 입력
             <>
+              <FieldSet>
+                <ModalLabel>
+                  어떤 도움이 필요하신가요?
+                  <RequiredMark>*</RequiredMark>
+                </ModalLabel>
+                <Row>
+                  {HELP_TAG_NAMES.map((tag) => (
+                    <Badge
+                      key={tag}
+                      $active={selectedTags.includes(tag)}
+                      onClick={() => handleTagClick(tag)}
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                </Row>
+              </FieldSet>
+
               <FieldSet>
                 <ModalLabel>
                   장애 유형<RequiredMark>*</RequiredMark>
@@ -89,6 +115,23 @@ const AuthSignUpStep4Page = () => {
                       onClick={() => handleDisabilityTypeClick(type)}
                     >
                       {type}
+                    </Badge>
+                  ))}
+                </Row>
+              </FieldSet>
+
+              <FieldSet>
+                <ModalLabel>
+                  장애 등급<RequiredMark>*</RequiredMark>
+                </ModalLabel>
+                <Row>
+                  {DISABILITY_GRADES.map((grade) => (
+                    <Badge
+                      key={grade.value}
+                      $active={selectedDisabilityGrade === grade.value}
+                      onClick={() => handleDisabilityGradeClick(grade.value)}
+                    >
+                      {grade.label}
                     </Badge>
                   ))}
                 </Row>

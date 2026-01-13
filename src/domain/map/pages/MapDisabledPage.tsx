@@ -112,7 +112,7 @@ const MapDisabledPage = () => {
   );
 };
 
-export default MapDisabledPage;
+// export default MapDisabledPage;
 
 const Container = styled.div`
   height: 100vh;
@@ -121,26 +121,26 @@ const Container = styled.div`
   position: relative;
 `;
 
-const HeaderWrapper = styled.div`
-  width: 100%;
-  padding: 0 16px;
-  box-sizing: border-box;
-  height: ${HEADER_HEIGHT_REM};
-`;
+// const HeaderWrapper = styled.div`
+//   width: 100%;
+//   padding: 0 16px;
+//   box-sizing: border-box;
+//   height: ${HEADER_HEIGHT_REM};
+// `;
 
-const Content = styled.div`
-  position: absolute;
-  top: ${HEADER_HEIGHT_REM};
-  left: 0;
-  width: 100%;
-  height: calc(100vh - ${HEADER_HEIGHT_REM});
-`;
+// const Content = styled.div`
+//   position: absolute;
+//   top: ${HEADER_HEIGHT_REM};
+//   left: 0;
+//   width: 100%;
+//   height: calc(100vh - ${HEADER_HEIGHT_REM});
+// `;
 
-const BottomSheetWrapper = styled.div`
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 999;
-  pointer-events: none;
-`;
+// const BottomSheetWrapper = styled.div`
+//   position: fixed;
+//   left: 0;
+//   right: 0;
+//   bottom: 0;
+//   z-index: 999;
+//   pointer-events: none;
+// `;

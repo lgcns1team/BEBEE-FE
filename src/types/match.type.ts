@@ -1,72 +1,77 @@
-export type EngagementType = "DAY" | "TERM";
+import type { DayOfWeek } from "./common.types";
 
-export interface UserSummary {
-  memberId: string;
-  nickname: string;
-  profileImageUrl?: string;
-  gender?: string;
-  ageGroup?: number;
-}
+export type EngagementType = "DAY" | "TERM" | null;
 
-export interface HelpCategory {
-  helpCategoryId: number;
-  helpCategoryName: string;
-}
-
-/* ---------- DAY ---------- */
-export interface DayEngagementTime {
-  date: string;
-  schedule: {
-    dayOfWeek: string;
-    startTime: string;
-    endTime: string;
-  };
-}
-
-/* ---------- TERM ---------- */
-export interface TermEngagementTime {
-  startDate: string;
-  endDate: string;
-  schedules: {
-    dayOfWeek: string;
-    startTime: string;
-    endTime: string;
-  }[];
-}
-
-export type EngagementTime = DayEngagementTime | TermEngagementTime;
+export type Status =
+  | "INACTIVE"
+  | "ACTIVE"
+  | "COMPLETED"
+  | "REVIEW_ACTIVE"
+  | "REVIEW_COMPLETED";
 
 export interface Engagement {
-  myRole: "DISABLED" | "HELPER";
+  engagementId: string;
+  matchId: string;
   agreementId: string;
-  // engagementId: string;
-  postId: string;
+
+  otherId: string;
+  otherNickname: string;
+
+  thumbnailImageUrl: string;
   title: string;
-  thumbnailImageUrl?: string;
 
-  helper: UserSummary;
-  disabled: UserSummary;
-
-  confirmationDate: string;
-  type: EngagementType;
-
-  helpCategories: HelpCategory[];
-
-  isVolunteer: boolean;
-  unitHoney: number;
-  totalHoney: number;
+  chatRoomId: string;
   region: string;
 
-  engagementTime: EngagementTime;
+  helpType: EngagementType; // "DAY" | "TERM"
+  date: string | null;
+  dayOfWeeks: DayOfWeek[]; // TERM 요일들
 
-  isDayComplete: boolean;
-  isTermComplete: boolean;
-  isLastActivity?: boolean;
-  chatRoomId: string;
+  status: Status;
+  helpCategoryIds: number[];
+  unitHoney?: number;
+  totalHoney?: number;
+  myRole?: "DISABLED" | "HELPER";
 }
 
-// 활동 완료 체크 응답
-export interface getEngagementCompleteResponse {
-  status: "COMPLETED" | "PENDING";
-  isLastActivity: boolean;
+// 활동 완료 응답
+export interface GetEngagementCompleteResponse {
+  isLastEngagement: boolean;
+}
+
+// 캘린더 마킹용
+export interface EngagementCalendarResponse {
+  activeDates: string[];
+}
+
+// 매칭 확인서 상세
+export interface EngagementSchedule {
+  dayOfWeek: DayOfWeek;
+  startTime: string;
+  endTime: string;
+}
+
+export interface EngagementDetail {
+  agreementId: string;
+  helpType: EngagementType;
+
+  // DAY
+  date: string | null;
+
+  // TERM
+  startDate: string | null;
+  endDate: string | null;
+
+  schedules: EngagementSchedule[];
+
+  unitHoney: number;
+  totalHoney: number;
+
+  otherId: string;
+  otherProfileImageUrl: string;
+  otherNickname: string;
+  otherGender: "MALE" | "FEMALE";
+  otherAgeGroup: number;
+
+  region?: string;
 }

@@ -1,4 +1,4 @@
-import type { AgreementRequest } from "./match.types";
+import type { MatchDataResponse } from "./match.types";
 export type MessageType =
   | "TEXT"
   | "IMAGE"
@@ -12,32 +12,27 @@ export interface ChatMessage {
   // --- 공통 필드 ---
   id: string;
   senderId: string;
-  textContent: string;
-  type: MessageType; // string 대신 MessageType 사용
+  textContent?: string;
+  type: MessageType;
   createdAt: string;
-  chatroomId: string;
+  chatroomId?: string;
 
   // --- 일반 메시지 및 이미지 ---
   attachments?: string[];
 
-  // --- 매칭 관련 공통 (확인서, 성공, 실패 모두에서 사용 가능) ---
-  agreementId?: string; // 매칭 고유 ID
+  agreementId?: string;
   // --- MATCH_CONFIRMATION(매칭확인서) 전용 필드 ---
-  matchData?: AgreementRequest;
-  // --- 매칭 결과 및 메타데이터 (필요 시 서버에서 함께 내려줌) ---
+  matchData?: MatchDataResponse;
+
   postId?: string;
   title?: string;
   helperId?: string;
   disabledId?: string;
   isVolunteer?: boolean;
-
-  // --- 포인트(꿀) 관련 (성공 시 차감 정보 등) ---
   usedHoney?: number;
   currentHoney?: number;
 }
 
-// 나머지 DTO들은 기존과 동일하게 유지하되,
-// ChatMessage의 변경 사항이 자동으로 반영됩니다.
 export interface ChatMessagesGetResDTO {
   messages: ChatMessage[];
   hasNext: boolean;
@@ -65,6 +60,7 @@ export interface ChatroomResponse {
     name: string;
   }[];
   matchStatus: MatchStatus;
+  isVolunteer?: boolean; // 지원자 목록에서 채팅방 생성 시 전달됨
 }
 
 /** 채팅 목록 내 개별 아이템 */

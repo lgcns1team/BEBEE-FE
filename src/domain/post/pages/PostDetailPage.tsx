@@ -7,6 +7,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import HelpTagBee from "../../../assets/images/helptag-bee.png";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
+import { Toast } from "../../../components/Toast";
+import { useToastStore } from "../../../store/useToastStore";
 import { postApi } from "../../../api/postApi";
 import {
   type PostDetailResponse,
@@ -18,7 +20,9 @@ import { applyHelper } from "../../../api/applicationApi";
 
 import { formatDateToKoreanWithDay } from "../../../types/common.types";
 const PostDetailPage = () => {
+  
   const navigate = useNavigate();
+  const { showToast } = useToastStore();
 
   const { postId } = useParams<{ postId: string }>();
 
@@ -66,14 +70,6 @@ const PostDetailPage = () => {
   if (error) return <div>{error}</div>;
   if (!post) return <div>게시글이 없습니다.</div>;
 
-  // 임시 memberId
-
-  // 장애인용 아이디 100
-  // const MEMBER_ID = "100";
-
-  // 도우미용 아이디 700
-  // const MEMBER_ID = "700";
-
   // 지원하기 및 나눔하기
   const handleApply = async () => {
     if (!postId) return;
@@ -90,9 +86,9 @@ const PostDetailPage = () => {
       setPost((prev) =>
         prev ? { ...prev, applicantCount: prev.applicantCount + 1 } : prev
       );
-      alert("지원이 완료 되었습니다!");
+      showToast("지원이 완료되었습니다.", "SUCCESS");
     } catch (error) {
-      setError(getErrorMessage(error, "지원에 실패했습니다."));
+      showToast(getErrorMessage(error, "지원에 실패했습니다."), "ERROR");
     } finally {
       setApplyLoading(false);
     }
@@ -113,9 +109,9 @@ const PostDetailPage = () => {
       setPost((prev) =>
         prev ? { ...prev, applicantCount: prev.applicantCount + 1 } : prev
       );
-      alert("나눔 신청이 완료 되었습니다!");
+      showToast("나눔 신청이 완료되었습니다.", "SUCCESS");
     } catch (error) {
-      setError(getErrorMessage(error, "나눔 신청에 실패했습니다."));
+      showToast(getErrorMessage(error, "나눔 신청에 실패했습니다."), "ERROR");
     } finally {
       setApplyLoading(false);
     }
@@ -185,11 +181,16 @@ const PostDetailPage = () => {
     touchStartX.current = null;
     touchEndX.current = null;
   };
-
+  // 프로필 정보로 이동
+  const handleProfileClick = () =>{
+    navigate(`/profile/${post.memberId}`)
+  }
+  
   return (
     <Layout>
       <Container style={{ paddingBottom: "40px" }}>
         <Header onBack={() => navigate(-1)} showRight showBack />
+        <Toast position="bottom" />
 
         {/* 
         <ActionSheetModal
@@ -206,7 +207,7 @@ const PostDetailPage = () => {
 
         <Title>{post?.title}</Title>
 
-        <UserSection>
+        <UserSection onClick={handleProfileClick} >
           <UserLeft>
             {post?.memberProfileImageUrl ? (
               <UserImage src={post.memberProfileImageUrl} />
@@ -304,7 +305,11 @@ const PostDetailPage = () => {
               }}
             >
               {post.postImageUrls.map((imageUrl, index) => (
-                <PostImage key={index} src={imageUrl} alt={`게시글 이미지 ${index + 1}`} />
+                <PostImage
+                  key={index}
+                  src={imageUrl}
+                  alt={`게시글 이미지 ${index + 1}`}
+                />
               ))}
             </ImageSlider>
             {post.postImageUrls.length > 1 && (
@@ -313,9 +318,8 @@ const PostDetailPage = () => {
               </ImageIndicator>
             )}
           </ImageSliderContainer>
-         
         )}
-         
+
         {/* ---------------- Bottom Buttons ---------------- */}
         <BottomBar>
           <BottomInner>
@@ -346,6 +350,9 @@ export default PostDetailPage;
 
 const Container = styled.div`
   margin-bottom: 30px;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 
 const HelpBeeImage = styled.img`
@@ -461,7 +468,7 @@ const ImageSlider = styled.div`
   transition: transform 0.3s ease-in-out;
   width: 100%;
   user-select: none;
-  
+
   &:active {
     cursor: grabbing;
   }
@@ -521,7 +528,6 @@ const ShareButton = styled.button<{ disabled?: boolean }>`
   outline: none;
   -webkit-tap-highlight-color: transparent;
 `;
-
 
 const ApplyButton = styled.button<{ disabled?: boolean }>`
   flex: 2;

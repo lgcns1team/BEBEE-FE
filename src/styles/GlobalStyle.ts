@@ -15,6 +15,7 @@ export const GlobalStyle = createGlobalStyle`
     width: 100%;
     height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
     overflow-x: hidden;
+    overflow-y: hidden;
   }
 
   #root {
@@ -28,7 +29,8 @@ export const GlobalStyle = createGlobalStyle`
     font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     font-size: ${theme.size.md};
     line-height: 1.4;
-    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: hidden;
   }
 
   a {

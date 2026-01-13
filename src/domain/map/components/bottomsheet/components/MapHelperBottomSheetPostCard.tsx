@@ -30,7 +30,6 @@ const MapHelperBottomSheetPostCard = ({ post }: Props) => {
           <MapPinIcon size={16} />
           <InfoText>{post.legalDongName}</InfoText>
         </InfoLine>
-
         <InfoLine>
           <CalendarIcon size={16} />
           {/* <InfoText>{getScheduleText(post.helpType, post.date, post.dayOfWeeks)}</InfoText> */}

@@ -1,5 +1,8 @@
 import styled from "styled-components";
+
 const ExperienceSection = () => {
+
+  
   return (
     <ExperienceContainer>
       <Title>이런 경력이 있어요</Title>
@@ -10,7 +13,7 @@ const ExperienceSection = () => {
       </ExperienceType>
 
       <ExperienceDescription>
-        <span>2024년에 취득하였으며 현재까지도 잘 활동하는 중임</span>
+        <span>2024년 자격증 취득 이후 현재까지 꾸준한 활동을 이어오며, 실질적인 도움 제공 경험을 쌓아오고 있습니다.</span>
       </ExperienceDescription>
     </ExperienceContainer>
   );

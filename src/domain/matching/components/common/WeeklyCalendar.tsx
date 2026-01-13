@@ -14,6 +14,12 @@ const formatDate = (date: Date) => {
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 };
+
+const formatKoreanDate = (date: Date) =>
+  `${date.getFullYear()}년 ${
+    date.getMonth() + 1
+  }월 ${date.getDate()}일 ${format(date, "EEEE", { locale: ko })}`;
+
 const generateDates = (center: Date, count = 60) => {
   const arr = [];
   const half = Math.floor(count / 2);
@@ -32,7 +38,7 @@ const WeeklyCalendar = ({ onSelectDate, markedDates }: Props) => {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const isInitialMount = useRef(true);
-
+  const [announce, setAnnounce] = useState("");
   useEffect(() => {
     if (!scrollRef.current) return;
     if (!isInitialMount.current) return;
@@ -99,7 +105,11 @@ const WeeklyCalendar = ({ onSelectDate, markedDates }: Props) => {
   };
 
   return (
-    <Wrapper>
+    <Wrapper role="region" aria-label="주간 일정 달력" lang="ko">
+      <span className="sr-only" aria-live="polite">
+        {announce}
+      </span>
+
       <span className="sr-only">
         한 주 보기 입니다. 달력 내 날짜를 클릭하여 매칭 정보를 확인해 보세요.
       </span>
@@ -117,13 +127,29 @@ const WeeklyCalendar = ({ onSelectDate, markedDates }: Props) => {
               onSelectDate(formatDate(d));
               scrollToCenter(d);
             }
+            setAnnounce(
+              `${formatKoreanDate(d)}이 선택되었습니다.${
+                hasEngagement ? " 도움이 있는 날짜입니다." : ""
+              }`
+            );
           };
 
           return (
             <DayBox
               key={d.toISOString()}
               $active={isSelected}
+              role="listitem"
               onClick={handleSelect}
+              aria-pressed={!!isSelected}
+              aria-label={`${formatKoreanDate(d)}${
+                hasEngagement ? ", 도움이 있는 날짜" : ""
+              }${isSelected ? ", 선택됨" : ""}`}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleSelect();
+                }
+              }}
             >
               <Month>{format(d, "MMM", { locale: ko })}</Month>
               <Day>{format(d, "d")}</Day>
