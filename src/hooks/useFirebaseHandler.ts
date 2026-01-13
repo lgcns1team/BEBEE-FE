@@ -22,13 +22,13 @@ const log = {
 
 // Firebase 설정
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyAdvajxr9nwDEBFfuajsbDhuHuWdu0v4uk",
+  authDomain: "bebee-c4d61.firebaseapp.com",
+  projectId: "bebee-c4d61",
+  storageBucket: "bebee-c4d61.firebasestorage.app",
+  messagingSenderId: "1024519360208",
+  appId: "1:1024519360208:web:46d14c7ace75447756d8d5",
+  measurementId: "G-S2H4Q7TRCG",
 };
 
 // Firebase App 초기화 (중복 초기화 방지)
@@ -44,7 +44,8 @@ let messaging: Messaging | null = null;
 
 // VAPID 키 (FCM 웹 푸시에 필요)
 // 환경 변수에서 가져오거나, 없으면 fallback 사용
-const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+const vapidKey =
+  "BKMar7C5AibZwabJemvInP7rEGBs3IoflOYQeXcC_RG7qTFRe6R1Rg5pzqnV1rcxIX8rEGec-jcm7C6I1TTnVA4";
 
 /**
  * Service Worker로부터 메시지 수신 리스너 설정

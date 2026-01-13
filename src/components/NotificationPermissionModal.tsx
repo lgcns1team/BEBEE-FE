@@ -82,9 +82,13 @@ export const NotificationPermissionModal = () => {
 
           // 포그라운드 메시지 리스너 설정
           setupFCMMessageListener();
+
+          // 성공 시 모달 닫기
+          hideModal();
         } catch (error) {
           console.error("❌ [FCM] 토큰 서버 등록 실패:", error);
           showToast("토큰 등록에 실패했습니다.", "ERROR");
+          hideModal();
         }
       } else {
         // 권한이 거부된 경우
@@ -92,6 +96,7 @@ export const NotificationPermissionModal = () => {
         if (permission === "denied") {
           showToast("알림 권한이 거부되었습니다.", "ERROR");
         }
+        hideModal();
       }
     } catch (error) {
       console.error("❌ [FCM] 알림 권한 요청 오류:", error);
