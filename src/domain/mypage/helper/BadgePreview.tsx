@@ -22,7 +22,7 @@ const BadgePreview = () => {
     ).map((disability) => {
       const status = badgeStatus.find((item) =>
         item.disabilityCategoryIds.includes(disability.id)
-      );
+    );
       return {
         ...disability,
         count: status?.count || 0,
@@ -82,8 +82,8 @@ const BadgePreview = () => {
             const badgeResource = BADGE_RESOURCE_MAP[disability.id];
             const badgeImage =
               badgeCode && badgeResource[badgeCode]
-                ? badgeResource[badgeCode]
-                : badgeResource.DEFAULT;
+              ? badgeResource[badgeCode]
+              : badgeResource.DEFAULT;
 
             return (
               <BadgeCard key={disability.id} onClick={handleBadgeClick}>

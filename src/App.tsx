@@ -13,6 +13,7 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import { initViewportHeight } from "./utils/viewport";
+import { FCMMessageModal } from "./components/FCMMessageModal";
 import "./App.css";
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
@@ -38,7 +39,6 @@ import LandingPage from "./domain/Landing/page/LandingPage";
 import BadgePage from "./domain/Badge/page/Badge";
 import BadgeDetailPage from "./domain/Badge/page/BadgeDetailPage";
 import BadgeSharePage from "./domain/Badge/page/BadgeSharePage";
-
 function App() {
   // 모바일 브라우저 뷰포트 높이 초기화
   useEffect(() => {
@@ -49,6 +49,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
+      <FCMMessageModal />
       <BrowserRouter>
         <Routes>
           {/* 랜딩페이지 */}
