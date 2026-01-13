@@ -28,6 +28,7 @@ import AuthSignUpStep3Page from "./domain/auth/pages/AuthSignUpStep3Page";
 import AuthSignUpStep4Page from "./domain/auth/pages/AuthSignUpStep4Page";
 import AuthSignUpStep5Page from "./domain/auth/pages/AuthSignUpStep5Page";
 import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
+import AuthSignUpCompletePage from "./domain/auth/pages/AuthSignUpCompletePage";
 import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
 import MyPage from "./domain/mypage/page/MyPage";
@@ -111,6 +112,7 @@ function App() {
           <Route path="/signup/step4" element={<AuthSignUpStep4Page />} />
           <Route path="/signup/step5" element={<AuthSignUpStep5Page />} />
           <Route path="/signup/step6" element={<AuthSignUpStep6Page />} />
+          <Route path="/signup/complete" element={<AuthSignUpCompletePage />} />
           {/* 결제 */}
           <Route path="/charge" element={<ChargePage />} />
           <Route path="/checkout" element={<CheckoutPage />} />

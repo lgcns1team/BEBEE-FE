@@ -118,7 +118,7 @@ const AuthSignUpStep3Page = () => {
           />
           {/* 장소 api 연동했으므로 LocationInput 확인 후 코드 수정 요망 */}
           <LocationInput
-            inputLabel="만남 장소"
+            inputLabel="주소"
             value={address}
             onSelect={(loc) => {
               setAddress(loc.address); // 입력창에 표시될 값
