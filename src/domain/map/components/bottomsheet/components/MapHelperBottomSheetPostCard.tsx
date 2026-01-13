@@ -18,9 +18,7 @@ const MapHelperBottomSheetPostCard = ({ post }: Props) => {
         <TopArea>
           <Title>{post.title}</Title>
           <RightTop>
-            {post.helpType === "DAY" && (
-              <OneDayBadge>{post.helpType}</OneDayBadge>
-            )}
+            {post.helpType === "DAY" && <OneDayBadge>하루 도움</OneDayBadge>}
           </RightTop>
         </TopArea>
 
@@ -28,12 +26,6 @@ const MapHelperBottomSheetPostCard = ({ post }: Props) => {
           <MapPinIcon size={16} />
           <InfoText>{post.legalDongName}</InfoText>
         </InfoLine>
-
-        <InfoLine>
-          <MapPinIcon size={16} />
-          <InfoText>{post.legalDongName}</InfoText>
-        </InfoLine>
-
         <InfoLine>
           <CalendarIcon size={16} />
           <InfoText>{post.date}</InfoText>

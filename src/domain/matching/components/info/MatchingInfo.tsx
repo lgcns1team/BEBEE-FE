@@ -1,40 +1,27 @@
+// components/info/MatchingInfo.tsx
 import styled from "styled-components";
 import HelpInfo from "./HelpInfo";
 import MatchingProfile from "./MatchingProfile";
-import type {
-  DayEngagementTime,
-  Engagement,
-  TermEngagementTime,
-} from "../../../../types/match.type";
-
-const formatDate = (date: string) => {
-  const d = new Date(date);
-  return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()}`;
-};
+import type { EngagementDetail } from "../../../../types/match.type";
+import { formatDateToDot } from "../../../../types/common.types";
 
 interface Props {
-  engagement: Engagement;
+  engagement: EngagementDetail;
 }
 
 const MatchingInfo = ({ engagement }: Props) => {
-  const isOneDay = engagement.type === "DAY";
+  const titleDate =
+    engagement.helpType === "DAY" && engagement.date
+      ? formatDateToDot(engagement.date)
+      : engagement.startDate && engagement.endDate
+      ? `${formatDateToDot(engagement.startDate)} ~ ${formatDateToDot(
+          engagement.endDate
+        )}`
+      : "";
+
   return (
     <>
-      <MatchingDate aria-label="활동이 진행되는 날짜">
-        {isOneDay ? (
-          formatDate((engagement.engagementTime as DayEngagementTime).date)
-        ) : (
-          <>
-            {formatDate(
-              (engagement.engagementTime as TermEngagementTime).startDate
-            )}
-            {" ~ "}
-            {formatDate(
-              (engagement.engagementTime as TermEngagementTime).endDate
-            )}
-          </>
-        )}
-      </MatchingDate>
+      <MatchingDate>{titleDate}</MatchingDate>
 
       <Wrapper>
         <Status>매칭 완료</Status>

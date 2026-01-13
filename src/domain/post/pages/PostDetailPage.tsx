@@ -66,14 +66,6 @@ const PostDetailPage = () => {
   if (error) return <div>{error}</div>;
   if (!post) return <div>게시글이 없습니다.</div>;
 
-  // 임시 memberId
-
-  // 장애인용 아이디 100
-  // const MEMBER_ID = "100";
-
-  // 도우미용 아이디 700
-  // const MEMBER_ID = "700";
-
   // 지원하기 및 나눔하기
   const handleApply = async () => {
     if (!postId) return;
