@@ -29,9 +29,14 @@ export interface SignUpRequest {
   // HELPER용: 도움 유형 목록
   helpTypes?: string[];
 
-  // DISABLED용: 장애 유형 및 설명
+  // DISABLED용: 장애 유형, 등급 및 설명
   disabilityType?: string;
+  disabilityGrade?: string;         // "1" = 중증, "2" = 경증
   disabilityDescription?: string;
+
+  // 문서 관련 (Step 5에서 업로드 및 분석 완료)
+  fileUrl?: string;
+  systemFlag?: string;
 }
 
 export interface OcrResult {
