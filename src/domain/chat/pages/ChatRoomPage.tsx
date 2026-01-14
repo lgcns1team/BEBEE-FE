@@ -10,7 +10,6 @@ import { useUserStore } from "../../../store/useUserStore";
 import { chatApi } from "../../../api/chatApi";
 import type { MatchStatus } from "../types/chat.types";
 import Layout from "../../../components/Layout";
-import { useVisualViewportResize } from "../../../hooks/useVisualViewportResize";
 
 const ChatRoom = () => {
   const { chatroomId } = useParams<{ chatroomId: string }>();
@@ -27,19 +26,62 @@ const ChatRoom = () => {
   // 현재 유효한 chatroomId를 추적하기 위한 ref
   const currentChatroomIdRef = useRef<string | undefined>(chatroomId);
   const isMountedRef = useRef(true);
+  const initialViewportHeightRef = useRef<number>(0);
 
-  // 스크롤 컨테이너 및 고정 요소 ref
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const chatRoomCardRef = useRef<HTMLDivElement>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
+  // PWA 환경에서 키보드가 올라갈 때 document 스크롤 제어
+  useEffect(() => {
+    // Visual Viewport API 지원 여부 확인
+    if (!window.visualViewport) {
+      return;
+    }
 
-  // Visual Viewport resize 훅 적용
-  useVisualViewportResize({
-    scrollContainerRef,
-    fixedElementRef: chatRoomCardRef,
-    containerRef: chatContainerRef,
-    keyboardOffset: 40,
-  });
+    const handleViewportResize = () => {
+      const visualViewport = window.visualViewport;
+      const currentViewportHeight = visualViewport.height;
+
+      // 초기 viewport 높이 저장
+      if (initialViewportHeightRef.current === 0) {
+        initialViewportHeightRef.current = currentViewportHeight;
+      }
+
+      // 키보드가 나타났는지 확인 (viewport 높이가 줄어들었는지)
+      const heightDifference =
+        initialViewportHeightRef.current - currentViewportHeight;
+      const isKeyboardVisible = heightDifference > 50; // 50px 이상 차이나면 키보드로 간주
+
+      if (isKeyboardVisible) {
+        // 키보드가 나타났을 때: document 스크롤을 맨 위로 고정하여 ChatRoomCard가 상단에 유지되도록
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: 0,
+            behavior: "instant" as ScrollBehavior,
+          });
+        });
+      } else {
+        // 키보드가 사라졌을 때: 초기 높이 복원
+        initialViewportHeightRef.current = currentViewportHeight;
+      }
+    };
+
+    // Visual Viewport resize 이벤트 리스너 등록
+    window.visualViewport.addEventListener("resize", handleViewportResize);
+    window.visualViewport.addEventListener("scroll", handleViewportResize);
+
+    // 초기 viewport 높이 저장
+    initialViewportHeightRef.current = window.visualViewport.height;
+
+    // Cleanup
+    return () => {
+      window.visualViewport?.removeEventListener(
+        "resize",
+        handleViewportResize
+      );
+      window.visualViewport?.removeEventListener(
+        "scroll",
+        handleViewportResize
+      );
+    };
+  }, []);
 
   // 1. 채팅방 정보 조회 및 소켓 연결
   useEffect(() => {
@@ -139,11 +181,9 @@ const ChatRoom = () => {
   return (
     <Layout aria-label="채팅방">
       <span className="sr-only">채팅방 페이지입니다. </span>
-      <ChatContainer ref={chatContainerRef}>
-        <ChatRoomCardWrapper ref={chatRoomCardRef}>
-          <ChatRoomCard />
-        </ChatRoomCardWrapper>
-        <MessageList ref={scrollContainerRef} />
+      <ChatContainer>
+        <ChatRoomCard />
+        <MessageList />
         <ChatInput onSend={handleSend} />
       </ChatContainer>
     </Layout>
@@ -154,15 +194,10 @@ export default ChatRoom;
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   position: relative;
-`;
-
-const ChatRoomCardWrapper = styled.div`
-  flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background-color: ${({ theme }) => theme.color.white};
+  /* PWA 환경에서 키보드가 올라갈 때 document 스크롤 방지 */
+  overscroll-behavior: contain;
 `;

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, forwardRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import MessageItem from "./MessageItem";
@@ -7,22 +7,9 @@ import { useUserStore } from "../../../store/useUserStore";
 
 const EMPTY_ARRAY: never[] = [];
 
-interface MessageListProps {}
-
-const MessageList = forwardRef<HTMLDivElement, MessageListProps>((props, ref) => {
+const MessageList = () => {
   const { chatroomId } = useParams<{ chatroomId: string }>();
-  const internalScrollRef = useRef<HTMLDivElement>(null);
-  
-  // ref를 동기화: 외부 ref가 있으면 사용, 없으면 내부 ref 사용
-  useEffect(() => {
-    if (typeof ref === "function") {
-      ref(internalScrollRef.current);
-    } else if (ref) {
-      (ref as React.MutableRefObject<HTMLDivElement | null>).current = internalScrollRef.current;
-    }
-  }, [ref]);
-  
-  const scrollRef = internalScrollRef;
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   // 빈 배열 상수를 사용하여 매번 새로운 배열을 생성하지 않도록 함
   const rawMessages = useChatStore((state) => {
@@ -196,10 +183,7 @@ const MessageList = forwardRef<HTMLDivElement, MessageListProps>((props, ref) =>
               </DateDivider>
             )}
 
-            <MessageItem
-              message={msg}
-              isMe={msg.senderId === user?.memberId}
-            />
+            <MessageItem message={msg} isMe={msg.senderId === user?.memberId} />
           </React.Fragment>
         );
       })}
@@ -210,14 +194,13 @@ const MessageList = forwardRef<HTMLDivElement, MessageListProps>((props, ref) =>
       )}
     </ListContainer>
   );
-});
-
-MessageList.displayName = "MessageList";
+};
 
 export default MessageList;
 
 const ListContainer = styled.div`
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;

@@ -10,8 +10,18 @@ interface Props {
 }
 
 const MessageItem = ({ message, isMe }: Props) => {
-  // 시간 포맷팅 (예: 14:05)
+  // 시간 포맷팅 (예: 오전 4시 40분, 오후 1시 30분)
   const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const period = hours < 12 ? "오전" : "오후";
+    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    return `${period} ${displayHours}시 ${minutes}분`;
+  };
+
+  // 화면 표시용 시간 포맷팅 (예: 14:05)
+  const formatTimeDisplay = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString("ko-KR", {
       hour: "2-digit",
@@ -25,11 +35,11 @@ const MessageItem = ({ message, isMe }: Props) => {
     return (
       <MessageWrapper
         role="group"
-        aria-label={`매칭 확인서 메시지, 전송 시간: ${formatTime(message.createdAt)}`}
+        aria-label={`${formatTime(message.createdAt)} 매칭 확인서 메시지`}
       >
         <MatchResult data={message} />
         <span className="sr-only">
-          전송 시간: {formatTime(message.createdAt)}
+          {formatTime(message.createdAt)} 매칭 확인서 메시지
         </span>
       </MessageWrapper>
     );
@@ -39,11 +49,11 @@ const MessageItem = ({ message, isMe }: Props) => {
     return (
       <MessageWrapper
         role="group"
-        aria-label={`매칭 성공 메시지, 전송 시간: ${formatTime(message.createdAt)}`}
+        aria-label={`${formatTime(message.createdAt)} 매칭 성공 메시지`}
       >
         <MatchSuccess message={message} />
         <span className="sr-only">
-          전송 시간: {formatTime(message.createdAt)}
+          {formatTime(message.createdAt)} 매칭 성공 메시지
         </span>
       </MessageWrapper>
     );
@@ -53,11 +63,11 @@ const MessageItem = ({ message, isMe }: Props) => {
     return (
       <MessageWrapper
         role="group"
-        aria-label={`매칭 실패 메시지, 전송 시간: ${formatTime(message.createdAt)}`}
+        aria-label={`${formatTime(message.createdAt)} 매칭 실패 메시지`}
       >
         <MatchFail />
         <span className="sr-only">
-          전송 시간: {formatTime(message.createdAt)}
+          {formatTime(message.createdAt)} 매칭 실패 메시지
         </span>
       </MessageWrapper>
     );
@@ -65,8 +75,8 @@ const MessageItem = ({ message, isMe }: Props) => {
 
   // 2. 일반 텍스트 메시지인 경우 (말풍선 사용)
   const messageLabel = isMe
-    ? `내가 보낸 메시지: ${message.textContent || "내용 없음"}, 전송 시간: ${formatTime(message.createdAt)}`
-    : `상대방이 보낸 메시지: ${message.textContent || "내용 없음"}, 수신 시간: ${formatTime(message.createdAt)}`;
+    ? `${formatTime(message.createdAt)} 내가 보낸 메시지 "${message.textContent || "내용 없음"}"`
+    : `${formatTime(message.createdAt)} 상대방이 보낸 메시지 "${message.textContent || "내용 없음"}"`;
 
   return (
     <MessageRow
@@ -76,7 +86,7 @@ const MessageItem = ({ message, isMe }: Props) => {
     >
       {isMe && (
         <MessageTime aria-hidden="true">
-          {formatTime(message.createdAt)}
+          {formatTimeDisplay(message.createdAt)}
         </MessageTime>
       )}
       <MessageBubble $isMe={isMe} aria-hidden="true">
@@ -84,7 +94,7 @@ const MessageItem = ({ message, isMe }: Props) => {
       </MessageBubble>
       {!isMe && (
         <MessageTime aria-hidden="true">
-          {formatTime(message.createdAt)}
+          {formatTimeDisplay(message.createdAt)}
         </MessageTime>
       )}
       <span className="sr-only">{messageLabel}</span>
