@@ -55,76 +55,62 @@ const PayReceipt = ({ message }: PayReceiptProps) => {
   if (usedHoney === 0 && !isVolunteer) {
     return null;
   }
+  const getReceiptDescription = () => {
+    const dateStr = createdAt
+      ? new Date(createdAt).toLocaleDateString("ko-KR", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : "";
 
+    const amountStr = isVolunteer
+      ? "이번 매칭은 나눔 서비스로 진행되어 차감된 꿀이 없습니다."
+      : `이번 매칭으로 ${usedHoney.toLocaleString()}꿀이 차감되었습니다.`;
+
+    const balanceStr =
+      currentHoney !== null
+        ? `꿀 차감 후 현재 보유 잔액은 ${currentHoney.toLocaleString()}꿀입니다.`
+        : "";
+
+    return `꿀 사용 영수증입니다. ${dateStr}에 ${amountStr} ${balanceStr}`;
+  };
   return (
-    <ReceiptContainer role="contentinfo" aria-label="꿀 사용 영수증">
-      <ReceiptHeader>
-        <ReceiptTitle>
-          꿀 사용 영수증
-          <span className="sr-only">
-            매칭 성사로 인한 꿀 사용 내역 영수증입니다
-          </span>
-        </ReceiptTitle>
-        <ReceiptSubtitle>
-          꿀 사용 내역
-          <span className="sr-only">
-            아래에 사용된 꿀과 잔액 정보가 표시됩니다
-          </span>
-        </ReceiptSubtitle>
-      </ReceiptHeader>
-      <ReceiptDivider aria-hidden="true" />
-      <ReceiptBody role="group" aria-label="꿀 사용 내역 상세">
-        <ReceiptItem>
-          <ItemLabel>사용액</ItemLabel>
-          <ItemValue>
-            {isVolunteer ? (
-              <>
-                나눔{" "}
-                <span aria-hidden="true" role="img">
-                  🩵
-                </span>
-                <span className="sr-only">나눔 서비스입니다</span>
-              </>
-            ) : (
-              <>
-                {usedHoney.toLocaleString()} 꿀
-                <span className="sr-only">
-                  사용된 꿀은 {usedHoney.toLocaleString()}꿀입니다
-                </span>
-              </>
-            )}
-          </ItemValue>
-        </ReceiptItem>
-        {currentHoney !== null && (
+    <ReceiptContainer
+      role="group"
+      aria-label={getReceiptDescription()}
+      tabIndex={0}
+    >
+      <div aria-hidden="true">
+        <ReceiptHeader>
+          <ReceiptTitle>꿀 사용 영수증</ReceiptTitle>
+          <ReceiptSubtitle>꿀 사용 내역</ReceiptSubtitle>
+        </ReceiptHeader>
+        <ReceiptDivider />
+        <ReceiptBody>
           <ReceiptItem>
-            <ItemLabel>잔액</ItemLabel>
+            <ItemLabel>사용액</ItemLabel>
             <ItemValue>
-              {currentHoney.toLocaleString()} 꿀
-              <span className="sr-only">
-                현재 보유 잔액은 {currentHoney.toLocaleString()}꿀입니다
-              </span>
+              {isVolunteer ? (
+                <>
+                  나눔 <span>🩵</span>
+                </>
+              ) : (
+                <>{usedHoney.toLocaleString()} 꿀</>
+              )}
             </ItemValue>
           </ReceiptItem>
-        )}
-      </ReceiptBody>
-      <ReceiptDivider aria-hidden="true" />
-      <ReceiptFooter>
-        <FooterText>
-          매칭이 성사되어 꿀이 차감되었어요
-          <span className="sr-only">
-            매칭이 성사되어 위의 금액만큼 꿀이 차감되었습니다
-          </span>
-        </FooterText>
-        <FooterDate>
-          {createdAt
-            ? new Date(createdAt).toLocaleDateString("ko-KR", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })
-            : "날짜 정보 없음"}
-          <span className="sr-only">
-            차감 일시:{" "}
+          {currentHoney !== null && (
+            <ReceiptItem>
+              <ItemLabel>잔액</ItemLabel>
+              <ItemValue>{currentHoney.toLocaleString()} 꿀</ItemValue>
+            </ReceiptItem>
+          )}
+        </ReceiptBody>
+        <ReceiptDivider />
+        <ReceiptFooter>
+          <FooterText>매칭이 성사되어 꿀이 차감되었어요</FooterText>
+          <FooterDate>
             {createdAt
               ? new Date(createdAt).toLocaleDateString("ko-KR", {
                   year: "numeric",
@@ -132,9 +118,9 @@ const PayReceipt = ({ message }: PayReceiptProps) => {
                   day: "numeric",
                 })
               : "날짜 정보 없음"}
-          </span>
-        </FooterDate>
-      </ReceiptFooter>
+          </FooterDate>
+        </ReceiptFooter>
+      </div>
     </ReceiptContainer>
   );
 };

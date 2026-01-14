@@ -56,7 +56,7 @@ const MyPage = () => {
         clearMember();
         setIsLoggingOut(false);
         navigate("/login", { replace: true });
-      }, 2500);
+      }, 1800);
     } catch (error) {
       console.error("[로그아웃] API 호출 실패:", error);
       useToastStore.getState().showToast("로그아웃에 실패했습니다.", "ERROR");
