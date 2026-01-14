@@ -68,7 +68,7 @@ export default function RangeSlider({ value, onChange }: HoneyRangeProps) {
     onChange(newValue);
   };
   return (
-    <Box sx={{ width: 330 }}>
+    <Box sx={{ width: 330, display: "flex", alignItems: "center" }}>
       <Slider
         value={value}
         onChange={handleChange}

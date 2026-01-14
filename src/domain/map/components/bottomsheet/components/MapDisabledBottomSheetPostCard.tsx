@@ -17,10 +17,10 @@ const MapDisabledBottomSheetPostCard = ({ helper }: Props) => {
     <Card onClick={() => goProfileInfo(helper.id)}>
       <Content>
         <Row>
-          <Title>{}</Title>
+          <Title>{helper.nickname}</Title>
         </Row>
         <Row>
-          <Gender>{helper.gender} ·&nbsp;&nbsp;</Gender>
+          <Gender>{helper.gender === "MALE" ? "남성" : "여성"} ·&nbsp;&nbsp;</Gender>
           <Age>{helper.ageGroup}대</Age>
         </Row>
         <TagWrapper>
@@ -46,35 +46,35 @@ const Card = styled.div`
   padding-right: 16px;
 `;
 
-// const Content = styled.div`
-//   flex: 1;
-//   display: flex;
-//   flex-direction: column;
-//   gap: 6px;
-// `;
+const Content = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
 
-// const Title = styled.span`
-//   font-size: ${({ theme }) => theme.size.md};
-//   font-weight: ${({ theme }) => theme.weight.medium};
-//   margin-right: 10px;
-//   line-height: 1.3;
-// `;
-// const Row = styled.div`
-//   display: flex;
-// `;
+const Title = styled.span`
+  font-size: ${({ theme }) => theme.size.md};
+  font-weight: ${({ theme }) => theme.weight.medium};
+  margin-right: 10px;
+  line-height: 1.3;
+`;
+const Row = styled.div`
+  display: flex;
+`;
 
-// const Gender = styled.span`
-//   font-size: ${({ theme }) => theme.size.sm};
-//   color: ${({ theme }) => theme.color.subText3};
-// `;
+const Gender = styled.span`
+  font-size: ${({ theme }) => theme.size.sm};
+  color: ${({ theme }) => theme.color.subText3};
+`;
 
-// const Age = styled.span`
-//   font-size: ${({ theme }) => theme.size.sm};
-//   color: ${({ theme }) => theme.color.subText3};
-// `;
+const Age = styled.span`
+  font-size: ${({ theme }) => theme.size.sm};
+  color: ${({ theme }) => theme.color.subText3};
+`;
 
-// const TagWrapper = styled.div`
-//   display: flex;
-//   gap: 6px;
-//   margin-top: 6px;
-// `;
+const TagWrapper = styled.div`
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+`;

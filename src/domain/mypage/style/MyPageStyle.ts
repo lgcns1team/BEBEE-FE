@@ -7,6 +7,7 @@ export const Natural50 = styled.div`
   box-sizing: border-box;
   background-color: ${({ theme }) => theme.color.natural50};
   gap: 16px;
+  overflow-y: auto;
 `;
 
 export const ResumContainer = styled.div`

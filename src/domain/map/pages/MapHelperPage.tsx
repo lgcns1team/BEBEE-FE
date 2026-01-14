@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 import Header from "../../../components/Header";
 import MapBasePage from "./MapBasePage";
 import MapHelperBottomSheet from "../components/bottomsheet/components/MapHelperBottomSheet";
-import { mapApi } from "../../../api/mapApi";
-import type { MapFindType, NearByPostDto } from "../../../types/map.type";
+
 import { useUserStore } from "../../../store/useUserStore";
+import { useMapStore } from "../store/useMapStore";
+import { useNearbyPosts } from "../components/bottomsheet/hooks/useNearbyPosts";
+
 const pxToRem = (px: number) => `${px / 16}rem`;
 const HEADER_HEIGHT_REM = pxToRem(73);
 
@@ -15,73 +17,60 @@ const MapHelperPage = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
 
-  /** 기준 상태 */
-  const [findType, setFindType] = useState<MapFindType>("CURRENT");
-  const [center, setCenter] = useState({ lat: 33.450701, lng: 126.570667 });
-  const [locationLabel, setLocationLabel] = useState("현재 위치");
-  const [radiusKm, setRadiusKm] = useState(1);
+  // ✅ store
+  const findType = useMapStore((s) => s.findType);
+  const center = useMapStore((s) => s.center);
+  const radiusKm = useMapStore((s) => s.radiusKm);
+  const posts = useMapStore((s) => s.posts);
 
-  
-  const [posts, setPosts] = useState<NearByPostDto[]>([]);
+  const setFindType = useMapStore((s) => s.setFindType);
+  const setCenter = useMapStore((s) => s.setCenter);
+  const setRadiusKm = useMapStore((s) => s.setRadiusKm);
 
-  /** 현재 위치 기준 */
+  const locationLabel = useMemo(
+    () => (findType === "CURRENT" ? "현재 위치" : "집"),
+    [findType]
+  );
+
+  /** ✅ 주변 게시글 조회 훅 */
+  const { loading } = useNearbyPosts({
+    type: findType,
+    latitude: center.lat,
+    longitude: center.lng,
+    radiusKm,
+  });
+
+  /** 현재 위치 */
   const moveToCurrentLocation = useCallback(() => {
     if (!navigator.geolocation) return;
 
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setFindType("CURRENT");
+      },
+      () => {
+        // 실패 시 HOME fallback
+        setFindType("HOME");
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }, [setCenter, setFindType]);
 
-      setCenter(next);
-      setFindType("CURRENT");
-      setLocationLabel("현재 위치");
-    });
-  }, []);
-
+  /** HOME 위치 */
   const moveToHomeLocation = useCallback(() => {
-    if (!user) return;
-    const { latitude, longitude } = user;
-
-    //   if (
-    //   typeof latitude !== "number" ||
-    //   typeof longitude !== "number" ||
-    //   !Number.isFinite(latitude) ||
-    //   !Number.isFinite(longitude)
-    // ) {
-    //   return;
-    // }
-
-    setCenter({ lat: latitude, lng: longitude });
     setFindType("HOME");
-    setLocationLabel("집");
-    console.log("회원가입할때의 위도,경도", latitude, longitude);
-    console.log("회원 정보", user);
-  }, [user]);
 
-  /** 최초 진입 → 현재 위치 */
+    // 지도 중심 이동용 (요청에는 HOME이면 좌표 안 보내도 됨)
+    if (user?.latitude != null && user?.longitude != null) {
+      setCenter({ lat: user.latitude, lng: user.longitude });
+    }
+  }, [setCenter, setFindType, user]);
+
+  /** 최초 진입 */
   useEffect(() => {
     moveToCurrentLocation();
   }, [moveToCurrentLocation]);
-
-  /** 기준 위치 or 반경 변경 시 API 호출 */
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      const res = await mapApi.getNearByPosts({
-        type: findType,
-        latitude: center.lat,
-        longitude: center.lng,
-        radius: radiusKm * 1000,
-      });
-
-      if (!alive) return;
-      setPosts(res.nearByPosts);
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, [center.lat, center.lng, radiusKm, findType]);
 
   return (
     <Container>
@@ -91,10 +80,11 @@ const MapHelperPage = () => {
 
       <Content>
         <MapBasePage
-          mode="POST" 
+          mode="POST"              // ✅ MapBasePage가 게시글 마커 모드 구분한다면
           center={center}
-          radius={radiusKm * 1000}
-          markers={posts}
+          radius={radiusKm * 1000} // 지도 원은 m
+          markers={posts}          // ✅ posts를 marker로 전달
+          loading={loading}        // MapBasePage가 받는다면
         />
       </Content>
 
@@ -102,10 +92,10 @@ const MapHelperPage = () => {
         <MapHelperBottomSheet
           onClickCurrentLocation={moveToCurrentLocation}
           onClickHomeLocation={moveToHomeLocation}
-          addressRoad={user.addressRoad} 
+          addressRoad={user?.addressRoad ?? ""}
           locationLabel={locationLabel}
           radius={radiusKm}
-          onChangeRadius={setRadiusKm} 
+          onChangeRadius={setRadiusKm}
         />
       </BottomSheetWrapper>
     </Container>
@@ -115,8 +105,8 @@ const MapHelperPage = () => {
 export default MapHelperPage;
 
 const Container = styled.div`
-  background-color: ${({ theme }) => theme.color.white};
   height: 100vh;
+  background: white;
   overflow: hidden;
   position: relative;
 `;

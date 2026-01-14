@@ -71,8 +71,8 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
   };
 
   return (
-    <Layout>
-
+    <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
+      <DatePickerGlobalStyle />
       {/* 1. 도움 기간 (Range Picker) */}
       <FieldSet>
         <ModalLabel>
@@ -235,7 +235,7 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
       />
 
       <BaseLongButton label="작성 완료" onClick={handleSubmit} />
-    </Layout>
+    </div>
   );
 };
 

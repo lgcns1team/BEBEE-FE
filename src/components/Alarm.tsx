@@ -143,10 +143,12 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  top: 0;
+
   box-sizing: border-box;
   background-color: ${({ theme }) => theme.color.white};
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 `;
 const ImaBox = styled.div`
   width: 40px;

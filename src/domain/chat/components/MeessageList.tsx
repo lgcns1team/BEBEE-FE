@@ -5,13 +5,11 @@ import MessageItem from "./MessageItem";
 import { useChatStore } from "../store/useChatStore";
 import { useUserStore } from "../../../store/useUserStore";
 
-
 const EMPTY_ARRAY: never[] = [];
 
 const MessageList = () => {
   const { chatroomId } = useParams<{ chatroomId: string }>();
   const scrollRef = useRef<HTMLDivElement>(null);
-
 
   // 빈 배열 상수를 사용하여 매번 새로운 배열을 생성하지 않도록 함
   const rawMessages = useChatStore((state) => {
@@ -73,7 +71,7 @@ const MessageList = () => {
     if (!chatroomId || !scrollRef.current) return;
 
     const container = scrollRef.current;
-    const currentChatroomId = chatroomId; 
+    const currentChatroomId = chatroomId;
 
     const handleScroll = () => {
       // 이미 로딩 중이면 무시
@@ -192,17 +190,14 @@ const MessageList = () => {
 
 export default MessageList;
 
-
-
 const ListContainer = styled.div`
   flex: 1;
-  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
   background-color: ${({ theme }) => theme.color.white};
-  padding-top: 180px;
+  padding-top: 20px;
   padding-bottom: 80px;
   -ms-overflow-style: none;
   scrollbar-width: none;

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { chatApi } from "../api/chatApi";
 import type { ChatroomOpenReqDTO } from "../domain/chat/types/chat.types";
 import { useChatStore } from "../domain/chat/store/useChatStore";
-
+import { getErrorMessage } from "../utils/error";
 export const useChatHandler = () => {
   const navigate = useNavigate();
   const { setActiveRoom } = useChatStore();
@@ -43,10 +43,10 @@ export const useChatHandler = () => {
 
       // 채팅방 페이지로 이동 (응답의 chatroomId 사용)
       const targetChatroomId = roomInfo.chatroomId;
-      console.log("🚀 [handleChatOpen] 채팅방으로 이동:", targetChatroomId);
+
       navigate(`/chat/${targetChatroomId}`);
     } catch (error) {
-      console.error("❌ [handleChatOpen] 채팅방 연결 중 오류 발생:", error);
+      getErrorMessage(error, "채팅방을 불러올 수 없습니다.");
       alert("채팅방을 불러올 수 없습니다.");
     }
   };

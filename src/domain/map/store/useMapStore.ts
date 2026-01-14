@@ -1,12 +1,7 @@
+
 import { create } from "zustand";
+import type { MapFindType, NearByHelperDto, NearByPostDto } from "../../../types/map.type"
 
-import type {
-  MapFindType,
-  NearByHelperDto,
-  NearByPostDto,
-} from "../../../types/map.type.ts";
-
-/** 지도 중심 좌표 타입 */
 interface MapCenter {
   lat: number;
   lng: number;
@@ -16,6 +11,7 @@ interface MapStore {
   findType: MapFindType;
   center: MapCenter;
   radiusKm: number;
+
   helpers: NearByHelperDto[];
   posts: NearByPostDto[];
 
@@ -24,38 +20,31 @@ interface MapStore {
   setRadiusKm: (km: number) => void;
 
   setHelpers: (helpers: NearByHelperDto[]) => void;
-  setPosts: (posts: NearByPostDto[]) => void;
+  clearHelpers: () => void;
 
-  /** 역할 전환 시 데이터 초기화 */
+  setPosts: (posts: NearByPostDto[]) => void;
+  clearPosts: () => void;
+
   clearMarkers: () => void;
 }
 
 export const useMapStore = create<MapStore>((set) => ({
   findType: "CURRENT",
-
-  center: {
-    lat: 33.450701,
-    lng: 126.570667,
-  },
-
-  radiusKm: 1,
+  center: { lat: 33.450701, lng: 126.570667 },
+  radiusKm: 3,
 
   helpers: [],
   posts: [],
 
-  setFindType: (type) => set({ findType: type }),
-
+  setFindType: (findType) => set({ findType }),
   setCenter: (center) => set({ center }),
-
-  setRadiusKm: (km) => set({ radiusKm: km }),
+  setRadiusKm: (radiusKm) => set({ radiusKm }),
 
   setHelpers: (helpers) => set({ helpers }),
+  clearHelpers: () => set({ helpers: [] }),
 
   setPosts: (posts) => set({ posts }),
+  clearPosts: () => set({ posts: [] }),
 
-  clearMarkers: () =>
-    set({
-      helpers: [],
-      posts: [],
-    }),
+  clearMarkers: () => set({ helpers: [], posts: [] }),
 }));

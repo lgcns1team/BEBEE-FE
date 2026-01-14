@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../../../components/Header";
 import DisabledMyPage from "./DisabledMyPage";
 import HelperMyPage from "./HelperMyPage";
@@ -20,14 +20,21 @@ const MyPage = () => {
   const navigate = useNavigate();
   const { user, clearUser } = useUserStore();
   const { clearMember } = useMemberStore();
+  const { showToast } = useToastStore();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // 로그인 체크 및 리다이렉트
+  useEffect(() => {
+    if (!user) {
+      showToast("로그인이 필요합니다.", "ERROR");
+      navigate("/login", { replace: true });
+    }
+  }, [user, navigate, showToast]);
 
   const RoleMyPage = user?.role ? MY_PAGE_BY_ROLE[user.role] : null;
 
+  // 로그인하지 않은 경우 렌더링하지 않음
   if (!user || !RoleMyPage) {
-    useToastStore.getState().showToast("로그인이 필요합니다.", "ERROR");
-    navigate("/login");
-
     return null;
   }
 
@@ -56,7 +63,7 @@ const MyPage = () => {
         clearMember();
         setIsLoggingOut(false);
         navigate("/login", { replace: true });
-      }, 2500);
+      }, 1800);
     } catch (error) {
       console.error("[로그아웃] API 호출 실패:", error);
       useToastStore.getState().showToast("로그아웃에 실패했습니다.", "ERROR");
@@ -84,19 +91,19 @@ export default MyPage;
 
 const Container = styled.div`
   width: 100%;
-  height: 100vh;
-  max-height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background-color: ${({ theme }) => theme.color.white};
+  overscroll-behavior: none;
 `;
 
 const ContentArea = styled.div`
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 80px;
+  padding-bottom: 100px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;

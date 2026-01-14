@@ -80,39 +80,51 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
   };
   return (
     <PostItemWrapper>
-      {filteredApplicants.map((applicant) => (
-        // <Card key={applicant.memberId}>
-        <Card>
-          <UserRow>
-            <UserText>
-              <div className="top-row" aria-label="도우미의 닉네임 입니다">
-                <span className="nickname">{applicant.nickname}</span>
-              </div>
+      {filteredApplicants.map((applicant) => {
+        const genderText = GENDER_KR[applicant.gender];
+        const ageText = `${applicant.ageGroup}대`;
+        const sharingText = applicant.isVolunteer
+          ? "나눔으로 지원한 도우미"
+          : "일반 지원 도우미";
 
-              <div
-                className="sub-info"
-                aria-label="도우미의 성별 및 나이 입니다"
+        const cardLabel = `도우미 ${applicant.nickname}, ${genderText}, ${ageText}, ${sharingText}`;
+
+        return (
+          <Card
+            key={applicant.memberId}
+            role="group"
+            tabIndex={0}
+            aria-label={cardLabel}
+          >
+            <UserRow aria-hidden="true">
+              <UserText>
+                <div className="top-row">
+                  <span className="nickname">{applicant.nickname}</span>
+                </div>
+
+                <div className="sub-info">
+                  {genderText} · {ageText}
+                </div>
+              </UserText>
+
+              <GoProfile
+                onClick={() =>
+                  goChat(String(applicant.memberId), applicant.isVolunteer)
+                }
+                aria-label={`${applicant.nickname} 님과 채팅하기`}
               >
-                {GENDER_KR[applicant.gender]} · {applicant.ageGroup}대
-              </div>
-            </UserText>
+                채팅하기
+              </GoProfile>
+            </UserRow>
 
-            <GoProfile
-              onClick={() => {
-                goChat(String(applicant.memberId), applicant.isVolunteer);
-              }}
-            >
-              채팅하기
-            </GoProfile>
-          </UserRow>
-
-          {applicant.isVolunteer && (
-            <SharingBadge aria-label="나눔으로 지원한 도우미 입니다">
-              나눔 <FaHeart size={14} color="#FFA2A2" />
-            </SharingBadge>
-          )}
-        </Card>
-      ))}
+            {applicant.isVolunteer && (
+              <SharingBadge aria-hidden="true">
+                나눔 <FaHeart size={14} color="#FFA2A2" />
+              </SharingBadge>
+            )}
+          </Card>
+        );
+      })}
     </PostItemWrapper>
   );
 };

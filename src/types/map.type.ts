@@ -1,6 +1,6 @@
 import type { DayOfWeek } from "./common.types";
 import type { Gender } from "./common.types";
-
+import type { HelpType } from "./common.types";
 export type MapFindType = "CURRENT" | "HOME";
 
 export interface NearByPostReqDto {
@@ -19,10 +19,11 @@ export interface NearByPostDto {
   dayOfWeeks: DayOfWeek[];
   latitude: number;
   longitude: number;
+  helpType: HelpType;
 }
 
 export interface NearByPostResDto {
-  nearByPosts: NearByPostDto[];
+  nearbyPosts: NearByPostDto[];
 }
 
 export interface NearByHelperReqDto {

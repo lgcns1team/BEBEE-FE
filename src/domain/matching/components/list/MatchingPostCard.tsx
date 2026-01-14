@@ -36,38 +36,65 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   const handleProfileClick = () => {
     navigate(`/profile/${engagement.otherId}`);
   };
-
+  // 스크린 리더용
+  // const cardAriaLabel = `
+  //   활동 제목 ${engagement.title}.
+  //   매칭 상대 ${engagement.otherNickname}.
+  //   활동 지역 ${engagement.region}.
+  //   도움 날짜 ${scheduleText}.
+  //   ${
+  //     engagement.helpType === "DAY"
+  //       ? "하루 도움 활동입니다."
+  //       : "지속 도움 활동입니다."
+  //   }
+  //   매칭 확인서를 확인하려면 두 번 탭하세요.
+  // `;
   const renderActionButton = () => {
     switch (engagement.status) {
       case "INACTIVE":
-        return <InactiveButton disabled>활동 전</InactiveButton>;
+        return (
+          <InactiveButton disabled tabIndex={0}>
+            활동 전
+          </InactiveButton>
+        );
 
       case "ACTIVE":
         return (
-          <DoneButton onClick={() => onComplete(engagement.engagementId)}
-          aria-label="활동을 완료 처리합니다">
+          <DoneButton
+            onClick={() => onComplete(engagement.engagementId)}
+            aria-label="활동을 완료 처리합니다"
+          >
             활동 완료
           </DoneButton>
         );
 
       case "COMPLETED":
-        return <CompletedButton disabled
-        aria-label="이미 활동 완료 처리가 되었습니다."
-        >활동 완료</CompletedButton>;
+        return (
+          <CompletedButton
+            disabled
+            aria-label="이미 활동 완료 처리가 되었습니다."
+          >
+            활동 완료
+          </CompletedButton>
+        );
 
       case "REVIEW_ACTIVE":
         return (
           <ReviewButton
-            onClick={() => navigate(`/review/${engagement.matchId}`)
-          } aria-label="리뷰 작성 페이지로 이동합니다"
+            onClick={() => navigate(`/review/${engagement.matchId}`)}
+            aria-label="리뷰 작성 페이지로 이동합니다"
           >
-            <BsPencil size={12} />
+            <BsPencil size={12} aria-hidden="true" />
             리뷰 작성하기
           </ReviewButton>
         );
 
       case "REVIEW_COMPLETED":
-        return <ReviewButton disabled aria-label="이미 리뷰를 작성한 활동 입니다.">리뷰 작성 완료</ReviewButton>;
+        return (
+          <ReviewButton disabled aria-label="이미 리뷰를 작성한 활동 입니다.">
+            리뷰 작성 완료
+          </ReviewButton>
+        );
 
       default:
         return null;
@@ -75,11 +102,20 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   };
 
   return (
-    <Card>
+    <Card
+      role="group"
+      tabIndex={0}
+      aria-labelledby={`card-summary-${engagement.engagementId}`}
+    >
+      <CardSummary id={`card-summary-${engagement.engagementId}`}>
+        활동 제목 {engagement.title}. 매칭 상대 {engagement.otherNickname}. 활동
+        지역 {engagement.region}. 도움 날짜 {scheduleText}.
+        {engagement.helpType === "DAY"
+          ? "하루 도움 활동입니다."
+          : "지속 도움 활동입니다."}
+      </CardSummary>
       <TopArea>
-       <Title
-          role="button"
-          tabIndex={0}
+        <Title
           onClick={goMatchingInfo}
           aria-label={`활동 제목 ${engagement.title} 입니다. 매칭 상세 정보로 이동합니다`}
         >
@@ -94,7 +130,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
 
       <BottomArea>
         <BottomLeft>
-         <User
+          <User
             role="button"
             tabIndex={0}
             onClick={handleProfileClick}
@@ -105,7 +141,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
 
           <InfoLine>
             <MapPinIcon size={16} aria-hidden="true" />
-           <InfoText aria-label={`활동 지역 ${engagement.region} 입니다`}>
+            <InfoText aria-label={`활동 지역 ${engagement.region} 입니다`}>
               {engagement.region}
             </InfoText>
           </InfoLine>
@@ -127,7 +163,10 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
         {engagement.thumbnailImageUrl && (
           <BottomRight>
             <Thumbnail>
-              <img src={engagement.thumbnailImageUrl} alt="활동과 관련된 이미지 입니다" />
+              <img
+                src={engagement.thumbnailImageUrl}
+                alt="활동과 관련된 이미지 입니다"
+              />
             </Thumbnail>
           </BottomRight>
         )}
@@ -135,8 +174,10 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
 
       <BottomBar>
         <BottomInner>
-          <ChatButton onClick={goChatPage}
-          aria-label="채팅 화면으로 이동합니다">
+          <ChatButton
+            onClick={goChatPage}
+            aria-label="채팅 화면으로 이동합니다"
+          >
             <BsChat size={12} aria-hidden="true" />
             <span>채팅하기</span>
           </ChatButton>
@@ -158,8 +199,21 @@ const Card = styled.div`
   gap: 12px;
   padding-bottom: 80px;
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural100};
+  cursor: pointer;
+  // 마우스 클릭시에는 안보이고 키보드/보조기기 사용자에게만 표시됩니다.
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.color.main};
+    outline-offset: 2px;
+  }
 `;
-
+const CardSummary = styled.p`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+`;
 const TopArea = styled.div`
   display: flex;
   justify-content: space-between;
@@ -247,7 +301,7 @@ const ChatButton = styled.button`
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   border: 0.5px solid ${({ theme }) => theme.color.natural200};
   background: ${({ theme }) => theme.color.white};
-
+  font-size: ${({ theme }) => theme.size.md};
   span {
     margin-left: 4px;
   }
@@ -260,6 +314,7 @@ const DoneButton = styled.button`
   background: ${({ theme }) => theme.color.main};
   color: ${({ theme }) => theme.color.white};
   border: none;
+  font-size: ${({ theme }) => theme.size.md};
 `;
 
 const CompletedButton = styled(DoneButton)`
@@ -269,11 +324,13 @@ const CompletedButton = styled(DoneButton)`
   align-items: center;
   justify-content: center;
   gap: 6px;
+  font-size: ${({ theme }) => theme.size.md};
 `;
 
 const InactiveButton = styled(DoneButton)`
   background: ${({ theme }) => theme.color.natural100};
   color: ${({ theme }) => theme.color.text};
+  font-size: ${({ theme }) => theme.size.md};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -283,6 +340,7 @@ const InactiveButton = styled(DoneButton)`
 const ReviewButton = styled(DoneButton)`
   background: ${({ theme }) => theme.color.subColor};
   color: ${({ theme }) => theme.color.text};
+  font-size: ${({ theme }) => theme.size.md};
   display: flex;
   align-items: center;
   justify-content: center;

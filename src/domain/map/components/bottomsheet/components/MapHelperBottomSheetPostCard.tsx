@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import type { PostItem } from "../../../../../types/post.type";
 import HelpTag from "../../../../../components/HelpTag";
 import { FiCalendar } from "react-icons/fi";
 import { FiMapPin } from "react-icons/fi";
@@ -20,9 +19,9 @@ const MapHelperBottomSheetPostCard = ({ post }: Props) => {
         <TopArea>
           <Title>{post.title}</Title>
           <RightTop>
-            {/* {post.helpType === "DAY" && (
+            {post.helpType === "DAY" && (
               <OneDayBadge>하루 도움</OneDayBadge>
-            )} */}
+            )}
           </RightTop>
         </TopArea>
 
@@ -32,7 +31,7 @@ const MapHelperBottomSheetPostCard = ({ post }: Props) => {
         </InfoLine>
         <InfoLine>
           <CalendarIcon size={16} />
-          {/* <InfoText>{getScheduleText(post.helpType, post.date, post.dayOfWeeks)}</InfoText> */}
+          <InfoText>{getScheduleText(post.helpType, post.date, post.dayOfWeeks)}</InfoText>
         </InfoLine>
 
         <TagWrapper>

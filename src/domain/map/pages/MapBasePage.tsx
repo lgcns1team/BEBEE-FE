@@ -4,7 +4,8 @@ import styled from "styled-components";
 
 import type { NearByPostDto, NearByHelperDto } from "../../../types/map.type";
 import CurrentLocationImage from "../components/images/current-location-red-with-radius.svg";
-
+import MapHelper from "../../../assets/images/map-helper.svg"
+import MapDisabled from "../../../assets/images/map-disabled.svg"
 type Center = { lat: number; lng: number };
 
 type Props =
@@ -73,6 +74,10 @@ const MapBasePage = (props: Props) => {
                 key={`post-${post.postId}`}
                 position={{ lat: post.latitude, lng: post.longitude }}
                 title={post.title}
+                image={{
+                  src: MapDisabled,
+                  size: { width: 25, height: 25 },
+                }}
               />
             ))
           : markers.map((helper) => (
@@ -80,6 +85,10 @@ const MapBasePage = (props: Props) => {
                 key={`helper-${helper.id}`}
                 position={{ lat: helper.latitude, lng: helper.longitude }}
                 title={helper.nickname}
+                image={{
+                  src: MapHelper,
+                  size: { width: 25, height: 25 },
+                }}
               />
             ))}
       </Map>

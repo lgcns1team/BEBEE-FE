@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -6,56 +6,63 @@ import Header from "../../../components/Header";
 import MapBasePage from "./MapBasePage";
 import MapDisabledBottomSheet from "../components/bottomsheet/components/MapDisabledBottomSheet";
 import { mapApi } from "../../../api/mapApi";
-import type { MapFindType, NearByHelperDto } from "../../../types/map.type";
 import { useUserStore } from "../../../store/useUserStore";
+import { useMapStore } from "../store/useMapStore";
+
 const pxToRem = (px: number) => `${px / 16}rem`;
 const HEADER_HEIGHT_REM = pxToRem(73);
 
 const MapDisabledPage = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
-  /** 기준 상태 */
-  const [findType, setFindType] = useState<MapFindType>("CURRENT");
-  const [center, setCenter] = useState({ lat: 33.450701, lng: 126.570667 });
-  const [locationLabel, setLocationLabel] = useState("현재 위치");
-  const [radiusKm, setRadiusKm] = useState(1);
+
+ 
+  const findType = useMapStore((s) => s.findType);
+  const center = useMapStore((s) => s.center);
+  const radiusKm = useMapStore((s) => s.radiusKm);
+  const helpers = useMapStore((s) => s.helpers);
+
+  const setFindType = useMapStore((s) => s.setFindType);
+  const setCenter = useMapStore((s) => s.setCenter);
+  const setRadiusKm = useMapStore((s) => s.setRadiusKm);
+  const setHelpers = useMapStore((s) => s.setHelpers);
+  const clearHelpers = useMapStore((s) => s.clearHelpers);
 
   
-  const [helpers, setHelpers] = useState<NearByHelperDto[]>([]);
+  const locationLabel = useMemo(
+    () => (findType === "CURRENT" ? "현재 위치" : "집"),
+    [findType]
+  );
+
+  const [loading, setLoading] = useState(false);
 
   /** 현재 위치 기준 */
   const moveToCurrentLocation = useCallback(() => {
     if (!navigator.geolocation) return;
 
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setFindType("CURRENT");
+      },
+      () => {
+        
+        setFindType("HOME");
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }, [setCenter, setFindType]);
 
-      setCenter(next);
-      setFindType("CURRENT");
-      setLocationLabel("현재 위치");
-    });
-  }, []);
-
-
+  /** 집(프로필) 기준 */
   const moveToHomeLocation = useCallback(() => {
-    if (!user) return;
-    const { latitude, longitude } = user;
-
-    //   if (
-    //   typeof latitude !== "number" ||
-    //   typeof longitude !== "number" ||
-    //   !Number.isFinite(latitude) ||
-    //   !Number.isFinite(longitude)
-    // ) {
-    //   return;
-    // }
-
-    setCenter({ lat: latitude, lng: longitude });
     setFindType("HOME");
-    setLocationLabel("집");
-    console.log("회원가입할때의 위도,경도", latitude, longitude);
-    console.log("회원 정보", user);
-  }, [user]);
+
+    
+    if (user?.latitude != null && user?.longitude != null) {
+      setCenter({ lat: user.latitude, lng: user.longitude });
+    }
+  }, [setCenter, setFindType, user]);
+
   /** 최초 진입 → 현재 위치 */
   useEffect(() => {
     moveToCurrentLocation();
@@ -66,22 +73,37 @@ const MapDisabledPage = () => {
     let alive = true;
 
     (async () => {
-      
-      const res = await mapApi.getNearByHelpers({
-        type: findType,
-        latitude: center.lat,
-        longitude: center.lng,
-        radius: radiusKm * 1000,
-      });
+      try {
+        setLoading(true);
 
-      if (!alive) return;
-      setHelpers(res.nearByHelpers);
+   
+        const params =
+          findType === "CURRENT"
+            ? {
+                type: "CURRENT" as const,
+                latitude: center.lat,
+                longitude: center.lng,
+                radius: radiusKm, // km
+              }
+            : {
+                type: "HOME" as const,
+                radius: radiusKm, // km
+              };
+
+        const res = await mapApi.getNearByHelpers(params as any);
+
+        if (!alive) return;
+        setHelpers(res.nearByHelpers ?? []);
+      } catch (e) {
+        if (!alive) return;
+        clearHelpers();
+      }
     })();
 
     return () => {
       alive = false;
     };
-  }, [center.lat, center.lng, radiusKm, findType]);
+  }, [center.lat, center.lng, radiusKm, findType, setHelpers, clearHelpers]);
 
   return (
     <Container>
@@ -91,10 +113,10 @@ const MapDisabledPage = () => {
 
       <Content>
         <MapBasePage
-          mode="HELPER" 
+          mode="HELPER"
           center={center}
-          radius={radiusKm * 1000}
-          markers={helpers}
+          radius={radiusKm * 1000} 
+          markers={helpers} 
         />
       </Content>
 
@@ -102,17 +124,16 @@ const MapDisabledPage = () => {
         <MapDisabledBottomSheet
           onClickCurrentLocation={moveToCurrentLocation}
           onClickHomeLocation={moveToHomeLocation}
-          addressRoad={user.addressRoad} 
+          addressRoad={user?.addressRoad ?? ""}
           locationLabel={locationLabel}
           radius={radiusKm}
-          onChangeRadius={setRadiusKm} 
+          onChangeRadius={setRadiusKm}
         />
       </BottomSheetWrapper>
     </Container>
   );
 };
-
-// export default MapDisabledPage;
+export default MapDisabledPage;
 
 const Container = styled.div`
   height: 100vh;
@@ -121,26 +142,26 @@ const Container = styled.div`
   position: relative;
 `;
 
-// const HeaderWrapper = styled.div`
-//   width: 100%;
-//   padding: 0 16px;
-//   box-sizing: border-box;
-//   height: ${HEADER_HEIGHT_REM};
-// `;
+const HeaderWrapper = styled.div`
+  width: 100%;
+  padding: 0 16px;
+  box-sizing: border-box;
+  height: ${HEADER_HEIGHT_REM};
+`;
 
-// const Content = styled.div`
-//   position: absolute;
-//   top: ${HEADER_HEIGHT_REM};
-//   left: 0;
-//   width: 100%;
-//   height: calc(100vh - ${HEADER_HEIGHT_REM});
-// `;
+const Content = styled.div`
+  position: absolute;
+  top: ${HEADER_HEIGHT_REM};
+  left: 0;
+  width: 100%;
+  height: calc(100vh - ${HEADER_HEIGHT_REM});
+`;
 
-// const BottomSheetWrapper = styled.div`
-//   position: fixed;
-//   left: 0;
-//   right: 0;
-//   bottom: 0;
-//   z-index: 999;
-//   pointer-events: none;
-// `;
+const BottomSheetWrapper = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  pointer-events: none;
+`;

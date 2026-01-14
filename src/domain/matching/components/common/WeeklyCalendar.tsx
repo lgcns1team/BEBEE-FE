@@ -113,7 +113,12 @@ const WeeklyCalendar = ({ onSelectDate, markedDates }: Props) => {
       <span className="sr-only">
         한 주 보기 입니다. 달력 내 날짜를 클릭하여 매칭 정보를 확인해 보세요.
       </span>
-      <ScrollContainer ref={scrollRef} onScroll={handleScroll}>
+      <ScrollContainer
+        ref={scrollRef}
+        onScroll={handleScroll}
+        role="list"
+        aria-label="주간 날짜 목록"
+      >
         {dates.map((d) => {
           const dateKey = formatDate(d);
           const isSelected = selected && formatDate(selected) === dateKey;
@@ -137,13 +142,14 @@ const WeeklyCalendar = ({ onSelectDate, markedDates }: Props) => {
           return (
             <DayBox
               key={d.toISOString()}
-              $active={isSelected}
-              role="listitem"
-              onClick={handleSelect}
+              $active={!!isSelected}
+              role="button"
+              tabIndex={0}
               aria-pressed={!!isSelected}
               aria-label={`${formatKoreanDate(d)}${
                 hasEngagement ? ", 도움이 있는 날짜" : ""
               }${isSelected ? ", 선택됨" : ""}`}
+              onClick={handleSelect}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
@@ -151,10 +157,14 @@ const WeeklyCalendar = ({ onSelectDate, markedDates }: Props) => {
                 }
               }}
             >
-              <Month>{format(d, "MMM", { locale: ko })}</Month>
-              <Day>{format(d, "d")}</Day>
-              <Weekday>{format(d, "EEE", { locale: ko })}</Weekday>
-              {hasEngagement && <Dot />}
+              <Month aria-hidden="true">
+                {format(d, "MMM", { locale: ko })}
+              </Month>
+              <Day aria-hidden="true">{format(d, "d")}</Day>
+              <Weekday aria-hidden="true">
+                {format(d, "EEE", { locale: ko })}
+              </Weekday>
+              {hasEngagement && <Dot aria-hidden="true" />}
             </DayBox>
           );
         })}

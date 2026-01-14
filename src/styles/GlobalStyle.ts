@@ -13,7 +13,7 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     width: 100%;
-    height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+    height: 100dvh;
     overflow-x: hidden;
     overflow-y: hidden;
   }
@@ -22,8 +22,7 @@ export const GlobalStyle = createGlobalStyle`
     width: 375px;
     max-width: 100%;
     margin: 0 auto;
-    height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
-    max-height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+    min-height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
     background-color: transparent;
     color: ${theme.color.text};
     font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
