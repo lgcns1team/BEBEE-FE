@@ -11,6 +11,7 @@ import {
   InputBox,
 } from "../styles/inputStyles";
 import styled from "styled-components";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface LocationInputProps {
   inputLabel?: string;
@@ -526,7 +527,7 @@ const LocationInput = ({
                     </KakaoMap>
                   ) : (
                     <MapLoadingContainer>
-                      <MapLoadingText>지도를 불러오는 중...</MapLoadingText>
+                      <LoadingSpinner />
                     </MapLoadingContainer>
                   )}
                 </MapContainer>

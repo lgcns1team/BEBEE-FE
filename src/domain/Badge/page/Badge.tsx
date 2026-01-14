@@ -6,13 +6,14 @@ import { useBadgeStore } from "../store/useBadgeStore";
 import { DISABILITY_TYPES } from "../../../constants/disabilityTypes";
 import badgeBanner from "../../../assets/images/badge-banner.png";
 import StampCard from "../components/StampCard";
+import LoadingSpinner from "../../../components/LoadingSpinner";
+import Loading from "../../../components/Loading";
 
 const SNOW_COUNT = 60;
 
 const Badge = () => {
   const navigate = useNavigate();
-  const { isLoading, error, fetchBadgeStatus, getBadgeStatusByDisabilityId } =
-    useBadgeStore();
+  const { isLoading, error, fetchBadgeStatus, getBadgeStatusByDisabilityId } = useBadgeStore();
 
   // 눈송이 위치와 속도 초기화 (렌더링마다 변경되지 않도록)
   const snowflakes = useMemo(() => {
@@ -43,7 +44,7 @@ const Badge = () => {
           <Header title="뱃지" onBack={() => navigate(-1)} showBack />
           <BannerImage src={badgeBanner} alt="뱃지 배너" />
         </BannerSection>
-        <LoadingContainer>뱃지 정보를 불러오는 중...</LoadingContainer>
+        <Loading />
       </BadgeContainer>
     );
   }
@@ -210,8 +211,7 @@ const Snowflake = styled.div<SnowflakeProps>`
       transform: translateX(${({ $drift }) => $drift}px) rotate(180deg);
     }
     100% {
-      transform: translateY(190px) translateX(${({ $drift }) => $drift * 1.2}px)
-        rotate(360deg);
+      transform: translateY(190px) translateX(${({ $drift }) => $drift * 1.2}px) rotate(360deg);
       opacity: ${({ $opacity }) => $opacity * 0.5};
     }
   }
