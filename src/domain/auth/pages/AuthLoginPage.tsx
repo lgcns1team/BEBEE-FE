@@ -139,6 +139,7 @@ const FormContainer = styled.div`
   flex: 1;
   min-height: 0;
   justify-content: center;
+  gap: 2.5rem;
 `;
 
 const LoginButtonWrapper = styled.div`
