@@ -7,6 +7,7 @@ import { Checkbox } from "../../../components/Checkbox";
 
 import { useApplicationStore } from "../store/useApplicationStore";
 import { getApplicationPosts } from "../../../api/applicationApi";
+import PullToRefreshWrapper from "../../../components/PullToRefreshWrapper";
 
 // const MEMBER_ID = "100";
 const ApplicateStatusPage = () => {
@@ -40,6 +41,12 @@ const ApplicateStatusPage = () => {
         ? "완료된 게시글을 제외합니다."
         : "완료된 게시글을 다시 포함합니다."
     );
+  };
+
+  // Pull to Refresh 핸들러
+  const handleRefresh = async () => {
+    const res = await getApplicationPosts();
+    setPosts(res.data.posts);
   };
 
   return (
@@ -79,12 +86,14 @@ const ApplicateStatusPage = () => {
             aria-label="매칭이 완료된 게시글을 제외할 수 있습니다"
           />
         </ExcludeDone>
-        <PostList
-          role="region"
-          aria-label="지원한 게시글 목록"
-        >
-        <PostStatusItem posts={filteredPosts} />
-        </PostList>
+        <PullToRefreshWrapper onRefresh={handleRefresh}>
+          <PostList
+            role="region"
+            aria-label="지원한 게시글 목록"
+          >
+          <PostStatusItem posts={filteredPosts} />
+          </PostList>
+        </PullToRefreshWrapper>
       </Section2>
     </Container>
   );
@@ -108,6 +117,7 @@ const Section1 = styled.div`
   background-color: ${({ theme }) => theme.color.white};
 `;
 const Section2 = styled.div`
+  flex: 1;
   padding: 16px 0;
   background-color: ${({ theme }) => theme.color.white};
 `;
@@ -155,5 +165,5 @@ const ExcludeDone = styled.label`
   padding: 0px 16px 16px 0px;
 `;
 const PostList = styled.div`
-  
+
 `

@@ -20,6 +20,7 @@ import { NotificationPermissionModal } from "../../../components/NotificationPer
 import { useNotificationPermissionStore } from "../../../store/useNotificationPermissionStore";
 import LoadingSpinner from "../../../components/LoadingSpinner";
 import Loading from "../../../components/Loading";
+import PullToRefreshWrapper from "../../../components/PullToRefreshWrapper";
 // 모바일 기기 감지 유틸리티
 const detectDeviceType = (): "WEB_PC" | "WEB_MOBILE" => {
   if (typeof window === "undefined") return "WEB_PC";
@@ -136,6 +137,11 @@ const HomePage = () => {
   const handleMatchedChange = (checked: boolean) => {
     console.log("클릭:", checked);
     setIsMatched(checked ? false : undefined);
+  };
+
+  // Pull to Refresh 핸들러
+  const handleRefresh = async () => {
+    await fetchPosts();
   };
 
   // 6. FCM 초기화 및 토큰 등록 (권한이 이미 있는 경우에만 자동 등록)
@@ -268,23 +274,26 @@ const HomePage = () => {
         </FilterRow>
 
         {/* ---------------- Post List ---------------- */}
-        <ListWrapper>
-          {posts?.map((post) => {
-            if (!post) return null;
-            return (
-              <div key={post.postId} onClick={() => navigate(`/post/${post.postId}`)}>
-                <PostCard post={post} />
+        <PullToRefreshContainer>
+          <PullToRefreshWrapper onRefresh={handleRefresh}>
+            <ListWrapper>
+              {posts?.map((post) => {
+                if (!post) return null;
+                return (
+                  <div key={post.postId} onClick={() => navigate(`/post/${post.postId}`)}>
+                    <PostCard post={post} />
+                  </div>
+                );
+              })}
+              {isLoading && <Loading />}
+              {!isLoading && posts?.length === 0 && <span>조건에 맞는 게시글이 없습니다.</span>}
+              {/* 무한 스크롤 감지용 타겟 (바닥) */}
+              <div ref={observerTarget} style={{ height: "50px", textAlign: "center" }}>
+                {!hasNext && posts?.length > 0 && <p>마지막 게시글입니다.</p>}
               </div>
-            );
-          })}
-          {isLoading && <Loading />}
-          {!isLoading && posts?.length === 0 && <span>조건에 맞는 게시글이 없습니다.</span>}
-          {/* 무한 스크롤 감지용 타겟 (바닥) */}
-          <div ref={observerTarget} style={{ height: "50px", textAlign: "center" }}>
-            {isLoadingMore && <LoadingSpinner />}
-            {!hasNext && posts?.length > 0 && <p>마지막 게시글입니다.</p>}
-          </div>
-        </ListWrapper>
+            </ListWrapper>
+          </PullToRefreshWrapper>
+        </PullToRefreshContainer>
 
         {/* ---------------- BottomSheet ---------------- */}
         {/* reqDTO 등의 상세 필터는 이 컴포넌트 내부에서 setReqDTO를 사용하도록 구성됩니다. */}
@@ -363,8 +372,11 @@ const ChevronDownIcon = styled(IoChevronDown)`
   color: ${({ theme }) => theme.color.subText2};
 `;
 
+const PullToRefreshContainer = styled.div`
+  margin-top: 100px;
+`;
+
 const ListWrapper = styled.div`
-  padding-top: 100px;
   padding-bottom: 40px;
 `;
 

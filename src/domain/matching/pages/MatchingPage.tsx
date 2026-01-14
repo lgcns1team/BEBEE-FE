@@ -20,6 +20,7 @@ import {
 import { toDateSet } from "../utils/engagementDates";
 
 import type { EngagementType } from "../../../types/match.type";
+import PullToRefreshWrapper from "../../../components/PullToRefreshWrapper";
 
 const getTodayYYYYMMDD = () => {
   const now = new Date();
@@ -56,6 +57,16 @@ const MatchingPage = () => {
       setEngagements(res.data.engagements ?? []);
     } catch (e) {
       console.error("활동 완료 처리 실패", e);
+    }
+  };
+
+  // Pull to Refresh 핸들러
+  const handleRefresh = async () => {
+    try {
+      const res = await getEngagements({ date: selectedDate, type: selectedType });
+      setEngagements(res.data.engagements ?? []);
+    } catch (e) {
+      console.error("새로고침 실패", e);
     }
   };
   // 캘린더 조회
@@ -107,19 +118,21 @@ const MatchingPage = () => {
           <Category activeTab={activeTab} onChange={setActiveTab} />
         </StickyBox>
 
-        <ScrollArea>
-          {engagements.length === 0 ? (
-            <Empty>선택한 날짜에 활동이 없습니다.</Empty>
-          ) : (
-            engagements.map((eng) => (
-              <MatchingPostCard
-                key={eng.engagementId}
-                engagement={eng}
-                onComplete={handleComplete}
-              />
-            ))
-          )}
-        </ScrollArea>
+        <PullToRefreshWrapper onRefresh={handleRefresh}>
+          <ScrollArea>
+            {engagements.length === 0 ? (
+              <Empty>선택한 날짜에 활동이 없습니다.</Empty>
+            ) : (
+              engagements.map((eng) => (
+                <MatchingPostCard
+                  key={eng.engagementId}
+                  engagement={eng}
+                  onComplete={handleComplete}
+                />
+              ))
+            )}
+          </ScrollArea>
+        </PullToRefreshWrapper>
 
         <NavBar />
       </PageContainer>
