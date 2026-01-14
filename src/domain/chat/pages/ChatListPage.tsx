@@ -96,12 +96,21 @@ const ChatListPage = () => {
     };
   }, [hasNext, isLoading, fetchList]);
 
+  const getChatRoomDescription = (room) => {
+    const nickname = room.otherNickname;
+    const title = room.title;
+    const lastMsg = room.lastMessage || "메시지 없음";
+    const time = formatChatTime(room.updatedAt);
+
+    // 핵심 정보 위주로 구성 (순서: 누구와? -> 어떤 글에서? -> 마지막 내용 -> 시간)
+    return `${nickname}님과의 채팅. 게시글 제목은 ${title}. 마지막 메시지는 ${lastMsg}. ${time}`;
+  };
   return (
     <ChatContainer role="main" aria-label="채팅 목록">
       <h2 className="sr-only">채팅 메시지 목록</h2>
       <Layout>
         <Header title="채팅" onBack={() => navigate("/home")} />
-        <ChatList role="list" aria-label="채팅방 목록">
+        <ChatList role="list">
           {Array.isArray(chatrooms) && chatrooms.length > 0
             ? chatrooms.map((room, index) => (
                 <ChatItem
@@ -109,15 +118,11 @@ const ChatListPage = () => {
                   role="listitem"
                   tabIndex={0}
                   onClick={() => {
-                    console.log("채팅방 클릭:", {
-                      chatroomId: room.chatroomId,
-                      room,
-                    });
                     handleChatOpen({
                       chatroomId: room.chatroomId,
                     });
                   }}
-                  aria-label={`${room.otherNickname}님과의 채팅방, 게시글 제목: ${room.title}, 마지막 메시지: ${room.lastMessage || "메시지 없음"}, 마지막 업데이트: ${formatChatTime(room.updatedAt)}, ${index + 1}번째 항목, 더블탭하여 채팅방 입장`}
+                  aria-label={getChatRoomDescription(room)}
                   aria-posinset={index + 1}
                   aria-setsize={chatrooms.length}
                   onKeyDown={(e) => {

@@ -524,14 +524,7 @@ const MatchFormPage = () => {
 
       // useAgreementStore의 postAgreement를 사용하여 agreementRequest를 저장
       const response = await postAgreement(finalRequest);
-      console.log("✅ 매칭 확인서 생성 성공:", response);
-      console.log("📋 [매칭확인서 생성] agreementId:", response.agreementId);
-      console.log("📋 [매칭확인서 생성] agreementRequest 저장됨:", {
-        unitHoney: finalRequest.unitHoney,
-        totalHoney: finalRequest.totalHoney,
-        type: finalRequest.type,
-        createdAt: finalRequest.createdAt,
-      });
+      console.log("매칭 확인서 생성 성공:", response);
 
       // 서버에서 매칭확인서를 소켓으로 발행하므로 프론트에서는 받기만 하면 됨
       // POST API 호출 성공 후 채팅방 정보만 업데이트하고 이동
@@ -540,9 +533,9 @@ const MatchFormPage = () => {
         try {
           const updatedRoom = await chatApi.openChatRoom(undefined, chatroomId);
           setActiveRoom(updatedRoom);
-          console.log("✅ 채팅방 정보 업데이트 완료:", updatedRoom);
+          console.log("채팅방 정보 업데이트 완료:", updatedRoom);
         } catch (error) {
-          console.error("⚠️ 채팅방 정보 업데이트 실패:", error);
+          console.error("채팅방 정보 업데이트 실패:", error);
           // 업데이트 실패해도 채팅방으로 이동은 진행
         }
 
@@ -550,11 +543,11 @@ const MatchFormPage = () => {
         // 서버에서 소켓으로 매칭확인서 메시지가 발행되므로 채팅방에서 자동으로 수신됨
         navigate(`/chat/${chatroomId}`);
       } else {
-        console.error("⚠️ chatroomId가 없습니다.");
+        console.error(" chatroomId가 없습니다.");
         alert("채팅방 정보를 찾을 수 없습니다.");
       }
     } catch (error) {
-      console.error("❌ [매칭확인서 생성] 오류:", error);
+      console.error("[매칭확인서 생성] 오류:", error);
 
       // Axios 에러인 경우 서버 응답 상세 정보 출력
       if (error && typeof error === "object" && "response" in error) {
@@ -731,8 +724,7 @@ const MatchFormPage = () => {
             !agreementRequest.isVolunteer ? (
               <TotlaHoney role="status" aria-live="polite" aria-atomic="true">
                 <span aria-hidden="true">
-                  <span style={{ color: "#155DFC" }}>총 제공 꿀: </span>
-                  총{" "}
+                  <span style={{ color: "#155DFC" }}>총 제공 꿀: </span>총{" "}
                   <span style={{ color: "#155DFC" }}>
                     {agreementRequest.totalHoney.toLocaleString()} 꿀
                   </span>
