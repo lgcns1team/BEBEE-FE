@@ -384,7 +384,6 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
         ? "하루 도움 활동입니다."
         : "지속 도움 활동입니다."
     }
-    매칭 확인서를 확인하려면 두 번 탭하세요.
   `;
   const renderActionButton = () => {
     switch (engagement.status) {
@@ -450,14 +449,14 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   };
 
   return (
-    <Card aria-label={cardAriaLabel} role="button" tabIndex={0}>
+    <Card >
       <div aria-hidden="true">
         <TopArea>
           <Title
             role="button"
             tabIndex={0}
             onClick={goMatchingInfo}
-            // aria-label={`활동 제목 ${engagement.title} 입니다. 매칭 상세 정보로 이동합니다`}
+            aria-label={cardAriaLabel} 
           >
             {engagement.title}
           </Title>
@@ -474,7 +473,6 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
               role="button"
               tabIndex={0}
               onClick={handleProfileClick}
-              aria-label={`매칭된 상대 ${engagement.otherNickname} 님의 프로필로 이동합니다`}
             >
               {engagement.otherNickname}
             </User>
