@@ -125,21 +125,12 @@ const ChatRoom = () => {
   return (
     <Layout aria-label="채팅방">
       <span className="sr-only">채팅방 페이지입니다. </span>
-      <ChatContainer>
-        <ChatRoomCard />
-        <MessageList />
-        <ChatInput onSend={handleSend} />
-      </ChatContainer>
+
+      <ChatRoomCard />
+      <MessageList />
+      <ChatInput onSend={handleSend} />
     </Layout>
   );
 };
 
 export default ChatRoom;
-
-const ChatContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-`;
