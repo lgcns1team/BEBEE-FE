@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
@@ -22,6 +22,17 @@ const AuthSignUpStep4Page = () => {
   const [selectedDisabilityType, setSelectedDisabilityType] = useState("");
   const [selectedDisabilityGrade, setSelectedDisabilityGrade] = useState("");
   const [disabilityDescription, setDisabilityDescription] = useState("");
+
+  // role이 없으면 이전 단계로 리다이렉트
+  useEffect(() => {
+    if (!role) {
+      navigate("/signup/step1");
+    }
+  }, [role, navigate]);
+
+  if (!role) {
+    return null;
+  }
 
   const handleTagClick = (tag: string) => {
     setSelectedTags((prev) =>
