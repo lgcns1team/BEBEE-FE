@@ -13,7 +13,7 @@ const MatchFailCard = () => {
   };
   return (
     <Wrapper role="region" aria-label="매칭 실패 알림">
-      <FailBox role="alert">
+      <FailBox role="alert" aria-live="assertive" aria-atomic="true">
         <Title>
           <span aria-hidden="true">😞</span> 매칭이 성사되지 않았어요
           <span className="sr-only">
@@ -23,8 +23,9 @@ const MatchFailCard = () => {
         <Sub>
           다시 한번 이야기를 나눠보아요
           <span className="sr-only">
-            아래의 다시 작성하기 버튼을 눌러 매칭 확인서를 다시 작성할 수
-            있습니다.
+            {userRole === "DISABLED"
+              ? "아래의 다시 작성하기 버튼을 눌러 매칭 확인서를 다시 작성할 수 있습니다."
+              : "매칭 확인서는 장애인만 작성할 수 있습니다."}
           </span>
         </Sub>
       </FailBox>
@@ -32,7 +33,8 @@ const MatchFailCard = () => {
       {userRole === "DISABLED" && (
         <RetryButton
           onClick={handleRetry}
-          aria-label="매칭 확인서 다시 작성하기"
+          aria-label="매칭 확인서 다시 작성하기, 더블탭하여 매칭 확인서 작성 페이지로 이동"
+          tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();

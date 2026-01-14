@@ -144,8 +144,17 @@ const ChatRoomCard = () => {
         onTitleClick={() => handleProfileClick()}
       />
       <ChatHeader role="region" aria-label="채팅방 정보">
-        <HeaderTop>
-          <ChatTitle id="post-title">
+        <HeaderTop role="group" aria-label="게시글 제목 및 매칭 상태">
+          <ChatTitle
+            id="post-title"
+            aria-label={
+              isLoadingPost
+                ? "게시글 정보를 불러오는 중입니다"
+                : postDetail?.title
+                ? `게시글 제목: ${postDetail.title}`
+                : "게시글 제목 정보가 없습니다"
+            }
+          >
             {isLoadingPost
               ? "게시글 정보를 불러오는 중..."
               : postDetail?.title || "게시글 제목"}
@@ -164,8 +173,24 @@ const ChatRoomCard = () => {
             aria-describedby="post-title"
             aria-label={
               isHelper
-                ? "매칭 확인서는 장애인만 작성할 수 있습니다"
-                : "매칭 확인서 작성하기"
+                ? `매칭 확인서는 장애인만 작성할 수 있습니다. 현재 매칭 상태: ${
+                    matchStatus === "NON_MATCHED"
+                      ? "매칭 전"
+                      : matchStatus === "PROCEEDING"
+                      ? "진행 중"
+                      : "매칭 완료"
+                  }`
+                : matchStatus === "NON_MATCHED"
+                ? `매칭 확인서 작성하기, ${
+                    postDetail?.title
+                      ? `${postDetail.title} 게시글에 대한 `
+                      : ""
+                  }더블탭하여 매칭 확인서 작성 페이지로 이동`
+                : `현재 매칭 상태: ${
+                    matchStatus === "PROCEEDING" ? "진행 중" : "매칭 완료"
+                  }, 매칭 확인서는 이미 ${
+                    matchStatus === "PROCEEDING" ? "진행 중" : "완료"
+                  }되었습니다`
             }
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
@@ -194,17 +219,30 @@ const ChatRoomCard = () => {
           </MatchButton>
         </HeaderTop>
 
-        <HelpTagBox role="list" aria-label="도움 카테고리 목록">
+        <HelpTagBox
+          role="list"
+          aria-label={`도움 카테고리 목록, ${
+            postDetail?.helpCategoryIds && postDetail.helpCategoryIds.length > 0
+              ? `총 ${postDetail.helpCategoryIds.length}개`
+              : "없음"
+          }`}
+        >
           {postDetail?.helpCategoryIds &&
           postDetail.helpCategoryIds.length > 0 ? (
             <>
               <span className="sr-only">
                 도움 카테고리 {postDetail.helpCategoryIds.length}개
               </span>
-              {postDetail.helpCategoryIds.map((categoryId) => {
+              {postDetail.helpCategoryIds.map((categoryId, index) => {
                 const categoryName = HELP_TAG_MAP[categoryId];
                 return categoryName ? (
-                  <HelpTag key={categoryId} role="listitem">
+                  <HelpTag
+                    key={categoryId}
+                    role="listitem"
+                    aria-label={`${categoryName}, ${index + 1}번째 카테고리`}
+                    aria-posinset={index + 1}
+                    aria-setsize={postDetail.helpCategoryIds.length}
+                  >
                     {categoryName}
                   </HelpTag>
                 ) : null;

@@ -13,7 +13,12 @@ const MatchSuccessCard = ({ message }: MatchSuccessCardProps) => {
   const userRole = user?.role;
 
   return (
-    <Container role="region" aria-label="매칭 성공 알림">
+    <Container
+      role="region"
+      aria-label="매칭 성공 알림"
+      aria-live="polite"
+      aria-atomic="true"
+    >
       <Title>
         <span aria-hidden="true">🎉</span> 짝짝짝! 매칭이 성사되었어요
         <span className="sr-only">
@@ -24,6 +29,9 @@ const MatchSuccessCard = ({ message }: MatchSuccessCardProps) => {
         확정 내용은 매칭 현황에서도 확인할 수 있어요
         <span className="sr-only">
           매칭 현황 페이지에서 확정된 매칭 내용을 확인할 수 있습니다.
+          {userRole === "DISABLED" && message
+            ? " 아래에 결제 영수증 정보가 표시됩니다."
+            : ""}
         </span>
       </Sub>
       {/* 
@@ -32,7 +40,11 @@ const MatchSuccessCard = ({ message }: MatchSuccessCardProps) => {
         - 장애인(DISABLED): MatchSuccessCard + PayReceipt 영수증 표시
       */}
 
-      {userRole === "DISABLED" && message && <PayReceipt message={message} />}
+      {userRole === "DISABLED" && message && (
+        <div role="group" aria-label="결제 영수증 정보">
+          <PayReceipt message={message} />
+        </div>
+      )}
     </Container>
   );
 };

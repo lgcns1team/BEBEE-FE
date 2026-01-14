@@ -103,7 +103,7 @@ const ChatListPage = () => {
         <Header title="채팅" onBack={() => navigate("/home")} />
         <ChatList role="list" aria-label="채팅방 목록">
           {Array.isArray(chatrooms) && chatrooms.length > 0
-            ? chatrooms.map((room) => (
+            ? chatrooms.map((room, index) => (
                 <ChatItem
                   key={room.chatroomId}
                   role="listitem"
@@ -117,9 +117,9 @@ const ChatListPage = () => {
                       chatroomId: room.chatroomId,
                     });
                   }}
-                  aria-label={`${room.otherNickname}, ${room.title}, ${
-                    room.lastMessage || "메시지 없음"
-                  }, 채팅방 입장 클릭`}
+                  aria-label={`${room.otherNickname}님과의 채팅방, 게시글 제목: ${room.title}, 마지막 메시지: ${room.lastMessage || "메시지 없음"}, 마지막 업데이트: ${formatChatTime(room.updatedAt)}, ${index + 1}번째 항목, 더블탭하여 채팅방 입장`}
+                  aria-posinset={index + 1}
+                  aria-setsize={chatrooms.length}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
