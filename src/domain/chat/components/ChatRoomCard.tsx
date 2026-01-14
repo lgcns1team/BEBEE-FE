@@ -22,6 +22,7 @@ const ChatRoomCard = () => {
   const [isLoadingPost, setIsLoadingPost] = useState(false);
   const { user } = useUserStore();
   const isHelper = user?.role === "HELPER";
+  // activeRoom의 matchStatus를 직접 참조하여 항상 최신 상태 반영
   const matchStatus: MatchStatus = activeRoom?.matchStatus ?? "NON_MATCHED";
   const isInteractive = matchStatus === "NON_MATCHED";
 
@@ -52,6 +53,7 @@ const ChatRoomCard = () => {
           chatroomId: data.chatroomId,
           postId: data.postId,
           postIdType: typeof data.postId,
+          matchStatus: data.matchStatus,
           전체데이터: data,
         });
         setActiveRoom(data); // 데이터 수신 완료 -> activeRoom이 null이 아니게 됨
@@ -68,7 +70,7 @@ const ChatRoomCard = () => {
     //  Cleanup 함수: 잔상 방지
     return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatroomId]);
+  }, [currentPost?.postId, activeRoom?.postId]);
 
   // 2. 게시글 상세 정보 로딩
   useEffect(() => {
@@ -128,9 +130,9 @@ const ChatRoomCard = () => {
     );
   }
   // 프로필 페이지로 이동
-  const handleProfileClick = () =>{
-    navigate(`/profile/${activeRoom.otherId}`)
-  }
+  const handleProfileClick = () => {
+    navigate(`/profile/${activeRoom.otherId}`);
+  };
 
   return (
     <Wrapper>
@@ -217,9 +219,14 @@ const ChatRoomCard = () => {
   );
 };
 const Wrapper = styled.div`
-  position: fixed;
-  width: 343px;
+  position: -webkit-sticky; /* iOS 대응 */
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
   background-color: ${({ theme }) => theme.color.white};
+  flex-shrink: 0;
 `;
 const ChatHeader = styled.div`
   width: 100%;

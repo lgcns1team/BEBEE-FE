@@ -1,8 +1,11 @@
 import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
+import { useUserStore } from "../../../store/useUserStore";
 const MatchFailCard = () => {
   const navigate = useNavigate();
   const { chatroomId } = useParams<{ chatroomId: string }>();
+  const { user } = useUserStore();
+  const userRole = user?.role;
   const handleRetry = () => {
     if (chatroomId) {
       navigate(`/chat/${chatroomId}/match`);
@@ -26,22 +29,24 @@ const MatchFailCard = () => {
         </Sub>
       </FailBox>
 
-      <RetryButton
-        onClick={handleRetry}
-        aria-label="매칭 확인서 다시 작성하기"
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            handleRetry();
-          }
-        }}
-      >
-        다시 작성하기
-        <span className="sr-only">
-          매칭 확인서 작성 페이지로 이동합니다. Enter 키 또는 Space 키를 누르면
-          실행됩니다.
-        </span>
-      </RetryButton>
+      {userRole === "DISABLED" && (
+        <RetryButton
+          onClick={handleRetry}
+          aria-label="매칭 확인서 다시 작성하기"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleRetry();
+            }
+          }}
+        >
+          다시 작성하기
+          <span className="sr-only">
+            매칭 확인서 작성 페이지로 이동합니다. Enter 키 또는 Space 키를
+            누르면 실행됩니다.
+          </span>
+        </RetryButton>
+      )}
     </Wrapper>
   );
 };
