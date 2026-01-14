@@ -135,7 +135,6 @@ const ChatRoom = () => {
 };
 
 export default ChatRoom;
-
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;

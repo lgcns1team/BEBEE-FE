@@ -135,7 +135,7 @@ const ChatRoomCard = () => {
   };
 
   return (
-    <Wrapper>
+    <>
       <Header
         title={activeRoom.otherNickname}
         onBack={() => navigate("/chat")}
@@ -253,21 +253,22 @@ const ChatRoomCard = () => {
           )}
         </HelpTagBox>
       </ChatHeader>
-    </Wrapper>
+    </>
   );
 };
-const Wrapper = styled.div`
-  position: relative;
-  width: 100%;
-  z-index: 10;
-  background-color: ${({ theme }) => theme.color.white};
-  flex-shrink: 0;
-`;
+
 const ChatHeader = styled.div`
   width: 100%;
   padding: 10px 0;
   color: ${({ theme }) => theme.color.text};
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural200};
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  background-color: ${({ theme }) => theme.color.white};
+  flex-shrink: 0;
 `;
 
 const HeaderTop = styled.div`

@@ -99,7 +99,6 @@ const StyledInput = styled.input`
     border-color: ${({ theme }) => theme.color.main}; /* 테마 컬러 활용 */
   }
 `;
-
 const SendButton = styled.button`
   padding: 0 5px;
   border: none;
