@@ -102,7 +102,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   };
 
   return (
-    <Card role="group" aria-label={cardAriaLabel}>
+    <Card aria-label={cardAriaLabel}>
       <div aria-hidden="true">
         <TopArea>
           <Title
