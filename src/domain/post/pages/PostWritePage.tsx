@@ -15,6 +15,7 @@ import { HELP_TAG_LIST } from "../../../constants/helpTags";
 import type { PostCreateReqDTO } from "../../../types/post.type";
 import { FieldSet, ModalLabel, RequiredMark } from "../../../styles/FieldSetStyle";
 import { uploadFile } from "../../../api/fileApi2";
+import Layout from "../../../components/Layout";
 const PostWritePage = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
