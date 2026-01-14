@@ -103,17 +103,15 @@ const AuthSignUpStep6Page = () => {
 
             await signUpUser(signUpParams);
 
-            // 성공 메시지 및 완료 페이지 이동
+            // 성공 메시지 및 로그인 페이지로 이동
             if (systemFlag === "LOW") {
                 alert("가입 및 서류 승인이 완료되었습니다!");
-                reset();
-                navigate("/signup/complete?status=success");
             } else {
                 // MID
                 alert("서류가 접수되었습니다. 관리자 확인 후 승인될 예정입니다.");
-                reset();
-                navigate("/signup/complete?status=pending");
             }
+            reset();
+            navigate("/login", { replace: true });
         } catch (error) {
             console.error("회원가입 실패:", error);
             alert("회원가입 처리 중 오류가 발생했습니다. 다시 시도해 주세요.");
