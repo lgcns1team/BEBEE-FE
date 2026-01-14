@@ -197,7 +197,7 @@ const ListContainer = styled.div`
   flex-direction: column;
   gap: 12px;
   background-color: ${({ theme }) => theme.color.white};
-  padding-top: 180px;
+  padding-top: 20px;
   padding-bottom: 80px;
   -ms-overflow-style: none;
   scrollbar-width: none;

@@ -147,7 +147,7 @@ const PostWritePage = () => {
   };
 
   return (
-    <ScrollWrapper>
+    <Layout>
       <Header title="게시글 작성" onBack={() => navigate("/home")} showBack />
       {/* 헬프타입 선택 */}
 
@@ -273,23 +273,14 @@ const PostWritePage = () => {
           formData.content.trim() === ""
         }
       />
-    </ScrollWrapper>
+    </Layout>
   );
 };
 
 export default PostWritePage;
 
 // Styled-components
-const ScrollWrapper = styled.div`
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  display: flex;
-  padding: 0 16px 16px 16px;
-  background-color: ${({ theme }) => theme.color.white};
-`;
+
 const Container = styled.div`
   flex: 1;
   overflow-y: auto;
@@ -298,6 +289,7 @@ const Container = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+  padding-bottom: 20px;
 `;
 
 const HelpTypeContainer = styled.div`
