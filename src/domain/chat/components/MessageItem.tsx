@@ -23,52 +23,71 @@ const MessageItem = ({ message, isMe }: Props) => {
   // 1. 매칭 관련 카드 메시지인 경우 (가로 전체 사용)
   if (message.type === "MATCH_CONFIRMATION") {
     return (
-      <MessageWrapper>
+      <MessageWrapper
+        role="group"
+        aria-label={`매칭 확인서 메시지, 전송 시간: ${formatTime(message.createdAt)}`}
+      >
         <MatchResult data={message} />
+        <span className="sr-only">
+          전송 시간: {formatTime(message.createdAt)}
+        </span>
       </MessageWrapper>
     );
   }
 
   if (message.type === "MATCH_SUCCESS") {
     return (
-      <MessageWrapper>
+      <MessageWrapper
+        role="group"
+        aria-label={`매칭 성공 메시지, 전송 시간: ${formatTime(message.createdAt)}`}
+      >
         <MatchSuccess message={message} />
+        <span className="sr-only">
+          전송 시간: {formatTime(message.createdAt)}
+        </span>
       </MessageWrapper>
     );
   }
 
   if (message.type === "MATCH_FAILURE") {
     return (
-      <MessageWrapper>
+      <MessageWrapper
+        role="group"
+        aria-label={`매칭 실패 메시지, 전송 시간: ${formatTime(message.createdAt)}`}
+      >
         <MatchFail />
+        <span className="sr-only">
+          전송 시간: {formatTime(message.createdAt)}
+        </span>
       </MessageWrapper>
     );
   }
 
   // 2. 일반 텍스트 메시지인 경우 (말풍선 사용)
+  const messageLabel = isMe
+    ? `내가 보낸 메시지: ${message.textContent || "내용 없음"}, 전송 시간: ${formatTime(message.createdAt)}`
+    : `상대방이 보낸 메시지: ${message.textContent || "내용 없음"}, 수신 시간: ${formatTime(message.createdAt)}`;
+
   return (
     <MessageRow
       $isMe={isMe}
       role="listitem"
-      aria-label={isMe ? "내가 보낸 메시지" : "받은 메시지"}
+      aria-label={messageLabel}
     >
       {isMe && (
-        <MessageTime aria-label={`전송 시간: ${formatTime(message.createdAt)}`}>
+        <MessageTime aria-hidden="true">
           {formatTime(message.createdAt)}
         </MessageTime>
       )}
-      <MessageBubble $isMe={isMe}>
+      <MessageBubble $isMe={isMe} aria-hidden="true">
         {message.textContent}
-        <span className="sr-only">
-          {isMe ? "내가 보낸 메시지" : "상대방이 보낸 메시지"}, 전송 시간:{" "}
-          {formatTime(message.createdAt)}
-        </span>
       </MessageBubble>
       {!isMe && (
-        <MessageTime aria-label={`수신 시간: ${formatTime(message.createdAt)}`}>
+        <MessageTime aria-hidden="true">
           {formatTime(message.createdAt)}
         </MessageTime>
       )}
+      <span className="sr-only">{messageLabel}</span>
     </MessageRow>
   );
 };

@@ -10,6 +10,7 @@ import { useUserStore } from "../../../store/useUserStore";
 import { chatApi } from "../../../api/chatApi";
 import type { MatchStatus } from "../types/chat.types";
 import Layout from "../../../components/Layout";
+import { useVisualViewportResize } from "../../../hooks/useVisualViewportResize";
 
 const ChatRoom = () => {
   const { chatroomId } = useParams<{ chatroomId: string }>();
@@ -26,6 +27,19 @@ const ChatRoom = () => {
   // 현재 유효한 chatroomId를 추적하기 위한 ref
   const currentChatroomIdRef = useRef<string | undefined>(chatroomId);
   const isMountedRef = useRef(true);
+
+  // 스크롤 컨테이너 및 고정 요소 ref
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const chatRoomCardRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  // Visual Viewport resize 훅 적용
+  useVisualViewportResize({
+    scrollContainerRef,
+    fixedElementRef: chatRoomCardRef,
+    containerRef: chatContainerRef,
+    keyboardOffset: 40,
+  });
 
   // 1. 채팅방 정보 조회 및 소켓 연결
   useEffect(() => {
@@ -125,9 +139,11 @@ const ChatRoom = () => {
   return (
     <Layout aria-label="채팅방">
       <span className="sr-only">채팅방 페이지입니다. </span>
-      <ChatContainer>
-        <ChatRoomCard />
-        <MessageList />
+      <ChatContainer ref={chatContainerRef}>
+        <ChatRoomCardWrapper ref={chatRoomCardRef}>
+          <ChatRoomCard />
+        </ChatRoomCardWrapper>
+        <MessageList ref={scrollContainerRef} />
         <ChatInput onSend={handleSend} />
       </ChatContainer>
     </Layout>
@@ -141,4 +157,12 @@ const ChatContainer = styled.div`
   height: 100%;
   overflow: hidden;
   position: relative;
+`;
+
+const ChatRoomCardWrapper = styled.div`
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: ${({ theme }) => theme.color.white};
 `;

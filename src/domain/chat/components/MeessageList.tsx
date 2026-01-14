@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from "react";
+import React, { useEffect, useRef, useMemo, forwardRef } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import MessageItem from "./MessageItem";
@@ -7,9 +7,22 @@ import { useUserStore } from "../../../store/useUserStore";
 
 const EMPTY_ARRAY: never[] = [];
 
-const MessageList = () => {
+interface MessageListProps {}
+
+const MessageList = forwardRef<HTMLDivElement, MessageListProps>((props, ref) => {
   const { chatroomId } = useParams<{ chatroomId: string }>();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const internalScrollRef = useRef<HTMLDivElement>(null);
+  
+  // ref를 동기화: 외부 ref가 있으면 사용, 없으면 내부 ref 사용
+  useEffect(() => {
+    if (typeof ref === "function") {
+      ref(internalScrollRef.current);
+    } else if (ref) {
+      (ref as React.MutableRefObject<HTMLDivElement | null>).current = internalScrollRef.current;
+    }
+  }, [ref]);
+  
+  const scrollRef = internalScrollRef;
 
   // 빈 배열 상수를 사용하여 매번 새로운 배열을 생성하지 않도록 함
   const rawMessages = useChatStore((state) => {
@@ -149,13 +162,15 @@ const MessageList = () => {
   return (
     <ListContainer
       ref={scrollRef}
-      role="log"
-      aria-label="채팅 메시지 목록"
+      role="list"
+      aria-label={`채팅 메시지 목록, 총 ${messages.length}개의 메시지`}
       aria-live="polite"
       aria-atomic="false"
     >
       <span className="sr-only">
         채팅 메시지 목록입니다. 총 {messages.length}개의 메시지가 있습니다.
+        {messages.length > 0 &&
+          ` 첫 번째 메시지부터 ${messages.length}번째 메시지까지 순서대로 읽을 수 있습니다.`}
       </span>
       {messages.map((msg, index) => {
         // 이전 메시지와 날짜 비교
@@ -172,21 +187,32 @@ const MessageList = () => {
               <DateDivider
                 role="separator"
                 aria-label={`날짜 구분선: ${getFormatDate(msg.createdAt)}`}
+                aria-atomic="true"
               >
-                <span>{getFormatDate(msg.createdAt)}</span>
+                <span aria-hidden="true">{getFormatDate(msg.createdAt)}</span>
                 <span className="sr-only">
-                  {getFormatDate(msg.createdAt)}부터의 메시지입니다
+                  날짜 구분선: {getFormatDate(msg.createdAt)}부터의 메시지입니다
                 </span>
               </DateDivider>
             )}
 
-            <MessageItem message={msg} isMe={msg.senderId === user?.memberId} />
+            <MessageItem
+              message={msg}
+              isMe={msg.senderId === user?.memberId}
+            />
           </React.Fragment>
         );
       })}
+      {messages.length === 0 && (
+        <span className="sr-only" role="status" aria-live="polite">
+          아직 메시지가 없습니다.
+        </span>
+      )}
     </ListContainer>
   );
-};
+});
+
+MessageList.displayName = "MessageList";
 
 export default MessageList;
 
