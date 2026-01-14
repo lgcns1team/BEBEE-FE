@@ -52,13 +52,14 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   const renderActionButton = () => {
     switch (engagement.status) {
       case "INACTIVE":
-        return <InactiveButton disabled>활동 전</InactiveButton>;
+        return <InactiveButton disabled tabIndex={0}>활동 전</InactiveButton>;
 
       case "ACTIVE":
         return (
           <DoneButton
             onClick={() => onComplete(engagement.engagementId)}
             aria-label="활동을 완료 처리합니다"
+            tabIndex={0}
           >
             활동 완료
           </DoneButton>
@@ -69,6 +70,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
           <CompletedButton
             disabled
             aria-label="이미 활동 완료 처리가 되었습니다."
+            tabIndex={0}
           >
             활동 완료
           </CompletedButton>
@@ -79,15 +81,16 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
           <ReviewButton
             onClick={() => navigate(`/review/${engagement.matchId}`)}
             aria-label="리뷰 작성 페이지로 이동합니다"
+            tabIndex={0}
           >
-            <BsPencil size={12} />
+            <BsPencil size={12} aria-hidden="true"/>
             리뷰 작성하기
           </ReviewButton>
         );
 
       case "REVIEW_COMPLETED":
         return (
-          <ReviewButton disabled aria-label="이미 리뷰를 작성한 활동 입니다.">
+          <ReviewButton disabled aria-label="이미 리뷰를 작성한 활동 입니다." tabIndex={0}>
             리뷰 작성 완료
           </ReviewButton>
         );
@@ -170,6 +173,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
           <ChatButton
             onClick={goChatPage}
             aria-label="채팅 화면으로 이동합니다"
+            tabIndex={0}
           >
             <BsChat size={12} aria-hidden="true" />
             <span>채팅하기</span>
