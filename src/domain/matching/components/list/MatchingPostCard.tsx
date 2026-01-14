@@ -102,8 +102,12 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   };
 
   return (
-    <Card role="group">
-      <CardSummary role="text">
+    <Card
+      role="group"
+      tabIndex={0}
+      aria-labelledby={`card-summary-${engagement.engagementId}`}
+    >
+      <CardSummary id={`card-summary-${engagement.engagementId}`}>
         활동 제목 {engagement.title}. 매칭 상대 {engagement.otherNickname}. 활동
         지역 {engagement.region}. 도움 날짜 {scheduleText}.
         {engagement.helpType === "DAY"
