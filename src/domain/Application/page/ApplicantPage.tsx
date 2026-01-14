@@ -35,37 +35,44 @@ const ApplicantPage: React.FC = () => {
   }, [postId, memberId, title, helpCategoryIds, setCurrentPost, setApplicants]);
 
   return (
-    <Container>
+    <Container
+      role="region"
+      aria-label={`${title} 페이지, 지원자 목록을 확인할 수 있습니다`}
+    >
       <Section>
-        <Header
-          onBack={() => navigate(-1)}
-          title={title}
-          showBack
-          aria-label="지원자 목록을 확인하실 수 있습니다"
-        />
+        <Header onBack={() => navigate(-1)} title={title} showBack />
 
-        <FilterSection aria-label="모든 지원자와 나눔으로 지원한 지원자를 필터링 할 수 있습니다">
+        <FilterSection role="tablist " aria-label="지원자 필터">
           <button
+            role="tab"
+            aria-selected={!isSharing}
+            aria-controls="applicant-list"
             className={!isSharing ? "active" : ""}
             onClick={() => setIsSharing(false)}
-            aria-label="모든 지원자 목록입니다"
           >
             전체
           </button>
 
           <button
+            role="tab"
+            aria-selected={isSharing}
+            aria-controls="applicant-list"
             className={isSharing ? "active" : ""}
             onClick={() => setIsSharing(true)}
-            aria-label="나눔으로 지원한 지원자 목록입니다"
           >
             나눔
           </button>
         </FilterSection>
       </Section>
 
-      <PostList>
+      <PostList
+        id="applicant-list"
+        role="list"
+        aria-label={
+          isSharing ? "나눔으로 지원한 지원자 목록" : "전체 지원자 목록"
+        }
+      >
         <ApplicantCard applicants={applicants} isSharing={isSharing} />
-        {/* postId={postId} postTitle={title} helpCategoryIds={helpCategoryIds} */}
       </PostList>
     </Container>
   );
