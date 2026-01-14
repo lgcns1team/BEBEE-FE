@@ -70,8 +70,6 @@ const NavContainer = styled.div`
   bottom: 0;
   height: 60px;
   background: white;
-
-  padding-bottom: env(safe-area-inset-bottom);
 `;
 
 const NavList = styled.div`

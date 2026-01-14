@@ -621,130 +621,152 @@ const MatchFormPage = () => {
         <Header title="매칭 확인서" onBack={() => navigate(-1)} showBack />
         {/* === 공통 필드 === */}
         <div role="form" aria-label="매칭 확인서 작성 폼">
-          <GeneralInput
-            value={
-              agreementRequest.type ? typeLabelMap[agreementRequest.type] : ""
-            }
-            disabled
-            aria-label={`도움 유형: ${
-              agreementRequest.type
-                ? typeLabelMap[agreementRequest.type]
-                : "없음"
-            }`}
-          />
+          {/* 기본 정보 그룹 */}
+          <div role="group" aria-label="기본 정보">
+            <GeneralInput
+              value={
+                agreementRequest.type ? typeLabelMap[agreementRequest.type] : ""
+              }
+              disabled
+              aria-label={`도움 유형: ${
+                agreementRequest.type
+                  ? typeLabelMap[agreementRequest.type]
+                  : "없음"
+              }`}
+            />
 
-          <GeneralInput
-            inputLabel="제목"
-            value={postDetail?.title || ""}
-            disabled
-            required
-            aria-label={`게시글 제목: ${postDetail?.title || "없음"}`}
-          />
-          <HelpTagDropDown
-            selectedTags={selectedTags}
-            onTagsChange={setSelectedTags}
-          />
+            <GeneralInput
+              inputLabel="제목"
+              value={postDetail?.title || ""}
+              disabled
+              required
+              aria-label={`게시글 제목: ${postDetail?.title || "없음"}`}
+            />
+            <HelpTagDropDown
+              selectedTags={selectedTags}
+              onTagsChange={setSelectedTags}
+            />
+          </div>
 
           {/* === 하루도움 필드 === */}
           {agreementRequest.type === "DAY" && dayEngagement ? (
-            <DayHelpForm
-              dayEngagement={dayEngagement}
-              setDayEngagement={setDayEngagement}
-              agreementRequest={agreementRequest}
-              updateField={updateField}
-            />
+            <div role="group" aria-label="하루도움 일정 정보">
+              <DayHelpForm
+                dayEngagement={dayEngagement}
+                setDayEngagement={setDayEngagement}
+                agreementRequest={agreementRequest}
+                updateField={updateField}
+              />
+            </div>
           ) : agreementRequest.type === "TERM" && termEngagement ? (
-            <LongHelpForm
-              termEngagement={termEngagement}
-              setTermEngagement={setTermEngagement}
-              agreementRequest={agreementRequest}
-              updateField={updateField}
-            />
+            <div role="group" aria-label="지속도움 일정 정보">
+              <LongHelpForm
+                termEngagement={termEngagement}
+                setTermEngagement={setTermEngagement}
+                agreementRequest={agreementRequest}
+                updateField={updateField}
+              />
+            </div>
           ) : null}
 
-          <HoneyInputWrapper>
-            <InputContainer>
-              <GeneralInput
-                inputLabel="1회 제공 꿀"
-                value={
-                  agreementRequest.isVolunteer
-                    ? "나눔"
-                    : (agreementRequest.unitHoney || 0).toString()
+          {/* 꿀 정보 그룹 */}
+          <div role="group" aria-label="꿀 제공 정보">
+            <HoneyInputWrapper>
+              <InputContainer>
+                <GeneralInput
+                  inputLabel="1회 제공 꿀"
+                  value={
+                    agreementRequest.isVolunteer
+                      ? "나눔"
+                      : (agreementRequest.unitHoney || 0).toString()
+                  }
+                  onChange={(e) => {
+                    if (agreementRequest.isVolunteer) return;
+                    const value = parseInt(e.target.value) || 0;
+                    updateField("unitHoney", value);
+                  }}
+                  disabled={agreementRequest.isVolunteer ?? false}
+                  required
+                />
+              </InputContainer>
+              <BalanceCheckButton
+                onClick={handleCheckBalance}
+                disabled={
+                  isCheckingBalance || (agreementRequest.isVolunteer ?? false)
                 }
-                onChange={(e) => {
-                  if (agreementRequest.isVolunteer) return;
-                  const value = parseInt(e.target.value) || 0;
-                  updateField("unitHoney", value);
+                $isSufficient={isBalanceSufficient}
+                aria-label={
+                  isCheckingBalance
+                    ? "잔액 확인 중"
+                    : agreementRequest.isVolunteer
+                    ? "나눔은 잔액 확인이 필요 없습니다"
+                    : `잔액 확인하기, ${
+                        isBalanceChecked && isBalanceSufficient
+                          ? "잔액이 충분합니다"
+                          : ""
+                      }`
+                }
+                tabIndex={0}
+              >
+                {isCheckingBalance ? "확인 중..." : "잔액확인"}
+                <span className="sr-only">
+                  {isCheckingBalance
+                    ? "잔액을 확인하는 중입니다"
+                    : agreementRequest.isVolunteer
+                    ? "나눔은 꿀이 차감되지 않으므로 잔액 확인이 필요 없습니다"
+                    : `보유한 꿀 잔액을 확인합니다. ${
+                        isBalanceChecked && isBalanceSufficient
+                          ? "잔액이 충분합니다."
+                          : ""
+                      } Enter 키 또는 Space 키를 누르면 실행됩니다.`}
+                </span>
+              </BalanceCheckButton>
+            </HoneyInputWrapper>
+            {agreementRequest.type === "TERM" &&
+            termEngagement &&
+            agreementRequest.unitHoney &&
+            agreementRequest.totalHoney &&
+            !agreementRequest.isVolunteer ? (
+              <TotlaHoney role="status" aria-live="polite" aria-atomic="true">
+                <span style={{ color: "#155DFC" }} aria-hidden="true">
+                  {" "}
+                  총 제공 꿀:{" "}
+                </span>
+                <span>
+                  총{" "}
+                  <span style={{ color: "#155DFC" }} aria-hidden="true">
+                    {agreementRequest.totalHoney.toLocaleString()} 꿀
+                  </span>
+                  이 도우미에게 제공될 예정이에요
+                </span>
+                <span className="sr-only">
+                  총 {agreementRequest.totalHoney.toLocaleString()}꿀이
+                  도우미에게 제공될 예정이에요
+                </span>
+              </TotlaHoney>
+            ) : null}
+          </div>
+
+          {/* 만남 장소 그룹 */}
+          <div role="group" aria-label="만남 장소 정보">
+            <LocationInputWrapper>
+              <LocationInput
+                inputLabel="만남 장소"
+                infoText="행정동 단위까지만 공개되니 안심하세요."
+                value={agreementRequest.region || postDetail?.postAddress || ""}
+                onSelect={(loc) => {
+                  updateField("region", loc.address);
                 }}
-                disabled={agreementRequest.isVolunteer ?? false}
                 required
               />
-            </InputContainer>
-            <BalanceCheckButton
-              onClick={handleCheckBalance}
-              disabled={
-                isCheckingBalance || (agreementRequest.isVolunteer ?? false)
-              }
-              $isSufficient={isBalanceSufficient}
-              aria-label={
-                isCheckingBalance
-                  ? "잔액 확인 중"
-                  : agreementRequest.isVolunteer
-                  ? "나눔은 잔액 확인이 필요 없습니다"
-                  : "잔액 확인하기"
-              }
-            >
-              {isCheckingBalance ? "확인 중..." : "잔액확인"}
-              <span className="sr-only">
-                {isCheckingBalance
-                  ? "잔액을 확인하는 중입니다"
-                  : agreementRequest.isVolunteer
-                  ? "나눔은 꿀이 차감되지 않으므로 잔액 확인이 필요 없습니다"
-                  : "보유한 꿀 잔액을 확인합니다. Enter 키 또는 Space 키를 누르면 실행됩니다."}
-              </span>
-            </BalanceCheckButton>
-          </HoneyInputWrapper>
-          {agreementRequest.type === "TERM" &&
-          termEngagement &&
-          agreementRequest.unitHoney &&
-          agreementRequest.totalHoney &&
-          !agreementRequest.isVolunteer ? (
-            <TotlaHoney role="status" aria-live="polite">
-              <span style={{ color: "#155DFC" }}> 총 제공 꿀: </span>
-              <span>
-                총{" "}
-                <span style={{ color: "#155DFC" }}>
-                  {agreementRequest.totalHoney.toLocaleString()} 꿀
-                </span>
-                이 도우미에게 제공될 예정이에요
-              </span>
-              <span className="sr-only">
-                총 {agreementRequest.totalHoney.toLocaleString()}꿀이 도우미에게
-                제공될 예정이에요
-              </span>
-            </TotlaHoney>
-          ) : null}
-          <LocationInputWrapper>
-            <LocationInput
-              inputLabel="만남 장소"
-              infoText="행정동 단위까지만 공개되니 안심하세요."
-              value={agreementRequest.region || postDetail?.postAddress || ""}
-              onSelect={(loc) => {
-                updateField("region", loc.address);
-              }}
-              required
-            />
-          </LocationInputWrapper>
+            </LocationInputWrapper>
+          </div>
 
+          {/* 제출 버튼 */}
           <BaseLongButton
             label={isSubmitting ? "생성 중..." : "확인"}
             onClick={handleConfirm}
             disabled={isSubmitting}
-            aria-label={
-              isSubmitting
-                ? "매칭 확인서 생성 중"
-                : "매칭 확인서 작성 완료 및 전송"
-            }
           />
         </div>
       </div>
