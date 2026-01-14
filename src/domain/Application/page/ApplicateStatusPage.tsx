@@ -52,23 +52,28 @@ const ApplicateStatusPage = () => {
           onBack={() => navigate("/mypage")}
           title="지원 현황"
           showBack
-          aria-label="지원 현황 페이지 입니다"
         />
 
-         <h1 id="application-status-title" className="sr-only">
+         <h1 className="sr-only">지원 현황 페이지
           지원 현황 페이지
         </h1>
-        <SummaryBox aria-label="지원 현황 요약">
-          <SummaryItem aria-label={`지원자 수는 ${totalCommon}명 입니다.`}>
+        <SummaryCard
+          role="group"
+          tabIndex={0}
+          aria-label={`지원 현황 요약입니다. 
+          지원자 수는 ${totalCommon}명,
+          나눔 지원 수는 ${totalVolunteer}명 입니다.`}
+        >
+          <SummaryItem aria-hidden="true">
             <span>지원자</span>
             <strong>{totalCommon}</strong>
-          </SummaryItem >
+          </SummaryItem  >
           <Divider  aria-hidden="true"/>
-          <SummaryItem aria-label={`나눔 지원 수는 ${totalVolunteer}명 입니다`}>
+          <SummaryItem aria-hidden="true">
             <span>나눔</span>
             <strong>{totalVolunteer}</strong>
           </SummaryItem>
-        </SummaryBox>
+        </SummaryCard>
       </Section1>
       <Section2>
         <ExcludeDone>
@@ -80,7 +85,6 @@ const ApplicateStatusPage = () => {
           />
         </ExcludeDone>
         <PostList
-          role="region"
           aria-label="지원한 게시글 목록"
         >
         <PostStatusItem posts={filteredPosts} />
@@ -112,7 +116,7 @@ const Section2 = styled.div`
   background-color: ${({ theme }) => theme.color.white};
 `;
 
-const SummaryBox = styled.div`
+const SummaryCard = styled.div`
   display: flex;
   border-top: 1px solid ${({ theme }) => theme.color.natural200};
   border-bottom: 1px solid ${({ theme }) => theme.color.natural200};

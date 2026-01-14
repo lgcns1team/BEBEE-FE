@@ -8,7 +8,7 @@ const NavBar = () => {
   const navItems = [
     { label: "홈", path: "/home", icon: IoHomeOutline },
     { label: "동네지도", path: "/map", icon: IoMapOutline },
-    { label: "매칭현황", path: "/engagements", icon: IoFolderOutline },
+    { label: "활동관리", path: "/engagements", icon: IoFolderOutline },
     { label: "채팅", path: "/chat", icon: IoChatbubbleOutline },
     { label: "나의비비", path: "/mypage", icon: IoPersonOutline },
   ];
