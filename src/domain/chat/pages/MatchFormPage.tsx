@@ -700,7 +700,11 @@ const MatchFormPage = () => {
                     ? "잔액 확인 중"
                     : agreementRequest.isVolunteer
                     ? "나눔은 잔액 확인이 필요 없습니다"
-                    : `잔액 확인하기, ${isBalanceChecked && isBalanceSufficient ? "잔액이 충분합니다" : ""}`
+                    : `잔액 확인하기, ${
+                        isBalanceChecked && isBalanceSufficient
+                          ? "잔액이 충분합니다"
+                          : ""
+                      }`
                 }
                 tabIndex={0}
               >
@@ -710,7 +714,11 @@ const MatchFormPage = () => {
                     ? "잔액을 확인하는 중입니다"
                     : agreementRequest.isVolunteer
                     ? "나눔은 꿀이 차감되지 않으므로 잔액 확인이 필요 없습니다"
-                    : `보유한 꿀 잔액을 확인합니다. ${isBalanceChecked && isBalanceSufficient ? "잔액이 충분합니다." : ""} Enter 키 또는 Space 키를 누르면 실행됩니다.`}
+                    : `보유한 꿀 잔액을 확인합니다. ${
+                        isBalanceChecked && isBalanceSufficient
+                          ? "잔액이 충분합니다."
+                          : ""
+                      } Enter 키 또는 Space 키를 누르면 실행됩니다.`}
                 </span>
               </BalanceCheckButton>
             </HoneyInputWrapper>
@@ -720,7 +728,10 @@ const MatchFormPage = () => {
             agreementRequest.totalHoney &&
             !agreementRequest.isVolunteer ? (
               <TotlaHoney role="status" aria-live="polite" aria-atomic="true">
-                <span style={{ color: "#155DFC" }} aria-hidden="true"> 총 제공 꿀: </span>
+                <span style={{ color: "#155DFC" }} aria-hidden="true">
+                  {" "}
+                  총 제공 꿀:{" "}
+                </span>
                 <span>
                   총{" "}
                   <span style={{ color: "#155DFC" }} aria-hidden="true">
@@ -729,8 +740,8 @@ const MatchFormPage = () => {
                   이 도우미에게 제공될 예정이에요
                 </span>
                 <span className="sr-only">
-                  총 {agreementRequest.totalHoney.toLocaleString()}꿀이 도우미에게
-                  제공될 예정이에요
+                  총 {agreementRequest.totalHoney.toLocaleString()}꿀이
+                  도우미에게 제공될 예정이에요
                 </span>
               </TotlaHoney>
             ) : null}
@@ -756,12 +767,6 @@ const MatchFormPage = () => {
             label={isSubmitting ? "생성 중..." : "확인"}
             onClick={handleConfirm}
             disabled={isSubmitting}
-            aria-label={
-              isSubmitting
-                ? "매칭 확인서 생성 중입니다"
-                : "매칭 확인서 작성 완료 및 전송, 더블탭하여 매칭 확인서를 전송합니다"
-            }
-            tabIndex={0}
           />
         </div>
       </div>
