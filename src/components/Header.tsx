@@ -24,7 +24,7 @@ interface HeaderProps {
   onRightClick?: () => void;
   showRight?: boolean;
   bg?: boolean;
-  onTitleClick? : () => void;
+  onTitleClick?: () => void;
 }
 
 const Header = ({
@@ -35,15 +35,15 @@ const Header = ({
   onRightClick,
   showRight,
   bg,
-  onTitleClick
+  onTitleClick,
 }: HeaderProps) => {
   return (
     <Container bg={bg}>
       {/* 왼쪽: 항상 노출 */}
 
       {showBack && (
-        <Left onClick={onBack}>
-          <IoChevronBack size={25} aria-label="뒤로 가기" />
+        <Left onClick={onBack} aria-label="뒤로 가기">
+          <IoChevronBack size={25} aria-hidden="true" />
         </Left>
       )}
       {/* 타이틀 영역 */}
@@ -75,9 +75,7 @@ const Container = styled.header<{ bg?: boolean }>`
 
   position: sticky;
   box-sizing: border-box;
-  background-color: ${({ bg, theme }) =>
-    bg ? theme.color.natural50 : theme.color.white};
-  z-index: 800;
+  background-color: ${({ bg, theme }) => (bg ? theme.color.natural50 : theme.color.white)};
 `;
 
 const Left = styled.div`

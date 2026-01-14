@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
@@ -14,13 +14,6 @@ const AuthSignUpStep1Page = () => {
   const { role, setRole } = useAuthSignUpForm();
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(role);
 
-  // store의 role이 변경되면 selectedRole도 업데이트 (뒤로가기 시 role 유지)
-  useEffect(() => {
-    if (role) {
-      setSelectedRole(role);
-    }
-  }, [role]);
-
   const handleNext = () => {
     if (!selectedRole) return;
     setRole(selectedRole); // Zustand store에 저장
@@ -29,11 +22,7 @@ const AuthSignUpStep1Page = () => {
 
   return (
     <Layout>
-      <AuthSignUpHeader
-        currentStep={1}
-        totalSteps={5}
-        onBack={() => navigate("/home")}
-      />
+      <AuthSignUpHeader currentStep={1} totalSteps={5} onBack={() => navigate("/home")} />
       <PageContainer>
         <ScrollArea>
           <FieldSet>
@@ -55,11 +44,7 @@ const AuthSignUpStep1Page = () => {
           </FieldSet>
         </ScrollArea>
       </PageContainer>
-      <BaseLongButton
-        label="다음"
-        onClick={handleNext}
-        disabled={!selectedRole}
-      />
+      <BaseLongButton label="다음" onClick={handleNext} disabled={!selectedRole} />
     </Layout>
   );
 };
@@ -71,6 +56,7 @@ const PageContainer = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+  padding: 2rem 0;
 `;
 
 const ScrollArea = styled.div`

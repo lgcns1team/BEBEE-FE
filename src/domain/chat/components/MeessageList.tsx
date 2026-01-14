@@ -149,13 +149,15 @@ const MessageList = () => {
   return (
     <ListContainer
       ref={scrollRef}
-      role="log"
-      aria-label="채팅 메시지 목록"
+      role="list"
+      aria-label={`채팅 메시지 목록, 총 ${messages.length}개의 메시지`}
       aria-live="polite"
       aria-atomic="false"
     >
       <span className="sr-only">
         채팅 메시지 목록입니다. 총 {messages.length}개의 메시지가 있습니다.
+        {messages.length > 0 &&
+          ` 첫 번째 메시지부터 ${messages.length}번째 메시지까지 순서대로 읽을 수 있습니다.`}
       </span>
       {messages.map((msg, index) => {
         // 이전 메시지와 날짜 비교
@@ -172,10 +174,11 @@ const MessageList = () => {
               <DateDivider
                 role="separator"
                 aria-label={`날짜 구분선: ${getFormatDate(msg.createdAt)}`}
+                aria-atomic="true"
               >
-                <span>{getFormatDate(msg.createdAt)}</span>
+                <span aria-hidden="true">{getFormatDate(msg.createdAt)}</span>
                 <span className="sr-only">
-                  {getFormatDate(msg.createdAt)}부터의 메시지입니다
+                  날짜 구분선: {getFormatDate(msg.createdAt)}부터의 메시지입니다
                 </span>
               </DateDivider>
             )}
@@ -184,6 +187,11 @@ const MessageList = () => {
           </React.Fragment>
         );
       })}
+      {messages.length === 0 && (
+        <span className="sr-only" role="status" aria-live="polite">
+          아직 메시지가 없습니다.
+        </span>
+      )}
     </ListContainer>
   );
 };
@@ -192,6 +200,7 @@ export default MessageList;
 
 const ListContainer = styled.div`
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;

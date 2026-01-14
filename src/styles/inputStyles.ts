@@ -5,8 +5,7 @@ import styled from "styled-components";
 export const FieldSet = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-top: 2.5rem;
+  gap: 0.5rem;
 `;
 
 export const InputLabel = styled.label`
@@ -53,6 +52,7 @@ export const LocationInputWrapper = styled.div`
 
   input {
     padding-left: 3rem;
+    padding-right: 3rem;
   }
 `;
 

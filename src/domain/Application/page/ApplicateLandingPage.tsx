@@ -141,6 +141,7 @@ const HiConatiner = styled.div`
   color: ${({ theme }) => theme.color.text};
   font-weight: ${({ theme }) => theme.weight.bold};
   flex-shrink: 0;
+  font-family: "Paperlogy";
 `;
 
 const ImgContainer = styled.div`

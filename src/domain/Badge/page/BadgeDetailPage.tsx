@@ -7,14 +7,14 @@ import { useBadgeStore } from "../store/useBadgeStore";
 import { BADGE_RESOURCE_MAP } from "../types/badge.type";
 import { DISABILITY_TYPES } from "../../../constants/disabilityTypes";
 import ShareButton from "../components/ShareButton";
+import Loading from "../../../components/Loading";
 
 const BadgeDetailPage = () => {
   const navigate = useNavigate();
   const { disabilityId } = useParams<{ disabilityId: string }>();
   const [searchParams] = useSearchParams();
   const level = searchParams.get("level");
-  const { isLoading, error, fetchBadgeStatus, getBadgeStatusByDisabilityId } =
-    useBadgeStore();
+  const { isLoading, error, fetchBadgeStatus, getBadgeStatusByDisabilityId } = useBadgeStore();
 
   useEffect(() => {
     fetchBadgeStatus();
@@ -26,7 +26,7 @@ const BadgeDetailPage = () => {
     return (
       <Layout>
         <Header onBack={() => navigate(-1)} showBack />
-        <LoadingContainer>뱃지 정보를 불러오는 중...</LoadingContainer>
+        <Loading />
       </Layout>
     );
   }

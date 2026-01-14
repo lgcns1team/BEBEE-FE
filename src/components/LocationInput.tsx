@@ -11,6 +11,7 @@ import {
   InputBox,
 } from "../styles/inputStyles";
 import styled from "styled-components";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface LocationInputProps {
   inputLabel?: string;
@@ -526,7 +527,7 @@ const LocationInput = ({
                     </KakaoMap>
                   ) : (
                     <MapLoadingContainer>
-                      <MapLoadingText>지도를 불러오는 중...</MapLoadingText>
+                      <LoadingSpinner />
                     </MapLoadingContainer>
                   )}
                 </MapContainer>
@@ -612,7 +613,7 @@ const MapButton = styled.button`
   z-index: 10;
 
   &:hover {
-    color: #155DFC;
+    color: ${({ theme }) => theme.color.main};
   }
 
   &:disabled {
@@ -650,10 +651,8 @@ const ModalContainer = styled(motion.div)`
   position: relative;
   width: 90%;
   max-width: 500px;
-  max-height: 80vh;
   background: white;
   border-radius: 12px;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   z-index: 1001;
@@ -762,7 +761,7 @@ const ConfirmButtonGroup = styled.div`
 const ConfirmButton = styled.button`
   flex: 1;
   padding: 12px 20px;
-  background: #155DFC;
+  background: ${({ theme }) => theme.color.main};
   color: white;
   border: none;
   border-radius: 8px;
