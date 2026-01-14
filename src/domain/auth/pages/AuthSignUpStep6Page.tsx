@@ -110,8 +110,13 @@ const AuthSignUpStep6Page = () => {
                 // MID
                 alert("서류가 접수되었습니다. 관리자 확인 후 승인될 예정입니다.");
             }
-            reset();
+            
+            // navigate를 먼저 실행하여 로그인 페이지로 이동
+            // reset은 navigate 후 충분한 딜레이를 두고 호출 (다른 Step 페이지의 useEffect 실행 방지)
             navigate("/login", { replace: true });
+            setTimeout(() => {
+                reset();
+            }, 1000); // 1초 딜레이로 로그인 페이지 렌더링 완료 후 reset
         } catch (error) {
             console.error("회원가입 실패:", error);
             alert("회원가입 처리 중 오류가 발생했습니다. 다시 시도해 주세요.");
