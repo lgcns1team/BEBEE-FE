@@ -135,7 +135,7 @@ const ChatRoomCard = () => {
   };
 
   return (
-    <Wrapper>
+    <>
       <Header
         title={activeRoom.otherNickname}
         onBack={() => navigate("/chat")}
@@ -253,17 +253,12 @@ const ChatRoomCard = () => {
           )}
         </HelpTagBox>
       </ChatHeader>
-    </Wrapper>
+    </>
   );
 };
-const Wrapper = styled.div`
-  position: relative;
-  width: 100%;
-  z-index: 10;
-  background-color: ${({ theme }) => theme.color.white};
-  flex-shrink: 0;
-`;
+
 const ChatHeader = styled.div`
+  flex-shrink: 0;
   width: 100%;
   padding: 10px 0;
   color: ${({ theme }) => theme.color.text};

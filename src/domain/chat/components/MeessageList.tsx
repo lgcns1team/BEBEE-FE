@@ -192,7 +192,7 @@ export default MessageList;
 
 const ListContainer = styled.div`
   flex: 1;
-  min-height: 0; /* flex item이 축소될 수 있도록 */
+  flex-shrink: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
