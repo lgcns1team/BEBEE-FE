@@ -21,8 +21,9 @@ interface SignUpFormData {
     districtCode: string;
 
     // Step 4: 역할별 정보
-    // 도우미: 도움 유형
+    // 도우미/장애인 공통: 도움 유형, 자기소개
     helpTypes: string[];
+    introduction: string;
     // 장애인: 장애 정보
     disabilityType: string;
     disabilityGrade: string;        // "1" = 중증, "2" = 경증
@@ -52,6 +53,7 @@ interface SignUpFormActions {
         districtCode: string;
     }) => void;
     setHelpTypes: (helpTypes: string[]) => void;
+    setIntroduction: (introduction: string) => void;
     setDisabilityInfo: (type: string, grade: string, description: string) => void;
     setUploadedFile: (file: File | null) => void;
     setFileUrl: (url: string | null) => void;
@@ -74,6 +76,7 @@ const initialState: SignUpFormData = {
     longitude: 0,
     districtCode: "",
     helpTypes: [],
+    introduction: "",
     disabilityType: "",
     disabilityGrade: "",
     disabilityDescription: "",
@@ -94,6 +97,8 @@ export const useAuthSignUpForm = create<SignUpFormData & SignUpFormActions>(
         setPersonalInfo: (data) => set(data),
 
         setHelpTypes: (helpTypes) => set({ helpTypes }),
+
+        setIntroduction: (introduction) => set({ introduction }),
 
         setDisabilityInfo: (type, grade, description) =>
             set({ disabilityType: type, disabilityGrade: grade, disabilityDescription: description }),
