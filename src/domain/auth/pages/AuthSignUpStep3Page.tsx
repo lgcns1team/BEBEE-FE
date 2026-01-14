@@ -7,11 +7,7 @@ import GeneralInput from "../../../components/GeneralInput";
 //import LocationInput from "../../../components/LocationInput";
 import AuthSignUpHeader from "../components/AuthSignUpHeader";
 import AuthGenderSelector from "../components/AuthGenderSelector";
-import {
-  FieldSet,
-  ModalLabel,
-  RequiredMark,
-} from "../../../styles/FieldSetStyle";
+import { FieldSet, ModalLabel, RequiredMark } from "../../../styles/FieldSetStyle";
 
 import BaseInput from "../../../components/BaseInput";
 import type { Gender } from "../auth.types";
@@ -67,16 +63,12 @@ const AuthSignUpStep3Page = () => {
 
   return (
     <Layout>
-      <AuthSignUpHeader
-        currentStep={3}
-        totalSteps={5}
-        onBack={() => navigate("/signup/step2")}
-      />
+      <AuthSignUpHeader currentStep={3} totalSteps={5} onBack={() => navigate("/signup/step2")} />
       <PageContainer>
         <ScrollArea>
           <GeneralInput
             inputLabel="이름"
-            placeholder="홍길동"
+            placeholder="이름을 입력해주세요"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
@@ -84,7 +76,7 @@ const AuthSignUpStep3Page = () => {
 
           <GeneralInput
             inputLabel="닉네임"
-            placeholder="홍길동"
+            placeholder="ex. 비비"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             required
@@ -95,9 +87,7 @@ const AuthSignUpStep3Page = () => {
             <DateInput
               type="date"
               value={birthDate}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setBirthDate(e.target.value)
-              }
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBirthDate(e.target.value)}
               max={new Date().toISOString().split("T")[0]} // 오늘 날짜까지만 선택 가능
             />
           </BaseInput>
@@ -110,6 +100,7 @@ const AuthSignUpStep3Page = () => {
           </FieldSet>
 
           <GeneralInput
+            type="tel"
             inputLabel="전화번호"
             placeholder="010-0000-0000"
             value={phoneNumber}
@@ -130,11 +121,7 @@ const AuthSignUpStep3Page = () => {
           />
         </ScrollArea>
       </PageContainer>
-      <BaseLongButton
-        label="다음"
-        onClick={handleNext}
-        disabled={!isFormValid}
-      />
+      <BaseLongButton label="다음" onClick={handleNext} disabled={!isFormValid} />
     </Layout>
   );
 };
@@ -146,11 +133,15 @@ const PageContainer = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+  padding: 2rem 0;
 `;
 
 const ScrollArea = styled.div`
   flex: 1;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
 
   &::-webkit-scrollbar {
     display: none;
@@ -176,7 +167,7 @@ const DateInput = styled.input`
   &::-webkit-datetime-edit-month-field,
   &::-webkit-datetime-edit-day-field,
   &::-webkit-datetime-edit-year-field {
-    color: ${({ theme }) => theme.color.text};
+    color: ${({ theme }) => theme.color.subText2};
   }
 
   &::-webkit-calendar-picker-indicator {

@@ -36,8 +36,7 @@ const AuthSignUpStep2Page = () => {
 
   const validatePassword = (password: string) => {
     // 백엔드 규격: 대문자, 소문자, 숫자, 특수문자 포함 8~19자
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%&])[A-Za-z\d!@#$%&]{8,19}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%&])[A-Za-z\d!@#$%&]{8,19}$/;
     return passwordRegex.test(password);
   };
 
@@ -53,11 +52,7 @@ const AuthSignUpStep2Page = () => {
       // 중복 체크 API 호출
       try {
         const isDuplicated = await checkEmail(email);
-        console.log(
-          "이메일 중복 체크 결과:",
-          isDuplicated,
-          typeof isDuplicated
-        );
+        console.log("이메일 중복 체크 결과:", isDuplicated, typeof isDuplicated);
         if (isDuplicated) {
           newErrors.email = "이미 사용 중인 이메일입니다.";
           alert("이미 사용 중인 이메일입니다. 다른 이메일을 입력해주세요.");
@@ -94,51 +89,48 @@ const AuthSignUpStep2Page = () => {
 
   return (
     <Layout>
-      <AuthSignUpHeader
-        currentStep={2}
-        totalSteps={5}
-        onBack={() => navigate("/signup/step1")}
-      />
+      <AuthSignUpHeader currentStep={2} totalSteps={5} onBack={() => navigate("/signup/step1")} />
       <PageContainer>
         <ScrollArea>
           <GeneralInput
-            inputLabel="아이디 (이메일)"
-            placeholder="example@bebee.com"
+            inputLabel="아이디"
+            placeholder="이메일을 입력해주세요"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
           {errors.email && <ErrorText>{errors.email}</ErrorText>}
 
-          <PasswordInput
-            inputLabel="비밀번호"
-            placeholder="영문, 숫자 포함 8~16자"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <PasswordRules>
-            <RuleItem $valid={password.length >= 8 && password.length <= 19}>
-              {password.length >= 8 && password.length <= 19 ? "✓" : "○"} 8~19자
-            </RuleItem>
-            <RuleItem $valid={/[a-z]/.test(password)}>
-              {/[a-z]/.test(password) ? "✓" : "○"} 소문자 포함
-            </RuleItem>
-            <RuleItem $valid={/\d/.test(password)}>
-              {/\d/.test(password) ? "✓" : "○"} 숫자 포함
-            </RuleItem>
-          </PasswordRules>
-
-          <PasswordInput
-            inputLabel="비밀번호 확인"
-            placeholder="비밀번호를 다시 입력해주세요"
-            value={passwordConfirm}
-            onChange={(e) => setPasswordConfirm(e.target.value)}
-            required
-          />
-          {errors.passwordConfirm && (
-            <ErrorText>{errors.passwordConfirm}</ErrorText>
-          )}
+          <div>
+            <PasswordInput
+              inputLabel="비밀번호"
+              placeholder="영문, 숫자 포함 8~16자"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <PasswordRules>
+              <RuleItem $valid={password.length >= 8 && password.length <= 19}>
+                {password.length >= 8 && password.length <= 19 ? "✓" : "○"} 8~19자
+              </RuleItem>
+              <RuleItem $valid={/[a-z]/.test(password)}>
+                {/[a-z]/.test(password) ? "✓" : "○"} 소문자 포함
+              </RuleItem>
+              <RuleItem $valid={/\d/.test(password)}>
+                {/\d/.test(password) ? "✓" : "○"} 숫자 포함
+              </RuleItem>
+            </PasswordRules>
+          </div>
+          <div>
+            <PasswordInput
+              inputLabel="비밀번호 확인"
+              placeholder="비밀번호를 다시 입력해주세요"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              required
+            />
+            {errors.passwordConfirm && <ErrorText>{errors.passwordConfirm}</ErrorText>}
+          </div>
         </ScrollArea>
       </PageContainer>
       <BaseLongButton
@@ -157,9 +149,13 @@ const PageContainer = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+  padding: 2rem 0;
 `;
 
 const ScrollArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
   flex: 1;
   overflow-y: auto;
 
@@ -180,13 +176,12 @@ const PasswordRules = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
-  margin-top: -0.5rem;
-  margin-bottom: 1rem;
+  margin-top: 0.25rem;
   padding-left: 0.25rem;
 `;
 
 const RuleItem = styled.span<{ $valid: boolean }>`
   font-size: 0.75rem;
-  color: ${({ $valid, theme }) => $valid ? theme.color.main : theme.color.subText3};
+  color: ${({ $valid, theme }) => ($valid ? theme.color.main : theme.color.subText3)};
   transition: color 0.2s ease;
 `;

@@ -22,11 +22,7 @@ const AuthSignUpStep1Page = () => {
 
   return (
     <Layout>
-      <AuthSignUpHeader
-        currentStep={1}
-        totalSteps={5}
-        onBack={() => navigate("/home")}
-      />
+      <AuthSignUpHeader currentStep={1} totalSteps={5} onBack={() => navigate("/home")} />
       <PageContainer>
         <ScrollArea>
           <FieldSet>
@@ -48,11 +44,7 @@ const AuthSignUpStep1Page = () => {
           </FieldSet>
         </ScrollArea>
       </PageContainer>
-      <BaseLongButton
-        label="다음"
-        onClick={handleNext}
-        disabled={!selectedRole}
-      />
+      <BaseLongButton label="다음" onClick={handleNext} disabled={!selectedRole} />
     </Layout>
   );
 };
@@ -64,6 +56,7 @@ const PageContainer = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+  padding: 2rem 0;
 `;
 
 const ScrollArea = styled.div`

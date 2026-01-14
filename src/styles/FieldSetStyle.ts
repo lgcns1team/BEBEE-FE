@@ -7,7 +7,7 @@ export const FieldSet = styled.div`
 `;
 
 export const ModalLabel = styled.label`
-  font-size: ${({ theme }) => theme.size.md};
+  font-size: ${({ theme }) => theme.size.lg};
   font-weight: ${({ theme }) => theme.weight.bold};
   color: ${({ theme }) => theme.color.text};
 `;
