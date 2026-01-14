@@ -5,12 +5,11 @@ import styled from "styled-components";
 export const FieldSet = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-top: 2.5rem;
+  gap: 0.5rem;
 `;
 
 export const InputLabel = styled.label`
-  font-size: ${({ theme }) => theme.size.lg};
+  font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.bold};
   color: ${({ theme }) => theme.color.text};
 `;
