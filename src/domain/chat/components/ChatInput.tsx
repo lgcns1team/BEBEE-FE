@@ -71,17 +71,23 @@ export default ChatInput;
 
 const InputArea = styled.div`
   display: flex;
-  align-items: center; // 수직 중앙 정렬 추가
-  padding: 16px 0;
+  align-items: center;
+
+  /* 핵심 변경 사항 */
+  position: relative; /* fixed 대신 레이아웃 흐름에 맞춤 */
+  width: 100%; /* 고정 너비보다는 100%로 대응하고 필요시 부모에서 제어 */
+  bottom: 0;
+  left: 0;
+  transform: none;
+
+  /* 하단 세이프 에어리어 대응 */
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom)) 16px;
+
   background-color: white;
   border-top: 1px solid #ebebeb;
-  position: fixed;
-  width: 343px; // 제공해주신 너비 유지
-  bottom: 0;
-  left: 50%; // 화면 중앙 정렬을 위한 설정
-  transform: translateX(-50%);
   z-index: 100;
-  gap: 8px; // 인풋과 버튼 사이 간격
+  gap: 8px;
+  flex-shrink: 0; /* 부모 flex 컨테이너 안에서 크기가 줄어들지 않도록 */
 `;
 
 const StyledInput = styled.input`
@@ -90,17 +96,16 @@ const StyledInput = styled.input`
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.color.natural100};
   background-color: ${({ theme }) => theme.color.natural100};
-  font-size: ${({ theme }) => theme.size.md};
+
+  /* iOS 자동 줌 방지: 최소 16px 권장 */
+  font-size: 16px;
+
   outline: none;
-  transition: all 0.2s ease;
+  -webkit-appearance: none; /* iOS 기본 스타일 제거 */
 
   &:focus {
     background-color: #fff;
-    border-color: #ccc;
-  }
-
-  &::placeholder {
-    color: #bbb;
+    border-color: ${({ theme }) => theme.color.main}; /* 테마 컬러 활용 */
   }
 `;
 

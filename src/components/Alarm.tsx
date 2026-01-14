@@ -144,9 +144,16 @@ const Container = styled.div`
   justify-content: space-between;
   align-items: center;
   position: sticky;
+  position: -webkit-sticky;
   top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
   box-sizing: border-box;
   background-color: ${({ theme }) => theme.color.white};
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 `;
 const ImaBox = styled.div`
   width: 40px;
