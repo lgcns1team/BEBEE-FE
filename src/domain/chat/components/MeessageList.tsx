@@ -192,12 +192,13 @@ export default MessageList;
 
 const ListContainer = styled.div`
   flex: 1;
+  min-height: 0; /* flex item이 축소될 수 있도록 */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 12px;
   background-color: ${({ theme }) => theme.color.white};
-  padding-top: 180px;
+  padding-top: 20px;
   padding-bottom: 80px;
   -ms-overflow-style: none;
   scrollbar-width: none;
