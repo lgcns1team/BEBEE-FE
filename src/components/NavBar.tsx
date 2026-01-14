@@ -74,10 +74,10 @@ const NavContainer = styled.div`
 
 const NavList = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   height: 100%;
-  padding: 0 20px;
+  padding: 10px 20px;
 `;
 
 const NavItem = styled.button<{ $isActive: boolean }>`
