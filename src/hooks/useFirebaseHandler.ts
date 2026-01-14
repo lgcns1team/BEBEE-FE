@@ -171,19 +171,20 @@ export const initializeFCM = async (
         });
       }
 
-      // Service Worker가 활성화되면 Firebase 설정 전달
-      if (registration.active) {
-        registration.active.postMessage({
-          type: "FIREBASE_CONFIG",
-          config: firebaseConfig,
-        });
-        log.info("[FCM] Firebase 설정이 Service Worker에 전달됨");
-      }
-
       // Service Worker가 완전히 준비될 때까지 기다림
       try {
         await navigator.serviceWorker.ready;
         log.info("✅ [FCM] Service Worker 준비 완료");
+        
+        // Service Worker가 준비된 후 Firebase 설정 전달
+        const readyRegistration = await navigator.serviceWorker.ready;
+        if (readyRegistration.active) {
+          readyRegistration.active.postMessage({
+            type: "FIREBASE_CONFIG",
+            config: firebaseConfig,
+          });
+          log.info("[FCM] Firebase 설정이 Service Worker에 전달됨");
+        }
       } catch (error) {
         log.warn("⚠️ [FCM] Service Worker ready 대기 중 오류:", error);
       }
@@ -195,8 +196,17 @@ export const initializeFCM = async (
       // Service Worker 등록 실패해도 계속 진행 (이미 등록된 경우)
       // 기존 등록된 Service Worker가 있는지 확인
       try {
-        await navigator.serviceWorker.ready;
+        const readyRegistration = await navigator.serviceWorker.ready;
         log.info("✅ [FCM] 기존 Service Worker 사용");
+        
+        // 기존 Service Worker에도 Firebase 설정 전달
+        if (readyRegistration.active) {
+          readyRegistration.active.postMessage({
+            type: "FIREBASE_CONFIG",
+            config: firebaseConfig,
+          });
+          log.info("[FCM] Firebase 설정이 기존 Service Worker에 전달됨");
+        }
       } catch (swError) {
         log.warn("⚠️ [FCM] Service Worker 준비 실패:", swError);
       }

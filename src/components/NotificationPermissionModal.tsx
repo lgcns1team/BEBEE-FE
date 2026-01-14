@@ -70,8 +70,32 @@ export const NotificationPermissionModal = () => {
     }
 
     try {
-      // 사용자 클릭 이벤트 내부에서 권한 요청 (가이드 준수)
-      const token = await initializeFCM(true);
+      // 1. 클릭하자마자 권한부터 요청 (iOS 제스처 유효 시간 확보)
+      let permission: NotificationPermission;
+      try {
+        permission = await Notification.requestPermission();
+        console.log("🔔 [알림 모달] 권한 요청 결과:", permission);
+      } catch (error) {
+        console.error("❌ [FCM] 알림 권한 요청 오류:", error);
+        showToast("알림 권한 요청 중 오류가 발생했습니다.", "ERROR");
+        hideModal();
+        return;
+      }
+
+      // 권한이 허용되지 않은 경우
+      if (permission !== "granted") {
+        if (permission === "denied") {
+          showToast("알림 권한이 거부되었습니다.", "ERROR");
+        } else {
+          showToast("알림 권한 요청에 실패했습니다.", "ERROR");
+        }
+        hideModal();
+        return;
+      }
+
+      // 2. 권한이 허용된 "후에" 서비스 워커 등록 및 토큰 발행 진행
+      // 내부 권한 요청은 false로 설정 (이미 위에서 요청했으므로)
+      const token = await initializeFCM(false);
 
       if (token) {
         // 서버에 토큰 등록
@@ -91,11 +115,8 @@ export const NotificationPermissionModal = () => {
           hideModal();
         }
       } else {
-        // 권한이 거부된 경우
-        const permission = Notification.permission;
-        if (permission === "denied") {
-          showToast("알림 권한이 거부되었습니다.", "ERROR");
-        }
+        // 토큰 발행 실패
+        showToast("알림 토큰 발행에 실패했습니다.", "ERROR");
         hideModal();
       }
     } catch (error) {
