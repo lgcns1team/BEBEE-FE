@@ -22,6 +22,12 @@ const AuthSignUpStep5Page = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
+  // role이 없으면 이전 단계로 리다이렉트
+  if (!role) {
+    navigate("/signup/step1");
+    return null;
+  }
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !role) return;

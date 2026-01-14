@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
@@ -13,6 +13,13 @@ const AuthSignUpStep1Page = () => {
   const navigate = useNavigate();
   const { role, setRole } = useAuthSignUpForm();
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(role);
+
+  // store의 role이 변경되면 selectedRole도 업데이트 (뒤로가기 시 role 유지)
+  useEffect(() => {
+    if (role) {
+      setSelectedRole(role);
+    }
+  }, [role]);
 
   const handleNext = () => {
     if (!selectedRole) return;

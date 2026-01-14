@@ -186,7 +186,7 @@ const PasswordRules = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
-  margin-top: -0.5rem;
+  margin-top: 0.5rem;
   margin-bottom: 1rem;
   padding-left: 0.25rem;
 `;
