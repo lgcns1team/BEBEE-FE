@@ -72,19 +72,13 @@ export default ChatInput;
 const InputArea = styled.div`
   display: flex;
   align-items: center;
-
-  /* 핵심 변경 사항 */
-  position: relative; /* fixed 대신 레이아웃 흐름에 맞춤 */
-  width: 100%; /* 고정 너비보다는 100%로 대응하고 필요시 부모에서 제어 */
-  bottom: 0;
-  left: 0;
-  transform: none;
-
+  padding-top: 16px;
+  width: 100%;
   background-color: white;
   border-top: 1px solid #ebebeb;
   z-index: 100;
   gap: 8px;
-  flex-shrink: 0; /* 부모 flex 컨테이너 안에서 크기가 줄어들지 않도록 */
+  flex-shrink: 0;
 `;
 
 const StyledInput = styled.input`
@@ -95,7 +89,7 @@ const StyledInput = styled.input`
   background-color: ${({ theme }) => theme.color.natural100};
 
   /* iOS 자동 줌 방지: 최소 16px 권장 */
-  font-size: 16px;
+  font-size: ${({ theme }) => theme.size.md};
 
   outline: none;
   -webkit-appearance: none; /* iOS 기본 스타일 제거 */

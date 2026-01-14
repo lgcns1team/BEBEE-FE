@@ -257,10 +257,7 @@ const ChatRoomCard = () => {
   );
 };
 const Wrapper = styled.div`
-  position: -webkit-sticky; /* iOS 대응 */
-  position: sticky;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
   z-index: 10;
   background-color: ${({ theme }) => theme.color.white};

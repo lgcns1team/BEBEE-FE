@@ -84,19 +84,19 @@ export default MyPage;
 
 const Container = styled.div`
   width: 100%;
-  height: 100vh;
-  max-height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background-color: ${({ theme }) => theme.color.white};
+  overscroll-behavior: none;
 `;
 
 const ContentArea = styled.div`
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: 80px;
+  padding-bottom: 100px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;

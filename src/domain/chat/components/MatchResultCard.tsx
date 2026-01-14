@@ -50,15 +50,17 @@ const MatchResultCard = ({ data }: Props) => {
       return (
         <>
           <div role="listitem" aria-label={`도움 날짜: ${formatDate(date)}`}>
-            날짜: {formatDate(date)}
+            <span aria-hidden="true">날짜: {formatDate(date)}</span>
             <span className="sr-only">
               {`도움을 제공받을 날짜는 ${formatDate(date)}입니다`}
             </span>
           </div>
           {schedule && (
             <div role="list" aria-label="도움 일시 목록">
-              일시: {formatTime(schedule.startTime)}~
-              {formatTime(schedule.endTime)}
+              <span aria-hidden="true">
+                일시: {formatTime(schedule.startTime)}~
+                {formatTime(schedule.endTime)}
+              </span>
               <span className="sr-only">
                 {`도움을 제공받을 시간은 ${formatTime(
                   schedule.startTime
@@ -85,11 +87,11 @@ const MatchResultCard = ({ data }: Props) => {
               endDate
             )}까지`}
           >
-            <span className="label">기간:</span>
+            <span className="label" aria-hidden="true">기간:</span>
 
             <div className="content">
-              <span>{formatDate(startDate)} ~</span>
-              <span>{formatDate(endDate)}</span>
+              <span aria-hidden="true">{formatDate(startDate)} ~</span>
+              <span aria-hidden="true">{formatDate(endDate)}</span>
               <span className="sr-only">
                 {`도움 기간은 ${formatDate(startDate)}부터 ${formatDate(
                   endDate
@@ -104,8 +106,7 @@ const MatchResultCard = ({ data }: Props) => {
               aria-label="도움 요일 및 시간 목록"
               style={{ marginTop: "8px" }}
             >
-              {" "}
-              <span>일시:</span>
+              <span aria-hidden="true">일시:</span>
               <ScheduleList>
                 {schedules.map(
                   (
@@ -126,7 +127,9 @@ const MatchResultCard = ({ data }: Props) => {
                         role="listitem"
                         aria-label={`${dayName} ${startTime}부터 ${endTime}까지`}
                       >
-                        {dayName} {startTime} - {endTime}
+                        <span aria-hidden="true">
+                          {dayName} {startTime} - {endTime}
+                        </span>
                         <span className="sr-only">
                           {`${dayName}에 ${startTime}부터 ${endTime}까지 도움을 제공합니다`}
                         </span>
@@ -145,9 +148,9 @@ const MatchResultCard = ({ data }: Props) => {
   };
 
   return (
-    <Card role="region" aria-label="매칭 확인서">
+    <Card role="group" aria-label="매칭 확인서">
       <Content>
-        <Header>
+        <Header role="group" aria-label="매칭 확인서 헤더">
           <img
             src={chatLight}
             alt=""
@@ -156,13 +159,13 @@ const MatchResultCard = ({ data }: Props) => {
             aria-hidden="true"
           />
           <Title>
-            매칭 확인서가 도착했어요
+            <span aria-hidden="true">매칭 확인서가 도착했어요</span>
             <span className="sr-only">
               상대방으로부터 매칭 확인서가 도착했습니다. 아래의 정보를 확인하고
               수락 또는 거절을 선택할 수 있습니다.
             </span>
           </Title>
-          <Sub>아래의 정보를 확인해주세요.</Sub>
+          <Sub aria-hidden="true">아래의 정보를 확인해주세요.</Sub>
         </Header>
 
         <Info role="group" aria-label="매칭 확인서 상세 정보">
@@ -170,7 +173,7 @@ const MatchResultCard = ({ data }: Props) => {
             role="listitem"
             aria-label={`도움 유형: ${isDayType ? "하루 도움" : "지속 도움"}`}
           >
-            유형: {isDayType ? "하루 도움" : "지속 도움"}
+            <span aria-hidden="true">유형: {isDayType ? "하루 도움" : "지속 도움"}</span>
             <span className="sr-only">
               {isDayType
                 ? "하루 단위 도움 요청입니다"
@@ -182,7 +185,7 @@ const MatchResultCard = ({ data }: Props) => {
             role="listitem"
             aria-label={`도움 장소: ${match.region || "정보 없음"}`}
           >
-            장소: {match.region || "-"}
+            <span aria-hidden="true">장소: {match.region || "-"}</span>
             <span className="sr-only">
               {match.region
                 ? `도움을 제공할 장소는 ${match.region}입니다`
@@ -203,9 +206,11 @@ const MatchResultCard = ({ data }: Props) => {
           >
             {match.isVolunteer ? (
               <>
-                꿀: 나눔{" "}
-                <span aria-hidden="true" role="img">
-                  🩵
+                <span aria-hidden="true">
+                  꿀: 나눔{" "}
+                  <span role="img" aria-label="하트">
+                    🩵
+                  </span>
                 </span>
                 <span className="sr-only">
                   나눔 서비스입니다. 꿀이 차감되지 않습니다.
@@ -213,7 +218,9 @@ const MatchResultCard = ({ data }: Props) => {
               </>
             ) : isDayType ? (
               <>
-                꿀: {match.unitHoney?.toLocaleString() || "-"}꿀
+                <span aria-hidden="true">
+                  꿀: {match.unitHoney?.toLocaleString() || "-"}꿀
+                </span>
                 <span className="sr-only">
                   {match.unitHoney
                     ? `${match.unitHoney.toLocaleString()}꿀을 받게 됩니다`
@@ -222,10 +229,12 @@ const MatchResultCard = ({ data }: Props) => {
               </>
             ) : (
               <>
-                꿀: {match.unitHoney?.toLocaleString() || "-"}꿀{" "}
-                <Total>
-                  /회 (총 {match.totalHoney?.toLocaleString() || "-"}꿀)
-                </Total>
+                <span aria-hidden="true">
+                  꿀: {match.unitHoney?.toLocaleString() || "-"}꿀{" "}
+                  <Total>
+                    /회 (총 {match.totalHoney?.toLocaleString() || "-"}꿀)
+                  </Total>
+                </span>
                 <span className="sr-only">
                   {match.unitHoney && match.totalHoney
                     ? `회당 ${match.unitHoney.toLocaleString()}꿀을 받으며, 총 ${match.totalHoney.toLocaleString()}꿀을 받게 됩니다`
@@ -248,7 +257,7 @@ const MatchResultCard = ({ data }: Props) => {
               }
             }}
           >
-            거절
+            <span aria-hidden="true">거절</span>
             <span className="sr-only">이 매칭 확인서를 거절합니다.</span>
           </RefusalButton>
           <AcceptButton
@@ -261,7 +270,7 @@ const MatchResultCard = ({ data }: Props) => {
               }
             }}
           >
-            수락
+            <span aria-hidden="true">수락</span>
             <span className="sr-only">
               이 매칭 확인서를 수락하고 매칭을 완료합니다.
             </span>
