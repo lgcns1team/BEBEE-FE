@@ -120,8 +120,7 @@ const HomePage = () => {
     <Layout>
       <Toast position="top" />
       {isModalOpen && <NotificationPermissionModal />}
-
-      <Wrapper ref={wrapperRef}>
+      <Header>
         <Alarm />
         {/* ---------------- Tabs ---------------- */}
         <TabBar>
@@ -142,7 +141,6 @@ const HomePage = () => {
             장기 도움
           </Tab>
         </TabBar>
-
         {/* ---------------- Filter Row ---------------- */}
         <FilterRow>
           <FilterButton
@@ -156,7 +154,8 @@ const HomePage = () => {
             label="완료 제외"
           />
         </FilterRow>
-
+      </Header>
+      <Wrapper ref={wrapperRef}>
         {/* ---------------- Post List ---------------- */}
         <ListWrapper>
           {posts?.map((post) => {
@@ -184,7 +183,6 @@ const HomePage = () => {
             {!hasNext && posts?.length > 0 && <p>마지막 게시글입니다.</p>}
           </div>
         </ListWrapper>
-
         {/* ---------------- BottomSheet ---------------- */}
         {/* reqDTO 등의 상세 필터는 이 컴포넌트 내부에서 setReqDTO를 사용하도록 구성됩니다. */}
         <FilterBottomSheet
@@ -206,7 +204,10 @@ const Wrapper = styled.div`
   -ms-overflow-style: none;
   scrollbar-width: none;
 `;
-
+const Header = styled.div`
+  flex-shrink: 0;
+  z-index: 100;
+`;
 const TabBar = styled.div`
   position: fixed;
   display: flex;

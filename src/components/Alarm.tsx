@@ -143,12 +143,7 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  position: -webkit-sticky;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+
   box-sizing: border-box;
   background-color: ${({ theme }) => theme.color.white};
   will-change: transform;
