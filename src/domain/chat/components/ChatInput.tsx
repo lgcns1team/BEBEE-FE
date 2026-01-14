@@ -80,9 +80,6 @@ const InputArea = styled.div`
   left: 0;
   transform: none;
 
-  /* 하단 세이프 에어리어 대응 */
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom)) 16px;
-
   background-color: white;
   border-top: 1px solid #ebebeb;
   z-index: 100;
