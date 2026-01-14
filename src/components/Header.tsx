@@ -24,7 +24,7 @@ interface HeaderProps {
   onRightClick?: () => void;
   showRight?: boolean;
   bg?: boolean;
-  onTitleClick? : () => void;
+  onTitleClick?: () => void;
 }
 
 const Header = ({
@@ -35,7 +35,7 @@ const Header = ({
   onRightClick,
   showRight,
   bg,
-  onTitleClick
+  onTitleClick,
 }: HeaderProps) => {
   return (
     <Container bg={bg}>
@@ -75,9 +75,7 @@ const Container = styled.header<{ bg?: boolean }>`
 
   position: sticky;
   box-sizing: border-box;
-  background-color: ${({ bg, theme }) =>
-    bg ? theme.color.natural50 : theme.color.white};
-  z-index: 800;
+  background-color: ${({ bg, theme }) => (bg ? theme.color.natural50 : theme.color.white)};
 `;
 
 const Left = styled.div`
