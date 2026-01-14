@@ -110,8 +110,9 @@ const AuthSignUpStep6Page = () => {
                 // MID
                 alert("서류가 접수되었습니다. 관리자 확인 후 승인될 예정입니다.");
             }
-            reset();
+            // navigate를 먼저 실행한 후 reset (순서 중요)
             navigate("/login", { replace: true });
+            reset();
         } catch (error) {
             console.error("회원가입 실패:", error);
             alert("회원가입 처리 중 오류가 발생했습니다. 다시 시도해 주세요.");
