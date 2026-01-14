@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
@@ -19,7 +19,7 @@ import { checkEmail } from "../../../api/authApi";
 
 const AuthSignUpStep2Page = () => {
   const navigate = useNavigate();
-  const { setAccountInfo } = useAuthSignUpForm();
+  const { role, setAccountInfo } = useAuthSignUpForm();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -28,6 +28,17 @@ const AuthSignUpStep2Page = () => {
     password?: string;
     passwordConfirm?: string;
   }>({});
+
+  // role이 없으면 이전 단계로 리다이렉트
+  useEffect(() => {
+    if (!role) {
+      navigate("/signup/step1");
+    }
+  }, [role, navigate]);
+
+  if (!role) {
+    return null;
+  }
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -186,7 +197,7 @@ const PasswordRules = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
-  margin-top: -0.5rem;
+  margin-top: 0.5rem;
   margin-bottom: 1rem;
   padding-left: 0.25rem;
 `;

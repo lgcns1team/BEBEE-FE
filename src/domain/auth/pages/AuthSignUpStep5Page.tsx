@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { IoDocumentTextOutline } from "react-icons/io5";
@@ -21,6 +21,17 @@ const AuthSignUpStep5Page = () => {
   const { role, email, setUploadedFile, setFileUrl, setSystemFlag } = useAuthSignUpForm();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // role이 없으면 이전 단계로 리다이렉트
+  useEffect(() => {
+    if (!role) {
+      navigate("/signup/step1");
+    }
+  }, [role, navigate]);
+
+  if (!role) {
+    return null;
+  }
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

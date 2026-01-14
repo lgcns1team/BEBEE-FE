@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
@@ -21,7 +21,7 @@ import LocationInput from "../../../components/LocationInput";
 
 const AuthSignUpStep3Page = () => {
   const navigate = useNavigate();
-  const { setPersonalInfo } = useAuthSignUpForm();
+  const { role, setPersonalInfo } = useAuthSignUpForm();
   const [name, setName] = useState("");
   const [nickname, setNickname] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -31,6 +31,17 @@ const AuthSignUpStep3Page = () => {
   const [districtCode, setDistrictCode] = useState("");
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
+
+  // role이 없으면 이전 단계로 리다이렉트
+  useEffect(() => {
+    if (!role) {
+      navigate("/signup/step1");
+    }
+  }, [role, navigate]);
+
+  if (!role) {
+    return null;
+  }
   const handleNext = async () => {
     if (nickname.length > 10) {
       alert("닉네임은 10자 이내로 입력해주세요.");

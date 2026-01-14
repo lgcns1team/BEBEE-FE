@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
@@ -23,6 +23,17 @@ const AuthSignUpStep4Page = () => {
   const [selectedDisabilityGrade, setSelectedDisabilityGrade] = useState("");
   const [disabilityDescription, setDisabilityDescription] = useState("");
 
+  // role이 없으면 이전 단계로 리다이렉트
+  useEffect(() => {
+    if (!role) {
+      navigate("/signup/step1");
+    }
+  }, [role, navigate]);
+
+  if (!role) {
+    return null;
+  }
+
   const handleTagClick = (tag: string) => {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
@@ -42,8 +53,6 @@ const AuthSignUpStep4Page = () => {
     if (role === "HELPER") {
       setHelpTypes(selectedTags);
     } else {
-      // 장애인: 도움 유형 + 장애 정보 모두 저장
-      setHelpTypes(selectedTags);
       setDisabilityInfo(selectedDisabilityType, selectedDisabilityGrade, disabilityDescription);
     }
     navigate("/signup/step5");
@@ -52,7 +61,7 @@ const AuthSignUpStep4Page = () => {
   const isFormValid =
     role === "HELPER"
       ? selectedTags.length > 0
-      : selectedTags.length > 0 && selectedDisabilityType !== "" && selectedDisabilityGrade !== "" && disabilityDescription !== "";
+      : selectedDisabilityType !== "" && selectedDisabilityGrade !== "" && disabilityDescription !== "";
 
   return (
     <Layout>
@@ -83,26 +92,8 @@ const AuthSignUpStep4Page = () => {
               </Row>
             </FieldSet>
           ) : (
-            // 장애인: 도움 유형 선택 + 장애 정보 입력
+            // 장애인: 장애 정보 입력
             <>
-              <FieldSet>
-                <ModalLabel>
-                  어떤 도움이 필요하신가요?
-                  <RequiredMark>*</RequiredMark>
-                </ModalLabel>
-                <Row>
-                  {HELP_TAG_NAMES.map((tag) => (
-                    <Badge
-                      key={tag}
-                      $active={selectedTags.includes(tag)}
-                      onClick={() => handleTagClick(tag)}
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                </Row>
-              </FieldSet>
-
               <FieldSet>
                 <ModalLabel>
                   장애 유형<RequiredMark>*</RequiredMark>
