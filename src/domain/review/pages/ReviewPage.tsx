@@ -229,6 +229,7 @@ const ReviewCard = styled.span<{ $active: boolean }>`
   background: ${({ theme }) => theme.color.white};
   cursor: pointer;
   text-align: left;
+  width: fit-content;
 
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.color.main};
