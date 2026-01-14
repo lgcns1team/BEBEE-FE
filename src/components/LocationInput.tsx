@@ -612,7 +612,7 @@ const MapButton = styled.button`
   z-index: 10;
 
   &:hover {
-    color: #155DFC;
+    color: ${({ theme }) => theme.color.main};
   }
 
   &:disabled {
@@ -760,7 +760,7 @@ const ConfirmButtonGroup = styled.div`
 const ConfirmButton = styled.button`
   flex: 1;
   padding: 12px 20px;
-  background: #155DFC;
+  background: ${({ theme }) => theme.color.main};
   color: white;
   border: none;
   border-radius: 8px;
