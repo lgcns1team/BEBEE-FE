@@ -129,15 +129,20 @@ const ReviewPage = () => {
               return (
                 <ReviewCard
                   key={keyword.keywordId}
-                  as="button"
                   type="button"
                   role="checkbox"
                   aria-checked={isSelected}
                   aria-label={`${keyword.description}, ${
-                    isSelected ? "선택되었습니다" : "선택이 되지 않았습니다"
+                    isSelected ? "선택됨" : "선택 안 됨"
                   }`}
                   $active={isSelected}
                   onClick={toggleKeyword}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleKeyword();
+                    }
+                  }}
                 >
                   {keyword.description}
                 </ReviewCard>
@@ -163,16 +168,15 @@ const ReviewPage = () => {
 export default ReviewPage;
 
 const ScrollContainer = styled.div`
-  flex: 1; 
+  flex: 1;
   overflow-y: auto;
-  width: 100%; 
+  width: 100%;
 
-  
   &::-webkit-scrollbar {
     display: none;
   }
-  -ms-overflow-style: none; 
-  scrollbar-width: none; 
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 
 const Title = styled.div`
@@ -215,9 +219,11 @@ const SelectReview = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  align-items: flex-start;
+  width: 100%;
 `;
 
-const ReviewCard = styled.span<{ $active: boolean }>`
+const ReviewCard = styled.button<{ $active: boolean }>`
   padding: 8px 12px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   color: ${({ $active, theme }) =>
@@ -235,4 +241,5 @@ const ReviewCard = styled.span<{ $active: boolean }>`
     outline: 2px solid ${({ theme }) => theme.color.main};
     outline-offset: 2px;
   }
+  width: fit-content;
 `;

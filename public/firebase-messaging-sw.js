@@ -27,7 +27,9 @@ const fallbackConfig = {
 const initializeFirebase = (config) => {
   if (!firebaseApp) {
     try {
+      // Firebase App 초기화
       firebaseApp = firebase.initializeApp(config);
+      // App 초기화 후에만 Messaging 인스턴스 생성
       messaging = firebase.messaging();
       setupMessageHandlers();
     } catch (error) {
@@ -35,6 +37,12 @@ const initializeFirebase = (config) => {
         "[firebase-messaging-sw.js] Firebase initialization error:",
         error
       );
+    }
+  } else {
+    // 이미 초기화된 경우에도 messaging이 없으면 생성
+    if (!messaging) {
+      messaging = firebase.messaging();
+      setupMessageHandlers();
     }
   }
 };

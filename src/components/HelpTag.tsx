@@ -4,9 +4,9 @@ import styled from "styled-components";
 const HelpTag = styled.span`
   padding: 4px 8px;
   font-size: ${({ theme }) => theme.size.sm};
-  background-color: ${({ theme }) => theme.color.natural100};
+  background-color: ${({ theme }) => theme.color.natural50};
   color: ${({ theme }) => theme.color.text};
-  border: 1px solid ${({ theme }) => theme.color.natural100};
+  border: 1px solid ${({ theme }) => theme.color.natural50};
   border-radius: ${({ theme }) => theme.borderRadius.md};
 `;
 

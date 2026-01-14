@@ -60,11 +60,9 @@ const MonthlyCalendar = ({ onSelectDate, markedDates = new Set<string>() }: Prop
         onChange={handleChange}
         shouldCloseOnSelect={false}
         renderCustomHeader={(props) => <CustomHeader {...props} />}
-        dayClassName={(date) => {
-          const key = formatDate(date);
-          return markedDates.has(key) ? "has-dot" : undefined;
-        }}
         renderDayContents={(day, date) => {
+          if (!date) return day;
+
           const key = formatDate(date);
           const hasHelp = markedDates.has(key);
 
@@ -77,6 +75,10 @@ const MonthlyCalendar = ({ onSelectDate, markedDates = new Set<string>() }: Prop
               {day}
             </span>
           );
+        }}
+        dayClassName={(date) => {
+          const key = formatDate(date);
+          return markedDates.has(key) ? "has-dot" : undefined;
         }}
       />
     </StyledWrapper>
@@ -172,6 +174,7 @@ const StyledWrapper = styled.div`
     background-color: ${({ theme }) => theme.color.subColor};
     border-radius: 50%;
     font-weight: ${({ theme }) => theme.weight.medium};
+    border: 1px solid ${({ theme }) => theme.color.main};
   }
 
   /* 선택된 날짜 스타일 (main 컬러) */

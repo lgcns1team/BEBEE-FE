@@ -38,7 +38,7 @@ const MatchingPage = () => {
   const [period, setPeriod] = useState<"week" | "month">("month");
 
   const [selectedDate, setSelectedDate] = useState(() => getTodayYYYYMMDD());
-
+  const [announce, setAnnounce] = useState("");
   const selectedType: EngagementType | null = useMemo(() => {
     if (activeTab === "하루 도움") return "DAY";
     if (activeTab === "지속 도움") return "TERM";
@@ -55,8 +55,10 @@ const MatchingPage = () => {
       });
 
       setEngagements(res.data.engagements ?? []);
+      setAnnounce("활동이 완료되었습니다.");
     } catch (e) {
       console.error("활동 완료 처리 실패", e);
+      setAnnounce("활동 완료 처리에 실패했습니다.");
     }
   };
 
@@ -87,17 +89,28 @@ const MatchingPage = () => {
   useEffect(() => {
     getEngagements({ date: selectedDate, type: selectedType })
       .then((res) => {
-        setEngagements(res.data.engagements ?? []);
+        const list = res.data.engagements ?? [];
+        setEngagements(list);
+
+        setAnnounce(
+          list.length === 0
+            ? "선택한 날짜에 활동이 없습니다."
+            : `활동 ${list.length}건이 표시되었습니다.`
+        );
       })
       .catch((e) => {
         console.error("engagements 조회 실패", e);
         setEngagements([]);
+        setAnnounce("활동 목록을 불러오지 못했습니다.");
       });
   }, [selectedDate, selectedType, setEngagements]);
 
   return (
     <Layout>
-      <PageContainer>
+      <PageContainer as="main" aria-label="활동 관리 페이지">
+        <span className="sr-only" aria-live="polite">
+          {announce}
+        </span>
         <Header title="활동 관리" />
 
         <StickyBox>
@@ -133,7 +146,6 @@ const MatchingPage = () => {
             )}
           </ScrollArea>
         </PullToRefreshWrapper>
-
         <NavBar />
       </PageContainer>
     </Layout>

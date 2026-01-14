@@ -121,8 +121,38 @@ const BottomMenuSection = () => {
         console.log("🔔 [알림 토글] PWA 환경:", isPWA);
       }
 
-      // 사용자 상호작용 후 알림 권한 요청 (PWA 환경에서도 작동)
-      const token = await initializeFCM(true);
+      // 1. 클릭하자마자 권한부터 요청 (iOS 제스처 유효 시간 확보)
+      let permission: NotificationPermission;
+      try {
+        permission = await Notification.requestPermission();
+      } catch (error) {
+        console.error("[FCM] 알림 권한 요청 오류:", error);
+        showToast("알림 권한 요청 중 오류가 발생했습니다.", "ERROR");
+        return;
+      }
+
+      // 권한이 허용되지 않은 경우
+      if (permission !== "granted") {
+        setPermissionStatus(permission);
+        if (permission === "denied") {
+          showToast("알림 권한이 거부되었습니다.", "ERROR");
+        } else {
+          // PWA 환경에서의 추가 안내
+          if (isPWA) {
+            showToast(
+              "알림 권한 요청에 실패했습니다. 앱 설정에서 알림을 허용해주세요.",
+              "ERROR"
+            );
+          } else {
+            showToast("알림 권한 요청에 실패했습니다.", "ERROR");
+          }
+        }
+        return;
+      }
+
+      // 2. 권한이 허용된 "후에" 서비스 워커 등록 및 토큰 발행 진행
+      // 내부 권한 요청은 false로 설정 (이미 위에서 요청했으므로)
+      const token = await initializeFCM(false);
 
       if (token) {
         // 서버에 토큰 등록
@@ -140,22 +170,8 @@ const BottomMenuSection = () => {
           showToast("토큰 등록에 실패했습니다.", "ERROR");
         }
       } else {
-        // 권한이 거부된 경우
-        const currentPermission = Notification.permission;
-        setPermissionStatus(currentPermission);
-        if (currentPermission === "denied") {
-          showToast("알림 권한이 거부되었습니다.", "ERROR");
-        } else {
-          // PWA 환경에서의 추가 안내
-          if (isPWA) {
-            showToast(
-              "알림 권한 요청에 실패했습니다. 앱 설정에서 알림을 허용해주세요.",
-              "ERROR"
-            );
-          } else {
-            showToast("알림 권한 요청에 실패했습니다.", "ERROR");
-          }
-        }
+        // 토큰 발행 실패
+        showToast("알림 토큰 발행에 실패했습니다.", "ERROR");
       }
     } catch (error) {
       console.error("[FCM] 알림 권한 요청 오류:", error);

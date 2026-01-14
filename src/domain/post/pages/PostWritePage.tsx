@@ -136,7 +136,7 @@ const PostWritePage = () => {
   };
 
   return (
-    <ScrollWrapper>
+    <Layout>
       <Header title="게시글 작성" onBack={() => navigate("/home")} showBack />
       {/* 헬프타입 선택 */}
 
@@ -253,7 +253,7 @@ const PostWritePage = () => {
           formData.content.trim() === ""
         }
       />
-    </ScrollWrapper>
+    </Layout>
   );
 };
 
@@ -283,6 +283,7 @@ const Container = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+  padding-bottom: 20px;
 `;
 
 const HelpTypeContainer = styled.div`

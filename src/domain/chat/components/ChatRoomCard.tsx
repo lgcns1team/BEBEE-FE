@@ -22,6 +22,7 @@ const ChatRoomCard = () => {
   const [isLoadingPost, setIsLoadingPost] = useState(false);
   const { user } = useUserStore();
   const isHelper = user?.role === "HELPER";
+  // activeRoom의 matchStatus를 직접 참조하여 항상 최신 상태 반영
   const matchStatus: MatchStatus = activeRoom?.matchStatus ?? "NON_MATCHED";
   const isInteractive = matchStatus === "NON_MATCHED";
 
@@ -52,6 +53,7 @@ const ChatRoomCard = () => {
           chatroomId: data.chatroomId,
           postId: data.postId,
           postIdType: typeof data.postId,
+          matchStatus: data.matchStatus,
           전체데이터: data,
         });
         setActiveRoom(data); // 데이터 수신 완료 -> activeRoom이 null이 아니게 됨
@@ -68,7 +70,7 @@ const ChatRoomCard = () => {
     //  Cleanup 함수: 잔상 방지
     return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chatroomId]);
+  }, [currentPost?.postId, activeRoom?.postId]);
 
   // 2. 게시글 상세 정보 로딩
   useEffect(() => {
@@ -128,12 +130,12 @@ const ChatRoomCard = () => {
     );
   }
   // 프로필 페이지로 이동
-  const handleProfileClick = () =>{
-    navigate(`/profile/${activeRoom.otherId}`)
-  }
+  const handleProfileClick = () => {
+    navigate(`/profile/${activeRoom.otherId}`);
+  };
 
   return (
-    <Wrapper>
+    <>
       <Header
         title={activeRoom.otherNickname}
         onBack={() => navigate("/chat")}
@@ -142,8 +144,17 @@ const ChatRoomCard = () => {
         onTitleClick={() => handleProfileClick()}
       />
       <ChatHeader role="region" aria-label="채팅방 정보">
-        <HeaderTop>
-          <ChatTitle id="post-title">
+        <HeaderTop role="group" aria-label="게시글 제목 및 매칭 상태">
+          <ChatTitle
+            id="post-title"
+            aria-label={
+              isLoadingPost
+                ? "게시글 정보를 불러오는 중입니다"
+                : postDetail?.title
+                ? `게시글 제목: ${postDetail.title}`
+                : "게시글 제목 정보가 없습니다"
+            }
+          >
             {isLoadingPost
               ? "게시글 정보를 불러오는 중..."
               : postDetail?.title || "게시글 제목"}
@@ -162,8 +173,24 @@ const ChatRoomCard = () => {
             aria-describedby="post-title"
             aria-label={
               isHelper
-                ? "매칭 확인서는 장애인만 작성할 수 있습니다"
-                : "매칭 확인서 작성하기"
+                ? `매칭 확인서는 장애인만 작성할 수 있습니다. 현재 매칭 상태: ${
+                    matchStatus === "NON_MATCHED"
+                      ? "매칭 전"
+                      : matchStatus === "PROCEEDING"
+                      ? "진행 중"
+                      : "매칭 완료"
+                  }`
+                : matchStatus === "NON_MATCHED"
+                ? `매칭 확인서 작성하기, ${
+                    postDetail?.title
+                      ? `${postDetail.title} 게시글에 대한 `
+                      : ""
+                  }더블탭하여 매칭 확인서 작성 페이지로 이동`
+                : `현재 매칭 상태: ${
+                    matchStatus === "PROCEEDING" ? "진행 중" : "매칭 완료"
+                  }, 매칭 확인서는 이미 ${
+                    matchStatus === "PROCEEDING" ? "진행 중" : "완료"
+                  }되었습니다`
             }
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
@@ -192,17 +219,30 @@ const ChatRoomCard = () => {
           </MatchButton>
         </HeaderTop>
 
-        <HelpTagBox role="list" aria-label="도움 카테고리 목록">
+        <HelpTagBox
+          role="list"
+          aria-label={`도움 카테고리 목록, ${
+            postDetail?.helpCategoryIds && postDetail.helpCategoryIds.length > 0
+              ? `총 ${postDetail.helpCategoryIds.length}개`
+              : "없음"
+          }`}
+        >
           {postDetail?.helpCategoryIds &&
           postDetail.helpCategoryIds.length > 0 ? (
             <>
               <span className="sr-only">
                 도움 카테고리 {postDetail.helpCategoryIds.length}개
               </span>
-              {postDetail.helpCategoryIds.map((categoryId) => {
+              {postDetail.helpCategoryIds.map((categoryId, index) => {
                 const categoryName = HELP_TAG_MAP[categoryId];
                 return categoryName ? (
-                  <HelpTag key={categoryId} role="listitem">
+                  <HelpTag
+                    key={categoryId}
+                    role="listitem"
+                    aria-label={`${categoryName}, ${index + 1}번째 카테고리`}
+                    aria-posinset={index + 1}
+                    aria-setsize={postDetail.helpCategoryIds.length}
+                  >
                     {categoryName}
                   </HelpTag>
                 ) : null;
@@ -213,19 +253,22 @@ const ChatRoomCard = () => {
           )}
         </HelpTagBox>
       </ChatHeader>
-    </Wrapper>
+    </>
   );
 };
-const Wrapper = styled.div`
-  position: fixed;
-  width: 343px;
-  background-color: ${({ theme }) => theme.color.white};
-`;
+
 const ChatHeader = styled.div`
   width: 100%;
   padding: 10px 0;
   color: ${({ theme }) => theme.color.text};
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural200};
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  background-color: ${({ theme }) => theme.color.white};
+  flex-shrink: 0;
 `;
 
 const HeaderTop = styled.div`

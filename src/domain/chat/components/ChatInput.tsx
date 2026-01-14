@@ -71,17 +71,14 @@ export default ChatInput;
 
 const InputArea = styled.div`
   display: flex;
-  align-items: center; // 수직 중앙 정렬 추가
-  padding: 16px 0;
+  align-items: center;
+  padding-top: 16px;
+  width: 100%;
   background-color: white;
   border-top: 1px solid #ebebeb;
-  position: fixed;
-  width: 343px; // 제공해주신 너비 유지
-  bottom: 0;
-  left: 50%; // 화면 중앙 정렬을 위한 설정
-  transform: translateX(-50%);
   z-index: 100;
-  gap: 8px; // 인풋과 버튼 사이 간격
+  gap: 8px;
+  flex-shrink: 0;
 `;
 
 const StyledInput = styled.input`
@@ -90,20 +87,18 @@ const StyledInput = styled.input`
   border-radius: 20px;
   border: 1px solid ${({ theme }) => theme.color.natural100};
   background-color: ${({ theme }) => theme.color.natural100};
+
+  /* iOS 자동 줌 방지: 최소 16px 권장 */
   font-size: ${({ theme }) => theme.size.md};
+
   outline: none;
-  transition: all 0.2s ease;
+  -webkit-appearance: none; /* iOS 기본 스타일 제거 */
 
   &:focus {
     background-color: #fff;
-    border-color: #ccc;
-  }
-
-  &::placeholder {
-    color: #bbb;
+    border-color: ${({ theme }) => theme.color.main}; /* 테마 컬러 활용 */
   }
 `;
-
 const SendButton = styled.button`
   padding: 0 5px;
   border: none;
