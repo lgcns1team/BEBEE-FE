@@ -134,16 +134,15 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
                 // useChatStore의 addMessage만 사용 (중복 체크 포함)
                 useChatStore.getState().addMessage(receivedMsg, chatroomId);
 
-                // MATCH_SUCCESS 또는 MATCH_FAILURE 메시지 수신 시 matchStatus 업데이트
-                if (receivedMsg.type === "MATCH_SUCCESS") {
-                  console.log(
-                    " MATCH_SUCCESS 수신, matchStatus를 MATCHED로 업데이트"
-                  );
+                // MATCH_CONFIRMATION, MATCH_SUCCESS, MATCH_FAILURE 메시지 수신 시 matchStatus 업데이트
+                if (receivedMsg.type === "MATCH_CONFIRMATION") {
+            
+                  useChatStore.getState().updateMatchStatus("PROCEEDING");
+                } else if (receivedMsg.type === "MATCH_SUCCESS") {
+            
                   useChatStore.getState().updateMatchStatus("MATCHED");
                 } else if (receivedMsg.type === "MATCH_FAILURE") {
-                  console.log(
-                    "❌ MATCH_FAILURE 수신, matchStatus를 NON_MATCHED로 업데이트"
-                  );
+               
                   useChatStore.getState().updateMatchStatus("NON_MATCHED");
                 }
               } else {

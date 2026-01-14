@@ -13,7 +13,7 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     width: 100%;
-    height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+    height: 100dvh;
     overflow-x: hidden;
     overflow-y: hidden;
   }
