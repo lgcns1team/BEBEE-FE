@@ -13,6 +13,9 @@ interface Props {
   markedDates: Set<string>;
 }
 
+const formatKoreanDate = (date: Date) =>
+  `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+
 const formatDate = (date: Date) => {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -25,25 +28,35 @@ const MonthlyCalendar = ({
   markedDates = new Set<string>(),
 }: Props) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-
+  const [announce, setAnnounce] = useState("");
   const handleChange = (picked: Date | null) => {
     if (!picked) return;
 
     const yyyyMMdd = formatDate(picked);
 
+    const hasHelp = markedDates.has(yyyyMMdd);
     // 같은 날짜 다시 클릭하면 선택 해제
     if (selectedDate && formatDate(selectedDate) === yyyyMMdd) {
       setSelectedDate(null);
       onSelectDate(""); // 선택 해제 알림
+      setAnnounce("날짜 선택이 해제되었습니다");
       return;
     }
 
     setSelectedDate(picked);
     onSelectDate(yyyyMMdd);
+    setAnnounce(
+      `${formatKoreanDate(picked)}이 선택되었습니다.${
+        hasHelp ? " 도움이 있는 날짜입니다." : ""
+      }`
+    );
   };
 
   return (
-    <StyledWrapper>
+    <StyledWrapper role="region" aria-label="월간 일정 달력" lang="ko">
+      <span className="sr-only" aria-live="polite">
+        {announce}
+      </span>
       <span className="sr-only">
         한 달 보기 입니다. 달력 내 날짜를 클릭하여 매칭 정보를 확인해 보세요.
       </span>
@@ -54,6 +67,22 @@ const MonthlyCalendar = ({
         onChange={handleChange}
         shouldCloseOnSelect={false}
         renderCustomHeader={(props) => <CustomHeader {...props} />}
+        renderDayContents={(day, date) => {
+          if (!date) return day;
+
+          const key = formatDate(date);
+          const hasHelp = markedDates.has(key);
+
+          return (
+            <span
+              aria-label={`${formatKoreanDate(date)}${
+                hasHelp ? ", 도움이 있는 날짜" : ""
+              }`}
+            >
+              {day}
+            </span>
+          );
+        }}
         dayClassName={(date) => {
           const key = formatDate(date);
           return markedDates.has(key) ? "has-dot" : undefined;
@@ -161,10 +190,11 @@ const StyledWrapper = styled.div`
 
   /* 오늘 날짜 스타일 */
   .react-datepicker__day--today {
-    background-color: ${({ theme }) => theme.color.main};
-    color: ${({ theme }) => theme.color.white};
+    background-color: ${({ theme }) => theme.color.subColor2};
+    color: ${({ theme }) => theme.color.text};
     border-radius: 50%;
     font-weight: ${({ theme }) => theme.weight.medium};
+    border: 1px solid ${({ theme }) => theme.color.main};
   }
 
   /* 선택된 날짜 스타일 (main 컬러) */

@@ -12,6 +12,11 @@ import NavBar from "../../../components/NavBar";
 import WriteButton from "../components/common/WriteButton";
 import { Checkbox } from "../../../components/Checkbox";
 import { useUserStore } from "../../../store/useUserStore";
+import { Toast } from "../../../components/Toast";
+import Alarm from "../../../components/Alarm";
+import { NotificationPermissionModal } from "../../../components/NotificationPermissionModal";
+import { useNotificationPermissionStore } from "../../../store/useNotificationPermissionStore";
+
 const HomePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,6 +30,7 @@ const HomePage = () => {
     isLoadingMore,
     type,
     isMatched,
+    filters,
     fetchPosts,
     fetchMorePosts,
     setType,
@@ -32,14 +38,17 @@ const HomePage = () => {
   } = usePostStore();
   const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const [sort, setSort] = useState("최신순");
 
   const observerTarget = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const hasInitialized = useRef(false);
   const { user } = useUserStore();
   const role = user?.role;
   const isHelper = role === "HELPER";
+  const { isModalOpen } = useNotificationPermissionStore();
 
+  // 필터가 적용되었는지 확인 (filters 객체에 값이 있으면 적용된 것으로 간주)
+  const isFilterApplied = Object.keys(filters).length > 0;
   // HomePage에서 뒤로가기 방지
   useEffect(() => {
     // history 스택에 현재 상태를 추가하여 뒤로가기를 막음
@@ -106,9 +115,13 @@ const HomePage = () => {
     console.log("클릭:", checked);
     setIsMatched(checked ? false : undefined);
   };
+
   return (
     <Layout>
-      <Wrapper>
+      <Toast position="top" />
+      {isModalOpen && <NotificationPermissionModal />}
+      <Header>
+        <Alarm />
         {/* ---------------- Tabs ---------------- */}
         <TabBar>
           {/* filters.type 대신 Store의 type 상태를 직접 사용 */}
@@ -128,27 +141,12 @@ const HomePage = () => {
             장기 도움
           </Tab>
         </TabBar>
-
         {/* ---------------- Filter Row ---------------- */}
         <FilterRow>
-          <FilterButton onClick={() => setIsFilterSheetOpen(true)} />
-
-          <SortSelect>
-            <button
-              className="sort-btn"
-              onClick={() => setIsSortOpen(!isSortOpen)}
-            >
-              {sort}
-              <ChevronDownIcon size={16} />
-            </button>
-
-            {/* {isSortOpen && (
-              <div className="dropdown">
-                <span onClick={() => handleSelectSort("최신순")}>최신순</span>
-                <span onClick={() => handleSelectSort("마감순")}>마감순</span>
-              </div>
-            )}*/}
-          </SortSelect>
+          <FilterButton
+            isActive={isFilterApplied}
+            onClick={() => setIsFilterSheetOpen(true)}
+          />
 
           <Checkbox
             checked={isMatched === false}
@@ -156,7 +154,8 @@ const HomePage = () => {
             label="완료 제외"
           />
         </FilterRow>
-
+      </Header>
+      <Wrapper ref={wrapperRef}>
         {/* ---------------- Post List ---------------- */}
         <ListWrapper>
           {posts?.map((post) => {
@@ -184,7 +183,6 @@ const HomePage = () => {
             {!hasNext && posts?.length > 0 && <p>마지막 게시글입니다.</p>}
           </div>
         </ListWrapper>
-
         {/* ---------------- BottomSheet ---------------- */}
         {/* reqDTO 등의 상세 필터는 이 컴포넌트 내부에서 setReqDTO를 사용하도록 구성됩니다. */}
         <FilterBottomSheet
@@ -203,13 +201,17 @@ export default HomePage;
 const Wrapper = styled.div`
   min-height: 100vh;
   overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
-
+const Header = styled.div`
+  flex-shrink: 0;
+  z-index: 100;
+`;
 const TabBar = styled.div`
   position: fixed;
   display: flex;
   gap: 32px;
-  padding-top: 12px;
   padding-bottom: 0;
   border-bottom: 0.5px solid #d4d4d8;
   z-index: 90;
@@ -254,11 +256,11 @@ const Tab = styled.button<{ $active?: boolean }>`
 const FilterRow = styled.div`
   z-index: 90;
   position: fixed;
-  margin-top: 42px;
+  margin-top: 30px;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-top: 20px;
+  padding-top: 18px;
   background-color: ${({ theme }) => theme.color.white};
   justify-content: space-between;
   width: 343px;
@@ -268,11 +270,10 @@ const ChevronDownIcon = styled(IoChevronDown)`
 `;
 
 const ListWrapper = styled.div`
-  padding-top: 120px;
+  padding-top: 100px;
   padding-bottom: 40px;
 `;
-
-const SortSelect = styled.div`
+const SortSelect = styled.div<{ isActive: boolean }>`
   position: relative;
 
   .sort-btn {
@@ -280,34 +281,34 @@ const SortSelect = styled.div`
     align-items: center;
     gap: 6px;
     padding: 6px 14px;
-    background: ${({ theme }) => theme.color.white};
-    border: 0.5px solid ${({ theme }) => theme.color.natural200};
+
+    /* PWA 최적화: 아이폰 터치 영역 고려 및 스타일 초기화 */
     border-radius: ${({ theme }) => theme.borderRadius.lg};
     font-size: ${({ theme }) => theme.size.sm};
     cursor: pointer;
-    color: ${({ theme }) => theme.color.text};
-  }
+    -webkit-tap-highlight-color: transparent; /* 터치 시 회색 잔상 제거 */
+    transition: all 0.2s ease-in-out;
+    border: 0.5px solid
+      ${({ theme, isActive }) =>
+        isActive ? "#000000" : theme.color.natural200};
 
-  .dropdown {
-    position: absolute;
-    top: 38px;
-    left: 0;
-    width: 100%;
-    background: ${({ theme }) => theme.color.white};
-    border: 1px solid ${({ theme }) => theme.color.natural200};
-    border-radius: ${({ theme }) => theme.borderRadius.lg};
-    overflow: hidden;
-    z-index: 20;
+    /* 핵심 변경 로직: 활성화(isActive) 시 블랙 배경으로 */
+    background: ${({ theme, isActive }) =>
+      isActive ? "#000000" : theme.color.white};
 
-    span {
-      display: block;
-      padding: 10px;
-      font-size: ${({ theme }) => theme.size.sm};
-      cursor: pointer;
+    color: ${({ theme, isActive }) =>
+      isActive ? "#FFFFFF" : theme.color.text};
 
-      &:hover {
-        background: ${({ theme }) => theme.color.natural100};
-      }
+    /* 아이콘 색상도 함께 변경되도록 설정 */
+    svg {
+      fill: ${({ isActive }) => (isActive ? "#FFFFFF" : "inherit")};
+      stroke: ${({ isActive }) => (isActive ? "#FFFFFF" : "inherit")};
+    }
+
+    /* 아이폰에서 눌렀을 때 살짝 작아지는 효과 (사용자 피드백) */
+    &:active {
+      transform: scale(0.96);
+      opacity: 0.9;
     }
   }
 `;

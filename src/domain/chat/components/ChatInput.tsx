@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-
 interface Props {
   onSend: (text: string) => void;
 }
@@ -16,11 +15,16 @@ const ChatInput = ({ onSend }: Props) => {
     setText(""); // 전송 후 입력창 비우기
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // 엔터 키를 눌렀을 때 (Shift+Enter 제외) 전송
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 한국어 입력(IME) 조합 중일 때는 전송하지 않음
+    // compositionstart/compositionend 이벤트로 확인하거나
+    // isComposing 속성으로 확인
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      // IME 조합 중이 아니고, 조합이 끝났을 때만 전송
+      if (!e.nativeEvent.isComposing) {
+        handleSend();
+      }
     }
   };
 
@@ -31,17 +35,21 @@ const ChatInput = ({ onSend }: Props) => {
         placeholder="메시지를 입력하세요..."
         value={text}
         onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKeyPress}
+        onKeyDown={handleKeyDown}
         aria-label="메시지 입력 필드"
       />
       {/* 텍스트가 있을 때만 강조되도록 버튼 스타일링 가능 */}
       <SendButton
         onClick={handleSend}
         disabled={!text.trim()}
-        aria-label={text.trim() ? "메시지 전송하기" : "메시지 전송하기 (메시지를 입력해주세요)"}
+        aria-label={
+          text.trim()
+            ? "메시지 전송하기"
+            : "메시지 전송하기 (메시지를 입력해주세요)"
+        }
       >
         <SendIcon
-          fill={text.trim() ? "#FFE600" : "#BEBEBE"}
+          fill={text.trim() ? "#FFBE00" : "#BEBEBE"}
           viewBox="0 0 24 24"
           aria-hidden="true"
         >
@@ -63,37 +71,41 @@ export default ChatInput;
 
 const InputArea = styled.div`
   display: flex;
-  align-items: center; // 수직 중앙 정렬 추가
-  padding: 16px 0;
+  align-items: center;
+
+  /* 핵심 변경 사항 */
+  position: relative; /* fixed 대신 레이아웃 흐름에 맞춤 */
+  width: 100%; /* 고정 너비보다는 100%로 대응하고 필요시 부모에서 제어 */
+  bottom: 0;
+  left: 0;
+  transform: none;
+
+  /* 하단 세이프 에어리어 대응 */
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom)) 16px;
+
   background-color: white;
   border-top: 1px solid #ebebeb;
-  position: fixed;
-  width: 343px; // 제공해주신 너비 유지
-  bottom: 0;
-  left: 50%; // 화면 중앙 정렬을 위한 설정
-  transform: translateX(-50%);
   z-index: 100;
-  gap: 8px; // 인풋과 버튼 사이 간격
+  gap: 8px;
+  flex-shrink: 0; /* 부모 flex 컨테이너 안에서 크기가 줄어들지 않도록 */
 `;
 
 const StyledInput = styled.input`
   flex: 1;
   padding: 10px 15px;
   border-radius: 20px;
-  /* 테마 컬러가 없을 경우를 대비해 기본색(#F5F5F5)을 fallback으로 지정했습니다 */
-  border: 1px solid ${({ theme }) => theme?.color?.natural100 || "#F5F5F5"};
-  background-color: ${({ theme }) => theme?.color?.natural100 || "#F5F5F5"};
-  font-size: 14px;
+  border: 1px solid ${({ theme }) => theme.color.natural100};
+  background-color: ${({ theme }) => theme.color.natural100};
+
+  /* iOS 자동 줌 방지: 최소 16px 권장 */
+  font-size: 16px;
+
   outline: none;
-  transition: all 0.2s ease;
+  -webkit-appearance: none; /* iOS 기본 스타일 제거 */
 
   &:focus {
     background-color: #fff;
-    border-color: #ccc;
-  }
-
-  &::placeholder {
-    color: #bbb;
+    border-color: ${({ theme }) => theme.color.main}; /* 테마 컬러 활용 */
   }
 `;
 

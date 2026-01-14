@@ -13,10 +13,11 @@ import { ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import theme from "./styles/theme";
 import { initViewportHeight } from "./utils/viewport";
+import { FCMMessageModal } from "./components/FCMMessageModal";
 import "./App.css";
 import MatchingInfoPage from "./domain/matching/pages/MatchingInfoPage";
 import MapHelperPage from "./domain/map/pages/MapHelperPage";
-import MapDisabledPage from "./domain/map/pages/MapDisabledPage";
+//import MapDisabledPage from "./domain/map/pages/MapDisabledPage";
 import MatchFormPage from "./domain/chat/pages/MatchFormPage";
 import ApplicateLandingPage from "./domain/Application/page/ApplicateLandingPage";
 import ApplicateStatusPage from "./domain/Application/page/ApplicateStatusPage";
@@ -27,6 +28,7 @@ import AuthSignUpStep3Page from "./domain/auth/pages/AuthSignUpStep3Page";
 import AuthSignUpStep4Page from "./domain/auth/pages/AuthSignUpStep4Page";
 import AuthSignUpStep5Page from "./domain/auth/pages/AuthSignUpStep5Page";
 import AuthSignUpStep6Page from "./domain/auth/pages/AuthSignUpStep6Page";
+import AuthSignUpCompletePage from "./domain/auth/pages/AuthSignUpCompletePage";
 import ProfileInfoPage from "./domain/mypage/page/ProfileInfoPage";
 import AuthLoginPage from "./domain/auth/pages/AuthLoginPage";
 import MyPage from "./domain/mypage/page/MyPage";
@@ -37,6 +39,8 @@ import { FailPage } from "./domain/Pay/page/FailPage";
 import LandingPage from "./domain/Landing/page/LandingPage";
 import BadgePage from "./domain/Badge/page/Badge";
 import BadgeDetailPage from "./domain/Badge/page/BadgeDetailPage";
+import BadgeSharePage from "./domain/Badge/page/BadgeSharePage";
+import ProfilePage from "./domain/profile/pages/ProfilePage";
 
 function App() {
   // 모바일 브라우저 뷰포트 높이 초기화
@@ -48,6 +52,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
+      <FCMMessageModal />
       <BrowserRouter>
         <Routes>
           {/* 랜딩페이지 */}
@@ -71,11 +76,13 @@ function App() {
           <Route path="/mypage" element={<MyPage />} />
 
           {/* 마이페이지에서 보는 프로필 정보 */}
-          <Route path="/profile-info/:infoId" element={<ProfileInfoPage />} />
-
+          <Route path="/profile-info" element={<ProfileInfoPage />} />
+          
+          {/* 타인이 보는 프로필 정보 */}
+          <Route path="/profile/:memberId" element={<ProfilePage />} />
           {/*동네지도*/}
           <Route path="/map" element={<MapHelperPage />} />
-          <Route path="/map/disabled" element={<MapDisabledPage />} />
+          {/* <Route path="/map/disabled" element={<MapDisabledPage />} /> */}
           <Route path="/map/helper" element={<MapHelperPage />} />
 
           {/* 매칭 */}
@@ -87,10 +94,11 @@ function App() {
             element={<MatchingInfoPage />}
           />
           {/* 리뷰 */}
-          <Route path="/review/:agreementId" element={<ReviewPage />} />
+          <Route path="/review/:matchId" element={<ReviewPage />} />
           {/*뱃지*/}
           <Route path="/badge" element={<BadgePage />} />
           <Route path="/badge/:disabilityId" element={<BadgeDetailPage />} />
+          <Route path="/badge/share" element={<BadgeSharePage />} />
           {/*  테스트 */}
           <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
           <Route path="/applicate-status" element={<ApplicateStatusPage />} />
@@ -104,6 +112,7 @@ function App() {
           <Route path="/signup/step4" element={<AuthSignUpStep4Page />} />
           <Route path="/signup/step5" element={<AuthSignUpStep5Page />} />
           <Route path="/signup/step6" element={<AuthSignUpStep6Page />} />
+          <Route path="/signup/complete" element={<AuthSignUpCompletePage />} />
           {/* 결제 */}
           <Route path="/charge" element={<ChargePage />} />
           <Route path="/checkout" element={<CheckoutPage />} />

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../components/Header";
 import PostStatusItem from "../components/PostStatusItem";
@@ -13,13 +13,16 @@ const ApplicateStatusPage = () => {
   const [excludeDone, setExcludeDone] = useState(false);
   const navigate = useNavigate();
   const { posts, setPosts } = useApplicationStore();
-
+  const [announce, setAnnounce] = useState("");
   useEffect(() => {
-    // getApplicationPosts({ memberId: MEMBER_ID }).then((res) => {
     getApplicationPosts().then((res) => {
       setPosts(res.data.posts);
     });
   }, []);
+  const filteredPosts = useMemo(() => {
+    if (!excludeDone) return posts;
+    return posts.filter((post) => !post.isMatched);
+  }, [posts, excludeDone]);
 
   const { totalCommon, totalVolunteer } = posts.reduce(
     (acc, post) => {
@@ -30,38 +33,54 @@ const ApplicateStatusPage = () => {
     { totalCommon: 0, totalVolunteer: 0 }
   );
 
+  const handleExcludeDoneChange = (checked: boolean) => {
+    setExcludeDone(checked);
+    setAnnounce(
+      checked
+        ? "완료된 게시글을 제외합니다."
+        : "완료된 게시글을 다시 포함합니다."
+    );
+  };
+
   return (
-    <Container>
+    <Container role="main" aria-labelledby="application-status-title">
+      <span className="sr-only" aria-live="polite">
+        {announce}
+      </span>
       <Section1>
-        <Header
-          onBack={() => navigate("/mypage")}
-          title="지원 현황"
-          showBack
-          aria-label="지원 현황 페이지 입니다"
-        />
-        <SummaryBox>
-          <SummaryItem>
+        <Header onBack={() => navigate("/mypage")} title="지원 현황" showBack />
+
+        <h1 className="sr-only">지원 현황 페이지 지원 현황 페이지</h1>
+        <SummaryCard
+          role="group"
+          tabIndex={0}
+          aria-label={`지원 현황 요약입니다. 
+          지원자 수는 ${totalCommon}명,
+          나눔 지원 수는 ${totalVolunteer}명 입니다.`}
+        >
+          <SummaryItem aria-hidden="true">
             <span>지원자</span>
             <strong>{totalCommon}</strong>
           </SummaryItem>
-          <Divider />
-          <SummaryItem>
+          <Divider aria-hidden="true" />
+          <SummaryItem aria-hidden="true">
             <span>나눔</span>
             <strong>{totalVolunteer}</strong>
           </SummaryItem>
-        </SummaryBox>
+        </SummaryCard>
       </Section1>
       <Section2>
         <ExcludeDone>
           <Checkbox
             checked={excludeDone}
-            onChange={setExcludeDone}
+            onChange={handleExcludeDoneChange}
             label="완료 제외"
             aria-label="매칭이 완료된 게시글을 제외할 수 있습니다"
           />
         </ExcludeDone>
-        {/* <PostStatusItem posts={posts} /> */}
-        <PostStatusItem posts={posts} />
+        <PostList aria-label="지원한 게시글 목록">
+          <PostStatusItem posts={filteredPosts} />
+        </PostList>
       </Section2>
     </Container>
   );
@@ -71,11 +90,14 @@ export default ApplicateStatusPage;
 const Container = styled.main`
   width: 100%;
   min-height: 100vh;
+  max-height: 100vh;
   background-color: ${({ theme }) => theme.color.natural50};
   display: flex;
   flex-direction: column;
   gap: 16px;
   overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 const Section1 = styled.div`
   padding: 0 16px 16px 16px;
@@ -86,7 +108,7 @@ const Section2 = styled.div`
   background-color: ${({ theme }) => theme.color.white};
 `;
 
-const SummaryBox = styled.div`
+const SummaryCard = styled.div`
   display: flex;
   border-top: 1px solid ${({ theme }) => theme.color.natural200};
   border-bottom: 1px solid ${({ theme }) => theme.color.natural200};
@@ -128,3 +150,4 @@ const ExcludeDone = styled.label`
   border-bottom: 1px solid ${({ theme }) => theme.color.natural200};
   padding: 0px 16px 16px 0px;
 `;
+const PostList = styled.div``;

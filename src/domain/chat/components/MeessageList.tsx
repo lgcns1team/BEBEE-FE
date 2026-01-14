@@ -1,19 +1,139 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import MessageItem from "./MessageItem";
 import { useChatStore } from "../store/useChatStore";
 import { useUserStore } from "../../../store/useUserStore";
 
-const MessageList = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const messages = useChatStore((state) => state.getMessages());
-  const { user } = useUserStore();
+const EMPTY_ARRAY: never[] = [];
 
+const MessageList = () => {
+  const { chatroomId } = useParams<{ chatroomId: string }>();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // 빈 배열 상수를 사용하여 매번 새로운 배열을 생성하지 않도록 함
+  const rawMessages = useChatStore((state) => {
+    if (!chatroomId) return EMPTY_ARRAY;
+    const roomData = state.messagesByChatroom[chatroomId];
+    return roomData?.messages || EMPTY_ARRAY;
+  });
+
+  // 메시지를 createdAt 기준으로 정렬
+  // useMemo를 사용하여 정렬 결과를 캐싱하여 무한 루프 방지
+  const messages = useMemo(() => {
+    if (!rawMessages || rawMessages.length === 0) return EMPTY_ARRAY;
+
+    const sorted = [...rawMessages].sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+    return sorted;
+  }, [rawMessages]);
+  const hasNext = useChatStore((state) =>
+    chatroomId ? state.messagesByChatroom[chatroomId]?.hasNext ?? false : false
+  );
+  const fetchHistory = useChatStore((state) => state.fetchHistory);
+  const { user } = useUserStore();
+  const isLoadingMoreRef = useRef<boolean>(false);
+  const shouldScrollToBottomRef = useRef<boolean>(true);
+  const previousMessagesLengthRef = useRef<number>(0);
+
+  // 스크롤을 맨 아래로 이동 (새 메시지 수신/전송 시)
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (!scrollRef.current) return;
+
+    const container = scrollRef.current;
+    const isNearBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight <
+      100;
+
+    // 메시지가 추가되었고, 사용자가 맨 아래에 있었거나 처음 로딩인 경우
+    if (messages.length > previousMessagesLengthRef.current) {
+      if (
+        shouldScrollToBottomRef.current ||
+        isNearBottom ||
+        previousMessagesLengthRef.current === 0
+      ) {
+        requestAnimationFrame(() => {
+          if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+          }
+        });
+        shouldScrollToBottomRef.current = true;
+      }
     }
-  }, [messages]);
+
+    previousMessagesLengthRef.current = messages.length;
+  }, [messages.length]);
+
+  // 위로 스크롤할 때 이전 메시지 불러오기
+  useEffect(() => {
+    if (!chatroomId || !scrollRef.current) return;
+
+    const container = scrollRef.current;
+    const currentChatroomId = chatroomId;
+
+    const handleScroll = () => {
+      // 이미 로딩 중이면 무시
+      if (isLoadingMoreRef.current) return;
+
+      // chatroomId가 변경되었는지 확인
+      if (currentChatroomId !== chatroomId) {
+        return;
+      }
+
+      const isAtTop = container.scrollTop < 200;
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop - container.clientHeight <
+        100;
+
+      // 조건부 업데이트: hasNext가 true일 때만 실행
+      if (isAtTop && hasNext) {
+        isLoadingMoreRef.current = true;
+        shouldScrollToBottomRef.current = false;
+        const previousScrollHeight = container.scrollHeight;
+
+        fetchHistory(currentChatroomId, false)
+          .then(() => {
+            // chatroomId가 변경되었는지 다시 확인
+            if (currentChatroomId !== chatroomId || !scrollRef.current) {
+              isLoadingMoreRef.current = false;
+              return;
+            }
+
+            // 스크롤 위치 유지 (위에 메시지가 추가되므로)
+            requestAnimationFrame(() => {
+              if (
+                container &&
+                scrollRef.current &&
+                currentChatroomId === chatroomId
+              ) {
+                const newScrollHeight = container.scrollHeight;
+                const scrollDiff = newScrollHeight - previousScrollHeight;
+                container.scrollTop = scrollDiff;
+              }
+              isLoadingMoreRef.current = false;
+            });
+          })
+          .catch(() => {
+            isLoadingMoreRef.current = false;
+          });
+      } else if (isAtBottom) {
+        // 사용자가 맨 아래로 스크롤했을 때
+        shouldScrollToBottomRef.current = true;
+      } else {
+        // 사용자가 중간 어딘가에 있을 때
+        shouldScrollToBottomRef.current = false;
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+      // cleanup 시 로딩 상태 초기화
+      isLoadingMoreRef.current = false;
+    };
+  }, [chatroomId, hasNext, fetchHistory]);
 
   // 날짜 포맷 함수 (YYYY-MM-DD)
   const getFormatDate = (dateString: string) => {
@@ -49,7 +169,10 @@ const MessageList = () => {
           <React.Fragment key={msg.id}>
             {/* 날짜가 바뀌었을 때만 구분선 표시 */}
             {isNewDay && (
-              <DateDivider role="separator" aria-label={`날짜 구분선: ${getFormatDate(msg.createdAt)}`}>
+              <DateDivider
+                role="separator"
+                aria-label={`날짜 구분선: ${getFormatDate(msg.createdAt)}`}
+              >
                 <span>{getFormatDate(msg.createdAt)}</span>
                 <span className="sr-only">
                   {getFormatDate(msg.createdAt)}부터의 메시지입니다
@@ -67,16 +190,21 @@ const MessageList = () => {
 
 export default MessageList;
 
-// --- Styles ---
-
 const ListContainer = styled.div`
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background-color: #f9f9f9;
+  background-color: ${({ theme }) => theme.color.white};
+  padding-top: 180px;
+  padding-bottom: 80px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const DateDivider = styled.div`

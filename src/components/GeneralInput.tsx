@@ -8,17 +8,18 @@ interface InputProps {
   disabled?: boolean;
   value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onClick?: () => void;
   required?: boolean;
   placeholder?: string;
 }
 
-const GeneralInput = ({ inputLabel, infoText, ...rest }: InputProps) => {
+const GeneralInput = ({ inputLabel, infoText, onClick, ...rest }: InputProps) => {
   return (
     <BaseInput label={inputLabel} infoText={infoText} {...rest}>
       {" "}
       <InputWrapper>
         {" "}
-        <InputBox {...rest} />
+        <InputBox {...rest} onClick={onClick} />
       </InputWrapper>
     </BaseInput>
   );

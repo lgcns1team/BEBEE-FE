@@ -30,8 +30,10 @@ export const chatApi = {
         },
       }
     );
-    console.log("[chatApi] chatrooms response data:", response.data);
-    return response.data;
+
+    const responseData = response.data;
+
+    return responseData;
   },
 
   /**

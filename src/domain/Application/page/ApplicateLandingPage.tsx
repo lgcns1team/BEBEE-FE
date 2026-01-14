@@ -37,14 +37,25 @@ const PointLandingPage = () => {
   return (
     <Layout>
       <Wrapper>
-        <HiConatiner>
+        <IntroCard
+          role="group"
+          tabIndex={0}
+          aria-label="
+          반가워요.
+          꿀벌들이 당신을 기다리고 있어요.
+          도우미 프로필을 확인할 수 있고,
+          선택한 도우미와 채팅이 가능하며,
+          매칭이 완료되면 뱃지가 비활성화됩니다.
+          "
+        >
+        <HiConatiner aria-hidden="true">
           <span>반가워요 !</span>
           <span>
             <span style={{ color: "#FFBE00" }}>꿀벌</span>들이 당신을
           </span>
           <span>기다리고 있어요</span>
         </HiConatiner>
-        <ImgContainer>
+        <ImgContainer aria-hidden="true">
           <LeftArea>
             {Array.from({ length: LETTER_COUNT }).map((_, i) => (
               <motion.img
@@ -86,7 +97,7 @@ const PointLandingPage = () => {
           </RightArea>
         </ImgContainer>
         {/* 정보 리스트 */}
-        <InformationList>
+        <InformationList aria-hidden="true">
           {infoList.map((info) => (
             <InfoItem key={info.id}>
               <Icon>{info.icon}</Icon>
@@ -94,12 +105,13 @@ const PointLandingPage = () => {
             </InfoItem>
           ))}
         </InformationList>
+        </IntroCard>
       </Wrapper>
       <ButtonWrapper>
         <BaseLongButton
           label="지원자 보러가기"
           onClick={() => navigate("/applicate-status")}
-          aria-label="지원자 보러가기 버튼"
+          aria-label="지원자 보러가기"
         />
       </ButtonWrapper>
     </Layout>
@@ -189,3 +201,7 @@ const ButtonWrapper = styled.div`
   padding-top: 12px;
   flex-shrink: 0;
 `;
+
+const IntroCard = styled.div`
+  
+`

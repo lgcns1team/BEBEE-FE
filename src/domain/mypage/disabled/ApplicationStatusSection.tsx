@@ -3,16 +3,24 @@ import { useNavigate } from "react-router-dom";
 import BaseLongButton from "../../../components/BaseLongButton";
 import application from "../../../assets/images/application.png";
 import { useApplicationStore } from "../../Application/store/useApplicationStore";
+import { useEffect } from "react";
+import { getApplicationPosts } from "../../../api/applicationApi";
 
 const ApplicationStatusSection = () => {
   const navigate = useNavigate();
-  const { posts } = useApplicationStore();
+  const { posts, setPosts } = useApplicationStore();
 
   const totalApplicantCount = posts.reduce(
     (sum, post) =>
       sum + post.commonApplicantCount + post.volunteerApplicantCount,
     0
   );
+  useEffect(() => {
+    getApplicationPosts().then((res) => {
+      setPosts(res.data.posts);
+    });
+  }, [setPosts]);
+
   return (
     <Container>
       <Box>

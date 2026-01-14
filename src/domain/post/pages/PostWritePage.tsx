@@ -253,7 +253,7 @@ const PostWritePage = () => {
             상세 내용<RequiredMark>*</RequiredMark>
           </ModalLabel>
           <TextArea
-            placeholder="도움이 필요한 내용을 자세히 적어주세요."
+            placeholder="예시) 매주 화요일 오후 2시부터 4시까지 병원 동행이 필요합니다. 휠체어를 사용하고 있어 이동 보조가 필요해요."
             value={formData.content || ""}
             onChange={(e) => updateField({ content: e.target.value })}
           />
@@ -293,6 +293,11 @@ const ScrollWrapper = styled.div`
 const Container = styled.div`
   flex: 1;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const HelpTypeContainer = styled.div`
@@ -482,6 +487,7 @@ const TextArea = styled.textarea`
   border: 1px solid ${({ theme }) => theme.color.subColor};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   font-family: inherit;
+  font-size: ${({ theme }) => theme.size.md};
   resize: none;
   &:focus {
     outline: none;

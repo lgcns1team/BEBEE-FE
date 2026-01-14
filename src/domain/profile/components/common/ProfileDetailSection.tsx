@@ -1,41 +1,72 @@
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { useProfileStore } from "../../../../store/useProfileStore";
-
 import styled from "styled-components";
+
+import { useOtherMemberStore } from "../../store/useOtherMemberStore";
+import BadgeChips from "../../../Badge/components/BadgeChips";
+
 const ProfileDetailSection = () => {
   const { profileId } = useParams<{ profileId: string }>();
 
-  const { role, disabledProfiles, helperProfiles } = useProfileStore();
+  const {
+    profile,
+    isLoading,
+    error,
+    fetchMemberProfile,
+    clearProfile,
+  } = useOtherMemberStore();
 
-  const id = Number(profileId);
+ 
+  useEffect(() => {
+    if (!profileId) return;
 
-  const profile =
-    role === "DISABLED"
-      ? disabledProfiles.find((p) => p.memberId === id)
-      : helperProfiles.find((p) => p.memberId === id);
+    fetchMemberProfile(profileId);
+
+    return () => {
+      clearProfile();
+    };
+  }, [profileId, fetchMemberProfile, clearProfile]);
+
+  
+  if (isLoading) {
+    return <Info>로딩 중...</Info>;
+  }
+
+  if (error || !profile) {
+    return <Info>프로필 정보를 불러올 수 없습니다.</Info>;
+  }
 
   const infoList = [
-    { label: "성별", value: profile?.gender },
-    { label: "나이", value: profile?.age },
-    { label: "주소", value: profile?.addressRoad },
-    { label: "주요 도움", value: profile?.helpType?.join(", ") },
-    { label: "한줄소개", value: profile?.introduction },
+    { label: "성별", value: profile.gender === "MALE" ? "남성" : "여성" },
+    { label: "나이", value: `${profile.ageGroup}대` },
+    { label: "주소", value: profile.address },
+    {
+      label: "주요 도움",
+      value:
+        profile.helpCategories.length > 0
+          ? profile.helpCategories.join(", ")
+          : "-",
+    },
+    { label: "한줄소개", value: profile.introduction },
   ];
 
   return (
     <Info>
       <Top>
-        <ProfileImage src={profile?.profileImageUrl} />
-        <TopRight>
-          <NickName>{profile?.name}</NickName>
+        <ProfileImageWrapper>
+            <ProfileImage src={profile.profileImageUrl ?? ""} alt="프로필" />
+          </ProfileImageWrapper>
 
-          {role === "HELPER" && (
-            <>
-              <SubName>@시각 장애인 전문가</SubName>
-              <SubName>@발달 장애인 전문가</SubName>
-            </>
-          )}
-        </TopRight>
+          <TopRight>
+            <NickName>{profile.nickname}</NickName>
+            {profile.role === "HELPER" &&
+              profile.badges &&
+              profile.badges.length > 0 && (
+                <BadgeWrapper>
+                  <BadgeChips badges={profile.badges} />
+                </BadgeWrapper>
+              )}
+          </TopRight>
       </Top>
 
       <Bottom>
@@ -68,12 +99,21 @@ const Top = styled.div`
   align-items: center;
 `;
 
-const ProfileImage = styled.img`
+const ProfileImageWrapper = styled.div`
   width: 60px;
   height: 60px;
   border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: ${({ theme }) => theme.color.natural100};
+`;
+
+const ProfileImage = styled.img`
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 `;
+
 
 const TopRight = styled.div`
   display: flex;
@@ -86,11 +126,9 @@ const NickName = styled.div`
   font-weight: ${({ theme }) => theme.weight.medium};
 `;
 
-const SubName = styled.div`
-  font-size: ${({ theme }) => theme.size.sm};
-  color: ${({ theme }) => theme.color.subText2};
+const BadgeWrapper = styled.div`
+  margin-top: 4px;
 `;
-
 const Bottom = styled.div`
   display: flex;
   flex-direction: column;
@@ -116,3 +154,5 @@ const InfoValue = styled.div`
   line-height: 1.4;
   word-break: break-word;
 `;
+
+
