@@ -79,8 +79,6 @@ const InputArea = styled.div`
   z-index: 100;
   gap: 8px;
   flex-shrink: 0;
-  position: sticky;
-  bottom: 0;
 `;
 
 const StyledInput = styled.input`

@@ -27,17 +27,22 @@ const ChatRoom = () => {
   const currentChatroomIdRef = useRef<string | undefined>(chatroomId);
   const isMountedRef = useRef(true);
   const initialViewportHeightRef = useRef<number>(0);
+  const chatInputRef = useRef<HTMLDivElement>(null);
 
-  // PWA 환경에서 키보드가 올라갈 때 document 스크롤 제어
+  // PWA 환경에서 키보드가 올라갈 때 document 스크롤 제어 및 ChatInput 위치 조정
   useEffect(() => {
     // Visual Viewport API 지원 여부 확인
     if (!window.visualViewport) {
       return;
     }
 
+    // ref를 변수에 저장하여 cleanup에서 사용
+    const inputElement = chatInputRef.current;
+
     const handleViewportResize = () => {
       const visualViewport = window.visualViewport;
       const currentViewportHeight = visualViewport.height;
+      const windowHeight = window.innerHeight;
 
       // 초기 viewport 높이 저장
       if (initialViewportHeightRef.current === 0) {
@@ -50,16 +55,32 @@ const ChatRoom = () => {
       const isKeyboardVisible = heightDifference > 50; // 50px 이상 차이나면 키보드로 간주
 
       if (isKeyboardVisible) {
-        // 키보드가 나타났을 때: document 스크롤을 맨 위로 고정하여 ChatRoomCard가 상단에 유지되도록
+        // 키보드가 나타났을 때
         requestAnimationFrame(() => {
+          // document 스크롤을 맨 위로 고정하여 ChatRoomCard가 상단에 유지되도록
           window.scrollTo({
             top: 0,
             behavior: "instant" as ScrollBehavior,
           });
+
+          // ChatInput을 키보드 위로 올리기
+          const currentInputElement = chatInputRef.current;
+          if (currentInputElement) {
+            // 키보드 높이 계산 (window 높이 - viewport 높이)
+            const keyboardHeight = windowHeight - currentViewportHeight;
+            // ChatInput을 키보드 위에 위치시키기 위해 bottom 값을 키보드 높이로 설정
+            currentInputElement.style.bottom = `${keyboardHeight}px`;
+            currentInputElement.style.position = "fixed";
+          }
         });
       } else {
-        // 키보드가 사라졌을 때: 초기 높이 복원
+        // 키보드가 사라졌을 때: 초기 높이 복원 및 ChatInput 위치 초기화
         initialViewportHeightRef.current = currentViewportHeight;
+        const currentInputElement = chatInputRef.current;
+        if (currentInputElement) {
+          currentInputElement.style.bottom = "0";
+          currentInputElement.style.position = "sticky";
+        }
       }
     };
 
@@ -80,6 +101,11 @@ const ChatRoom = () => {
         "scroll",
         handleViewportResize
       );
+      // Cleanup 시 ChatInput 위치 초기화
+      if (inputElement) {
+        inputElement.style.bottom = "0";
+        inputElement.style.position = "sticky";
+      }
     };
   }, []);
 
@@ -184,7 +210,9 @@ const ChatRoom = () => {
       <ChatContainer>
         <ChatRoomCard />
         <MessageList />
-        <ChatInput onSend={handleSend} />
+        <ChatInputWrapper ref={chatInputRef}>
+          <ChatInput onSend={handleSend} />
+        </ChatInputWrapper>
       </ChatContainer>
     </Layout>
   );
@@ -200,4 +228,11 @@ const ChatContainer = styled.div`
   position: relative;
   /* PWA 환경에서 키보드가 올라갈 때 document 스크롤 방지 */
   overscroll-behavior: contain;
+`;
+
+const ChatInputWrapper = styled.div`
+  flex-shrink: 0;
+  width: 100%;
+  left: 0;
+  right: 0;
 `;
