@@ -650,10 +650,8 @@ const ModalContainer = styled(motion.div)`
   position: relative;
   width: 90%;
   max-width: 500px;
-  max-height: 80vh;
   background: white;
   border-radius: 12px;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   z-index: 1001;

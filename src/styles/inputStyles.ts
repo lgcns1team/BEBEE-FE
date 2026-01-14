@@ -52,6 +52,7 @@ export const LocationInputWrapper = styled.div`
 
   input {
     padding-left: 3rem;
+    padding-right: 3rem;
   }
 `;
 
