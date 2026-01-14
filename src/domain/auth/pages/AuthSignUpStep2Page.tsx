@@ -112,7 +112,7 @@ const AuthSignUpStep2Page = () => {
 
           <PasswordInput
             inputLabel="비밀번호"
-            placeholder="8자 이상 입력해주세요"
+            placeholder="영문, 숫자 포함 8~16자"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -121,17 +121,11 @@ const AuthSignUpStep2Page = () => {
             <RuleItem $valid={password.length >= 8 && password.length <= 19}>
               {password.length >= 8 && password.length <= 19 ? "✓" : "○"} 8~19자
             </RuleItem>
-            <RuleItem $valid={/[A-Z]/.test(password)}>
-              {/[A-Z]/.test(password) ? "✓" : "○"} 대문자 포함
-            </RuleItem>
             <RuleItem $valid={/[a-z]/.test(password)}>
               {/[a-z]/.test(password) ? "✓" : "○"} 소문자 포함
             </RuleItem>
             <RuleItem $valid={/\d/.test(password)}>
               {/\d/.test(password) ? "✓" : "○"} 숫자 포함
-            </RuleItem>
-            <RuleItem $valid={/[!@#$%&]/.test(password)}>
-              {/[!@#$%&]/.test(password) ? "✓" : "○"} 특수문자 (!@#$%&)
             </RuleItem>
           </PasswordRules>
 
