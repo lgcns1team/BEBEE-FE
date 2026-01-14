@@ -192,7 +192,6 @@ export default MessageList;
 
 const ListContainer = styled.div`
   flex: 1;
-  flex-shrink: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
