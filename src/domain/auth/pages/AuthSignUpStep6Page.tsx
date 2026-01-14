@@ -9,9 +9,71 @@ import { signUpUser } from "../../../api/authApi";
 import type { SignUpRequest } from "../auth.types";
 
 const AuthSignUpStep6Page = () => {
-    const navigate = useNavigate();
-    const {
-        role,
+  const navigate = useNavigate();
+  const {
+    role,
+    email,
+    password,
+    name,
+    nickname,
+    birthDate,
+    gender,
+    phoneNumber,
+    addressRoad,
+    latitude,
+    longitude,
+    districtCode,
+    helpTypes,
+    disabilityType,
+    disabilityGrade,
+    disabilityDescription,
+    fileUrl,
+    systemFlag,
+    reset,
+  } = useAuthSignUpForm();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // systemFlag가 없으면 이전 단계로
+  if (!systemFlag) {
+    navigate("/signup/step5");
+    return null;
+  }
+
+  // HIGH인 경우 재업로드 안내
+  if (systemFlag === "HIGH") {
+    return (
+      <Layout>
+        <AuthSignUpHeader currentStep={6} totalSteps={6} onBack={() => navigate("/signup/step5")} />
+        <PageContainer>
+          <ScrollArea>
+            <Title>서류 확인이 필요해요</Title>
+            <WarningBox>
+              <InfoText style={{ fontWeight: 700, color: "#d32f2f" }}>
+                ⚠️ 문서 인식이 실패했거나 위변조가 의심됩니다.
+              </InfoText>
+              <InfoText>선명한 원본 사진으로 다시 업로드해 주세요.</InfoText>
+            </WarningBox>
+          </ScrollArea>
+          <BaseLongButton label="서류 다시 업로드하기" onClick={() => navigate("/signup/step5")} />
+        </PageContainer>
+      </Layout>
+    );
+  }
+
+  // LOW/MID인 경우 회원가입 진행
+  const handleSignUp = async () => {
+    if (!role) {
+      alert("역할이 선택되지 않았습니다. 처음부터 다시 시도해 주세요.");
+      navigate("/signup/step1");
+      return;
+    }
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      // 회원가입 (fileUrl, systemFlag 포함)
+      const signUpParams: SignUpRequest = {
         email,
         password,
         name,
@@ -19,53 +81,35 @@ const AuthSignUpStep6Page = () => {
         birthDate,
         gender,
         phoneNumber,
+        role,
         addressRoad,
         latitude,
         longitude,
         districtCode,
         helpTypes,
         disabilityType,
-        disabilityGrade,
+        disabilityGrade: disabilityGrade || undefined,
         disabilityDescription,
-        fileUrl,
-        systemFlag,
-        reset,
-    } = useAuthSignUpForm();
+        fileUrl: fileUrl || undefined,
+        systemFlag: systemFlag || undefined,
+      };
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
+      await signUpUser(signUpParams);
 
-    // systemFlag가 없으면 이전 단계로
-    if (!systemFlag) {
-        navigate("/signup/step5");
-        return null;
-    }
-
-    // HIGH인 경우 재업로드 안내
-    if (systemFlag === "HIGH") {
-        return (
-            <Layout>
-                <AuthSignUpHeader
-                    currentStep={6}
-                    totalSteps={6}
-                    onBack={() => navigate("/signup/step5")}
-                />
-                <PageContainer>
-                    <ScrollArea>
-                        <Title>서류 확인이 필요해요</Title>
-                        <WarningBox>
-                            <InfoText style={{ fontWeight: 700, color: '#d32f2f' }}>
-                                ⚠️ 문서 인식이 실패했거나 위변조가 의심됩니다.
-                            </InfoText>
-                            <InfoText>선명한 원본 사진으로 다시 업로드해 주세요.</InfoText>
-                        </WarningBox>
-                    </ScrollArea>
-                    <BaseLongButton
-                        label="서류 다시 업로드하기"
-                        onClick={() => navigate("/signup/step5")}
-                    />
-                </PageContainer>
-            </Layout>
-        );
+      // 성공 메시지 및 로그인 페이지로 이동
+      if (systemFlag === "LOW") {
+        alert("가입 및 서류 승인이 완료되었습니다!");
+      } else {
+        // MID
+        alert("서류가 접수되었습니다. 관리자 확인 후 승인될 예정입니다.");
+      }
+      reset();
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error("회원가입 실패:", error);
+      alert("회원가입 처리 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
 
     // LOW/MID인 경우 회원가입 진행

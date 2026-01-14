@@ -5,11 +5,7 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 import Layout from "../../../components/Layout";
 import BaseLongButton from "../../../components/BaseLongButton";
 import AuthSignUpHeader from "../components/AuthSignUpHeader";
-import {
-  FieldSet,
-  ModalLabel,
-  RequiredMark,
-} from "../../../styles/FieldSetStyle";
+import { FieldSet, ModalLabel, RequiredMark } from "../../../styles/FieldSetStyle";
 import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
 import { uploadFileToS3ForSignup } from "../../../api/fileApi";
 import { analyzeDocument } from "../../../api/documentApi";
@@ -83,18 +79,12 @@ const AuthSignUpStep5Page = () => {
 
   return (
     <Layout>
-      <AuthSignUpHeader
-        currentStep={5}
-        totalSteps={6}
-        onBack={() => navigate("/signup/step4")}
-      />
+      <AuthSignUpHeader currentStep={5} totalSteps={6} onBack={() => navigate("/signup/step4")} />
       <PageContainer>
         <ScrollArea>
           <FieldSet>
             <ModalLabel>
-              {role === "HELPER"
-                ? "교육 이수증 업로드"
-                : "장애인 복지카드/등록증 업로드"}
+              {role === "HELPER" ? "교육 이수증 업로드" : "장애인 복지카드/등록증 업로드"}
               <RequiredMark>*</RequiredMark>
             </ModalLabel>
             <HelpText>
@@ -138,9 +128,9 @@ const AuthSignUpStep5Page = () => {
         </ScrollArea>
       </PageContainer>
       <BaseLongButton
-        label={isUploading ? "처리 중..." : "확인"}
-        onClick={handleConfirm}
-        disabled={isUploading || !selectedFile}
+        label={isUploading ? "업로드 중..." : "다음"}
+        onClick={handleFileClick}
+        disabled={isUploading}
       />
     </Layout>
   );
@@ -153,11 +143,15 @@ const PageContainer = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+  padding: 2rem 0;
 `;
 
 const ScrollArea = styled.div`
   flex: 1;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
 
   &::-webkit-scrollbar {
     display: none;

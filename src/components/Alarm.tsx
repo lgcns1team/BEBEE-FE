@@ -9,15 +9,13 @@ import { useLocation } from "react-router-dom";
 const Alarm = () => {
   const { user } = useUserStore();
   const location = useLocation();
-  const { hasShownModal, hasShownTooltip, showTooltip } =
-    useNotificationPermissionStore();
-  const [permissionStatus, setPermissionStatus] =
-    useState<NotificationPermission | null>(() => {
-      if (typeof window !== "undefined" && "Notification" in window) {
-        return Notification.permission;
-      }
-      return null;
-    });
+  const { hasShownModal, hasShownTooltip, showTooltip } = useNotificationPermissionStore();
+  const [permissionStatus, setPermissionStatus] = useState<NotificationPermission | null>(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      return Notification.permission;
+    }
+    return null;
+  });
   const [showTooltipAnimation, setShowTooltipAnimation] = useState(false);
 
   // 권한 상태 확인 및 업데이트
@@ -62,10 +60,7 @@ const Alarm = () => {
 
     // 모달을 이미 표시했고, 권한이 없는 경우에만 말풍선 표시
     // currentPermission이 "default" 또는 "denied"인 경우
-    if (
-      hasShownModal &&
-      (currentPermission === "default" || currentPermission === "denied")
-    ) {
+    if (hasShownModal && (currentPermission === "default" || currentPermission === "denied")) {
       const isDev = import.meta.env.DEV;
       if (isDev) {
         console.log("💬 [Tooltip] 말풍선 표시 조건 충족:", {
@@ -107,31 +102,13 @@ const Alarm = () => {
         });
       }
     }
-  }, [
-    location.pathname,
-    user,
-    hasShownModal,
-    hasShownTooltip,
-    permissionStatus,
-    showTooltip,
-  ]);
+  }, [location.pathname, user, hasShownModal, hasShownTooltip, permissionStatus, showTooltip]);
 
   return (
     <Container>
       <ImaBox>
         <AlarmImage src={alarmLogo} alt="알림 로고" />
       </ImaBox>
-      <BellWrapper>
-        <Bell $hasPermission={permissionStatus === "granted"}>
-          <GoBell />
-        </Bell>
-        {showTooltipAnimation && (
-          <Tooltip $isVisible={showTooltipAnimation}>
-            알림을 받아보세요!
-            <TooltipArrow />
-          </Tooltip>
-        )}
-      </BellWrapper>
     </Container>
   );
 };
@@ -139,16 +116,14 @@ const Alarm = () => {
 export default Alarm;
 const Container = styled.div`
   width: 100%;
-  height: 50px;
+  height: 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   box-sizing: border-box;
   background-color: ${({ theme }) => theme.color.white};
-  will-change: transform;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  z-index: 9999;
 `;
 const ImaBox = styled.div`
   width: 40px;
@@ -205,9 +180,7 @@ const Tooltip = styled.div<{ $isVisible: boolean }>`
   white-space: nowrap;
   z-index: 1000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  animation: ${({ $isVisible }) =>
-      $isVisible ? tooltipFadeIn : tooltipFadeOut}
-    0.3s ease-out;
+  animation: ${({ $isVisible }) => ($isVisible ? tooltipFadeIn : tooltipFadeOut)} 0.3s ease-out;
   pointer-events: none;
 `;
 

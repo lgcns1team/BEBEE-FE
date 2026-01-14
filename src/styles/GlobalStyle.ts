@@ -9,13 +9,14 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   html, body {
-    background-color: ${theme.color.white}; 
+    background-color: ${theme.color.white};
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100dvh;
     overflow-x: hidden;
     overflow-y: hidden;
+    font-family: "Pretendard", "Paperlogy", sans-serif;
   }
 
   #root {
@@ -25,7 +26,7 @@ export const GlobalStyle = createGlobalStyle`
     min-height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
     background-color: transparent;
     color: ${theme.color.text};
-    font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: "Pretendard", "Paperlogy", sans-serif;
     font-size: ${theme.size.md};
     line-height: 1.4;
     overflow-y: hidden;

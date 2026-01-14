@@ -1,7 +1,5 @@
 import { useState } from "react";
-import DatePicker, {
-  type ReactDatePickerCustomHeaderProps,
-} from "react-datepicker";
+import DatePicker, { type ReactDatePickerCustomHeaderProps } from "react-datepicker";
 import { ko } from "date-fns/locale";
 import "react-datepicker/dist/react-datepicker.css";
 import styled from "styled-components";
@@ -23,10 +21,7 @@ const formatDate = (date: Date) => {
   return `${y}-${m}-${d}`;
 };
 
-const MonthlyCalendar = ({
-  onSelectDate,
-  markedDates = new Set<string>(),
-}: Props) => {
+const MonthlyCalendar = ({ onSelectDate, markedDates = new Set<string>() }: Props) => {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [announce, setAnnounce] = useState("");
   const handleChange = (picked: Date | null) => {
@@ -46,9 +41,7 @@ const MonthlyCalendar = ({
     setSelectedDate(picked);
     onSelectDate(yyyyMMdd);
     setAnnounce(
-      `${formatKoreanDate(picked)}이 선택되었습니다.${
-        hasHelp ? " 도움이 있는 날짜입니다." : ""
-      }`
+      `${formatKoreanDate(picked)}이 선택되었습니다.${hasHelp ? " 도움이 있는 날짜입니다." : ""}`
     );
   };
 
@@ -75,9 +68,9 @@ const MonthlyCalendar = ({
 
           return (
             <span
-              aria-label={`${formatKoreanDate(date)}${
-                hasHelp ? ", 도움이 있는 날짜" : ""
-              }`}
+              role="button"
+              aria-roledescription="날짜"
+              aria-label={`${formatKoreanDate(date)}${hasHelp ? ", 도움이 있는 날짜" : ""}`}
             >
               {day}
             </span>
@@ -94,11 +87,7 @@ const MonthlyCalendar = ({
 
 export default MonthlyCalendar;
 
-const CustomHeader = ({
-  date,
-  decreaseMonth,
-  increaseMonth,
-}: ReactDatePickerCustomHeaderProps) => {
+const CustomHeader = ({ date, decreaseMonth, increaseMonth }: ReactDatePickerCustomHeaderProps) => {
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
 
@@ -109,19 +98,11 @@ const CustomHeader = ({
       </DateText>
 
       <ArrowGroup>
-        <ArrowButton
-          type="button"
-          aria-label="이전 달로 이동"
-          onClick={decreaseMonth}
-        >
+        <ArrowButton type="button" aria-label="이전 달로 이동" onClick={decreaseMonth}>
           <GoChevronLeft size={20} />
         </ArrowButton>
 
-        <ArrowButton
-          type="button"
-          aria-label="다음 달로 이동"
-          onClick={increaseMonth}
-        >
+        <ArrowButton type="button" aria-label="다음 달로 이동" onClick={increaseMonth}>
           <GoChevronRight size={20} />
         </ArrowButton>
       </ArrowGroup>
@@ -185,13 +166,12 @@ const StyledWrapper = styled.div`
   /* 호버 효과 */
   .react-datepicker__day:hover {
     background: ${({ theme }) => theme.color.natural100};
-    border-radius: 50%;
+    // border-radius: 50%;
   }
 
   /* 오늘 날짜 스타일 */
   .react-datepicker__day--today {
-    background-color: ${({ theme }) => theme.color.subColor2};
-    color: ${({ theme }) => theme.color.text};
+    background-color: ${({ theme }) => theme.color.subColor};
     border-radius: 50%;
     font-weight: ${({ theme }) => theme.weight.medium};
     border: 1px solid ${({ theme }) => theme.color.main};

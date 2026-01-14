@@ -1,4 +1,4 @@
-import { styled, createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { useRef, forwardRef } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -7,7 +7,6 @@ import { parse } from "date-fns";
 import { CiCalendar } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
 
-import Layout from "../../../../components/Layout";
 import GeneralInput from "../../../../components/GeneralInput";
 import LocationInput from "../../../../components/LocationInput";
 import BaseLongButton from "../../../../components/BaseLongButton";
@@ -151,15 +150,21 @@ const DayHelpWrite = ({ formData, updateField }: DayProps) => {
 };
 
 export default DayHelpWrite;
+
 const Container = styled.div`
   flex: 1;
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding: 2rem 0;
   &::-webkit-scrollbar {
     display: none;
   }
 `;
+
 const TimeWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -305,15 +310,21 @@ const DatePickerGlobalStyle = createGlobalStyle`
     // 달력_선택된_날짜
     &--selected,
     &--keyboard-selected {
-      background-color: ${({ theme }) => theme.color.main} !important;
+      background-color: ${({ theme }) => theme.color.subColor2} !important;
       color: ${({ theme }) => theme.color.text} !important;
-  
     }
 
-    // 달력_오늘_날짜
-    &--today {
-      font-weight: ${({ theme }) => theme.weight.bold};
-      border: 1px solid ${({ theme }) => theme.color.main};
+    // 달력_범위_시작_날짜
+    &--in-selecting-range,
+    &--in-range {
+      background-color: ${({ theme }) => theme.color.subColor2} !important;
+      color: ${({ theme }) => theme.color.text} !important;
+    }
+
+    // 달력_범위_끝_날짜
+    &--range-end {
+      background-color: ${({ theme }) => theme.color.main} !important;
+      color: ${({ theme }) => theme.color.text} !important;
     }
 
     // 달력_비활성화된_날짜
@@ -379,7 +390,6 @@ const DatePickerGlobalStyle = createGlobalStyle`
       background-color: ${({ theme }) => theme.color.main} !important;
       color: ${({ theme }) => theme.color.text} !important;
       font-weight: ${({ theme }) => theme.weight.medium} !important;
-
     }
 
     // 시간_비활성화된_아이템
@@ -391,12 +401,11 @@ const DatePickerGlobalStyle = createGlobalStyle`
 
   // 시간_리스트_스크롤바
   .react-datepicker__time-list {
-    /* 스크롤바 숨기기 */
     &::-webkit-scrollbar {
       display: none;
     }
 
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 `;

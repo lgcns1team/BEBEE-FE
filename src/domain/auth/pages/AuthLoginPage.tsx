@@ -13,6 +13,7 @@ import { useUserStore } from "../../../store/useUserStore";
 import { useToastStore } from "../../../store/useToastStore";
 import { getErrorMessage } from "../../../utils/error";
 import type { LoginRequest } from "../auth.types";
+import { PASSWORD_REGEX } from "../auth.constants";
 
 const AuthLoginPage = () => {
   const navigate = useNavigate();
@@ -48,10 +49,7 @@ const AuthLoginPage = () => {
         navigate("/home", { replace: true });
       }, 100);
     } catch (error) {
-      getErrorMessage(
-        error,
-        "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요."
-      );
+      getErrorMessage(error, "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
       showToast(
         "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.",
 
@@ -73,8 +71,8 @@ const AuthLoginPage = () => {
 
       <FormContainer>
         <GeneralInput
-          inputLabel="아이디 (이메일)"
-          placeholder="example@bebee.com"
+          inputLabel="아이디"
+          placeholder="이메일을 입력해주세요"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -89,7 +87,7 @@ const AuthLoginPage = () => {
         <BaseLongButton
           label="로그인"
           onClick={handleLogin}
-          disabled={!email || !password}
+          disabled={!email || !password || !new RegExp(PASSWORD_REGEX).test(password)}
         />
       </LoginButtonWrapper>
       <UtilContainer>
@@ -97,9 +95,7 @@ const AuthLoginPage = () => {
         <Divider>|</Divider>
         <UtilLink onClick={() => {}}>비밀번호 찾기</UtilLink>
         <Divider>|</Divider>
-        <SignUpLink onClick={() => navigate("/signup/step1")}>
-          회원가입
-        </SignUpLink>
+        <SignUpLink onClick={() => navigate("/signup/step1")}>회원가입</SignUpLink>
       </UtilContainer>
     </Layout>
   );
@@ -112,15 +108,16 @@ const LogoContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-bottom: 0.75rem;
-  padding-top: 30px;
+  margin-bottom: 0;
+  padding-top: 5rem;
   flex-shrink: 0;
+  user-select: none;
 `;
 
 const LogoIcon = styled.img`
   width: 70px;
   height: auto;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
 `;
 
 const LogoText = styled.img`
@@ -132,16 +129,17 @@ const SubTitle = styled.p`
   font-size: ${({ theme }) => theme.size.md};
   color: ${({ theme }) => theme.color.subText2};
   margin: 0.75rem 0 0 0;
+  font-family: "Paperlogy";
 `;
 
 const FormContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
   flex: 1;
   min-height: 0;
   justify-content: center;
+  gap: 2.5rem;
 `;
 
 const LoginButtonWrapper = styled.div`

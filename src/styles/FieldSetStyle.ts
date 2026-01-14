@@ -1,9 +1,9 @@
 import styled from "styled-components";
+
 export const FieldSet = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem; // label과 input/select 사이 간격
-  margin-top: 2.5rem; // 세트 간 마진
 `;
 
 export const ModalLabel = styled.label`

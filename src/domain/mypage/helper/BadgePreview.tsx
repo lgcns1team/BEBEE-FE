@@ -5,6 +5,8 @@ import { useBadgeStore } from "../../Badge/store/useBadgeStore";
 import { BADGE_RESOURCE_MAP } from "../../Badge/types/badge.type";
 import { DISABILITY_TYPES } from "../../../constants/disabilityTypes";
 import { IoChevronForward } from "react-icons/io5";
+import LoadingSpinner from "../../../components/LoadingSpinner";
+import Loading from "../../../components/Loading";
 
 const BadgePreview = () => {
   const navigate = useNavigate();
@@ -20,9 +22,7 @@ const BadgePreview = () => {
     const disabilitiesWithCount = DISABILITY_TYPES.filter(
       (disability) => BADGE_RESOURCE_MAP[disability.id]
     ).map((disability) => {
-      const status = badgeStatus.find((item) =>
-        item.disabilityCategoryIds.includes(disability.id)
-    );
+      const status = badgeStatus.find((item) => item.disabilityCategoryIds.includes(disability.id));
       return {
         ...disability,
         count: status?.count || 0,
@@ -46,7 +46,7 @@ const BadgePreview = () => {
       <BadgePreviewContainer>
         <BadgePreviewTitle>내 뱃지</BadgePreviewTitle>
         <BadgeScrollContainer>
-          <LoadingText>뱃지 정보를 불러오는 중...</LoadingText>
+          <LoadingSpinner />
         </BadgeScrollContainer>
       </BadgePreviewContainer>
     );
@@ -82,16 +82,13 @@ const BadgePreview = () => {
             const badgeResource = BADGE_RESOURCE_MAP[disability.id];
             const badgeImage =
               badgeCode && badgeResource[badgeCode]
-              ? badgeResource[badgeCode]
-              : badgeResource.DEFAULT;
+                ? badgeResource[badgeCode]
+                : badgeResource.DEFAULT;
 
             return (
               <BadgeCard key={disability.id} onClick={handleBadgeClick}>
                 <BadgeImageContainer $isUnlocked={isUnlocked}>
-                  <BadgeImage
-                    src={badgeImage}
-                    alt={`${disability.name} 뱃지`}
-                  />
+                  <BadgeImage src={badgeImage} alt={`${disability.name} 뱃지`} />
                   {!isUnlocked && <LockOverlay>🔒</LockOverlay>}
                 </BadgeImageContainer>
                 <BadgeText>
