@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
+import styled from "styled-components";
 import ChatRoomCard from "../components/ChatRoomCard";
 import ChatInput from "../components/ChatInput";
 import MessageList from "../components/MeessageList";
@@ -124,11 +125,21 @@ const ChatRoom = () => {
   return (
     <Layout aria-label="채팅방">
       <span className="sr-only">채팅방 페이지입니다. </span>
-      <ChatRoomCard />
+      <ChatContainer>
+        <ChatRoomCard />
         <MessageList />
-      <ChatInput onSend={handleSend} />
+        <ChatInput onSend={handleSend} />
+      </ChatContainer>
     </Layout>
   );
 };
 
 export default ChatRoom;
+
+const ChatContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+`;

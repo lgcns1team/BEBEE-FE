@@ -73,13 +73,7 @@ const InputArea = styled.div`
   display: flex;
   align-items: center;
   padding-top: 16px;
-  /* 핵심 변경 사항 */
-  position: relative; /* fixed 대신 레이아웃 흐름에 맞춤 */
-  width: 100%; /* 고정 너비보다는 100%로 대응하고 필요시 부모에서 제어 */
-  bottom: 0;
-  left: 0;
-  transform: none;
-
+  width: 100%;
   background-color: white;
   border-top: 1px solid #ebebeb;
   z-index: 100;

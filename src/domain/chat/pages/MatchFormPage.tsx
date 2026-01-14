@@ -708,7 +708,9 @@ const MatchFormPage = () => {
                 }
                 tabIndex={0}
               >
-                {isCheckingBalance ? "확인 중..." : "잔액확인"}
+                <span aria-hidden="true">
+                  {isCheckingBalance ? "확인 중..." : "잔액확인"}
+                </span>
                 <span className="sr-only">
                   {isCheckingBalance
                     ? "잔액을 확인하는 중입니다"
@@ -728,13 +730,10 @@ const MatchFormPage = () => {
             agreementRequest.totalHoney &&
             !agreementRequest.isVolunteer ? (
               <TotlaHoney role="status" aria-live="polite" aria-atomic="true">
-                <span style={{ color: "#155DFC" }} aria-hidden="true">
-                  {" "}
-                  총 제공 꿀:{" "}
-                </span>
-                <span>
+                <span aria-hidden="true">
+                  <span style={{ color: "#155DFC" }}>총 제공 꿀: </span>
                   총{" "}
-                  <span style={{ color: "#155DFC" }} aria-hidden="true">
+                  <span style={{ color: "#155DFC" }}>
                     {agreementRequest.totalHoney.toLocaleString()} 꿀
                   </span>
                   이 도우미에게 제공될 예정이에요
