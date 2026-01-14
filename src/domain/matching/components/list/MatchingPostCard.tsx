@@ -37,18 +37,18 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
     navigate(`/profile/${engagement.otherId}`);
   };
   // 스크린 리더용
-  const cardAriaLabel = `
-    활동 제목 ${engagement.title}.
-    매칭 상대 ${engagement.otherNickname}.
-    활동 지역 ${engagement.region}.
-    도움 날짜 ${scheduleText}.
-    ${
-      engagement.helpType === "DAY"
-        ? "하루 도움 활동입니다."
-        : "지속 도움 활동입니다."
-    }
-    매칭 확인서를 확인하려면 두 번 탭하세요.
-  `;
+  // const cardAriaLabel = `
+  //   활동 제목 ${engagement.title}.
+  //   매칭 상대 ${engagement.otherNickname}.
+  //   활동 지역 ${engagement.region}.
+  //   도움 날짜 ${scheduleText}.
+  //   ${
+  //     engagement.helpType === "DAY"
+  //       ? "하루 도움 활동입니다."
+  //       : "지속 도움 활동입니다."
+  //   }
+  //   매칭 확인서를 확인하려면 두 번 탭하세요.
+  // `;
   const renderActionButton = () => {
     switch (engagement.status) {
       case "INACTIVE":
@@ -102,66 +102,72 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   };
 
   return (
-    <Card aria-label={cardAriaLabel}>
-      <div aria-hidden="true">
-        <TopArea>
-          <Title
-            onClick={goMatchingInfo}
-            aria-label={`활동 제목 ${engagement.title} 입니다. 매칭 상세 정보로 이동합니다`}
+    <Card role="group">
+      <CardSummary role="text">
+        활동 제목 {engagement.title}. 매칭 상대 {engagement.otherNickname}. 활동
+        지역 {engagement.region}. 도움 날짜 {scheduleText}.
+        {engagement.helpType === "DAY"
+          ? "하루 도움 활동입니다."
+          : "지속 도움 활동입니다."}
+      </CardSummary>
+      <TopArea>
+        <Title
+          onClick={goMatchingInfo}
+          aria-label={`활동 제목 ${engagement.title} 입니다. 매칭 상세 정보로 이동합니다`}
+        >
+          {engagement.title}
+        </Title>
+        {engagement.helpType === "DAY" && (
+          <OneDayBadge aria-label="하루 도움에 해당하는 활동입니다">
+            하루 도움
+          </OneDayBadge>
+        )}
+      </TopArea>
+
+      <BottomArea>
+        <BottomLeft>
+          <User
+            role="button"
+            tabIndex={0}
+            onClick={handleProfileClick}
+            aria-label={`매칭된 상대 ${engagement.otherNickname} 님의 프로필로 이동합니다`}
           >
-            {engagement.title}
-          </Title>
-          {engagement.helpType === "DAY" && (
-            <OneDayBadge aria-label="하루 도움에 해당하는 활동입니다">
-              하루 도움
-            </OneDayBadge>
-          )}
-        </TopArea>
+            {engagement.otherNickname}
+          </User>
 
-        <BottomArea>
-          <BottomLeft>
-            <User
-              role="button"
-              tabIndex={0}
-              onClick={handleProfileClick}
-              aria-label={`매칭된 상대 ${engagement.otherNickname} 님의 프로필로 이동합니다`}
-            >
-              {engagement.otherNickname}
-            </User>
+          <InfoLine>
+            <MapPinIcon size={16} aria-hidden="true" />
+            <InfoText aria-label={`활동 지역 ${engagement.region} 입니다`}>
+              {engagement.region}
+            </InfoText>
+          </InfoLine>
 
-            <InfoLine>
-              <MapPinIcon size={16} aria-hidden="true" />
-              <InfoText aria-label={`활동 지역 ${engagement.region} 입니다`}>
-                {engagement.region}
-              </InfoText>
-            </InfoLine>
+          <InfoLine>
+            <CalendarIcon size={16} aria-hidden="true" />
+            <InfoText aria-label={`도움 날짜 ${scheduleText} 입니다`}>
+              {scheduleText}
+            </InfoText>
+          </InfoLine>
 
-            <InfoLine>
-              <CalendarIcon size={16} aria-hidden="true" />
-              <InfoText aria-label={`도움 날짜 ${scheduleText} 입니다`}>
-                {scheduleText}
-              </InfoText>
-            </InfoLine>
+          <TagRow aria-label="도움 유형 태그 목록">
+            {engagement.helpCategoryIds.map((cat) => (
+              <HelpTag key={cat}>{HELP_TAG_MAP[cat]}</HelpTag>
+            ))}
+          </TagRow>
+        </BottomLeft>
 
-            <TagRow aria-label="도움 유형 태그 목록">
-              {engagement.helpCategoryIds.map((cat) => (
-                <HelpTag key={cat}>{HELP_TAG_MAP[cat]}</HelpTag>
-              ))}
-            </TagRow>
-          </BottomLeft>
+        {engagement.thumbnailImageUrl && (
+          <BottomRight>
+            <Thumbnail>
+              <img
+                src={engagement.thumbnailImageUrl}
+                alt="활동과 관련된 이미지 입니다"
+              />
+            </Thumbnail>
+          </BottomRight>
+        )}
+      </BottomArea>
 
-          {engagement.thumbnailImageUrl && (
-            <BottomRight>
-              <Thumbnail>
-                <img
-                  src={engagement.thumbnailImageUrl}
-                  alt="활동과 관련된 이미지 입니다"
-                />
-              </Thumbnail>
-            </BottomRight>
-          )}
-        </BottomArea>
-      </div>
       <BottomBar>
         <BottomInner>
           <ChatButton
@@ -196,7 +202,14 @@ const Card = styled.div`
     outline-offset: 2px;
   }
 `;
-
+const CardSummary = styled.p`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+`;
 const TopArea = styled.div`
   display: flex;
   justify-content: space-between;
