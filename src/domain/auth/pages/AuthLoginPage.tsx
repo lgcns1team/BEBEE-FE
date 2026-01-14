@@ -108,8 +108,8 @@ const LogoContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-bottom: 0.75rem;
-  padding-top: 60px;
+  margin-bottom: 0;
+  padding-top: 5rem;
   flex-shrink: 0;
   user-select: none;
 `;
