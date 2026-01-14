@@ -394,7 +394,7 @@ const ChevronDownIcon = styled(IoChevronDown)`
 `;
 
 const ListWrapper = styled.div`
-  padding-top: 120px;
+  padding-top: 100px;
   padding-bottom: 40px;
 `;
 
