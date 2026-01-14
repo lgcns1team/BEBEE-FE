@@ -98,7 +98,12 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   };
 
   return (
-    <Card aria-label={cardAriaLabel}>
+    <Card
+      aria-label={cardAriaLabel}
+      role="button"
+      tabIndex={0}
+      onClick={goMatchingInfo}
+    >
       <div aria-hidden="true">
         <TopArea>
           <Title
