@@ -72,7 +72,7 @@ export default ChatInput;
 const InputArea = styled.div`
   display: flex;
   align-items: center;
-  padding-top: 16px;
+  padding: 16px;
   width: 100%;
   background-color: white;
   border-top: 1px solid #ebebeb;
@@ -88,7 +88,6 @@ const StyledInput = styled.input`
   border: 1px solid ${({ theme }) => theme.color.natural100};
   background-color: ${({ theme }) => theme.color.natural100};
 
-  /* iOS 자동 줌 방지: 최소 16px 권장 */
   font-size: ${({ theme }) => theme.size.md};
 
   outline: none;

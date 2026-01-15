@@ -70,6 +70,15 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
   const endTimeInputRef = useRef<HTMLInputElement>(null);
   const periodInputRef = useRef<HTMLInputElement>(null);
 
+  const formatKoreanTimeForSr = (date: Date) => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const period = hours < 12 ? "오전" : "오후";
+    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    const minuteStr = minutes === 0 ? "" : ` ${minutes}분`;
+    return `${period} ${displayHours}시${minuteStr}`;
+  };
+
   const weeks = termEngagement.weeks || [];
 
   // 날짜 범위 변경
@@ -269,13 +278,20 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={30}
-                  dateFormat="HH:mm"
+                  timeFormat="HH시 mm분"
+                  dateFormat="HH시 mm분"
                   locale={ko}
                   customInput={
                     <StyledTimeInput
                       ref={startTimeInputRef}
                       readOnly
-                      aria-label="시작 시간 선택"
+                      aria-label={
+                        tempSchedule.start
+                          ? `시작 시간 선택, 현재 ${formatKoreanTimeForSr(
+                              tempSchedule.start
+                            )} 선택됨`
+                          : "시작 시간 선택"
+                      }
                     />
                   }
                 />
@@ -287,10 +303,7 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
                 </TimeIconWrapper>
                 <span className="sr-only">
                   {tempSchedule.start
-                    ? `선택된 시작 시간: ${tempSchedule.start.toLocaleTimeString("ko-KR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}`
+                    ? `선택된 시작 시간: ${formatKoreanTimeForSr(tempSchedule.start)}`
                     : "시작 시간을 선택해주세요"}
                 </span>
               </TimeInputWrapper>
@@ -308,13 +321,20 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
                   showTimeSelect
                   showTimeSelectOnly
                   timeIntervals={30}
-                  dateFormat="HH:mm"
+                  timeFormat="HH시 mm분"
+                  dateFormat="HH시 mm분"
                   locale={ko}
                   customInput={
                     <StyledTimeInput
                       ref={endTimeInputRef}
                       readOnly
-                      aria-label="종료 시간 선택"
+                      aria-label={
+                        tempSchedule.end
+                          ? `종료 시간 선택, 현재 ${formatKoreanTimeForSr(
+                              tempSchedule.end
+                            )} 선택됨`
+                          : "종료 시간 선택"
+                      }
                     />
                   }
                 />
@@ -326,10 +346,7 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
                 </TimeIconWrapper>
                 <span className="sr-only">
                   {tempSchedule.end
-                    ? `선택된 종료 시간: ${tempSchedule.end.toLocaleTimeString("ko-KR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}`
+                    ? `선택된 종료 시간: ${formatKoreanTimeForSr(tempSchedule.end)}`
                     : "종료 시간을 선택해주세요"}
                 </span>
               </TimeInputWrapper>

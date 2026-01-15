@@ -5,12 +5,12 @@ import { useChatStore } from "../store/useChatStore";
 import { useChatHandler } from "../../../hooks/useChatHandler";
 import { formatChatTime } from "../utils/date";
 import { chatApi } from "../../../api/chatApi";
+import type { ChatroomListItem } from "../types/chat.types";
 
 /* Components */
 import Header from "../../../components/Header";
 import Layout from "../../../components/Layout";
 import NavBar from "../../../components/NavBar";
-import PullToRefreshWrapper from "../../../components/PullToRefreshWrapper";
 const ChatListPage = () => {
   // Store 상태 추출
   const { chatrooms, hasNext, nextChatroomId, setChatrooms } = useChatStore();
@@ -65,7 +65,7 @@ const ChatListPage = () => {
         setIsLoading(false);
       }
     },
-    [nextChatroomId, setChatrooms] // isLoading 제거 (무한 루프 방지)
+    [isLoading, nextChatroomId, setChatrooms]
   );
 
   // 1. 초기 렌더링 시 목록 로드 (마운트 시 1회만 실행)
@@ -73,11 +73,6 @@ const ChatListPage = () => {
     fetchList(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // 빈 배열로 마운트 시 1회만 실행
-
-  // Pull to Refresh 핸들러
-  const handleRefresh = async () => {
-    await fetchList(false);
-  };
 
   // 2. 무한 스크롤 관찰
   useEffect(() => {
@@ -102,77 +97,87 @@ const ChatListPage = () => {
     };
   }, [hasNext, isLoading, fetchList]);
 
+  const getChatRoomDescription = (room: ChatroomListItem) => {
+    const nickname = room.otherNickname;
+    const title = room.title;
+    const lastMsg = room.lastMessage || "메시지 없음";
+    const time = formatChatTime(room.updatedAt);
+
+    // 핵심 정보 위주로 구성 (순서: 누구와? -> 어떤 글에서? -> 마지막 내용 -> 시간)
+    return `${nickname}님과의 채팅. 게시글 제목은 ${title}. 마지막 메시지는 ${lastMsg}. ${time}`;
+  };
+
   return (
     <ChatContainer role="main" aria-label="채팅 목록">
       <h2 className="sr-only">채팅 메시지 목록</h2>
       <Layout>
         <Header title="채팅" onBack={() => navigate("/home")} />
-        <PullToRefreshWrapper onRefresh={handleRefresh}>
-          <ChatList role="list" aria-label="채팅방 목록">
-            {Array.isArray(chatrooms) && chatrooms.length > 0
-              ? chatrooms.map((room) => (
-                  <ChatItem
-                    key={room.chatroomId}
-                    role="listitem"
-                    tabIndex={0}
-                    onClick={() => {
-                      console.log("채팅방 클릭:", {
-                        chatroomId: room.chatroomId,
-                        room,
-                      });
+        {/* 스크린리더용 로딩 안내(탭 이동 시 "목록을 더 불러오는 중..." 반복 낭독 방지) */}
+        <div
+          className="sr-only"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {isLoading && hasNext ? "채팅 목록을 더 불러오는 중입니다." : ""}
+        </div>
+
+        <ChatList role="list" aria-busy={isLoading}>
+          {Array.isArray(chatrooms) && chatrooms.length > 0
+            ? chatrooms.map((room, index) => (
+                <ChatItem
+                  key={room.chatroomId}
+                  role="listitem"
+                  tabIndex={0}
+                  onClick={() => {
+                    handleChatOpen({
+                      chatroomId: room.chatroomId,
+                    });
+                  }}
+                  aria-label={getChatRoomDescription(room)}
+                  aria-posinset={index + 1}
+                  aria-setsize={chatrooms.length}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
                       handleChatOpen({
                         chatroomId: room.chatroomId,
                       });
-                    }}
-                    aria-label={`${room.otherNickname}, ${room.title}, ${
-                      room.lastMessage || "메시지 없음"
-                    }, 채팅방 입장 클릭`}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        handleChatOpen({
-                          chatroomId: room.chatroomId,
-                        });
-                      }
-                    }}
-                  >
-                    <ProfileImage
-                      src={room.otherProfileImageUrl}
-                      alt=""
-                      aria-hidden="true"
-                    />
-                    <ChatInfo aria-hidden="true">
-                      <ChatFirstRow>
-                        <Nickname>{room.otherNickname}</Nickname>
-                        <ChatLastTime>
-                          {formatChatTime(room.updatedAt)}
-                        </ChatLastTime>
-                      </ChatFirstRow>
-                      <PostTitle>{room.title}</PostTitle>
-                      <PostTitle>{room.lastMessage || "메시지 없음"}</PostTitle>
-                    </ChatInfo>
-                  </ChatItem>
-                ))
-              : !isLoading && (
-                  <EmptyState role="status" aria-live="polite">
-                    진행 중인 채팅이 없습니다.
-                  </EmptyState>
-                )}
+                    }
+                  }}
+                >
+                  <ProfileImage
+                    src={room.otherProfileImageUrl}
+                    alt=""
+                    aria-hidden="true"
+                  />
+                  <ChatInfo aria-hidden="true">
+                    <ChatFirstRow>
+                      <Nickname>{room.otherNickname}</Nickname>
+                      <ChatLastTime>
+                        {formatChatTime(room.updatedAt)}
+                      </ChatLastTime>
+                    </ChatFirstRow>
+                    <PostTitle>{room.title}</PostTitle>
+                    <PostTitle>{room.lastMessage || "메시지 없음"}</PostTitle>
+                  </ChatInfo>
+                </ChatItem>
+              ))
+            : !isLoading && (
+                <EmptyState role="status" aria-live="polite">
+                  진행 중인 채팅이 없습니다.
+                </EmptyState>
+              )}
 
-            {/* 하단 스크롤 감지 영역 */}
-            {hasNext && (
-              <ObserverTarget
-                ref={observerTarget}
-                className="sr-only"
-                aria-label="더 불러오기 영역"
-              >
-                <LoadingText role="status" aria-live="polite">
-                  목록을 더 불러오는 중...
-                </LoadingText>
-              </ObserverTarget>
-            )}
-          </ChatList>
-        </PullToRefreshWrapper>
+          {/* 하단 스크롤 감지 영역 */}
+          {hasNext && (
+            <ObserverTarget
+              ref={observerTarget}
+              className="sr-only"
+              aria-hidden="true"
+            />
+          )}
+        </ChatList>
       </Layout>
       <NavBar />
     </ChatContainer>
@@ -252,36 +257,4 @@ const ObserverTarget = styled.div`
   justify-content: center; /* 수평 중앙 정렬 */
   margin: 10px 0; /* 위아래 여백 */
   background-color: transparent; /* 평소엔 투명하게 */
-`;
-
-const LoadingText = styled.span`
-  font-size: 14px;
-  color: ${({ theme }) => theme.color?.subText2 || "#999999"};
-  font-weight: 500;
-
-  /* 로딩 중임을 알리는 간단한 애니메이션 효과 (선택사항) */
-  &::after {
-    content: "...";
-    display: inline-block;
-    width: 12px;
-    text-align: left;
-    animation: dots 1.5s steps(4, end) infinite;
-  }
-
-  @keyframes dots {
-    0%,
-    20% {
-      content: "";
-    }
-    40% {
-      content: ".";
-    }
-    60% {
-      content: "..";
-    }
-    80%,
-    100% {
-      content: "...";
-    }
-  }
 `;

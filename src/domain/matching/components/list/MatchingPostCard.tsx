@@ -284,9 +284,15 @@ const ChatButton = styled.button`
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   border: 0.5px solid ${({ theme }) => theme.color.natural200};
   background: ${({ theme }) => theme.color.white};
+   color: ${({ theme }) => theme.color.text};
+  -webkit-text-fill-color: ${({ theme }) => theme.color.text};
   font-size: ${({ theme }) => theme.size.md};
+  appearance: none;
+  -webkit-appearance: none;
   span {
     margin-left: 4px;
+    color: inherit;                
+    -webkit-text-fill-color: inherit;
   }
 `;
 
