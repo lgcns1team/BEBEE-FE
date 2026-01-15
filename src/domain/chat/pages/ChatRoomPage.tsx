@@ -28,40 +28,63 @@ const ChatRoom = () => {
   const currentChatroomIdRef = useRef<string | undefined>(chatroomId);
   const isMountedRef = useRef(true);
   const chatInputRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const lastAnnouncedMessageIdRef = useRef<string | null>(null);
   const hasInitializedMessagesRef = useRef(false);
 
-  // PWA 환경에서 키보드가 올라갈 때 document 스크롤 제어 및 ChatInput 위치 조정
+  const initialViewportHeightRef = useRef<number>(0);
+  // PWA 환경에서 키보드가 올라갈 때 document 스크롤 제어
   useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-
-    const inputElement = chatInputRef.current;
+    // Visual Viewport API 지원 여부 확인
+    if (!window.visualViewport) {
+      return;
+    }
 
     const handleViewportResize = () => {
-      if (!chatInputRef.current) return;
-      const keyboardHeight = Math.max(
-        0,
-        window.innerHeight - vv.height - vv.offsetTop
-      );
-      const isKeyboardVisible = keyboardHeight > 50;
+      const visualViewport = window.visualViewport;
+      const currentViewportHeight = visualViewport.height;
 
-      // 입력창을 키보드 위로 올리되, padding/스타일은 그대로 유지
-      chatInputRef.current.style.bottom = isKeyboardVisible
-        ? `${keyboardHeight}px`
-        : "env(safe-area-inset-bottom, 0px)";
+      // 초기 viewport 높이 저장
+      if (initialViewportHeightRef.current === 0) {
+        initialViewportHeightRef.current = currentViewportHeight;
+      }
+
+      // 키보드가 나타났는지 확인 (viewport 높이가 줄어들었는지)
+      const heightDifference =
+        initialViewportHeightRef.current - currentViewportHeight;
+      const isKeyboardVisible = heightDifference > 50; // 50px 이상 차이나면 키보드로 간주
+
+      if (isKeyboardVisible) {
+        // 키보드가 나타났을 때: document 스크롤을 맨 위로 고정하여 ChatRoomCard가 상단에 유지되도록
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: 0,
+            behavior: "instant" as ScrollBehavior,
+          });
+        });
+      } else {
+        // 키보드가 사라졌을 때: 초기 높이 복원
+        initialViewportHeightRef.current = currentViewportHeight;
+      }
     };
 
-    vv.addEventListener("resize", handleViewportResize);
-    vv.addEventListener("scroll", handleViewportResize);
-    handleViewportResize();
+    // Visual Viewport resize 이벤트 리스너 등록
+    window.visualViewport.addEventListener("resize", handleViewportResize);
+    window.visualViewport.addEventListener("scroll", handleViewportResize);
 
+    // 초기 viewport 높이 저장
+    initialViewportHeightRef.current = window.visualViewport.height;
+
+    // Cleanup
     return () => {
-      vv.removeEventListener("resize", handleViewportResize);
-      vv.removeEventListener("scroll", handleViewportResize);
-      if (inputElement) {
-        inputElement.style.bottom = "env(safe-area-inset-bottom, 0px)";
-      }
+      window.visualViewport?.removeEventListener(
+        "resize",
+        handleViewportResize
+      );
+      window.visualViewport?.removeEventListener(
+        "scroll",
+        handleViewportResize
+      );
     };
   }, []);
 
@@ -227,7 +250,7 @@ const ChatRoom = () => {
       >
         {srAnnouncement}
       </div>
-      <ChatContainer>
+      <ChatContainer ref={chatContainerRef}>
         <ChatRoomCard />
         <MessageList />
         <ChatInputWrapper ref={chatInputRef}>
@@ -246,7 +269,6 @@ const ChatContainer = styled.div`
   min-height: 0;
   overflow: hidden;
   position: relative;
-  /* PWA 환경에서 키보드가 올라갈 때 document 스크롤 방지 */
   overscroll-behavior: contain;
 `;
 
@@ -254,7 +276,7 @@ const ChatInputWrapper = styled.div`
   position: fixed;
   left: 0;
   right: 0;
-  bottom: env(safe-area-inset-bottom, 0px);
+  bottom: 0;
   flex-shrink: 0;
   width: 100%;
   background: white;
