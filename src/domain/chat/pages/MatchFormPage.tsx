@@ -610,7 +610,9 @@ const MatchFormPage = () => {
   return (
     <MatchLayout>
       <div role="main" aria-label="매칭 확인서 작성">
-        <span className="sr-only">매칭 확인서 작성 페이지입니다.</span>
+        <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          매칭 확인서 작성 페이지입니다.
+        </span>
         <Header title="매칭 확인서" onBack={() => navigate(-1)} showBack />
         {/* === 공통 필드 === */}
         <div role="form" aria-label="매칭 확인서 작성 폼">

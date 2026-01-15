@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import ChatRoomCard from "../components/ChatRoomCard";
@@ -22,12 +22,15 @@ const ChatRoom = () => {
   } = useChatStore();
   const { connect, sendMessage } = useSocketStore();
   const { user } = useUserStore();
+  const [srAnnouncement, setSrAnnouncement] = useState<string>("");
 
   // 현재 유효한 chatroomId를 추적하기 위한 ref
   const currentChatroomIdRef = useRef<string | undefined>(chatroomId);
   const isMountedRef = useRef(true);
   const initialViewportHeightRef = useRef<number>(0);
   const chatInputRef = useRef<HTMLDivElement>(null);
+  const lastAnnouncedMessageIdRef = useRef<string | null>(null);
+  const hasInitializedMessagesRef = useRef(false);
 
   // PWA 환경에서 키보드가 올라갈 때 document 스크롤 제어 및 ChatInput 위치 조정
   useEffect(() => {
@@ -204,9 +207,73 @@ const ChatRoom = () => {
     [chatroomId, activeRoom, user, sendMessage]
   );
 
+  const formatTimeForSr = (dateString: string) => {
+    const date = new Date(dateString);
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const period = hours < 12 ? "오전" : "오후";
+    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    const hh = String(displayHours).padStart(2, "0");
+    const mm = String(minutes).padStart(2, "0");
+    return `${period}${hh}시${mm}분`;
+  };
+
+  // 메시지 추가 시, "내가 보낸 메시지"만 별도 라이브 영역으로 깔끔하게 읽기
+  const messages = chatroomId ? getMessages(chatroomId) : [];
+  const messageCount = messages.length;
+  const lastMessage = messageCount > 0 ? messages[messageCount - 1] : null;
+  const lastMessageId = lastMessage?.id ?? null;
+  const lastMessageSenderId = lastMessage?.senderId ?? null;
+  const lastMessageType = lastMessage?.type ?? null;
+  const lastMessageText = lastMessage?.textContent ?? "";
+  const lastMessageCreatedAt = lastMessage?.createdAt ?? "";
+
+  useEffect(() => {
+    if (!chatroomId) return;
+    // 최초 로딩(히스토리 세팅)에서는 읽지 않도록 초기화만
+    if (!hasInitializedMessagesRef.current) {
+      hasInitializedMessagesRef.current = true;
+      lastAnnouncedMessageIdRef.current = lastMessageId;
+      return;
+    }
+
+    if (!lastMessageId || lastMessageId === lastAnnouncedMessageIdRef.current)
+      return;
+    lastAnnouncedMessageIdRef.current = lastMessageId;
+
+    // 내가 보낸 TEXT 메시지만 즉시 읽기 (불필요한 안내 멘트 최소화)
+    if (
+      user &&
+      lastMessageSenderId === String(user.memberId) &&
+      lastMessageType === "TEXT"
+    ) {
+      const content = lastMessageText?.trim() || "내용 없음";
+      setSrAnnouncement(
+        `내가보낸메세지 ${formatTimeForSr(lastMessageCreatedAt)} ${content}`
+      );
+    }
+  }, [
+    chatroomId,
+    messageCount,
+    lastMessage,
+    lastMessageId,
+    lastMessageSenderId,
+    lastMessageType,
+    lastMessageText,
+    lastMessageCreatedAt,
+    user,
+  ]);
+
   return (
     <Layout aria-label="채팅방">
-      <span className="sr-only">채팅방 페이지입니다. </span>
+      <div
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {srAnnouncement}
+      </div>
       <ChatContainer>
         <ChatRoomCard />
         <MessageList />
@@ -231,8 +298,10 @@ const ChatContainer = styled.div`
 `;
 
 const ChatInputWrapper = styled.div`
+  position: sticky;
+  bottom: 0;
   flex-shrink: 0;
   width: 100%;
-  left: 0;
-  right: 0;
+  background: white;
+  padding: 0 16px;
 `;
