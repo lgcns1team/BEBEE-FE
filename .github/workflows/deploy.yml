@@ -45,8 +45,8 @@ jobs:
       #     echo "VITE_KAKAO_MAP_KEY=${{ secrets.VITE_KAKAO_MAP_KEY }}" >> .env
 
       # 빌드
-      - name: Build
-        run: pnpm build
+      # - name: Build
+      #   run: pnpm build
 
       # S3 배포
       - name: S3 Deploy
