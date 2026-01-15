@@ -106,14 +106,14 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
       <InfoWrapper
         tabIndex={0}
         aria-label={cardAriaLabel}
-        role="text" /* iOS에서 텍스트 덩어리로 인식시킴 */
+        
       />
 
       <TopArea>
         <Title
           onClick={goMatchingInfo}
           aria-label={`활동 제목 ${engagement.title} 입니다. 매칭 상세 정보로 이동합니다`}
-          aria-hidden
+          
         >
           {engagement.title}
         </Title>
