@@ -26,6 +26,7 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
     ? applicants.filter((applicant) => applicant.isVolunteer)
     : applicants;
 
+    
   const goChat = async (otherMemberId: string, isVolunteer: boolean) => {
     if (!currentPost) {
       alert("게시글 정보를 불러올 수 없습니다.");
@@ -79,6 +80,7 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
     }
   };
   return (
+    
     <PostItemWrapper>
       {filteredApplicants.map((applicant) => {
         const genderText = GENDER_KR[applicant.gender];
@@ -108,13 +110,14 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
               </UserText>
 
               <GoProfile
-                onClick={() =>
-                  goChat(String(applicant.memberId), applicant.isVolunteer)
-                }
-                aria-label={`${applicant.nickname} 님과 채팅하기`}
-              >
-                채팅하기
-              </GoProfile>
+                // onClick={() =>
+                //   goChat(String(applicant.memberId), applicant.isVolunteer)
+                // }
+                // aria-label={`${applicant.nickname} 님과 채팅하기`}
+                onClick={}
+              />
+                
+              {/* </GoProfile> */}
             </UserRow>
 
             {applicant.isVolunteer && (
