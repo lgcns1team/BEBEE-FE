@@ -18,6 +18,7 @@ const AuthSignUpStep4Page = () => {
   const [selectedDisabilityType, setSelectedDisabilityType] = useState("");
   const [selectedDisabilityGrade, setSelectedDisabilityGrade] = useState("");
   const [disabilityDescription, setDisabilityDescription] = useState("");
+  const [isFormValid, setIsFormValid] = useState(false);
 
   // role이 없으면 이전 단계로 리다이렉트
   useEffect(() => {
@@ -54,13 +55,18 @@ const AuthSignUpStep4Page = () => {
     navigate("/signup/step5");
   };
 
-  const isFormValid =
-    role === "HELPER"
-      ? selectedTags.length > 0
-      : selectedTags.length > 0 &&
-        selectedDisabilityType !== "" &&
-        selectedDisabilityGrade !== "" &&
-        disabilityDescription !== "";
+  useEffect(() => {
+    if (role === "HELPER") {
+      setIsFormValid(selectedTags.length > 0);
+      return;
+    }
+
+    if (role === "DISABLED") {
+      const isValid =
+        !!selectedDisabilityType && !!selectedDisabilityGrade && !!disabilityDescription;
+      setIsFormValid(isValid);
+    }
+  }, [role, selectedTags, selectedDisabilityType, selectedDisabilityGrade, disabilityDescription]);
 
   return (
     <Layout>
@@ -141,6 +147,7 @@ const AuthSignUpStep4Page = () => {
         </ScrollArea>
       </PageContainer>
       <BaseLongButton label="다음" onClick={handleNext} disabled={!isFormValid} />
+      <div style={{ height: "1rem" }} />
     </Layout>
   );
 };

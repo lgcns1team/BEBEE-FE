@@ -14,13 +14,13 @@ interface InputProps {
   type?: string;
 }
 
-const GeneralInput = ({ inputLabel, infoText, onClick, ...rest }: InputProps) => {
+const GeneralInput = ({ inputLabel, infoText, onClick, type, ...rest }: InputProps) => {
   return (
     <BaseInput label={inputLabel} infoText={infoText} {...rest}>
       {" "}
       <InputWrapper>
         {" "}
-        <InputBox {...rest} onClick={onClick} />
+        <InputBox type={type} onClick={onClick} {...rest} />
       </InputWrapper>
     </BaseInput>
   );

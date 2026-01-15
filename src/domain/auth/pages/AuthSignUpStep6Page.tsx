@@ -35,7 +35,9 @@ const AuthSignUpStep6Page = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // systemFlag가 없으면 이전 단계로
+  console.log('systemflag', systemFlag);
   if (!systemFlag) {
+    console.log('systemflag가 없어 5단계로');
     navigate("/signup/step5");
     return null;
   }
@@ -103,7 +105,6 @@ const AuthSignUpStep6Page = () => {
         // MID
         alert("서류가 접수되었습니다. 관리자 확인 후 승인될 예정입니다.");
       }
-      reset();
       navigate("/login", { replace: true });
     } catch (error) {
       console.error("회원가입 실패:", error);
@@ -111,94 +112,37 @@ const AuthSignUpStep6Page = () => {
     } finally {
       setIsSubmitting(false);
     }
-
-    // LOW/MID인 경우 회원가입 진행
-    const handleSignUp = async () => {
-      if (!role) {
-        alert("역할이 선택되지 않았습니다. 처음부터 다시 시도해 주세요.");
-        navigate("/signup/step1");
-        return;
-      }
-      if (isSubmitting) return;
-      setIsSubmitting(true);
-
-      try {
-        // 회원가입 (fileUrl, systemFlag 포함)
-        const signUpParams: SignUpRequest = {
-          email,
-          password,
-          name,
-          nickname,
-          birthDate,
-          gender,
-          phoneNumber,
-          role,
-          addressRoad,
-          latitude,
-          longitude,
-          districtCode,
-          helpTypes,
-          disabilityType,
-          disabilityGrade: disabilityGrade || undefined,
-          disabilityDescription,
-          fileUrl: fileUrl || undefined,
-          systemFlag: systemFlag || undefined,
-        };
-
-        await signUpUser(signUpParams);
-
-        // 성공 메시지 및 로그인 페이지로 이동
-        if (systemFlag === "LOW") {
-          alert("가입 및 서류 승인이 완료되었습니다!");
-        } else {
-          // MID
-          alert("서류가 접수되었습니다. 관리자 확인 후 승인될 예정입니다.");
-        }
-
-        // navigate를 먼저 실행하여 로그인 페이지로 이동
-        // reset은 navigate 후 충분한 딜레이를 두고 호출 (다른 Step 페이지의 useEffect 실행 방지)
-        navigate("/login", { replace: true });
-        setTimeout(() => {
-          reset();
-        }, 1000); // 1초 딜레이로 로그인 페이지 렌더링 완료 후 reset
-      } catch (error) {
-        console.error("회원가입 실패:", error);
-        alert("회원가입 처리 중 오류가 발생했습니다. 다시 시도해 주세요.");
-      } finally {
-        setIsSubmitting(false);
-      }
-    };
-
-    return (
-      <Layout>
-        <AuthSignUpHeader currentStep={6} totalSteps={6} onBack={() => navigate("/signup/step5")} />
-        <PageContainer>
-          <ScrollArea>
-            <Title>마지막 단계예요!</Title>
-            <p style={{ color: "#666", marginBottom: "2rem" }}>서류 확인이 완료되었습니다.</p>
-
-            {systemFlag === "LOW" ? (
-              <SuccessBox>
-                <InfoText>✅ 서류가 정상적으로 확인되었습니다.</InfoText>
-                <InfoText>가입 완료 후 바로 서비스를 이용하실 수 있습니다.</InfoText>
-              </SuccessBox>
-            ) : (
-              <InfoBox>
-                <InfoText>📋 서류가 접수되었습니다.</InfoText>
-                <InfoText>⏱️ 관리자 검토 후 승인될 예정입니다. (보통 1-2일 소요)</InfoText>
-              </InfoBox>
-            )}
-          </ScrollArea>
-
-          <BaseLongButton
-            label={isSubmitting ? "처리 중..." : "가입 완료"}
-            onClick={handleSignUp}
-            disabled={isSubmitting}
-          />
-        </PageContainer>
-      </Layout>
-    );
   };
+
+  return (
+    <Layout>
+      <AuthSignUpHeader currentStep={6} totalSteps={6} onBack={() => navigate("/signup/step5")} />
+      <PageContainer>
+        <ScrollArea>
+          <Title>마지막 단계예요!</Title>
+          <p style={{ color: "#666", marginBottom: "2rem" }}>서류 확인이 완료되었습니다.</p>
+
+          {systemFlag === "LOW" ? (
+            <SuccessBox>
+              <InfoText>✅ 서류가 정상적으로 확인되었습니다.</InfoText>
+              <InfoText>가입 완료 후 바로 서비스를 이용하실 수 있습니다.</InfoText>
+            </SuccessBox>
+          ) : (
+            <InfoBox>
+              <InfoText>📋 서류가 접수되었습니다.</InfoText>
+              <InfoText>⏱️ 관리자 검토 후 승인될 예정입니다. (보통 1-2일 소요)</InfoText>
+            </InfoBox>
+          )}
+        </ScrollArea>
+
+        <BaseLongButton
+          label={isSubmitting ? "처리 중..." : "가입 완료"}
+          onClick={handleSignUp}
+          disabled={isSubmitting}
+        />
+      </PageContainer>
+    </Layout>
+  );
 };
 
 export default AuthSignUpStep6Page;
