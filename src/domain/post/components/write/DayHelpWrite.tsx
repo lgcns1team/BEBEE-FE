@@ -6,7 +6,6 @@ import { ko } from "date-fns/locale";
 import { parse } from "date-fns";
 import { CiCalendar } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
-
 import GeneralInput from "../../../../components/GeneralInput";
 import LocationInput from "../../../../components/LocationInput";
 import BaseLongButton from "../../../../components/BaseLongButton";
@@ -40,7 +39,7 @@ const DayHelpWrite = ({ formData, updateField }: DayProps) => {
     : null;
 
   return (
-    <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
+    <>
       <DatePickerGlobalStyle />
       <Container>
         {/* 날짜 선택 */}
@@ -76,7 +75,6 @@ const DayHelpWrite = ({ formData, updateField }: DayProps) => {
             <TimeInputWrapper>
               <DatePicker
                 selected={selectedStartTime}
-                // [수정 포인트] (time: Date | null) 이라고 명시적으로 타입을 적어줍니다.
                 onChange={(time: Date | null) =>
                   handleDayTimeChange("startTime", time)
                 }
@@ -144,8 +142,9 @@ const DayHelpWrite = ({ formData, updateField }: DayProps) => {
           required
         />
       </Container>
+
       <BaseLongButton label="작성 완료" onClick={handleSubmit} />
-    </div>
+    </>
   );
 };
 
@@ -159,10 +158,11 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
-  padding: 2rem 0;
   &::-webkit-scrollbar {
     display: none;
   }
+  padding-top: 20px;
+  padding-bottom: 30px;
 `;
 
 const TimeWrapper = styled.div`

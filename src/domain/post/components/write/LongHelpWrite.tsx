@@ -8,13 +8,17 @@ import { CiCalendar } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { TbMinusVertical } from "react-icons/tb";
-
 import AddButton from "../../../../components/AddButton";
 import GeneralInput from "../../../../components/GeneralInput";
 import LocationInput from "../../../../components/LocationInput";
 import BaseLongButton from "../../../../components/BaseLongButton";
 
-import { FieldSet, ModalLabel, ModalInput, RequiredMark } from "../../../../styles/FieldSetStyle";
+import {
+  FieldSet,
+  ModalLabel,
+  ModalInput,
+  RequiredMark,
+} from "../../../../styles/FieldSetStyle";
 import { type PostCreateReqDTO } from "../../../../types/post.type";
 import { usePostWrite } from "../../hook/usePostWrite";
 
@@ -29,10 +33,8 @@ import { SERVER_MAPPING, DAY_OF_WEEK_MAP } from "../../../../types/post.type";
 const DAYS_FROM_MAPPING = Object.keys(SERVER_MAPPING.DAYS);
 
 const LongHelpWrite = ({ formData, updateField }: DayProps) => {
-  const { utils, removeSchedule, handleSubmit, handleTermRangeChange } = usePostWrite(
-    formData,
-    updateField
-  );
+  const { utils, removeSchedule, handleSubmit, handleTermRangeChange } =
+    usePostWrite(formData, updateField);
 
   // --- 로컬 상태 (일시적인 입력 관리) ---
   const [isAddingSchedule, setIsAddingSchedule] = useState(false);
@@ -50,7 +52,8 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
   // --- 핸들러 ---
   const handleConfirmSchedule = () => {
     // UI의 한글 요일을 서버용 영문 요일로 변환
-    const dayEn = SERVER_MAPPING.DAYS[tempSchedule.day as keyof typeof SERVER_MAPPING.DAYS];
+    const dayEn =
+      SERVER_MAPPING.DAYS[tempSchedule.day as keyof typeof SERVER_MAPPING.DAYS];
 
     // 훅의 addSchedule을 활용하거나 직접 updateField 호출
     const newSchedule = {
@@ -66,7 +69,7 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
   };
 
   return (
-    <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
+    <>
       <DatePickerGlobalStyle />
       <Container>
         {/* 1. 도움 기간 (Range Picker) */}
@@ -75,7 +78,9 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
             도움 기간<RequiredMark>*</RequiredMark>
           </ModalLabel>
           <DateInputWrapper>
-            <CalendarIconWrapper onClick={() => periodInputRef.current?.focus()}>
+            <CalendarIconWrapper
+              onClick={() => periodInputRef.current?.focus()}
+            >
               <CiCalendar size={20} />
             </CalendarIconWrapper>
             <DatePicker
@@ -105,7 +110,8 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
               <ScheduleContent>
                 <DayBadge>{DAY_OF_WEEK_MAP[schedule.dayOfWeek]}</DayBadge>
                 <TimeText>
-                  {schedule.startTime.slice(0, 5)} ~ {schedule.endTime.slice(0, 5)}
+                  {schedule.startTime.slice(0, 5)} ~{" "}
+                  {schedule.endTime.slice(0, 5)}
                 </TimeText>
               </ScheduleContent>
             </ScheduleBox>
@@ -118,7 +124,9 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
                 <DaySelectWrapper>
                   <DaySelect
                     value={tempSchedule.day}
-                    onChange={(e) => setTempSchedule({ ...tempSchedule, day: e.target.value })}
+                    onChange={(e) =>
+                      setTempSchedule({ ...tempSchedule, day: e.target.value })
+                    }
                   >
                     {DAYS_FROM_MAPPING.map((day) => (
                       <option key={day} value={day}>
@@ -131,7 +139,6 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
                 <TimeInputWrapper>
                   <DatePicker
                     selected={tempSchedule.start}
-                    // (time: Date | null)로 타입을 명시하거나 타입을 생략하여 추론하게 둡니다.
                     onChange={(date: Date | null) => {
                       if (date) {
                         setTempSchedule({ ...tempSchedule, start: date });
@@ -142,9 +149,13 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
                     timeIntervals={30}
                     dateFormat="HH:mm"
                     locale={ko}
-                    customInput={<StyledTimeInput ref={startTimeInputRef} readOnly />}
+                    customInput={
+                      <StyledTimeInput ref={startTimeInputRef} readOnly />
+                    }
                   />{" "}
-                  <TimeIconWrapper onClick={() => endTimeInputRef.current?.focus()}>
+                  <TimeIconWrapper
+                    onClick={() => endTimeInputRef.current?.focus()}
+                  >
                     <IoIosArrowDown size={20} />
                   </TimeIconWrapper>
                 </TimeInputWrapper>
@@ -162,17 +173,25 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
                     timeIntervals={30}
                     dateFormat="HH:mm"
                     locale={ko}
-                    customInput={<StyledTimeInput ref={endTimeInputRef} readOnly />}
+                    customInput={
+                      <StyledTimeInput ref={endTimeInputRef} readOnly />
+                    }
                   />
-                  <TimeIconWrapper onClick={() => endTimeInputRef.current?.focus()}>
+                  <TimeIconWrapper
+                    onClick={() => endTimeInputRef.current?.focus()}
+                  >
                     <IoIosArrowDown size={20} />
                   </TimeIconWrapper>
                 </TimeInputWrapper>
               </ScheduleForm>
               <ButtonGroup>
-                <CancelButton onClick={() => setIsAddingSchedule(false)}>취소</CancelButton>
+                <CancelButton onClick={() => setIsAddingSchedule(false)}>
+                  취소
+                </CancelButton>
                 <TbMinusVertical size={20} color="#A1A1A1" />
-                <ConfirmButton onClick={handleConfirmSchedule}>확인</ConfirmButton>
+                <ConfirmButton onClick={handleConfirmSchedule}>
+                  확인
+                </ConfirmButton>
               </ButtonGroup>
             </AddScheduleBox>
           ) : (
@@ -195,7 +214,9 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
               <span style={{ color: "#155DFC" }}> 총 제공 꿀: </span>
               <span>
                 총{" "}
-                <span style={{ color: "#155DFC" }}>{formData.totalHoney?.toLocaleString()} 꿀</span>
+                <span style={{ color: "#155DFC" }}>
+                  {formData.totalHoney?.toLocaleString()} 꿀
+                </span>
                 이 도우미에게 제공될 예정이에요
               </span>
             </TotalHoney>
@@ -217,8 +238,9 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
           />
         </FieldSet>
       </Container>
+
       <BaseLongButton label="작성 완료" onClick={handleSubmit} />
-    </div>
+    </>
   );
 };
 
@@ -236,6 +258,8 @@ const Container = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+  padding-top: 20px;
+  padding-bottom: 30px;
 `;
 
 const DateInputWrapper = styled.div`
@@ -262,10 +286,11 @@ const TotalHoney = styled.div`
   color: ${({ theme }) => theme.color.subText2};
   margin-top: 0;
 `;
+
 const StyledDateInput = styled(
-  forwardRef<HTMLInputElement, { $editable?: boolean; readOnly?: boolean }>((props, ref) => (
-    <ModalInput {...props} $editable={true} ref={ref} />
-  ))
+  forwardRef<HTMLInputElement, { $editable?: boolean; readOnly?: boolean }>(
+    (props, ref) => <ModalInput {...props} $editable={true} ref={ref} />
+  )
 )`
   padding-left: 3rem !important;
   cursor: pointer;
@@ -387,9 +412,9 @@ const TimeInputWrapper = styled.div`
 `;
 
 const StyledTimeInput = styled(
-  forwardRef<HTMLInputElement, { $editable?: boolean; readOnly?: boolean }>((props, ref) => (
-    <ModalInput {...props} $editable={true} ref={ref} />
-  ))
+  forwardRef<HTMLInputElement, { $editable?: boolean; readOnly?: boolean }>(
+    (props, ref) => <ModalInput {...props} $editable={true} ref={ref} />
+  )
 )`
   border: none !important;
   cursor: pointer;
