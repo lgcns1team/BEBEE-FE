@@ -88,7 +88,7 @@ const HelperProfilePage = () => {
         onClick={() =>
           goChat(String(applicant.memberId), applicant.isVolunteer)
         }
-        aria-label={`${applicant.nickname} 님과 채팅하기`}
+        aria-label={`${applicant?.nickname} 님과 채팅하기`}
       />
     </Layout>
   );

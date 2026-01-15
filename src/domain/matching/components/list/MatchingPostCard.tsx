@@ -102,7 +102,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
   };
 
   return (
-    <Card role="group" aria-label={cardAriaLabel}>
+    <Card role="button" aria-label={cardAriaLabel} tabIndex={0} >
       <div aria-hidden="true">
         <TopArea>
           <Title
@@ -261,7 +261,7 @@ const Thumbnail = styled.div`
   height: 80px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   overflow: hidden;
-
+  margin-top: 20px;
   img {
     width: 100%;
     height: 100%;

@@ -42,7 +42,7 @@ const Header = ({
       {/* 왼쪽: 항상 노출 */}
 
       {showBack && (
-        <Left onClick={onBack} aria-label="뒤로 가기">
+        <Left onClick={onBack} aria-label="뒤로 가기" tabIndex={0} role="button">
           <IoChevronBack size={25}  />
         </Left>
       )}
