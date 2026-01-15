@@ -48,6 +48,7 @@ const AuthSignUpStep5Page = () => {
 
       // 3. 문서 분석 API 호출 (memberId 없이)
       const result = await analyzeDocument(fileUrl, role);
+      console.log(result);
       setSystemFlag(result.systemFlag);
 
       // 4. Step 6으로 이동
@@ -62,6 +63,16 @@ const AuthSignUpStep5Page = () => {
 
   const handleFileClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleNextPage = () => {
+    // fileUrl이 store에 저장되어 있는지 확인
+    const { fileUrl } = useAuthSignUpForm.getState();
+    if (!fileUrl) {
+      alert("파일을 먼저 업로드해주세요.");
+      return;
+    }
+    navigate("/signup/step6");
   };
 
   return (
@@ -112,10 +123,10 @@ const AuthSignUpStep5Page = () => {
           </FieldSet>
         </ScrollArea>
       </PageContainer>
-      <BaseLongButton 
-        label={isUploading ? "업로드 중..." : "다음"} 
-        onClick={handleFileClick} 
-        disabled={isUploading} 
+      <BaseLongButton
+        label={isUploading ? "업로드 중..." : "다음"}
+        onClick={handleFileClick}
+        disabled={isUploading}
       />
     </Layout>
   );
