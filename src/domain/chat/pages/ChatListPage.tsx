@@ -18,8 +18,32 @@ const ChatListPage = () => {
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [newRoomMap, setNewRoomMap] = useState<Record<string, boolean>>({});
 
   const observerTarget = useRef<HTMLDivElement>(null);
+  const prevChatroomsRef = useRef<ChatroomListItem[]>([]);
+  const hasInitializedListRef = useRef(false);
+
+  useEffect(() => {
+    prevChatroomsRef.current = chatrooms;
+  }, [chatrooms]);
+
+  const markRoomAsRead = useCallback((chatroomId: string) => {
+    setNewRoomMap((prev) => {
+      if (!prev[chatroomId]) return prev;
+      const next = { ...prev };
+      delete next[chatroomId];
+      return next;
+    });
+  }, []);
+
+  const openRoom = useCallback(
+    (chatroomId: string) => {
+      markRoomAsRead(chatroomId);
+      handleChatOpen({ chatroomId });
+    },
+    [handleChatOpen, markRoomAsRead]
+  );
 
   /**
    * API 호출 및 Store 저장 로직
@@ -54,6 +78,37 @@ const ChatListPage = () => {
           hasNext: response.hasNext,
           nextChatroomId: response.nextChatroomId,
         });
+
+        // 새로고침(isMore=false)일 때만: 이전 목록 대비 새로 온/업데이트된 채팅방 표시
+        if (!isMore) {
+          const prev = prevChatroomsRef.current;
+
+          // 첫 진입 초기 로딩에서는 전체가 "새로움"으로 표시되지 않도록 스킵
+          if (hasInitializedListRef.current && prev.length > 0) {
+            const prevMap = new Map(
+              prev.map((r) => [r.chatroomId, r.updatedAt])
+            );
+            const nextNew: Record<string, boolean> = {};
+
+            for (const room of response.chatrooms || []) {
+              const prevUpdatedAt = prevMap.get(room.chatroomId);
+              if (!prevUpdatedAt) {
+                nextNew[room.chatroomId] = true; // 새 채팅방
+              } else if (
+                room.updatedAt &&
+                prevUpdatedAt &&
+                room.updatedAt !== prevUpdatedAt
+              ) {
+                nextNew[room.chatroomId] = true; // 기존 방의 업데이트
+              }
+            }
+
+            // 기존에 남아있던 표시도 유지 + 새 표시를 병합
+            setNewRoomMap((prevMarks) => ({ ...prevMarks, ...nextNew }));
+          }
+
+          hasInitializedListRef.current = true;
+        }
 
         // Store에 응답 데이터 반영 (isMore에 따라 쌓거나 새로고침)
         setChatrooms(response, isMore);
@@ -130,9 +185,7 @@ const ChatListPage = () => {
                   role="listitem"
                   tabIndex={0}
                   onClick={() => {
-                    handleChatOpen({
-                      chatroomId: room.chatroomId,
-                    });
+                    openRoom(room.chatroomId);
                   }}
                   aria-label={getChatRoomDescription(room)}
                   aria-posinset={index + 1}
@@ -140,9 +193,7 @@ const ChatListPage = () => {
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      handleChatOpen({
-                        chatroomId: room.chatroomId,
-                      });
+                      openRoom(room.chatroomId);
                     }
                   }}
                 >
@@ -156,10 +207,15 @@ const ChatListPage = () => {
                       <Nickname>{room.otherNickname}</Nickname>
                       <ChatLastTime>
                         {formatChatTime(room.updatedAt)}
+                        {newRoomMap[room.chatroomId] && (
+                          <NewDot aria-hidden="true" />
+                        )}
                       </ChatLastTime>
                     </ChatFirstRow>
                     <PostTitle>{room.title}</PostTitle>
-                    <PostTitle>{room.lastMessage || "메시지 없음"}</PostTitle>
+                    <PostTitle style={{ marginTop: "6px" }}>
+                      {room.lastMessage || "메시지 없음"}
+                    </PostTitle>
                   </ChatInfo>
                 </ChatItem>
               ))
@@ -203,12 +259,12 @@ const ChatList = styled.div`
 
 const ChatItem = styled.div`
   position: relative;
-  height: 131px;
+  height: fit-content;
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural100};
   cursor: pointer;
   display: flex;
   align-items: flex-start;
-  padding-top: 30px;
+  padding: 20px 0;
 `;
 
 const ProfileImage = styled.img`
@@ -240,6 +296,17 @@ const ChatLastTime = styled.p`
   font-weight: ${({ theme }) => theme.weight.regular};
   font-size: ${({ theme }) => theme.size.sm};
   color: ${({ theme }) => theme.color.subText2};
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const NewDot = styled.span`
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: ${({ theme }) => theme.color.red500};
+  flex-shrink: 0;
 `;
 
 const PostTitle = styled.p`
