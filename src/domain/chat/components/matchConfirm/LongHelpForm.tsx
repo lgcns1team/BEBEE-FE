@@ -142,7 +142,7 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
   };
 
   return (
-    <>
+    <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
       <DatePickerGlobalStyle />
       {/* 도움 기간 */}
       <FieldSet role="group" aria-label="도움 기간 입력">
@@ -174,9 +174,13 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
           />
           <span className="sr-only">
             {startDate && endDate
-              ? `선택된 기간: ${startDate.toLocaleDateString("ko-KR")}부터 ${endDate.toLocaleDateString("ko-KR")}까지`
+              ? `선택된 기간: ${startDate.toLocaleDateString(
+                  "ko-KR"
+                )}부터 ${endDate.toLocaleDateString("ko-KR")}까지`
               : startDate
-              ? `시작 날짜: ${startDate.toLocaleDateString("ko-KR")}, 종료 날짜를 선택해주세요`
+              ? `시작 날짜: ${startDate.toLocaleDateString(
+                  "ko-KR"
+                )}, 종료 날짜를 선택해주세요`
               : "기간을 선택해주세요"}
           </span>
         </DateInputWrapper>
@@ -196,7 +200,11 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
           </span>
         )}
         {weeks.map((week, index) => (
-          <ScheduleBox key={index} role="group" aria-label={`스케줄 ${index + 1}`}>
+          <ScheduleBox
+            key={index}
+            role="group"
+            aria-label={`스케줄 ${index + 1}`}
+          >
             <CloseButtonWrapper
               onClick={() => handleDeleteSchedule(index)}
               aria-label={`스케줄 ${index + 1} 삭제하기`}
@@ -231,10 +239,13 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
                   : "--"}
                 <span className="sr-only">
                   {week.start && week.end
-                    ? `${week.day}요일, ${week.start.toLocaleTimeString("ko-KR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}부터 ${week.end.toLocaleTimeString("ko-KR", {
+                    ? `${week.day}요일, ${week.start.toLocaleTimeString(
+                        "ko-KR",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )}부터 ${week.end.toLocaleTimeString("ko-KR", {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}까지`
@@ -303,14 +314,15 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
                 </TimeIconWrapper>
                 <span className="sr-only">
                   {tempSchedule.start
-                    ? `선택된 시작 시간: ${formatKoreanTimeForSr(tempSchedule.start)}`
+                    ? `선택된 시작 시간: ${formatKoreanTimeForSr(
+                        tempSchedule.start
+                      )}`
                     : "시작 시간을 선택해주세요"}
                 </span>
               </TimeInputWrapper>
 
               <TimeSeparator aria-label="시간 범위 구분">
-                ~
-                <span className="sr-only">부터</span>
+                ~<span className="sr-only">부터</span>
               </TimeSeparator>
 
               {/* 끝 시간 */}
@@ -346,7 +358,9 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
                 </TimeIconWrapper>
                 <span className="sr-only">
                   {tempSchedule.end
-                    ? `선택된 종료 시간: ${formatKoreanTimeForSr(tempSchedule.end)}`
+                    ? `선택된 종료 시간: ${formatKoreanTimeForSr(
+                        tempSchedule.end
+                      )}`
                     : "종료 시간을 선택해주세요"}
                 </span>
               </TimeInputWrapper>
@@ -369,7 +383,8 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
               >
                 확인
                 <span className="sr-only">
-                  입력한 스케줄을 추가합니다. Enter 키 또는 Space 키를 누르면 실행됩니다.
+                  입력한 스케줄을 추가합니다. Enter 키 또는 Space 키를 누르면
+                  실행됩니다.
                 </span>
               </ConfirmButton>
             </ButtonGroup>
@@ -386,7 +401,7 @@ const LongHelpForm = ({ termEngagement, setTermEngagement }: LongHelpProps) => {
           </div>
         )}
       </FieldSet>
-    </>
+    </div>
   );
 };
 
