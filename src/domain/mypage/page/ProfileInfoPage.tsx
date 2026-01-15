@@ -43,8 +43,8 @@ const ProfileInfoPage = () => {
     {
       label: "주요 도움",
       value:
-        member.helpTypes && member.helpTypes.length > 0
-          ? member.helpTypes.join(", ")
+        member.helpCategories && member.helpCategories.length > 0
+          ? member.helpCategories.join(", ")
           : "-",
     },
     { label: "한줄소개", value: member.introduction || "-" },
