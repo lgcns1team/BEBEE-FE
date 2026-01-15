@@ -103,17 +103,18 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
 
  return (
     <Card>
-      <InfoWrapper
+     <VisuallyHidden
         tabIndex={0}
         aria-label={cardAriaLabel}
-        
-      />
+      >
+        {cardAriaLabel}
+      </VisuallyHidden>
 
       <TopArea>
         <Title
           onClick={goMatchingInfo}
           aria-label={`활동 제목 ${engagement.title} 입니다. 매칭 상세 정보로 이동합니다`}
-          aria-labelledby={cardAriaLabel}
+         
         >
           {engagement.title}
         </Title>
@@ -209,7 +210,19 @@ const Card = styled.div`
     outline-offset: 2px;
   }
 `;
-const InfoWrapper = styled.p``;
+const VisuallyHidden = styled.div`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+  
+  
+`;
 
 const TopArea = styled.div`
   display: flex;
