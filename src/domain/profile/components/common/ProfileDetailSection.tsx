@@ -44,8 +44,7 @@ const badgeTitles = badges
     if (!title) return null;
 
     
-    const count = b.count ?? 1;
-    return count > 1 ? `${title} ${count}개` : title;
+    
   })
   .filter(Boolean) as string[];
 
