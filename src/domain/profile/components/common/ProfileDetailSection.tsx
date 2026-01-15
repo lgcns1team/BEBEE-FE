@@ -30,25 +30,22 @@ const ProfileDetailSection = () => {
     };
   }, [profileId, fetchMemberProfile, clearProfile]);
 
-  const badges = profile.badges ?? [];
+  const badges = profile?.badges ?? [];
 
-const badgeTitles = badges
-  .map((b: any) => {
-    const disability = DISABILITY_TYPES.find(
-      (d) => d.id === b.disabilityCategoryId
-    );
+  const badgeTitles = badges
+    .map((b: any) => {
+      const disability = DISABILITY_TYPES.find(
+        (d) => String(d.id) === String(b.disabilityCategoryId)
+      );
+      if (!disability) return null;
 
-    if (!disability) return null;
+      if (b.badgeCode !== "LEVEL_1" && b.badgeCode !== "LEVEL_2") return null;
 
-    const title = getBadgeTitle(disability.name, b.badgeCode);
-    if (!title) return null;
+      return getBadgeTitle(disability.name, b.badgeCode);
+    })
+    .filter(Boolean) as string[];
 
-    
-    
-  })
-  .filter(Boolean) as string[];
-
-const badgeText = badgeTitles.join(", ");
+  const badgeText = badgeTitles.length > 0 ? badgeTitles.join(", ") : "";
   const genderText = profile.gender === "MALE" ? "남성" : "여성";
   const helpCategoryText =
     profile.helpCategories?.length > 0
