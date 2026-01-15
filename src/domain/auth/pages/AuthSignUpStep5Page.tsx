@@ -72,7 +72,7 @@ const AuthSignUpStep5Page = () => {
     fileInputRef.current?.click();
   };
 
-  // 확인 버튼 클릭 시 업로드 및 OCR 인증 시작
+ // 확인 버튼 클릭 시 업로드 및 OCR 인증 시작
   const handleConfirm = async () => {
     if (!selectedFile || !role) {
       alert("파일을 선택해주세요.");
@@ -81,27 +81,28 @@ const AuthSignUpStep5Page = () => {
 
     setIsUploading(true);
     try {
-      // 1. 파일 저장 (store)
-      setUploadedFile(file);
-
-      // 2. S3 업로드 (회원가입 전용 - JWT 불필요)
-      const fileUrl = await uploadFileToS3ForSignup(file, email);
+      // 1. S3 업로드 (회원가입 전용 - JWT 불필요)
+      const fileUrl = await uploadFileToS3ForSignup(selectedFile, email);
       setFileUrl(fileUrl);
 
-      // 3. 문서 분석 API 호출 (memberId 없이)
+      // 2. 문서 분석 API 호출 (memberId 없이)
       const result = await analyzeDocument(fileUrl, role);
       console.log(result);
       setSystemFlag(result.systemFlag);
 
-      // 4. Step 6으로 이동
+      // 3. Step 6으로 이동
       navigate("/signup/step6");
     } catch (error) {
       console.error("문서 업로드/분석 실패:", error);
       alert("문서 업로드 중 오류가 발생했습니다. 다시 시도해 주세요.");
-    } finally {
       setIsUploading(false);
     }
   };
+
+  // OCR 인증 중일 때 로딩 페이지 표시
+  if (isUploading) {
+    return <LoadingPage />;
+  }
 
 
 
