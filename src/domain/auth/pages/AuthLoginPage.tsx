@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
@@ -14,8 +14,10 @@ import { useToastStore } from "../../../store/useToastStore";
 import { getErrorMessage } from "../../../utils/error";
 import type { LoginRequest } from "../auth.types";
 import { PASSWORD_REGEX } from "../auth.constants";
+import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
 
 const AuthLoginPage = () => {
+  const { reset } = useAuthSignUpForm();
   const navigate = useNavigate();
   const { setAccessToken, setUser } = useUserStore();
   const { showToast } = useToastStore();
@@ -59,6 +61,10 @@ const AuthLoginPage = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    reset();
+  }, []);
 
   return (
     <Layout>

@@ -45,6 +45,7 @@ const AuthSignUpStep1Page = () => {
         </ScrollArea>
       </PageContainer>
       <BaseLongButton label="다음" onClick={handleNext} disabled={!selectedRole} />
+      <div style={{ height: "1rem" }} />
     </Layout>
   );
 };
