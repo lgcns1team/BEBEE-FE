@@ -78,7 +78,7 @@ const ProfileDetailSection = () => {
   ];
 
   return (
-    <Info aria-label={srSummary}>
+    <Info aria-label={srSummary} tabIndex={0} role="button">
       <div aria-hidden="true">
       <Top>
         <ProfileImageWrapper>
