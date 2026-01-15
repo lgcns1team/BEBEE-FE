@@ -28,43 +28,62 @@ const ChatRoom = () => {
   const currentChatroomIdRef = useRef<string | undefined>(chatroomId);
   const isMountedRef = useRef(true);
   const chatInputRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const lastAnnouncedMessageIdRef = useRef<string | null>(null);
   const hasInitializedMessagesRef = useRef(false);
 
-  // PWA 환경에서 키보드가 올라갈 때 document 스크롤 제어 및 ChatInput 위치 조정
+  // PWA 환경에서 키보드가 올라갈 때 document 스크롤 제어
+  //제발 되게 해주세요 진짜로 제발
   useEffect(() => {
     const vv = window.visualViewport;
     if (!vv) return;
 
-    const inputElement = chatInputRef.current;
+    // 초기 뷰포트 높이 저장 (키보드가 닫혀 있는 상태 기준)
+    const initialHeight = vv.height;
 
-    const handleViewportResize = () => {
-      if (!chatInputRef.current) return;
-      const keyboardHeight = Math.max(
-        0,
-        window.innerHeight - vv.height - vv.offsetTop
-      );
-      const isKeyboardVisible = keyboardHeight > 50;
+    const handleViewportChange = () => {
+      const currentHeight = vv.height;
+      const windowHeight = window.innerHeight;
 
-      // 입력창을 키보드 위로 올리되, padding/스타일은 그대로 유지
-      chatInputRef.current.style.bottom = isKeyboardVisible
-        ? `${keyboardHeight}px`
-        : "env(safe-area-inset-bottom, 0px)";
+      // 1. 키보드 노출 여부 확인
+      const isKeyboardVisible = initialHeight - currentHeight > 50;
+
+      // 2. 키보드 높이 계산
+      // (전체 높이 - 현재 뷰포트 높이 - 상단 오프셋)
+      const keyboardHeight = isKeyboardVisible
+        ? windowHeight - currentHeight
+        : 0;
+
+      requestAnimationFrame(() => {
+        // 3. 상단 레이아웃 고정 (ChatRoomCard가 밀려 올라가지 않도록)
+        if (isKeyboardVisible) {
+          window.scrollTo(0, 0);
+        }
+
+        // 4. 인풋 위치 조정
+        if (chatInputRef.current) {
+          chatInputRef.current.style.bottom = `${keyboardHeight}px`;
+          chatInputRef.current.style.position = isKeyboardVisible
+            ? "fixed"
+            : "sticky";
+        }
+      });
     };
 
-    vv.addEventListener("resize", handleViewportResize);
-    vv.addEventListener("scroll", handleViewportResize);
-    handleViewportResize();
+    // resize와 scroll(스크롤 시 뷰포트 재계산 대비) 모두 대응
+    vv.addEventListener("resize", handleViewportChange);
+    vv.addEventListener("scroll", handleViewportChange);
 
     return () => {
-      vv.removeEventListener("resize", handleViewportResize);
-      vv.removeEventListener("scroll", handleViewportResize);
-      if (inputElement) {
-        inputElement.style.bottom = "env(safe-area-inset-bottom, 0px)";
+      vv.removeEventListener("resize", handleViewportChange);
+      vv.removeEventListener("scroll", handleViewportChange);
+
+      // 클린업 시 위치 초기화
+      if (chatInputRef.current) {
+        chatInputRef.current.style.bottom = "0px";
       }
     };
   }, []);
-
   // 1. 채팅방 정보 조회 및 소켓 연결
   useEffect(() => {
     if (!chatroomId) return;
@@ -227,7 +246,7 @@ const ChatRoom = () => {
       >
         {srAnnouncement}
       </div>
-      <ChatContainer>
+      <ChatContainer ref={chatContainerRef}>
         <ChatRoomCard />
         <MessageList />
         <ChatInputWrapper ref={chatInputRef}>
@@ -246,7 +265,6 @@ const ChatContainer = styled.div`
   min-height: 0;
   overflow: hidden;
   position: relative;
-  /* PWA 환경에서 키보드가 올라갈 때 document 스크롤 방지 */
   overscroll-behavior: contain;
 `;
 
@@ -254,7 +272,7 @@ const ChatInputWrapper = styled.div`
   position: fixed;
   left: 0;
   right: 0;
-  bottom: env(safe-area-inset-bottom, 0px);
+  bottom: 0;
   flex-shrink: 0;
   width: 100%;
   background: white;
