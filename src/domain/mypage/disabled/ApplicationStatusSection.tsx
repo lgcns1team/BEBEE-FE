@@ -11,8 +11,7 @@ const ApplicationStatusSection = () => {
   const { posts, setPosts } = useApplicationStore();
 
   const totalApplicantCount = posts.reduce(
-    (sum, post) =>
-      sum + post.commonApplicantCount + post.volunteerApplicantCount,
+    (sum, post) => sum + post.commonApplicantCount + post.volunteerApplicantCount,
     0
   );
   useEffect(() => {
@@ -27,12 +26,15 @@ const ApplicationStatusSection = () => {
         <Info>
           <TextContainer>
             <Title>지원 현황 확인하기</Title>
-            <SubTitle>총 {totalApplicantCount}명의</SubTitle>
-            <SubTitle> 지원자가 있어요</SubTitle>
+            <SubTitle>
+              총 {totalApplicantCount}명의
+              <br />
+              지원자가 있어요
+            </SubTitle>
           </TextContainer>
           <ImgContainer></ImgContainer>
         </Info>
-
+        <div style={{ height: "0.5rem" }} />
         <BaseLongButton
           onClick={() => navigate("/applicate-landing")}
           label="보러가기"
@@ -77,6 +79,7 @@ const Title = styled.span`
 const SubTitle = styled.span`
   font-size: ${({ theme }) => theme.size.lg};
   font-weight: ${({ theme }) => theme.weight.bold};
+  font-family: "Paperlogy";
 `;
 const ImgContainer = styled.div`
   width: 100px;

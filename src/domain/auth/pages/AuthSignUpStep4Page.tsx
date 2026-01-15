@@ -5,11 +5,7 @@ import Layout from "../../../components/Layout";
 import BaseLongButton from "../../../components/BaseLongButton";
 import Badge from "../../../components/Badge";
 import AuthSignUpHeader from "../components/AuthSignUpHeader";
-import {
-  FieldSet,
-  ModalLabel,
-  RequiredMark,
-} from "../../../styles/FieldSetStyle";
+import { FieldSet, ModalLabel, RequiredMark } from "../../../styles/FieldSetStyle";
 import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
 import { HELP_TAG_NAMES } from "../../../constants/helpTags";
 import { DISABILITY_TYPE } from "../../../constants/disabilityTypes";
@@ -61,15 +57,14 @@ const AuthSignUpStep4Page = () => {
   const isFormValid =
     role === "HELPER"
       ? selectedTags.length > 0
-      : selectedDisabilityType !== "" && selectedDisabilityGrade !== "" && disabilityDescription !== "";
+      : selectedTags.length > 0 &&
+        selectedDisabilityType !== "" &&
+        selectedDisabilityGrade !== "" &&
+        disabilityDescription !== "";
 
   return (
     <Layout>
-      <AuthSignUpHeader
-        currentStep={4}
-        totalSteps={5}
-        onBack={() => navigate("/signup/step3")}
-      />
+      <AuthSignUpHeader currentStep={4} totalSteps={5} onBack={() => navigate("/signup/step3")} />
       <PageContainer>
         <ScrollArea>
           {role === "HELPER" ? (
@@ -145,11 +140,7 @@ const AuthSignUpStep4Page = () => {
           )}
         </ScrollArea>
       </PageContainer>
-      <BaseLongButton
-        label="다음"
-        onClick={handleNext}
-        disabled={!isFormValid}
-      />
+      <BaseLongButton label="다음" onClick={handleNext} disabled={!isFormValid} />
     </Layout>
   );
 };
@@ -161,11 +152,15 @@ const PageContainer = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+  padding: 2rem 0;
 `;
 
 const ScrollArea = styled.div`
   flex: 1;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
 
   &::-webkit-scrollbar {
     display: none;

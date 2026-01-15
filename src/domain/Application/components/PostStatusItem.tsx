@@ -116,75 +116,92 @@ const PostStatusItem = ({ posts, hideMatched = false }: Props) => {
   };
 
   return (
-    <Container>
-      {filteredItems.map((item) => (
-        <Card
-          key={item.postId}
-          onClick={() =>
-            goToApplicant(item.postId, item.title, item.helpCategories)
-          }
-        >
-          {/* 상단 */}
-          <TagRow>
-            <StatusBadge completed={item.isMatched}>
-              <CheckIcon completed={item.isMatched} />
-              <span aria-label="현재 매칭의 진행상황을 볼 수 있습니다">
-                {item.isMatched ? "매칭 완료" : "진행 중"}
-              </span>
-            </StatusBadge>
+    <Container role="list">
+      {filteredItems.map((item) => {
+        const statusText = item.isMatched ? "매칭 완료" : "진행 중";
+        const regionText = item.region;
+        const dateText = formatEngagementDate(item.engagementTime);
 
-            <HelpTag aria-label="도움의 카테고리 입니다">
-              {item.helpCategories.map((id) => {
-                const tag = HELP_TAG_LIST.find((t) => t.id === id);
-                return tag ? <SubTag key={id}>{tag.name}</SubTag> : null;
-              })}
-            </HelpTag>
-          </TagRow>
+        const helpTagsText = item.helpCategories
+          .map((id) => {
+            const tag = HELP_TAG_LIST.find((t) => t.id === id);
+            return tag?.name;
+          })
+          .filter(Boolean)
+          .join(", ");
 
-          {/* 제목 / 정보 */}
-          <div>
-            <CardTitle aria-label="게시글의 제목입니다">{item.title}</CardTitle>
+        const cardLabel = `
+          ${statusText} 게시글.
+          제목 ${item.title}.
+          도움 카테고리 ${helpTagsText}.
+          활동 지역 ${regionText}.
+          활동 기간 ${dateText}.
+          지원자 ${item.commonApplicantCount}명,
+          나눔 지원자 ${item.volunteerApplicantCount}명,
+          마감까지 ${item.daysRemaining}일 남음.
+        `;
 
-            <InfoRow>
-              <InfoItem>
-                <FiMapPin aria-label="활동 지역 아이콘" />
-                <span aria-label="활동 지역입니다">{item.region}</span>
-              </InfoItem>
+        return (
+          <Card
+            key={item.postId}
+            role="button"
+            tabIndex={0}
+            aria-label={cardLabel}
+            onClick={() =>
+              goToApplicant(item.postId, item.title, item.helpCategories)
+            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                goToApplicant(item.postId, item.title, item.helpCategories);
+              }
+            }}
+          >
+            <TagRow aria-hidden="true">
+              <StatusBadge completed={item.isMatched}>
+                <CheckIcon completed={item.isMatched} />
+                <span>{statusText}</span>
+              </StatusBadge>
 
-              <InfoItem>
-                <FiCalendar aria-label="활동 기간 아이콘" />
-                <span aria-label="활동 기간입니다">
-                  {formatEngagementDate(item.engagementTime)}
-                </span>
-              </InfoItem>
-            </InfoRow>
-          </div>
+              <HelpTag>
+                {item.helpCategories.map((id) => {
+                  const tag = HELP_TAG_LIST.find((t) => t.id === id);
+                  return tag ? <SubTag key={id}>{tag.name}</SubTag> : null;
+                })}
+              </HelpTag>
+            </TagRow>
 
-          {/* 하단 */}
-          <BottomBox>
-            <BottomItem>
-              지원자{" "}
-              <em aria-label="해당 게시글에 지원한 도우미 수 입니다">
-                {item.commonApplicantCount}
-              </em>
-            </BottomItem>
-            <Line />
-            <BottomItem>
-              나눔{" "}
-              <em aria-label="해당 게시글에 나눔을 희망하는 도우미 수 입니다 ">
-                {item.volunteerApplicantCount}
-              </em>
-            </BottomItem>
-            <Line />
-            <BottomItem>
-              마감{" "}
-              <em aria-label="현재 날짜 기준 마감일 입니다">
-                D-{item.daysRemaining}
-              </em>
-            </BottomItem>
-          </BottomBox>
-        </Card>
-      ))}
+            <div aria-hidden="true">
+              <CardTitle>{item.title}</CardTitle>
+
+              <InfoRow>
+                <InfoItem>
+                  <FiMapPin />
+                  <span>{regionText}</span>
+                </InfoItem>
+
+                <InfoItem>
+                  <FiCalendar />
+                  <span>{dateText}</span>
+                </InfoItem>
+              </InfoRow>
+            </div>
+            <BottomBox aria-hidden="true">
+              <BottomItem>
+                지원자 <em>{item.commonApplicantCount}</em>
+              </BottomItem>
+              <Line />
+              <BottomItem>
+                나눔 <em>{item.volunteerApplicantCount}</em>
+              </BottomItem>
+              <Line />
+              <BottomItem>
+                마감 <em>D-{item.daysRemaining}</em>
+              </BottomItem>
+            </BottomBox>
+          </Card>
+        );
+      })}
     </Container>
   );
 };

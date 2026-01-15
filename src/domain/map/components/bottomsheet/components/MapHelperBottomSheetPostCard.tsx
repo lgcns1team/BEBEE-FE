@@ -1,13 +1,14 @@
 import styled from "styled-components";
-import type { PostItem } from "../../../../../types/post.type";
 import HelpTag from "../../../../../components/HelpTag";
 import { FiCalendar } from "react-icons/fi";
 import { FiMapPin } from "react-icons/fi";
 import OneDayBadge from "../../../../../components/OneDayBadge";
 import { useNavigate } from "react-router-dom";
 import { HELP_TAG_MAP } from "../../../../../constants/helpTags";
+import { getScheduleText } from "../../../../../types/common.types";
+import type { NearByPostDto } from "../../../../../types/map.type";
 interface Props {
-  post: PostItem;
+  post: NearByPostDto;
 }
 
 const MapHelperBottomSheetPostCard = ({ post }: Props) => {
@@ -18,7 +19,9 @@ const MapHelperBottomSheetPostCard = ({ post }: Props) => {
         <TopArea>
           <Title>{post.title}</Title>
           <RightTop>
-            {post.helpType === "DAY" && <OneDayBadge>하루 도움</OneDayBadge>}
+            {post.helpType === "DAY" && (
+              <OneDayBadge>하루 도움</OneDayBadge>
+            )}
           </RightTop>
         </TopArea>
 
@@ -28,7 +31,7 @@ const MapHelperBottomSheetPostCard = ({ post }: Props) => {
         </InfoLine>
         <InfoLine>
           <CalendarIcon size={16} />
-          <InfoText>{post.date}</InfoText>
+          <InfoText>{getScheduleText(post.helpType, post.date, post.dayOfWeeks)}</InfoText>
         </InfoLine>
 
         <TagWrapper>

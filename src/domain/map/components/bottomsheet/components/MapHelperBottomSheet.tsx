@@ -1,6 +1,5 @@
 import { useState } from "react";
 import styled from "styled-components";
-
 import { AnimatePresence, motion } from "framer-motion";
 import useMapBottomSheet from "../hooks/useMapBottomSheet";
 import MapBottomSheetHeader from "./MapBottomSheetHeader";
@@ -18,34 +17,36 @@ import { BsList } from "react-icons/bs";
 
 interface Props {
   onClickCurrentLocation: () => void;
+  onClickHomeLocation: () => void;    
   locationLabel: string;
   radius: number;
   onChangeRadius: (r: number) => void;
+  addressRoad :string
 }
 
 function MapHelperBottomSheet({
   onClickCurrentLocation,
+  onClickHomeLocation,
+addressRoad,
   locationLabel,
   radius,
   onChangeRadius,
 }: Props) {
   const { sheet, content, snap, updateSnap, sheetY } = useMapBottomSheet();
-  const [openModalLoacation, setOpenModalLocation] = useState(false);
+  const [openModalLocation, setOpenModalLocation] = useState(false);
   const [openModalRadius, setOpenModalRadius] = useState(false);
 
-  const handleGoMap = () => {
-    updateSnap("HALF");
-  };
-  const handleGoList = () => {
-    updateSnap("HALF");
-  };
+  const handleGoMap = () => updateSnap("HALF");
+  const handleGoList = () => updateSnap("HALF");
 
   return (
     <>
-      {openModalLoacation && (
+      {openModalLocation && (
         <MapBottomSheetModalLocation
           onClose={() => setOpenModalLocation(false)}
           onClickCurrentLocation={onClickCurrentLocation}
+          onClickHomeLocation={onClickHomeLocation}
+          addressRoad={addressRoad}
         />
       )}
 
@@ -53,12 +54,13 @@ function MapHelperBottomSheet({
         <MapBottomSheetModalRadius
           onClose={() => setOpenModalRadius(false)}
           onApply={(nextRadius) => {
-            onChangeRadius(nextRadius);
+            onChangeRadius(nextRadius); 
             setOpenModalRadius(false);
           }}
           role="HELPER"
         />
       )}
+
       {(snap === "HALF" || snap === "MIN") && (
         <CurrentLocation
           onClick={onClickCurrentLocation}
@@ -69,6 +71,7 @@ function MapHelperBottomSheet({
           <BiCurrentLocation size={20} />
         </CurrentLocation>
       )}
+
       <Wrapper ref={sheet}>
         <MapBottomSheetHeader />
 
@@ -126,7 +129,7 @@ function MapHelperBottomSheet({
             transition={{ duration: 0.25 }}
           >
             <GoList>
-              <BsList size={20} color="#FFBE00" />
+              <BsList size={20} />
               목록보기
             </GoList>
           </GoListButton>
@@ -144,8 +147,6 @@ const Wrapper = styled(motion.div)`
   flex-direction: column;
   width: 100%;
   max-width: 375px;
-  left: 0;
-  right: 0;
   margin: 0 auto;
   z-index: 100;
   border-top-left-radius: ${({ theme }) => theme.borderRadius.lg};
@@ -154,6 +155,7 @@ const Wrapper = styled(motion.div)`
   height: 100vh;
   overflow: hidden;
   will-change: transform;
+  cursor: grab;
 `;
 
 const CurrentLocation = styled.button`
@@ -172,10 +174,9 @@ const CurrentLocation = styled.button`
 `;
 
 const Button = styled.div`
-  text-align: center;
-  align-items: center;
   display: flex;
   gap: 10px;
+  align-items: center;
 `;
 
 const FixedArea = styled.div`
@@ -183,7 +184,6 @@ const FixedArea = styled.div`
   z-index: 10;
   padding: 0 16px 0;
   flex-shrink: 0;
-  margin-top: 0;
 `;
 
 const ScrollArea = styled.div`
@@ -228,14 +228,11 @@ const GoMapButton = styled(motion.button)`
   background: #364153;
   color: ${({ theme }) => theme.color.white};
   border-radius: 20px;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
-
   z-index: 500;
 `;
 
@@ -256,14 +253,12 @@ const GoListButton = styled(motion.button)`
   background: ${({ theme }) => theme.color.white};
   color: ${({ theme }) => theme.color.text};
   border-radius: 20px;
-
   display: flex;
   justify-content: center;
   align-items: center;
   border: none;
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.medium};
-
   z-index: 500;
 `;
 

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
@@ -13,22 +13,7 @@ import { useUserStore } from "../../../store/useUserStore";
 import { useToastStore } from "../../../store/useToastStore";
 import { getErrorMessage } from "../../../utils/error";
 import type { LoginRequest } from "../auth.types";
-import {
-  initializeFCM,
-  setupFCMMessageListener,
-} from "../../../hooks/useFirebaseHandler";
-import { registerFCMToken } from "../../../api/notificationApi";
-
-// 모바일 기기 감지 유틸리티
-const detectDeviceType = (): "WEB_PC" | "WEB_MOBILE" => {
-  if (typeof window === "undefined") return "WEB_PC";
-  const userAgent = navigator.userAgent || navigator.vendor || "";
-  const isMobile =
-    /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
-      userAgent.toLowerCase()
-    );
-  return isMobile ? "WEB_MOBILE" : "WEB_PC";
-};
+import { PASSWORD_REGEX } from "../auth.constants";
 
 const AuthLoginPage = () => {
   const navigate = useNavigate();
@@ -37,42 +22,6 @@ const AuthLoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const notificationRequestedRef = useRef(false);
-
-  // 알림 권한 요청 함수
-  const requestNotificationPermission = async () => {
-    // 이미 요청했거나 권한이 이미 있는 경우 스킵
-    if (notificationRequestedRef.current) return;
-    if (typeof window === "undefined" || !("Notification" in window)) return;
-
-    const permission = Notification.permission;
-    if (permission !== "default") return;
-
-    notificationRequestedRef.current = true;
-
-    try {
-      const token = await initializeFCM(true);
-
-      if (token) {
-        // 서버에 토큰 등록
-        try {
-          const deviceType = detectDeviceType();
-          await registerFCMToken(token, deviceType);
-          // 포그라운드 메시지 리스너 설정
-          setupFCMMessageListener();
-        } catch (error) {
-          console.error("❌ [FCM] 토큰 서버 등록 실패:", error);
-        }
-      }
-    } catch (error) {
-      console.error("❌ [FCM] 알림 권한 요청 오류:", error);
-    }
-  };
-
-  // Input 클릭 핸들러
-  const handleInputClick = () => {
-    requestNotificationPermission();
-  };
 
   const handleLogin = async () => {
     if (isLoading) return;
@@ -100,12 +49,10 @@ const AuthLoginPage = () => {
         navigate("/home", { replace: true });
       }, 100);
     } catch (error) {
-      console.error("로그인 실패:", error);
+      getErrorMessage(error, "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
       showToast(
-        getErrorMessage(
-          error,
-          "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요."
-        ),
+        "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.",
+
         "ERROR"
       );
     } finally {
@@ -124,25 +71,23 @@ const AuthLoginPage = () => {
 
       <FormContainer>
         <GeneralInput
-          inputLabel="아이디 (이메일)"
-          placeholder="example@bebee.com"
+          inputLabel="아이디"
+          placeholder="이메일을 입력해주세요"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          onClick={handleInputClick}
         />
         <PasswordInput
           inputLabel="비밀번호"
           placeholder="비밀번호를 입력해주세요"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          onClick={handleInputClick}
         />
       </FormContainer>
       <LoginButtonWrapper>
         <BaseLongButton
           label="로그인"
           onClick={handleLogin}
-          disabled={!email || !password}
+          disabled={!email || !password || !new RegExp(PASSWORD_REGEX).test(password)}
         />
       </LoginButtonWrapper>
       <UtilContainer>
@@ -150,9 +95,7 @@ const AuthLoginPage = () => {
         <Divider>|</Divider>
         <UtilLink onClick={() => {}}>비밀번호 찾기</UtilLink>
         <Divider>|</Divider>
-        <SignUpLink onClick={() => navigate("/signup/step1")}>
-          회원가입
-        </SignUpLink>
+        <SignUpLink onClick={() => navigate("/signup/step1")}>회원가입</SignUpLink>
       </UtilContainer>
     </Layout>
   );
@@ -165,15 +108,16 @@ const LogoContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-bottom: 0.75rem;
-  padding-top: 30px;
+  margin-bottom: 0;
+  padding-top: 5rem;
   flex-shrink: 0;
+  user-select: none;
 `;
 
 const LogoIcon = styled.img`
   width: 70px;
   height: auto;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
 `;
 
 const LogoText = styled.img`
@@ -185,16 +129,17 @@ const SubTitle = styled.p`
   font-size: ${({ theme }) => theme.size.md};
   color: ${({ theme }) => theme.color.subText2};
   margin: 0.75rem 0 0 0;
+  font-family: "Paperlogy";
 `;
 
 const FormContainer = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
   flex: 1;
   min-height: 0;
   justify-content: center;
+  gap: 2.5rem;
 `;
 
 const LoginButtonWrapper = styled.div`

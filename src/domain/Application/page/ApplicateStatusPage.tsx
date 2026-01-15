@@ -7,22 +7,23 @@ import { Checkbox } from "../../../components/Checkbox";
 
 import { useApplicationStore } from "../store/useApplicationStore";
 import { getApplicationPosts } from "../../../api/applicationApi";
+import PullToRefreshWrapper from "../../../components/PullToRefreshWrapper";
 
 // const MEMBER_ID = "100";
 const ApplicateStatusPage = () => {
   const [excludeDone, setExcludeDone] = useState(false);
   const navigate = useNavigate();
   const { posts, setPosts } = useApplicationStore();
-   const [announce, setAnnounce] = useState("");
+  const [announce, setAnnounce] = useState("");
   useEffect(() => {
     getApplicationPosts().then((res) => {
       setPosts(res.data.posts);
     });
   }, []);
-  const filteredPosts = useMemo(() =>{
-    if(!excludeDone) return posts;
-    return posts.filter((post) => !post.isMatched)
-  },[posts, excludeDone])
+  const filteredPosts = useMemo(() => {
+    if (!excludeDone) return posts;
+    return posts.filter((post) => !post.isMatched);
+  }, [posts, excludeDone]);
 
   const { totalCommon, totalVolunteer } = posts.reduce(
     (acc, post) => {
@@ -42,33 +43,38 @@ const ApplicateStatusPage = () => {
     );
   };
 
+  // Pull to Refresh 핸들러
+  const handleRefresh = async () => {
+    const res = await getApplicationPosts();
+    setPosts(res.data.posts);
+  };
+
   return (
     <Container role="main" aria-labelledby="application-status-title">
-       <span className="sr-only" aria-live="polite">
+      <span className="sr-only" aria-live="polite">
         {announce}
       </span>
       <Section1>
-        <Header
-          onBack={() => navigate("/mypage")}
-          title="지원 현황"
-          showBack
-          aria-label="지원 현황 페이지 입니다"
-        />
+        <Header onBack={() => navigate("/mypage")} title="지원 현황" showBack />
 
-         <h1 id="application-status-title" className="sr-only">
-          지원 현황 페이지
-        </h1>
-        <SummaryBox aria-label="지원 현황 요약">
-          <SummaryItem aria-label={`지원자 수는 ${totalCommon}명 입니다.`}>
+        <h1 className="sr-only">지원 현황 페이지 지원 현황 페이지</h1>
+        <SummaryCard
+          role="group"
+          tabIndex={0}
+          aria-label={`지원 현황 요약입니다. 
+          지원자 수는 ${totalCommon}명,
+          나눔 지원 수는 ${totalVolunteer}명 입니다.`}
+        >
+          <SummaryItem aria-hidden="true">
             <span>지원자</span>
             <strong>{totalCommon}</strong>
-          </SummaryItem >
-          <Divider  aria-hidden="true"/>
-          <SummaryItem aria-label={`나눔 지원 수는 ${totalVolunteer}명 입니다`}>
+          </SummaryItem>
+          <Divider aria-hidden="true" />
+          <SummaryItem aria-hidden="true">
             <span>나눔</span>
             <strong>{totalVolunteer}</strong>
           </SummaryItem>
-        </SummaryBox>
+        </SummaryCard>
       </Section1>
       <Section2>
         <ExcludeDone>
@@ -79,12 +85,14 @@ const ApplicateStatusPage = () => {
             aria-label="매칭이 완료된 게시글을 제외할 수 있습니다"
           />
         </ExcludeDone>
-        <PostList
-          role="region"
-          aria-label="지원한 게시글 목록"
-        >
-        <PostStatusItem posts={filteredPosts} />
-        </PostList>
+        <PullToRefreshWrapper onRefresh={handleRefresh}>
+          <PostList
+            role="region"
+            aria-label="지원한 게시글 목록"
+          >
+          <PostStatusItem posts={filteredPosts} />
+          </PostList>
+        </PullToRefreshWrapper>
       </Section2>
     </Container>
   );
@@ -108,11 +116,12 @@ const Section1 = styled.div`
   background-color: ${({ theme }) => theme.color.white};
 `;
 const Section2 = styled.div`
+  flex: 1;
   padding: 16px 0;
   background-color: ${({ theme }) => theme.color.white};
 `;
 
-const SummaryBox = styled.div`
+const SummaryCard = styled.div`
   display: flex;
   border-top: 1px solid ${({ theme }) => theme.color.natural200};
   border-bottom: 1px solid ${({ theme }) => theme.color.natural200};
@@ -154,6 +163,5 @@ const ExcludeDone = styled.label`
   border-bottom: 1px solid ${({ theme }) => theme.color.natural200};
   padding: 0px 16px 16px 0px;
 `;
-const PostList = styled.div`
-  
-`
+
+const PostList = styled.div``;

@@ -11,6 +11,7 @@ interface InputProps {
   onClick?: () => void;
   required?: boolean;
   placeholder?: string;
+  type?: string;
 }
 
 const GeneralInput = ({ inputLabel, infoText, onClick, ...rest }: InputProps) => {

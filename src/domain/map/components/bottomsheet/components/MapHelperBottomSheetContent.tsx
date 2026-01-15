@@ -1,8 +1,8 @@
 import MapHelperBottomSheetPostCard from "./MapHelperBottomSheetPostCard";
-// import { useMapHelperPostStore } from "../../../../../store/useMapHelperPostStore";
-import { usePostStore } from "../../../../../store/usePostStore";
+import { useMapStore } from "../../../store/useMapStore";
+
 const MapHelperBottomSheetContent = () => {
-  const { posts } = usePostStore();
+  const posts = useMapStore((s) => s.posts);
 
   return (
     <>

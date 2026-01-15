@@ -10,17 +10,11 @@ import { IoClose } from "react-icons/io5";
 import { TbMinusVertical } from "react-icons/tb";
 
 import AddButton from "../../../../components/AddButton";
-import Layout from "../../../../components/Layout";
 import GeneralInput from "../../../../components/GeneralInput";
 import LocationInput from "../../../../components/LocationInput";
 import BaseLongButton from "../../../../components/BaseLongButton";
 
-import {
-  FieldSet,
-  ModalLabel,
-  ModalInput,
-  RequiredMark,
-} from "../../../../styles/FieldSetStyle";
+import { FieldSet, ModalLabel, ModalInput, RequiredMark } from "../../../../styles/FieldSetStyle";
 import { type PostCreateReqDTO } from "../../../../types/post.type";
 import { usePostWrite } from "../../hook/usePostWrite";
 
@@ -35,8 +29,10 @@ import { SERVER_MAPPING, DAY_OF_WEEK_MAP } from "../../../../types/post.type";
 const DAYS_FROM_MAPPING = Object.keys(SERVER_MAPPING.DAYS);
 
 const LongHelpWrite = ({ formData, updateField }: DayProps) => {
-  const { utils, removeSchedule, handleSubmit, handleTermRangeChange } =
-    usePostWrite(formData, updateField);
+  const { utils, removeSchedule, handleSubmit, handleTermRangeChange } = usePostWrite(
+    formData,
+    updateField
+  );
 
   // --- 로컬 상태 (일시적인 입력 관리) ---
   const [isAddingSchedule, setIsAddingSchedule] = useState(false);
@@ -54,8 +50,7 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
   // --- 핸들러 ---
   const handleConfirmSchedule = () => {
     // UI의 한글 요일을 서버용 영문 요일로 변환
-    const dayEn =
-      SERVER_MAPPING.DAYS[tempSchedule.day as keyof typeof SERVER_MAPPING.DAYS];
+    const dayEn = SERVER_MAPPING.DAYS[tempSchedule.day as keyof typeof SERVER_MAPPING.DAYS];
 
     // 훅의 addSchedule을 활용하거나 직접 updateField 호출
     const newSchedule = {
@@ -71,176 +66,177 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
   };
 
   return (
-    <Layout>
+    <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
+      <DatePickerGlobalStyle />
+      <Container>
+        {/* 1. 도움 기간 (Range Picker) */}
+        <FieldSet>
+          <ModalLabel>
+            도움 기간<RequiredMark>*</RequiredMark>
+          </ModalLabel>
+          <DateInputWrapper>
+            <CalendarIconWrapper onClick={() => periodInputRef.current?.focus()}>
+              <CiCalendar size={20} />
+            </CalendarIconWrapper>
+            <DatePicker
+              selectsRange
+              startDate={utils.getDateObj(formData.startDate)}
+              endDate={utils.getDateObj(formData.endDate)}
+              onChange={handleTermRangeChange}
+              dateFormat="yyyy.MM.dd"
+              locale={ko}
+              minDate={new Date()}
+              customInput={<StyledDateInput ref={periodInputRef} readOnly />}
+            />
+          </DateInputWrapper>
+        </FieldSet>
 
-      {/* 1. 도움 기간 (Range Picker) */}
-      <FieldSet>
-        <ModalLabel>
-          도움 기간<RequiredMark>*</RequiredMark>
-        </ModalLabel>
-        <DateInputWrapper>
-          <CalendarIconWrapper onClick={() => periodInputRef.current?.focus()}>
-            <CiCalendar size={20} />
-          </CalendarIconWrapper>
-          <DatePicker
-            selectsRange
-            startDate={utils.getDateObj(formData.startDate)}
-            endDate={utils.getDateObj(formData.endDate)}
-            onChange={handleTermRangeChange}
-            dateFormat="yyyy.MM.dd"
-            locale={ko}
-            minDate={new Date()}
-            customInput={<StyledDateInput ref={periodInputRef} readOnly />}
+        {/* 2. 도움 요일 및 시간 리스트 */}
+        <FieldSet>
+          <ModalLabel>
+            도움 요일 및 시간<RequiredMark>*</RequiredMark>
+          </ModalLabel>
+
+          {formData.schedules?.map((schedule, index) => (
+            <ScheduleBox key={index}>
+              <CloseButtonWrapper onClick={() => removeSchedule(index)}>
+                <IoClose size={20} />
+              </CloseButtonWrapper>
+              <ScheduleContent>
+                <DayBadge>{DAY_OF_WEEK_MAP[schedule.dayOfWeek]}</DayBadge>
+                <TimeText>
+                  {schedule.startTime.slice(0, 5)} ~ {schedule.endTime.slice(0, 5)}
+                </TimeText>
+              </ScheduleContent>
+            </ScheduleBox>
+          ))}
+
+          {/* 3. 스케줄 추가 폼 */}
+          {isAddingSchedule ? (
+            <AddScheduleBox>
+              <ScheduleForm>
+                <DaySelectWrapper>
+                  <DaySelect
+                    value={tempSchedule.day}
+                    onChange={(e) => setTempSchedule({ ...tempSchedule, day: e.target.value })}
+                  >
+                    {DAYS_FROM_MAPPING.map((day) => (
+                      <option key={day} value={day}>
+                        {day}
+                      </option>
+                    ))}
+                  </DaySelect>
+                </DaySelectWrapper>
+
+                <TimeInputWrapper>
+                  <DatePicker
+                    selected={tempSchedule.start}
+                    // (time: Date | null)로 타입을 명시하거나 타입을 생략하여 추론하게 둡니다.
+                    onChange={(date: Date | null) => {
+                      if (date) {
+                        setTempSchedule({ ...tempSchedule, start: date });
+                      }
+                    }}
+                    showTimeSelect
+                    showTimeSelectOnly
+                    timeIntervals={30}
+                    dateFormat="HH:mm"
+                    locale={ko}
+                    customInput={<StyledTimeInput ref={startTimeInputRef} readOnly />}
+                  />{" "}
+                  <TimeIconWrapper onClick={() => endTimeInputRef.current?.focus()}>
+                    <IoIosArrowDown size={20} />
+                  </TimeIconWrapper>
+                </TimeInputWrapper>
+                <TimeSeparator>~</TimeSeparator>
+                <TimeInputWrapper>
+                  <DatePicker
+                    selected={tempSchedule.end}
+                    onChange={(date: Date | null) => {
+                      if (date) {
+                        setTempSchedule({ ...tempSchedule, end: date });
+                      }
+                    }}
+                    showTimeSelect
+                    showTimeSelectOnly
+                    timeIntervals={30}
+                    dateFormat="HH:mm"
+                    locale={ko}
+                    customInput={<StyledTimeInput ref={endTimeInputRef} readOnly />}
+                  />
+                  <TimeIconWrapper onClick={() => endTimeInputRef.current?.focus()}>
+                    <IoIosArrowDown size={20} />
+                  </TimeIconWrapper>
+                </TimeInputWrapper>
+              </ScheduleForm>
+              <ButtonGroup>
+                <CancelButton onClick={() => setIsAddingSchedule(false)}>취소</CancelButton>
+                <TbMinusVertical size={20} color="#A1A1A1" />
+                <ConfirmButton onClick={handleConfirmSchedule}>확인</ConfirmButton>
+              </ButtonGroup>
+            </AddScheduleBox>
+          ) : (
+            <AddButton onClick={() => setIsAddingSchedule(true)} />
+          )}
+        </FieldSet>
+
+        <FieldSet>
+          {/* 4. 기타 정보 */}
+          <GeneralInput
+            inputLabel="1회 제공 꿀"
+            placeholder="1회 도움에 지급할 꿀을 입력해주세요."
+            value={formData.unitHoney || ""}
+            onChange={(e) => updateField({ unitHoney: Number(e.target.value) })}
+            required
           />
-        </DateInputWrapper>
-      </FieldSet>
+          {/* 계산된 총액 표시 */}
+          {formData.unitHoney ? (
+            <TotalHoney>
+              <span style={{ color: "#155DFC" }}> 총 제공 꿀: </span>
+              <span>
+                총{" "}
+                <span style={{ color: "#155DFC" }}>{formData.totalHoney?.toLocaleString()} 꿀</span>
+                이 도우미에게 제공될 예정이에요
+              </span>
+            </TotalHoney>
+          ) : null}
+        </FieldSet>
+        <FieldSet>
+          <LocationInput
+            inputLabel="만남 장소"
+            value={formData.region || ""}
+            onSelect={(loc) =>
+              updateField({
+                region: loc.address,
 
-      {/* 2. 도움 요일 및 시간 리스트 */}
-      <FieldSet>
-        <ModalLabel>
-          도움 요일 및 시간<RequiredMark>*</RequiredMark>
-        </ModalLabel>
-
-        {formData.schedules?.map((schedule, index) => (
-          <ScheduleBox key={index}>
-            <CloseButtonWrapper onClick={() => removeSchedule(index)}>
-              <IoClose size={20} />
-            </CloseButtonWrapper>
-            <ScheduleContent>
-              <DayBadge>{DAY_OF_WEEK_MAP[schedule.dayOfWeek]}</DayBadge>
-              <TimeText>
-                {schedule.startTime.slice(0, 5)} ~{" "}
-                {schedule.endTime.slice(0, 5)}
-              </TimeText>
-            </ScheduleContent>
-          </ScheduleBox>
-        ))}
-
-        {/* 3. 스케줄 추가 폼 */}
-        {isAddingSchedule ? (
-          <AddScheduleBox>
-            <ScheduleForm>
-              <DaySelectWrapper>
-                <DaySelect
-                  value={tempSchedule.day}
-                  onChange={(e) =>
-                    setTempSchedule({ ...tempSchedule, day: e.target.value })
-                  }
-                >
-                  {DAYS_FROM_MAPPING.map((day) => (
-                    <option key={day} value={day}>
-                      {day}
-                    </option>
-                  ))}
-                </DaySelect>
-              </DaySelectWrapper>
-
-              <TimeInputWrapper>
-                <DatePicker
-                  selected={tempSchedule.start}
-                  // (time: Date | null)로 타입을 명시하거나 타입을 생략하여 추론하게 둡니다.
-                  onChange={(date: Date | null) => {
-                    if (date) {
-                      setTempSchedule({ ...tempSchedule, start: date });
-                    }
-                  }}
-                  showTimeSelect
-                  showTimeSelectOnly
-                  timeIntervals={30}
-                  dateFormat="HH:mm"
-                  locale={ko}
-                  customInput={
-                    <StyledTimeInput ref={startTimeInputRef} readOnly />
-                  }
-                />{" "}
-                <TimeIconWrapper
-                  onClick={() => endTimeInputRef.current?.focus()}
-                >
-                  <IoIosArrowDown size={20} />
-                </TimeIconWrapper>
-              </TimeInputWrapper>
-              <TimeSeparator>~</TimeSeparator>
-              <TimeInputWrapper>
-                <DatePicker
-                  selected={tempSchedule.end}
-                  onChange={(date: Date | null) => {
-                    if (date) {
-                      setTempSchedule({ ...tempSchedule, end: date });
-                    }
-                  }}
-                  showTimeSelect
-                  showTimeSelectOnly
-                  timeIntervals={30}
-                  dateFormat="HH:mm"
-                  locale={ko}
-                  customInput={
-                    <StyledTimeInput ref={endTimeInputRef} readOnly />
-                  }
-                />
-                <TimeIconWrapper
-                  onClick={() => endTimeInputRef.current?.focus()}
-                >
-                  <IoIosArrowDown size={20} />
-                </TimeIconWrapper>
-              </TimeInputWrapper>
-            </ScheduleForm>
-            <ButtonGroup>
-              <CancelButton onClick={() => setIsAddingSchedule(false)}>
-                취소
-              </CancelButton>
-              <TbMinusVertical size={20} color="#A1A1A1" />
-              <ConfirmButton onClick={handleConfirmSchedule}>
-                확인
-              </ConfirmButton>
-            </ButtonGroup>
-          </AddScheduleBox>
-        ) : (
-          <AddButton onClick={() => setIsAddingSchedule(true)} />
-        )}
-      </FieldSet>
-
-      {/* 4. 기타 정보 */}
-      <GeneralInput
-        inputLabel="1회 제공 꿀"
-        placeholder="1회 도움에 지급할 꿀을 입력해주세요."
-        value={formData.unitHoney || ""}
-        onChange={(e) => updateField({ unitHoney: Number(e.target.value) })}
-        required
-      />
-      {/* 계산된 총액 표시 */}
-      {formData.unitHoney ? (
-        <TotlaHoney>
-          <span style={{ color: "#155DFC" }}> 총 제공 꿀: </span>
-          <span>
-            총{" "}
-            <span style={{ color: "#155DFC" }}>
-              {formData.totalHoney?.toLocaleString()} 꿀
-            </span>
-            이 도우미에게 제공될 예정이에요
-          </span>
-        </TotlaHoney>
-      ) : null}
-      <LocationInput
-        inputLabel="만남 장소"
-        value={formData.region || ""}
-        onSelect={(loc) =>
-          updateField({
-            region: loc.address,
-
-            latitude: loc.lat,
-            longitude: loc.lng,
-          })
-        }
-        required
-      />
-
+                latitude: loc.lat,
+                longitude: loc.lng,
+              })
+            }
+            required
+          />
+        </FieldSet>
+      </Container>
       <BaseLongButton label="작성 완료" onClick={handleSubmit} />
-    </Layout>
+    </div>
   );
 };
 
 export default LongHelpWrite;
 // Styled-components
+
+const Container = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
 
 const DateInputWrapper = styled.div`
   position: relative;
@@ -256,7 +252,7 @@ const DateInputWrapper = styled.div`
     width: 100% !important;
   }
 `;
-const TotlaHoney = styled.div`
+const TotalHoney = styled.div`
   width: 100%;
   border: 0.5px solid ${({ theme }) => theme.color.blue500};
   background-color: ${({ theme }) => theme.color.blue50};
@@ -264,12 +260,12 @@ const TotlaHoney = styled.div`
   font-size: ${({ theme }) => theme.size.sm};
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   color: ${({ theme }) => theme.color.subText2};
-  margin-top: 12px;
+  margin-top: 0;
 `;
 const StyledDateInput = styled(
-  forwardRef<HTMLInputElement, { $editable?: boolean; readOnly?: boolean }>(
-    (props, ref) => <ModalInput {...props} $editable={true} ref={ref} />
-  )
+  forwardRef<HTMLInputElement, { $editable?: boolean; readOnly?: boolean }>((props, ref) => (
+    <ModalInput {...props} $editable={true} ref={ref} />
+  ))
 )`
   padding-left: 3rem !important;
   cursor: pointer;
@@ -391,9 +387,9 @@ const TimeInputWrapper = styled.div`
 `;
 
 const StyledTimeInput = styled(
-  forwardRef<HTMLInputElement, { $editable?: boolean; readOnly?: boolean }>(
-    (props, ref) => <ModalInput {...props} $editable={true} ref={ref} />
-  )
+  forwardRef<HTMLInputElement, { $editable?: boolean; readOnly?: boolean }>((props, ref) => (
+    <ModalInput {...props} $editable={true} ref={ref} />
+  ))
 )`
   border: none !important;
   cursor: pointer;

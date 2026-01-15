@@ -22,13 +22,13 @@ const log = {
 
 // Firebase 설정
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyAdvajxr9nwDEBFfuajsbDhuHuWdu0v4uk",
+  authDomain: "bebee-c4d61.firebaseapp.com",
+  projectId: "bebee-c4d61",
+  storageBucket: "bebee-c4d61.firebasestorage.app",
+  messagingSenderId: "1024519360208",
+  appId: "1:1024519360208:web:46d14c7ace75447756d8d5",
+  measurementId: "G-S2H4Q7TRCG",
 };
 
 // Firebase App 초기화 (중복 초기화 방지)
@@ -42,9 +42,8 @@ if (getApps().length === 0) {
 // FCM Messaging 인스턴스
 let messaging: Messaging | null = null;
 
-// VAPID 키 (FCM 웹 푸시에 필요)
-// 환경 변수에서 가져오거나, 없으면 fallback 사용
-const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+const vapidKey =
+  "BKMar7C5AibZwabJemvInP7rEGBs3IoflOYQeXcC_RG7qTFRe6R1Rg5pzqnV1rcxIX8rEGec-jcm7C6I1TTnVA4";
 
 /**
  * Service Worker로부터 메시지 수신 리스너 설정
@@ -74,16 +73,24 @@ const setupServiceWorkerMessageListener = () => {
  * FCM 초기화 및 토큰 가져오기
  * @param requestPermission - 알림 권한 요청 여부 (기본값: true)
  */
-export const initializeFCM = async (requestPermission: boolean = true): Promise<string | null> => {
+export const initializeFCM = async (
+  requestPermission: boolean = true
+): Promise<string | null> => {
   try {
     // HTTPS 확인 (배포 환경에서 중요)
     if (typeof window !== "undefined") {
-      const isSecureContext = window.isSecureContext || location.protocol === "https:" || location.hostname === "localhost";
+      const isSecureContext =
+        window.isSecureContext ||
+        location.protocol === "https:" ||
+        location.hostname === "localhost";
       if (!isSecureContext) {
         const errorMsg = "FCM은 HTTPS 또는 localhost에서만 작동합니다.";
         log.error(errorMsg);
         // 배포 환경에서도 에러 표시
-        console.error("❌ [FCM]", errorMsg, { protocol: location.protocol, hostname: location.hostname });
+        console.error("❌ [FCM]", errorMsg, {
+          protocol: location.protocol,
+          hostname: location.hostname,
+        });
         return null;
       }
     }
@@ -104,19 +111,27 @@ export const initializeFCM = async (requestPermission: boolean = true): Promise<
     setupServiceWorkerMessageListener();
 
     // 기존 Service Worker 등록 확인 및 정리
+    // PWA의 Service Worker와 충돌하지 않도록 주의
     try {
       const existingRegistrations =
         await navigator.serviceWorker.getRegistrations();
       for (const registration of existingRegistrations) {
-        // 기존 push subscription이 있으면 unsubscribe
-        const subscription = await registration.pushManager?.getSubscription();
-        if (subscription) {
-          await subscription.unsubscribe();
-          log.info("✅ [FCM] 기존 push subscription 제거됨");
+        // Firebase messaging Service Worker만 정리 (PWA Service Worker는 유지)
+        const scriptURL = registration.active?.scriptURL || "";
+        if (scriptURL.includes("firebase-messaging-sw.js")) {
+          // 기존 push subscription이 있으면 unsubscribe
+          const subscription =
+            await registration.pushManager?.getSubscription();
+          if (subscription) {
+            await subscription.unsubscribe();
+            log.info("✅ [FCM] 기존 push subscription 제거됨");
+          }
+          // Firebase messaging Service Worker만 제거
+          await registration.unregister();
+          log.info("✅ [FCM] 기존 Firebase Service Worker 제거됨");
+        } else {
+          log.info("ℹ️ [FCM] PWA Service Worker 유지:", scriptURL);
         }
-        // 기존 Service Worker 제거
-        await registration.unregister();
-        log.info("✅ [FCM] 기존 Service Worker 제거됨");
       }
     } catch (error) {
       log.warn("⚠️ [FCM] 기존 Service Worker 정리 중 오류:", error);
@@ -131,7 +146,7 @@ export const initializeFCM = async (requestPermission: boolean = true): Promise<
           scope: "/",
         }
       );
-      log.info("✅ [FCM] Service Worker registered");
+      log.info("[FCM] Service Worker registered");
 
       // Service Worker가 완전히 활성화될 때까지 대기
       if (registration.installing) {
@@ -154,20 +169,45 @@ export const initializeFCM = async (requestPermission: boolean = true): Promise<
         });
       }
 
-      // Service Worker가 활성화되면 Firebase 설정 전달
-      if (registration.active) {
-        registration.active.postMessage({
-          type: "FIREBASE_CONFIG",
-          config: firebaseConfig,
-        });
-        log.info("[FCM] Firebase 설정이 Service Worker에 전달됨");
+      // Service Worker가 완전히 준비될 때까지 기다림
+      try {
+        await navigator.serviceWorker.ready;
+        log.info("✅ [FCM] Service Worker 준비 완료");
+
+        // Service Worker가 준비된 후 Firebase 설정 전달
+        const readyRegistration = await navigator.serviceWorker.ready;
+        if (readyRegistration.active) {
+          readyRegistration.active.postMessage({
+            type: "FIREBASE_CONFIG",
+            config: firebaseConfig,
+          });
+          log.info("[FCM] Firebase 설정이 Service Worker에 전달됨");
+        }
+      } catch (error) {
+        log.warn("⚠️ [FCM] Service Worker ready 대기 중 오류:", error);
       }
 
-      // Service Worker가 완전히 준비될 때까지 약간의 지연
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // 추가 안전 지연
+      await new Promise((resolve) => setTimeout(resolve, 300));
     } catch (error) {
       log.error("[FCM] Service Worker registration failed:", error);
       // Service Worker 등록 실패해도 계속 진행 (이미 등록된 경우)
+      // 기존 등록된 Service Worker가 있는지 확인
+      try {
+        const readyRegistration = await navigator.serviceWorker.ready;
+        log.info("✅ [FCM] 기존 Service Worker 사용");
+
+        // 기존 Service Worker에도 Firebase 설정 전달
+        if (readyRegistration.active) {
+          readyRegistration.active.postMessage({
+            type: "FIREBASE_CONFIG",
+            config: firebaseConfig,
+          });
+          log.info("[FCM] Firebase 설정이 기존 Service Worker에 전달됨");
+        }
+      } catch (swError) {
+        log.warn("⚠️ [FCM] Service Worker 준비 실패:", swError);
+      }
     }
 
     // Messaging 인스턴스 생성
@@ -175,9 +215,60 @@ export const initializeFCM = async (requestPermission: boolean = true): Promise<
       messaging = getMessaging(app);
     }
 
+    // Service Worker가 활성화되었는지 최종 확인 (iOS에서 중요)
+    try {
+      const readyRegistration = await navigator.serviceWorker.ready;
+      if (!readyRegistration.active) {
+        log.warn("⚠️ [FCM] Service Worker가 아직 활성화되지 않음");
+        console.warn("⚠️ [FCM] Service Worker 활성화 대기 중...");
+
+        // 활성화될 때까지 대기 (최대 5초)
+        let attempts = 0;
+        const maxAttempts = 50; // 5초 (100ms * 50)
+
+        await new Promise<void>((resolve, reject) => {
+          const checkActive = () => {
+            attempts++;
+            if (readyRegistration.active) {
+              console.log("[FCM] Service Worker 활성화 완료");
+              resolve();
+            } else if (attempts >= maxAttempts) {
+              const errorMsg = "Service Worker 활성화 시간 초과";
+              console.error(" [FCM]", errorMsg);
+              log.error("[FCM] Service Worker 활성화 시간 초과");
+              reject(new Error(errorMsg));
+            } else {
+              setTimeout(checkActive, 100);
+            }
+          };
+          checkActive();
+        });
+      } else {
+        console.log("[FCM] Service Worker 활성화 확인:", {
+          state: readyRegistration.active.state,
+          scriptURL: readyRegistration.active.scriptURL,
+        });
+      }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.error("[FCM] Service Worker 활성화 확인 실패:", errorMsg);
+      log.error("[FCM] Service Worker 활성화 확인 실패:", error);
+
+      // iOS 특정 안내
+      const isIOS =
+        /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      if (isIOS) {
+        console.error("[FCM] iOS에서 Service Worker 활성화 실패");
+        console.error("PWA로 설치되어 있는지 확인하세요 (홈 화면에 추가)");
+      }
+
+      return null;
+    }
+
     // 알림 권한 확인 및 요청
     let permission = Notification.permission;
-    
+
     if (permission === "default" && requestPermission) {
       // 권한이 아직 요청되지 않은 경우에만 요청
       try {
@@ -194,10 +285,13 @@ export const initializeFCM = async (requestPermission: boolean = true): Promise<
     }
 
     if (permission !== "granted") {
-      const reason = permission === "denied" ? "사용자가 거부했습니다." : "권한이 요청되지 않았습니다.";
+      const reason =
+        permission === "denied"
+          ? "사용자가 거부했습니다."
+          : "권한이 요청되지 않았습니다.";
       log.warn(`Notification permission denied. ${reason}`);
       // 배포 환경에서도 로깅
-      console.warn("⚠️ [FCM] 알림 권한 거부:", reason);
+      console.warn("[FCM] 알림 권한 거부:", reason);
       return null;
     }
 
@@ -219,16 +313,71 @@ export const initializeFCM = async (requestPermission: boolean = true): Promise<
 
     log.info("[FCM] VAPID 키 사용:", vapidKey.substring(0, 20) + "...");
 
-    const token = await getToken(messaging, { vapidKey });
-    if (token) {
-      log.info("[FCM] Registration Token:", token);
-      return token;
-    } else {
-      log.warn("[FCM] No registration token available.");
+    // iOS 감지
+    const isIOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+    if (isIOS) {
+      console.log("[FCM] iOS 환경 감지됨");
+
+      // iOS에서 Service Worker 상태 확인
+      const readyRegistration = await navigator.serviceWorker.ready;
+      if (!readyRegistration.active) {
+        const errorMsg =
+          "iOS에서 Service Worker가 활성화되지 않았습니다. PWA로 설치되어 있는지 확인하세요.";
+        console.error("[FCM]", errorMsg);
+        log.error(errorMsg);
+        return null;
+      }
+
+      // iOS에서는 추가 대기 시간 필요
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
+    // FCM 토큰 가져오기 (에러 핸들링 강화)
+    try {
+      const token = await getToken(messaging, { vapidKey });
+      if (token) {
+        log.info("[FCM] Registration Token:", token);
+
+        return token;
+      } else {
+        const errorMsg = "[FCM] No registration token available.";
+        log.warn(errorMsg);
+
+        return null;
+      }
+    } catch (tokenError) {
+      // 구체적인 에러 정보 로깅
+      const errorDetails = {
+        message:
+          tokenError instanceof Error ? tokenError.message : String(tokenError),
+        name: tokenError instanceof Error ? tokenError.name : "Unknown",
+        stack: tokenError instanceof Error ? tokenError.stack : undefined,
+        isIOS,
+        serviceWorkerReady: navigator.serviceWorker
+          ? await navigator.serviceWorker.ready
+              .then(() => true)
+              .catch(() => false)
+          : false,
+        permission: Notification.permission,
+      };
+
+      log.error("FCM 토큰 발급 실패:", errorDetails);
+
       return null;
     }
   } catch (error) {
-    log.error("Error initializing FCM:", error);
+    // 최상위 레벨 에러 처리
+    const errorDetails = {
+      message: error instanceof Error ? error.message : String(error),
+      name: error instanceof Error ? error.name : "Unknown",
+      stack: error instanceof Error ? error.stack : undefined,
+    };
+
+    console.error("[FCM] FCM 초기화 실패:", errorDetails);
+    log.error("Error initializing FCM:", errorDetails);
     return null;
   }
 };

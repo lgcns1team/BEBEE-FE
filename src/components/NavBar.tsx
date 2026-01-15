@@ -8,7 +8,7 @@ const NavBar = () => {
   const navItems = [
     { label: "홈", path: "/home", icon: IoHomeOutline },
     { label: "동네지도", path: "/map", icon: IoMapOutline },
-    { label: "매칭현황", path: "/engagements", icon: IoFolderOutline },
+    { label: "활동관리", path: "/engagements", icon: IoFolderOutline },
     { label: "채팅", path: "/chat", icon: IoChatbubbleOutline },
     { label: "나의비비", path: "/mypage", icon: IoPersonOutline },
   ];
@@ -56,10 +56,11 @@ const NavBar = () => {
 
 import {
   IoHomeOutline,
-  IoMapOutline,
+  // IoMapOutline,
   IoChatbubbleOutline,
   IoPersonOutline,
   IoFolderOutline,
+  IoMapOutline,
 } from "react-icons/io5";
 
 const NavContainer = styled.div`
@@ -77,7 +78,7 @@ const NavList = styled.div`
   justify-content: space-between;
   align-items: center;
   height: 100%;
-  padding: 0 20px;
+  padding: 10px 20px;
 `;
 
 const NavItem = styled.button<{ $isActive: boolean }>`

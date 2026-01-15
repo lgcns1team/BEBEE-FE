@@ -120,8 +120,7 @@ const LandingLogo = styled.img`
   object-fit: contain;
   opacity: 0;
   transform: translate(-50%, -50%) scale(1.5);
-  animation: ${fadeIn} 0.3s ease-out forwards,
-    ${shrinkAndMoveLeft} 0.8s ease-out 0.3s forwards;
+  animation: ${fadeIn} 0.3s ease-out forwards, ${shrinkAndMoveLeft} 0.8s ease-out 0.3s forwards;
 `;
 
 const NameImage = styled.img<{ $delay: number }>`
@@ -159,11 +158,12 @@ const TopText = styled.div<{ $delay: number }>`
 
 const BottomText = styled.div<{ $delay: number }>`
   font-size: ${({ theme }) => theme.size.lg};
-  font-weight: ${({ theme }) => theme.weight.medium};
+  font-weight: ${({ theme }) => theme.weight.regular};
   color: ${({ theme }) => theme.color.white};
   text-align: center;
   white-space: nowrap;
   opacity: 0;
   animation: ${fadeInUp} 0.6s ease-out forwards;
   animation-delay: ${({ $delay }) => `${$delay}s`};
+  font-family: "Paperlogy";
 `;
