@@ -103,16 +103,17 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
 
   return (
     <Card aria-label={cardAriaLabel} tabIndex={0} >
-      <div aria-hidden="true">
+     
         <TopArea>
           <Title
             onClick={goMatchingInfo}
             aria-label={`활동 제목 ${engagement.title} 입니다. 매칭 상세 정보로 이동합니다`}
+            aria-hidden
           >
             {engagement.title}
           </Title>
           {engagement.helpType === "DAY" && (
-            <OneDayBadge aria-label="하루 도움에 해당하는 활동입니다">
+            <OneDayBadge aria-label="하루 도움에 해당하는 활동입니다" >
               하루 도움
             </OneDayBadge>
           )}
@@ -124,26 +125,26 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
               role="button"
               tabIndex={0}
               onClick={handleProfileClick}
-              aria-label={`매칭된 상대 ${engagement.otherNickname} 님의 프로필로 이동합니다`}
+              aria-label={`매칭된 상대 ${engagement.otherNickname} 님의 프로필로 이동합니다`} aria-hidden
             >
               {engagement.otherNickname}
             </User>
 
             <InfoLine>
               <MapPinIcon size={16} aria-hidden="true" />
-              <InfoText aria-label={`활동 지역 ${engagement.region} 입니다`}>
+              <InfoText aria-label={`활동 지역 ${engagement.region} 입니다`} aria-hidden>
                 {engagement.region}
               </InfoText>
             </InfoLine>
 
             <InfoLine>
               <CalendarIcon size={16} aria-hidden="true" />
-              <InfoText aria-label={`도움 날짜 ${scheduleText} 입니다`}>
+              <InfoText aria-label={`도움 날짜 ${scheduleText} 입니다`} aria-hidden>
                 {scheduleText}
               </InfoText>
             </InfoLine>
 
-            <TagRow aria-label="도움 유형 태그 목록">
+            <TagRow aria-label="도움 유형 태그 목록" aria-hidden>
               {engagement.helpCategoryIds.map((cat) => (
                 <HelpTag key={cat}>{HELP_TAG_MAP[cat]}</HelpTag>
               ))}
@@ -152,7 +153,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
 
           {engagement.thumbnailImageUrl && (
             <BottomRight>
-              <Thumbnail>
+              <Thumbnail aria-hidden>
                 <img
                   src={engagement.thumbnailImageUrl}
                   alt="활동과 관련된 이미지 입니다"
@@ -161,7 +162,7 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
             </BottomRight>
           )}
         </BottomArea>
-      </div>
+     
       <BottomBar>
         <BottomInner>
           <ChatButton
