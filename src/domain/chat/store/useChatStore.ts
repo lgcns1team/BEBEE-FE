@@ -8,6 +8,34 @@ import type {
   MatchStatus,
 } from "../types/chat.types";
 
+// 소켓/API에서 받은 UTC 기반 시간을 KST 오프셋(+09:00) 문자열로 변환
+const toKstOffsetString = (dateStr: string) => {
+  if (!dateStr) return dateStr;
+
+  // 서버가 타임존 정보 없이 UTC 시각을 내려주는 경우를 대비해, Z가 없으면 UTC로 가정
+  const hasTz = /[zZ]|[+-]\d\d:\d\d$/.test(dateStr);
+  const utcAssumed = hasTz ? dateStr : `${dateStr}Z`;
+
+  const formatter = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  const formatted = formatter.format(new Date(utcAssumed)); // e.g. "2026-01-15 15:40:32"
+  return `${formatted.replace(" ", "T")}+09:00`; // ISO 파싱 가능한 형태
+};
+
+const normalizeMessageToKst = (message: ChatMessage): ChatMessage => ({
+  ...message,
+  createdAt: toKstOffsetString(message.createdAt),
+});
+
 interface ChatState {
   // 1. 상세 채팅방 관련
   activeRoom: ChatroomResponse | null;
@@ -113,8 +141,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
             [chatroomId]: {
               // 1. data.chats 대신 data.messages 사용
               messages: isFirstLoad
-                ? data.messages
-                : [...data.messages, ...prevRoomData.messages],
+                ? data.messages.map(normalizeMessageToKst)
+                : [
+                    ...data.messages.map(normalizeMessageToKst),
+                    ...prevRoomData.messages,
+                  ],
 
               // 2. 서버의 다음 페이지 유무 반영
               hasNext: data.hasNext,
@@ -133,6 +164,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   // 메시지 한 개 추가 (소켓 수신 시 호출)
   addMessage: (message, chatroomId) =>
     set((state) => {
+      const normalizedMessage = normalizeMessageToKst(message);
+
       // 1. 타겟 채팅방 ID 결정 (전달된 ID가 없으면 현재 활성화된 방 사용)
       const targetId = chatroomId || state.activeRoom?.chatroomId;
       if (!targetId) return state;
@@ -147,7 +180,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       // 3. [중요] 중복 메시지 방지
       // 소켓은 네트워크 상황에 따라 같은 메시지가 두 번 올 수 있으므로 ID로 체크합니다.
       const isDuplicate = currentRoomData.messages.some(
-        (m) => m.id === message.id
+        (m) => m.id === normalizedMessage.id
       );
       if (isDuplicate) {
         console.log("⚠️ [useChatStore] 중복 메시지 무시:", {
@@ -164,7 +197,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           ...state.messagesByChatroom,
           [targetId]: {
             ...currentRoomData,
-            messages: [...currentRoomData.messages, message],
+            messages: [...currentRoomData.messages, normalizedMessage],
           },
         },
       };
