@@ -106,7 +106,14 @@ export default function useMapBottomSheet() {
   /** 터치 이벤트 */
   useEffect(() => {
     const el = sheet.current!;
-    const onTouchStart = (e: TouchEvent) => startDrag(e.touches[0].clientY);
+
+    const onTouchStart = (e: TouchEvent) => {
+      // [추가된 코드] 터치된 대상(target)이 스크롤 영역(content) 내부라면 드래그를 시작하지 않고 종료
+      if (content.current && content.current.contains(e.target as Node)) return;
+
+      startDrag(e.touches[0].clientY);
+    };
+    // const onTouchStart = (e: TouchEvent) => startDrag(e.touches[0].clientY);
     const onTouchMove = (e: TouchEvent) => moveDrag(e.touches[0].clientY, e);
     const onTouchEnd = () => endDrag();
 
@@ -124,8 +131,13 @@ export default function useMapBottomSheet() {
   /** 마우스 이벤트 */
   useEffect(() => {
     const el = sheet.current!;
+    const onMouseDown = (e: MouseEvent) => {
+      // [추가된 코드] 클릭된 대상이 스크롤 영역 내부라면 드래그를 시작하지 않음
+      if (content.current && content.current.contains(e.target as Node)) return;
 
-    const onMouseDown = (e: MouseEvent) => startDrag(e.clientY);
+      startDrag(e.clientY);
+    };
+    // const onMouseDown = (e: MouseEvent) => startDrag(e.clientY);
     const onMouseMove = (e: MouseEvent) => moveDrag(e.clientY, e);
     const onMouseUp = () => endDrag();
 

@@ -53,7 +53,7 @@ const BadgeChips = ({ badges }: Props) => {
     <Wrap>
       {items.map((it) => (
         <Chip key={it.key}>
-          <Icon src={it.img} alt={it.title} />
+          <Icon src={it.img} alt={it.title} aria-hidden/>
           <Text>{it.title}</Text>
         </Chip>
       ))}
