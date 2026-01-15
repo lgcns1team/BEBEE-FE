@@ -62,16 +62,16 @@ const AuthSignUpStep3Page = () => {
 
   const isFormValid = name && nickname && birthDate && phoneNumber && address;
 
-    // role이 없으면 이전 단계로 리다이렉트
-    useEffect(() => {
-      if (!role) {
-        navigate("/signup/step1");
-      }
-    }, [role, navigate]);
-  
+  // role이 없으면 이전 단계로 리다이렉트
+  useEffect(() => {
     if (!role) {
-      return null;
+      navigate("/signup/step1");
     }
+  }, [role, navigate]);
+
+  if (!role) {
+    return null;
+  }
 
   return (
     <Layout>
@@ -114,7 +114,7 @@ const AuthSignUpStep3Page = () => {
           <GeneralInput
             type="tel"
             inputLabel="전화번호"
-            placeholder="010-0000-0000"
+            placeholder="'-' 없이 숫자만 입력"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             required
@@ -134,6 +134,7 @@ const AuthSignUpStep3Page = () => {
         </ScrollArea>
       </PageContainer>
       <BaseLongButton label="다음" onClick={handleNext} disabled={!isFormValid} />
+      <div style={{ height: "1rem" }} />
     </Layout>
   );
 };
@@ -145,7 +146,6 @@ const PageContainer = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
-  padding: 2rem 0;
 `;
 
 const ScrollArea = styled.div`
@@ -154,6 +154,7 @@ const ScrollArea = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
+  padding: 2rem 0;
 
   &::-webkit-scrollbar {
     display: none;

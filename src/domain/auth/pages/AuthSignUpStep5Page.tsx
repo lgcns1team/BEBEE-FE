@@ -15,15 +15,16 @@ import LoadingPage from "./LoadingPage";
 
 const AuthSignUpStep5Page = () => {
   const navigate = useNavigate();
-  const { role, email, setUploadedFile, setFileUrl, setSystemFlag } =
-    useAuthSignUpForm();
+  const { role, email, setUploadedFile, setFileUrl, setSystemFlag } = useAuthSignUpForm();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // role이 없으면 이전 단계로 리다이렉트
   useEffect(() => {
+    console.log("1단계 진입");
     if (!role) {
+      console.log("role이 없어 1단계로");
       navigate("/signup/step1");
     }
   }, [role, navigate]);
@@ -80,28 +81,31 @@ const AuthSignUpStep5Page = () => {
 
     setIsUploading(true);
     try {
-      // 1. S3 업로드 (회원가입 전용 - JWT 불필요)
-      const fileUrl = await uploadFileToS3ForSignup(selectedFile, email);
+      // 1. 파일 저장 (store)
+      setUploadedFile(file);
+
+      // 2. S3 업로드 (회원가입 전용 - JWT 불필요)
+      const fileUrl = await uploadFileToS3ForSignup(file, email);
       setFileUrl(fileUrl);
 
-      // 2. 문서 분석 API 호출 (memberId 없이)
+      // 3. 문서 분석 API 호출 (memberId 없이)
       const result = await analyzeDocument(fileUrl, role);
       console.log(result);
       setSystemFlag(result.systemFlag);
 
-      // 3. Step 6으로 이동
+      // 4. Step 6으로 이동
       navigate("/signup/step6");
     } catch (error) {
       console.error("문서 업로드/분석 실패:", error);
       alert("문서 업로드 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    } finally {
       setIsUploading(false);
     }
   };
 
-  // OCR 인증 중일 때 로딩 페이지 표시
-  if (isUploading) {
-    return <LoadingPage />;
-  }
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
+  };
 
   const handleNextPage = () => {
     // fileUrl이 store에 저장되어 있는지 확인
@@ -138,15 +142,9 @@ const AuthSignUpStep5Page = () => {
             </RoleImageContainer>
 
             {/* 파일 업로드 버튼 */}
-            <FileUploadButton
-              type="button"
-              onClick={handleFileClick}
-              disabled={isUploading}
-            >
+            <FileUploadButton type="button" onClick={handleFileClick} disabled={isUploading}>
               <IoDocumentTextOutline size={40} />
-              <UploadText>
-                {selectedFile ? selectedFile.name : "파일 선택"}
-              </UploadText>
+              <UploadText>{selectedFile ? selectedFile.name : "파일 선택"}</UploadText>
               <UploadSubText>
                 {selectedFile
                   ? "파일이 선택되었습니다. 확인 버튼을 눌러주세요."
@@ -168,6 +166,7 @@ const AuthSignUpStep5Page = () => {
         onClick={handleFileClick}
         disabled={isUploading}
       />
+      <div style={{ height: "1rem" }} />
     </Layout>
   );
 };
@@ -179,7 +178,6 @@ const PageContainer = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
-  padding: 2rem 0;
 `;
 
 const ScrollArea = styled.div`
@@ -188,6 +186,7 @@ const ScrollArea = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
+  padding: 2rem 0;
 
   &::-webkit-scrollbar {
     display: none;
