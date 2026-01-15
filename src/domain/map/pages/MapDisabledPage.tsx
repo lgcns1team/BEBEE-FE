@@ -1,96 +1,167 @@
-// import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 
-// import MapDisabledBottomSheet from "../components/bottomsheet/components/MapDisabledBottomSheet";
-// import MapBasePage from "./MapBasePage";
-// import { useNavigate } from "react-router-dom";
-// import Header from "../../../components/Header";
-// import styled from "styled-components";
+import Header from "../../../components/Header";
+import MapBasePage from "./MapBasePage";
+import MapDisabledBottomSheet from "../components/bottomsheet/components/MapDisabledBottomSheet";
+import { mapApi } from "../../../api/mapApi";
+import { useUserStore } from "../../../store/useUserStore";
+import { useMapStore } from "../store/useMapStore";
 
-// const pxToRem = (px: number) => `${px / 16}rem`;
-// const HEADER_HEIGHT_REM = pxToRem(73);
+const pxToRem = (px: number) => `${px / 16}rem`;
+const HEADER_HEIGHT_REM = pxToRem(73);
 
-// const MapDisabledPage = () => {
-//   const navigate = useNavigate();
-//   const [center, setCenter] = useState({ lat: 33.450701, lng: 126.570667 });
-//   const [locationLabel, setLocationLabel] = useState("장충동");
-//   const [radiusKm, setRadiusKm] = useState(1);
-//   const mapRef = useRef<kakao.maps.Map | null>(null);
+const MapDisabledPage = () => {
+  const navigate = useNavigate();
+  const { user } = useUserStore();
 
-//   const moveToCurrentLocation = useCallback(() => {
-//     if (!navigator.geolocation) return;
+ 
+  const findType = useMapStore((s) => s.findType);
+  const center = useMapStore((s) => s.center);
+  const radiusKm = useMapStore((s) => s.radiusKm);
+  const helpers = useMapStore((s) => s.helpers);
 
-//     navigator.geolocation.getCurrentPosition((pos) => {
-//       const nextCenter = {
-//         lat: pos.coords.latitude,
-//         lng: pos.coords.longitude,
-//       };
+  const setFindType = useMapStore((s) => s.setFindType);
+  const setCenter = useMapStore((s) => s.setCenter);
+  const setRadiusKm = useMapStore((s) => s.setRadiusKm);
+  const setHelpers = useMapStore((s) => s.setHelpers);
+  const clearHelpers = useMapStore((s) => s.clearHelpers);
 
-//       setCenter(nextCenter);
-//       setLocationLabel("현재 위치");
-//       if (mapRef.current) {
-//         mapRef.current.setCenter(
-//           new kakao.maps.LatLng(nextCenter.lat, nextCenter.lng)
-//         );
-//       }
-//     });
-//   }, []);
+  
+  const locationLabel = useMemo(
+    () => (findType === "CURRENT" ? "현재 위치" : "집"),
+    [findType]
+  );
 
-//   /** 최초 진입 시 현재 위치 */
-//   useEffect(() => {
-//     moveToCurrentLocation();
-//   }, [moveToCurrentLocation]);
+  const [loading, setLoading] = useState(false);
 
-//   return (
-//     <Container>
-//       <HeaderWrapper>
-//         <Header title="동네지도" showBack onBack={() => navigate(-1)} />
-//       </HeaderWrapper>
+  /** 현재 위치 기준 */
+  const moveToCurrentLocation = useCallback(() => {
+    if (!navigator.geolocation) return;
 
-//       <Content>
-//         <MapBasePage center={center} radius={radiusKm * 1000} />
-//       </Content>
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setFindType("CURRENT");
+      },
+      () => {
+        
+        setFindType("HOME");
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }, [setCenter, setFindType]);
 
-//       <BottomSheetWrapper>
-//         <MapDisabledBottomSheet
-//           onClickCurrentLocation={moveToCurrentLocation}
-//           locationLabel={locationLabel}
-//           radius={radiusKm}
-//           onChangeRadius={setRadiusKm}
-//         />
-//       </BottomSheetWrapper>
-//     </Container>
-//   );
-// };
+  /** 집(프로필) 기준 */
+  const moveToHomeLocation = useCallback(() => {
+    setFindType("HOME");
 
-// export default MapDisabledPage;
+    
+    if (user?.latitude != null && user?.longitude != null) {
+      setCenter({ lat: user.latitude, lng: user.longitude });
+    }
+  }, [setCenter, setFindType, user]);
 
-// const Container = styled.div`
-//   background-color: ${({ theme }) => theme.color.white};
-//   height: 100vh;
-//   overflow: hidden;
-//   position: relative;
-// `;
+  /** 최초 진입 → 현재 위치 */
+  useEffect(() => {
+    moveToCurrentLocation();
+  }, [moveToCurrentLocation]);
 
-// const HeaderWrapper = styled.div`
-//   width: 100%;
-//   padding: 0 16px;
-//   box-sizing: border-box;
-//   height: ${HEADER_HEIGHT_REM};
-// `;
+  /** 기준 위치 or 반경 변경 시 API 호출 */
+  useEffect(() => {
+    let alive = true;
 
-// const Content = styled.div`
-//   position: absolute;
-//   top: ${HEADER_HEIGHT_REM};
-//   left: 0;
-//   width: 100%;
-//   height: calc(100vh - ${HEADER_HEIGHT_REM});
-// `;
+    (async () => {
+      try {
+        setLoading(true);
 
-// const BottomSheetWrapper = styled.div`
-//   position: fixed;
-//   left: 0;
-//   right: 0;
-//   bottom: 0;
-//   z-index: 999;
-//   pointer-events: none;
-// `;
+   
+        const params =
+          findType === "CURRENT"
+            ? {
+                type: "CURRENT" as const,
+                latitude: center.lat,
+                longitude: center.lng,
+                radius: radiusKm, // km
+              }
+            : {
+                type: "HOME" as const,
+                radius: radiusKm, // km
+              };
+
+        const res = await mapApi.getNearByHelpers(params as any);
+
+        if (!alive) return;
+        setHelpers(res.nearByHelpers ?? []);
+      } catch (e) {
+        if (!alive) return;
+        clearHelpers();
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [center.lat, center.lng, radiusKm, findType, setHelpers, clearHelpers]);
+
+  return (
+    <Container>
+      <HeaderWrapper>
+        <Header title="동네지도" showBack onBack={() => navigate(-1)} />
+      </HeaderWrapper>
+
+      <Content>
+        <MapBasePage
+          mode="HELPER"
+          center={center}
+          radius={radiusKm * 1000} 
+          markers={helpers} 
+        />
+      </Content>
+
+      <BottomSheetWrapper>
+        <MapDisabledBottomSheet
+          onClickCurrentLocation={moveToCurrentLocation}
+          onClickHomeLocation={moveToHomeLocation}
+          addressRoad={user?.addressRoad ?? ""}
+          locationLabel={locationLabel}
+          radius={radiusKm}
+          onChangeRadius={setRadiusKm}
+        />
+      </BottomSheetWrapper>
+    </Container>
+  );
+};
+export default MapDisabledPage;
+
+const Container = styled.div`
+  height: 100vh;
+  background: white;
+  overflow: hidden;
+  position: relative;
+`;
+
+const HeaderWrapper = styled.div`
+  width: 100%;
+  padding: 0 16px;
+  box-sizing: border-box;
+  height: ${HEADER_HEIGHT_REM};
+`;
+
+const Content = styled.div`
+  position: absolute;
+  top: ${HEADER_HEIGHT_REM};
+  left: 0;
+  width: 100%;
+  height: calc(100vh - ${HEADER_HEIGHT_REM});
+`;
+
+const BottomSheetWrapper = styled.div`
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  pointer-events: none;
+`;

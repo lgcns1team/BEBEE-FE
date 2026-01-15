@@ -42,6 +42,7 @@ import BadgeDetailPage from "./domain/Badge/page/BadgeDetailPage";
 import BadgeSharePage from "./domain/Badge/page/BadgeSharePage";
 import ProfilePage from "./domain/profile/pages/ProfilePage";
 import LoadingPage from "./domain/auth/pages/LoadingPage";
+import MapPage from "./domain/map/pages/MapPage";
 
 function App() {
   // 모바일 브라우저 뷰포트 높이 초기화
@@ -82,7 +83,7 @@ function App() {
           {/* 타인이 보는 프로필 정보 */}
           <Route path="/profile/:memberId" element={<ProfilePage />} />
           {/*동네지도*/}
-          <Route path="/map" element={<MapHelperPage />} />
+          <Route path="/map" element={<MapPage />} />
           {/* <Route path="/map/disabled" element={<MapDisabledPage />} /> */}
           <Route path="/map/helper" element={<MapHelperPage />} />
 
