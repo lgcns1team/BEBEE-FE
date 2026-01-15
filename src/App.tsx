@@ -43,7 +43,7 @@ import BadgeSharePage from "./domain/Badge/page/BadgeSharePage";
 import ProfilePage from "./domain/profile/pages/ProfilePage";
 import LoadingPage from "./domain/auth/pages/LoadingPage";
 import MapPage from "./domain/map/pages/MapPage";
-
+import "./reset.css"
 function App() {
   // 모바일 브라우저 뷰포트 높이 초기화
   useEffect(() => {
