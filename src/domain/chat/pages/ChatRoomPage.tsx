@@ -27,87 +27,40 @@ const ChatRoom = () => {
   // 현재 유효한 chatroomId를 추적하기 위한 ref
   const currentChatroomIdRef = useRef<string | undefined>(chatroomId);
   const isMountedRef = useRef(true);
-  const initialViewportHeightRef = useRef<number>(0);
   const chatInputRef = useRef<HTMLDivElement>(null);
   const lastAnnouncedMessageIdRef = useRef<string | null>(null);
   const hasInitializedMessagesRef = useRef(false);
 
   // PWA 환경에서 키보드가 올라갈 때 document 스크롤 제어 및 ChatInput 위치 조정
   useEffect(() => {
-    // Visual Viewport API 지원 여부 확인
-    if (!window.visualViewport) {
-      return;
-    }
+    const vv = window.visualViewport;
+    if (!vv) return;
 
-    // ref를 변수에 저장하여 cleanup에서 사용
     const inputElement = chatInputRef.current;
 
     const handleViewportResize = () => {
-      const visualViewport = window.visualViewport;
-      const currentViewportHeight = visualViewport.height;
-      const windowHeight = window.innerHeight;
+      if (!chatInputRef.current) return;
+      const keyboardHeight = Math.max(
+        0,
+        window.innerHeight - vv.height - vv.offsetTop
+      );
+      const isKeyboardVisible = keyboardHeight > 50;
 
-      // 초기 viewport 높이 저장
-      if (initialViewportHeightRef.current === 0) {
-        initialViewportHeightRef.current = currentViewportHeight;
-      }
-
-      // 키보드가 나타났는지 확인 (viewport 높이가 줄어들었는지)
-      const heightDifference =
-        initialViewportHeightRef.current - currentViewportHeight;
-      const isKeyboardVisible = heightDifference > 50; // 50px 이상 차이나면 키보드로 간주
-
-      if (isKeyboardVisible) {
-        // 키보드가 나타났을 때
-        requestAnimationFrame(() => {
-          // document 스크롤을 맨 위로 고정하여 ChatRoomCard가 상단에 유지되도록
-          window.scrollTo({
-            top: 0,
-            behavior: "instant" as ScrollBehavior,
-          });
-
-          // ChatInput을 키보드 위로 올리기
-          const currentInputElement = chatInputRef.current;
-          if (currentInputElement) {
-            // 키보드 높이 계산 (window 높이 - viewport 높이)
-            const keyboardHeight = windowHeight - currentViewportHeight;
-            // ChatInput을 키보드 위에 위치시키기 위해 bottom 값을 키보드 높이로 설정
-            currentInputElement.style.bottom = `${keyboardHeight}px`;
-            currentInputElement.style.position = "fixed";
-          }
-        });
-      } else {
-        // 키보드가 사라졌을 때: 초기 높이 복원 및 ChatInput 위치 초기화
-        initialViewportHeightRef.current = currentViewportHeight;
-        const currentInputElement = chatInputRef.current;
-        if (currentInputElement) {
-          currentInputElement.style.bottom = "0";
-          currentInputElement.style.position = "sticky";
-        }
-      }
+      // 입력창을 키보드 위로 올리되, padding/스타일은 그대로 유지
+      chatInputRef.current.style.bottom = isKeyboardVisible
+        ? `${keyboardHeight}px`
+        : "env(safe-area-inset-bottom, 0px)";
     };
 
-    // Visual Viewport resize 이벤트 리스너 등록
-    window.visualViewport.addEventListener("resize", handleViewportResize);
-    window.visualViewport.addEventListener("scroll", handleViewportResize);
+    vv.addEventListener("resize", handleViewportResize);
+    vv.addEventListener("scroll", handleViewportResize);
+    handleViewportResize();
 
-    // 초기 viewport 높이 저장
-    initialViewportHeightRef.current = window.visualViewport.height;
-
-    // Cleanup
     return () => {
-      window.visualViewport?.removeEventListener(
-        "resize",
-        handleViewportResize
-      );
-      window.visualViewport?.removeEventListener(
-        "scroll",
-        handleViewportResize
-      );
-      // Cleanup 시 ChatInput 위치 초기화
+      vv.removeEventListener("resize", handleViewportResize);
+      vv.removeEventListener("scroll", handleViewportResize);
       if (inputElement) {
-        inputElement.style.bottom = "0";
-        inputElement.style.position = "sticky";
+        inputElement.style.bottom = "env(safe-area-inset-bottom, 0px)";
       }
     };
   }, []);
@@ -298,10 +251,12 @@ const ChatContainer = styled.div`
 `;
 
 const ChatInputWrapper = styled.div`
-  position: sticky;
-  bottom: 0;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: env(safe-area-inset-bottom, 0px);
   flex-shrink: 0;
   width: 100%;
   background: white;
-  padding: 0 16px;
+  z-index: 30;
 `;
