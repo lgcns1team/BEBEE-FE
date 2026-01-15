@@ -27,7 +27,34 @@ const ProfileDetailSection = () => {
     };
   }, [profileId, fetchMemberProfile, clearProfile]);
 
-  
+  const badges = profile.badges ?? [];
+  const badgeText =
+    badges.length > 0
+      ? badges
+          .map((b: any) =>
+            typeof b === "string" ? b : b?.name ?? b?.title ?? b?.label ?? ""
+          )
+          .filter(Boolean)
+          .join(", ")
+      : "";
+
+  const genderText = profile.gender === "MALE" ? "남성" : "여성";
+  const helpCategoryText =
+    profile.helpCategories?.length > 0
+      ? profile.helpCategories.join(", ")
+      : "-";
+  const introText = profile.introduction?.trim() ? profile.introduction : "-";
+
+  const srSummary = [
+    `도우미 프로필 정보입니다.`,
+    `닉네임 ${profile.nickname}.`,
+    `뱃지 ${badgeText ? badgeText : "없음"}.`,
+    `성별 ${genderText}.`,
+    `나이 ${profile.ageGroup ?? "-"}대.`,
+    `주소 ${profile.address ?? "-"}.`,
+    `주요 도움 유형 ${helpCategoryText}.`,
+    `한줄 소개 ${introText}.`,
+  ].join(" ");
   if (isLoading) {
     return <Info>로딩 중...</Info>;
   }
@@ -51,7 +78,8 @@ const ProfileDetailSection = () => {
   ];
 
   return (
-    <Info>
+    <Info aria-label={srSummary}>
+      <div aria-hidden="true">
       <Top>
         <ProfileImageWrapper>
             <ProfileImage src={profile.profileImageUrl ?? ""} alt="프로필" />
@@ -77,7 +105,9 @@ const ProfileDetailSection = () => {
           </InfoRow>
         ))}
       </Bottom>
+      </div>
     </Info>
+    
   );
 };
 
