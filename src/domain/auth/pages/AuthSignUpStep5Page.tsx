@@ -103,19 +103,7 @@ const AuthSignUpStep5Page = () => {
     }
   };
 
-  const handleFileClick = () => {
-    fileInputRef.current?.click();
-  };
 
-  const handleNextPage = () => {
-    // fileUrl이 store에 저장되어 있는지 확인
-    const { fileUrl } = useAuthSignUpForm.getState();
-    if (!fileUrl) {
-      alert("파일을 먼저 업로드해주세요.");
-      return;
-    }
-    navigate("/signup/step6");
-  };
 
   return (
     <Layout>
