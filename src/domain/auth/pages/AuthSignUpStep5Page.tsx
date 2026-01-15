@@ -40,9 +40,16 @@ const AuthSignUpStep5Page = () => {
     return null;
   }
 
+  // 파일 선택 시 바로 S3 업로드 + OCR 실행
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("🔥 handleFileSelect 호출됨!", e.target.files);
     const file = e.target.files?.[0];
-    if (!file || !role) return;
+    console.log("📁 선택된 파일:", file);
+    console.log("👤 role:", role);
+    if (!file || !role) {
+      console.log("❌ 파일 또는 role이 없어서 return");
+      return;
+    }
 
     // 업로드/분석은 확인 버튼(handleConfirm)에서 진행
     setSelectedFile(file);
@@ -80,6 +87,7 @@ const AuthSignUpStep5Page = () => {
 
       // 2. 문서 분석 API 호출 (memberId 없이)
       const result = await analyzeDocument(fileUrl, role);
+      console.log(result);
       setSystemFlag(result.systemFlag);
 
       // 3. Step 6으로 이동
@@ -95,6 +103,7 @@ const AuthSignUpStep5Page = () => {
   if (isUploading) {
     return <LoadingPage />;
   }
+
 
   return (
     <Layout>
