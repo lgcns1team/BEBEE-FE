@@ -261,7 +261,7 @@ const Thumbnail = styled.div`
   height: 80px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   overflow: hidden;
-
+margin-top: 20px;
   img {
     width: 100%;
     height: 100%;
