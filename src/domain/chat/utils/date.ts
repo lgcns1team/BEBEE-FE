@@ -1,6 +1,12 @@
 export const formatChatTime = (utcString: string) => {
-  const date = new Date(utcString);
-  const now = new Date();
+  const makeKstDate = (str: string) => {
+    if (!str) return new Date(str);
+    const hasTz = /[zZ]|[+-]\d\d:\d\d$/.test(str);
+    return new Date(hasTz ? str : `${str}Z`);
+  };
+
+  const date = makeKstDate(utcString);
+  const now = makeKstDate(new Date().toISOString());
 
   // 오늘 00:00
   const startOfToday = new Date(
@@ -18,6 +24,7 @@ export const formatChatTime = (utcString: string) => {
     return date.toLocaleTimeString("ko-KR", {
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "Asia/Seoul",
     });
   }
 
@@ -30,5 +37,6 @@ export const formatChatTime = (utcString: string) => {
   return date.toLocaleDateString("ko-KR", {
     month: "2-digit",
     day: "2-digit",
+    timeZone: "Asia/Seoul",
   });
 };

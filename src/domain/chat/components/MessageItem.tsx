@@ -10,25 +10,31 @@ interface Props {
 }
 
 const MessageItem = ({ message, isMe }: Props) => {
-  // 스크린리더용 시간 포맷 (예: 오전04시05분, 오후01시30분)
+  // 스크린리더용 시간 포맷 (예: 오전04시05분, 오후01시30분) - KST 고정
   const formatTimeForSr = (dateString: string) => {
-    const date = new Date(dateString);
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const period = hours < 12 ? "오전" : "오후";
-    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-    const hh = String(displayHours).padStart(2, "0");
-    const mm = String(minutes).padStart(2, "0");
+    const formatter = new Intl.DateTimeFormat("ko-KR", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+      timeZone: "Asia/Seoul",
+    });
+    const parts = formatter.formatToParts(new Date(dateString));
+    const hour = parts.find((p) => p.type === "hour")?.value ?? "";
+    const minute = parts.find((p) => p.type === "minute")?.value ?? "";
+    const period = parts.find((p) => p.type === "dayPeriod")?.value ?? "";
+    const hh = hour.padStart(2, "0");
+    const mm = minute.padStart(2, "0");
     return `${period}${hh}시${mm}분`;
   };
 
-  // 화면 표시용 시간 포맷팅 (예: 14:05)
+  // 화면 표시용 시간 포맷팅 (예: 14:05) - KST 고정
   const formatTimeDisplay = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString("ko-KR", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
+      timeZone: "Asia/Seoul",
     });
   };
 
