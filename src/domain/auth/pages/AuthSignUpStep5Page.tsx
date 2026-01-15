@@ -15,7 +15,7 @@ import LoadingPage from "./LoadingPage";
 
 const AuthSignUpStep5Page = () => {
   const navigate = useNavigate();
-  const { role, email, setUploadedFile, setFileUrl, setSystemFlag } =
+  const { role, email, setUploadedFile, setFileUrl, setSystemFlag, setOcrFields } =
     useAuthSignUpForm();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -102,16 +102,6 @@ const AuthSignUpStep5Page = () => {
   if (isUploading) {
     return <LoadingPage />;
   }
-
-  const handleNextPage = () => {
-    // fileUrl이 store에 저장되어 있는지 확인
-    const { fileUrl } = useAuthSignUpForm.getState();
-    if (!fileUrl) {
-      alert("파일을 먼저 업로드해주세요.");
-      return;
-    }
-    navigate("/signup/step6");
-  };
 
   return (
     <Layout>
