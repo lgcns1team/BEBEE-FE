@@ -36,9 +36,9 @@ const ChatRoom = () => {
   // PWA 환경에서 키보드가 올라갈 때 document 스크롤 제어
   useEffect(() => {
     // Visual Viewport API 지원 여부 확인
-    if (!window.visualViewport) {
-      return;
-    }
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const inputElement = chatInputRef.current;
 
     const handleViewportResize = () => {
       const visualViewport = window.visualViewport;
@@ -53,7 +53,10 @@ const ChatRoom = () => {
       const heightDifference =
         initialViewportHeightRef.current - currentViewportHeight;
       const isKeyboardVisible = heightDifference > 50; // 50px 이상 차이나면 키보드로 간주
-
+      const keyboardHeight = Math.max(
+        0,
+        window.innerHeight - vv.height - vv.offsetTop
+      );
       if (isKeyboardVisible) {
         // 키보드가 나타났을 때: document 스크롤을 맨 위로 고정하여 ChatRoomCard가 상단에 유지되도록
         requestAnimationFrame(() => {
@@ -62,6 +65,9 @@ const ChatRoom = () => {
             behavior: "instant" as ScrollBehavior,
           });
         });
+        chatInputRef.current.style.bottom = isKeyboardVisible
+          ? `${keyboardHeight}px`
+          : "0px";
       } else {
         // 키보드가 사라졌을 때: 초기 높이 복원
         initialViewportHeightRef.current = currentViewportHeight;
@@ -85,6 +91,9 @@ const ChatRoom = () => {
         "scroll",
         handleViewportResize
       );
+      if (inputElement) {
+        inputElement.style.bottom = "0px";
+      }
     };
   }, []);
 
