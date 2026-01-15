@@ -115,7 +115,7 @@ const ApplicantList = ({ applicants, isSharing }: Props) => {
                       state: { applicant },
                     })
                   }
-                  aria-label={`${applicant.nickname} 님 프로필 보기`}
+                  aria-label={`${applicant.nickname} 님 프로필로 이동하려면 두 번 탭하세요`}
                   role="button"
                   tabIndex={0}
                 />
