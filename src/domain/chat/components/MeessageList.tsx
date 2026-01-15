@@ -150,15 +150,8 @@ const MessageList = () => {
     <ListContainer
       ref={scrollRef}
       role="list"
-      aria-label={`채팅 메시지 목록, 총 ${messages.length}개의 메시지`}
-      aria-live="polite"
-      aria-atomic="false"
+      aria-label={`채팅 메시지 목록입니다. 총 ${messages.length}개의 메시지가 있습니다.`}
     >
-      <span className="sr-only">
-        채팅 메시지 목록입니다. 총 {messages.length}개의 메시지가 있습니다.
-        {messages.length > 0 &&
-          ` 첫 번째 메시지부터 ${messages.length}번째 메시지까지 순서대로 읽을 수 있습니다.`}
-      </span>
       {messages.map((msg, index) => {
         // 이전 메시지와 날짜 비교
         const prevMsg = messages[index - 1];

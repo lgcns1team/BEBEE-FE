@@ -72,7 +72,7 @@ export default ChatInput;
 const InputArea = styled.div`
   display: flex;
   align-items: center;
-  padding-top: 16px;
+  padding: 16px 0;
   width: 100%;
   background-color: white;
   border-top: 1px solid #ebebeb;

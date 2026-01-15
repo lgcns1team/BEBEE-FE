@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { chatApi } from "../../../api/chatApi";
 import { postApi } from "../../../api/postApi";
@@ -22,6 +22,8 @@ const ChatRoomCard = () => {
   const [isLoadingPost, setIsLoadingPost] = useState(false);
   const { user } = useUserStore();
   const isHelper = user?.role === "HELPER";
+  const chatHeaderRef = useRef<HTMLDivElement>(null);
+  const lastFocusedChatroomIdRef = useRef<string | null>(null);
   // activeRoom의 matchStatus를 직접 참조하여 항상 최신 상태 반영
   const matchStatus: MatchStatus = activeRoom?.matchStatus ?? "NON_MATCHED";
   const isInteractive = matchStatus === "NON_MATCHED";
@@ -45,6 +47,8 @@ const ChatRoomCard = () => {
   useEffect(() => {
     // chatroomId가 URL에 없으면 실행 안 함
     if (!chatroomId) return;
+    // 채팅방 변경 시, 최초 포커스 상태 초기화
+    lastFocusedChatroomIdRef.current = null;
 
     const fetchRoomDetail = async () => {
       try {
@@ -121,14 +125,48 @@ const ChatRoomCard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPost?.postId, activeRoom?.postId]);
 
+  // 게시글 제목은 postDetail 로딩 후에만 안내
+  const postTitleForSr = postDetail?.title;
+  const roomEntrySrLabel =
+    activeRoom && postTitleForSr
+      ? `${postTitleForSr}, ${
+          activeRoom.otherNickname
+        }님과의 채팅방에 입장했습니다. ${
+          isHelper
+            ? "대화를 통해 상대와 소통할 수 있어요."
+            : "우측 상단의 매칭하기 버튼을 탭하여 매칭확인서를 작성할 수 있어요."
+        }`
+      : "";
+
+  // 채팅방 입장 시 ChatRoomCard에 최초 포커스를 주어 안내 문구를 자연스럽게 읽게 함
+  // (Hook은 항상 호출되어야 하므로 Guard Clause 위에서 선언)
+  useEffect(() => {
+    if (!activeRoom?.chatroomId) return;
+    // 게시글 제목이 준비된 뒤에만 포커스(최소 1회만)
+    if (isLoadingPost) return;
+    if (!postTitleForSr) return;
+    if (lastFocusedChatroomIdRef.current === activeRoom.chatroomId) return;
+
+    lastFocusedChatroomIdRef.current = activeRoom.chatroomId;
+    requestAnimationFrame(() => {
+      chatHeaderRef.current?.focus();
+    });
+  }, [activeRoom?.chatroomId, isLoadingPost, postTitleForSr, isHelper]);
+
   // 3. 렌더링 가드 (Guard Clause)
   if (!activeRoom) {
     return (
-      <div style={{ padding: "20px", textAlign: "center" }}>
+      <div
+        style={{ padding: "20px", textAlign: "center" }}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         채팅방 정보를 불러오는 중...
       </div>
     );
   }
+
   // 프로필 페이지로 이동
   const handleProfileClick = () => {
     navigate(`/profile/${activeRoom.otherId}`);
@@ -143,10 +181,17 @@ const ChatRoomCard = () => {
         showRight
         onTitleClick={() => handleProfileClick()}
       />
-      <ChatHeader role="region" aria-label="채팅방 정보">
+      <ChatHeader
+        ref={chatHeaderRef}
+        tabIndex={-1}
+        role="group"
+        aria-label={roomEntrySrLabel}
+      >
         <HeaderTop role="group" aria-label="게시글 제목 및 매칭 상태">
           <ChatTitle
             id="post-title"
+            role="heading"
+            aria-level={2}
             aria-label={
               isLoadingPost
                 ? "게시글 정보를 불러오는 중입니다"
@@ -158,39 +203,17 @@ const ChatRoomCard = () => {
             {isLoadingPost
               ? "게시글 정보를 불러오는 중..."
               : postDetail?.title || "게시글 제목"}
-            <span className="sr-only">
-              {isLoadingPost
-                ? "게시글 정보를 불러오는 중입니다"
-                : postDetail?.title
-                ? `게시글 제목: ${postDetail.title}`
-                : "게시글 제목 정보가 없습니다"}
-            </span>
           </ChatTitle>
           {/* 매칭하기 버튼 누르면 매칭확인서로 페이지 이동*/}
           <MatchButton
             $status={matchStatus}
             onClick={handleMatchModalClick}
-            aria-describedby="post-title"
             aria-label={
-              isHelper
-                ? `매칭 확인서는 장애인만 작성할 수 있습니다. 현재 매칭 상태: ${
-                    matchStatus === "NON_MATCHED"
-                      ? "매칭 전"
-                      : matchStatus === "PROCEEDING"
-                      ? "진행 중"
-                      : "매칭 완료"
-                  }`
-                : matchStatus === "NON_MATCHED"
-                ? `매칭 확인서 작성하기, ${
-                    postDetail?.title
-                      ? `${postDetail.title} 게시글에 대한 `
-                      : ""
-                  }더블탭하여 매칭 확인서 작성 페이지로 이동`
-                : `현재 매칭 상태: ${
+              matchStatus === "NON_MATCHED"
+                ? "두번 탭하여 매칭확인서를 작성할 수 있습니다."
+                : `현재 매칭은 '${
                     matchStatus === "PROCEEDING" ? "진행 중" : "매칭 완료"
-                  }, 매칭 확인서는 이미 ${
-                    matchStatus === "PROCEEDING" ? "진행 중" : "완료"
-                  }되었습니다`
+                  }' 입니다.`
             }
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
@@ -205,46 +228,17 @@ const ChatRoomCard = () => {
               : matchStatus === "PROCEEDING"
               ? "진행 중"
               : "매칭 완료"}
-            <span className="sr-only">
-              {isHelper
-                ? "매칭 확인서는 장애인만 작성할 수 있습니다"
-                : matchStatus === "NON_MATCHED"
-                ? postDetail?.title
-                  ? `${postDetail.title} 게시글에 대한 매칭 확인서 작성 페이지로 이동합니다. Enter 키 또는 Space 키를 누르면 실행됩니다.`
-                  : "매칭 확인서 작성 페이지로 이동합니다. Enter 키 또는 Space 키를 누르면 실행됩니다."
-                : `현재 상태: ${
-                    matchStatus === "PROCEEDING" ? "진행 중" : "매칭 완료"
-                  }`}
-            </span>
           </MatchButton>
         </HeaderTop>
 
-        <HelpTagBox
-          role="list"
-          aria-label={`도움 카테고리 목록, ${
-            postDetail?.helpCategoryIds && postDetail.helpCategoryIds.length > 0
-              ? `총 ${postDetail.helpCategoryIds.length}개`
-              : "없음"
-          }`}
-        >
+        <HelpTagBox aria-hidden="true">
           {postDetail?.helpCategoryIds &&
           postDetail.helpCategoryIds.length > 0 ? (
             <>
-              <span className="sr-only">
-                도움 카테고리 {postDetail.helpCategoryIds.length}개
-              </span>
-              {postDetail.helpCategoryIds.map((categoryId, index) => {
+              {postDetail.helpCategoryIds.map((categoryId) => {
                 const categoryName = HELP_TAG_MAP[categoryId];
                 return categoryName ? (
-                  <HelpTag
-                    key={categoryId}
-                    role="listitem"
-                    aria-label={`${categoryName}, ${index + 1}번째 카테고리`}
-                    aria-posinset={index + 1}
-                    aria-setsize={postDetail.helpCategoryIds.length}
-                  >
-                    {categoryName}
-                  </HelpTag>
+                  <HelpTag key={categoryId}>{categoryName}</HelpTag>
                 ) : null;
               })}
             </>
