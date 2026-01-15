@@ -15,7 +15,7 @@ const Wrapper = styled.main<{ bg?: boolean }>`
   height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding: 0px 16px;
+  padding: 12px 14px;
   box-sizing: border-box;
   overflow: hidden;
   background-color: ${({ bg, theme }) =>

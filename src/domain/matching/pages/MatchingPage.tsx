@@ -65,7 +65,10 @@ const MatchingPage = () => {
   // Pull to Refresh 핸들러
   const handleRefresh = async () => {
     try {
-      const res = await getEngagements({ date: selectedDate, type: selectedType });
+      const res = await getEngagements({
+        date: selectedDate,
+        type: selectedType,
+      });
       setEngagements(res.data.engagements ?? []);
     } catch (e) {
       console.error("새로고침 실패", e);
@@ -130,22 +133,23 @@ const MatchingPage = () => {
 
           <Category activeTab={activeTab} onChange={setActiveTab} />
         </StickyBox>
-
-        <PullToRefreshWrapper onRefresh={handleRefresh}>
-          <ScrollArea>
-            {engagements.length === 0 ? (
-              <Empty>선택한 날짜에 활동이 없습니다.</Empty>
-            ) : (
-              engagements.map((eng) => (
-                <MatchingPostCard
-                  key={eng.engagementId}
-                  engagement={eng}
-                  onComplete={handleComplete}
-                />
-              ))
-            )}
-          </ScrollArea>
-        </PullToRefreshWrapper>
+        <FlexContainer>
+          <PullToRefreshWrapper onRefresh={handleRefresh}>
+            <ScrollArea>
+              {engagements.length === 0 ? (
+                <Empty>선택한 날짜에 활동이 없습니다.</Empty>
+              ) : (
+                engagements.map((eng) => (
+                  <MatchingPostCard
+                    key={eng.engagementId}
+                    engagement={eng}
+                    onComplete={handleComplete}
+                  />
+                ))
+              )}
+            </ScrollArea>
+          </PullToRefreshWrapper>
+        </FlexContainer>
         <NavBar />
       </PageContainer>
     </Layout>
@@ -172,8 +176,14 @@ const StickyBox = styled.div`
 const ScrollArea = styled.div`
   flex: 1;
   overflow-y: auto;
+  padding-bottom: 100px;
 `;
-
+const FlexContainer = styled.div`
+  flex: 1;
+  overflow: hidden; /* 내부에서만 스크롤 되도록 설정 */
+  display: flex;
+  flex-direction: column;
+`;
 const Empty = styled.div`
   padding: 40px;
   text-align: center;

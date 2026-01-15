@@ -62,7 +62,7 @@ const ChargePage = () => {
       <Header onBack={() => navigate(-1)} showBack title="꿀 충전" />
 
       <Content>
-        <MainTitle>꿀 충전</MainTitle>
+        {/* <MainTitle>꿀 충전</MainTitle> */}
         <PayBox>
           {amount === "" ? (
             <PlaceholderText>얼마나 충전할까요 ?</PlaceholderText>
@@ -150,13 +150,13 @@ const Content = styled.main`
   padding: 40px 24px 24px;
 `;
 
-const MainTitle = styled.h2`
-  font-size: ${({ theme }) => theme.size.lg};
-  font-weight: 700;
-  color: ${({ theme }) => theme.color.text};
-  text-align: center;
-  margin: 0 0 40px;
-`;
+// const MainTitle = styled.h2`
+//   font-size: ${({ theme }) => theme.size.lg};
+//   font-weight: 700;
+//   color: ${({ theme }) => theme.color.text};
+//   text-align: center;
+//   margin: 0 0 40px;
+// `;
 
 const PlaceholderText = styled.p`
   font-size: ${({ theme }) => theme.size.lg};

@@ -5,7 +5,7 @@ import styled from "styled-components";
 export const FieldSet = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 `;
 
 export const InputLabel = styled.label`
@@ -19,14 +19,17 @@ export const RequiredMark = styled.span`
   color: ${({ theme }) => theme.color.red500};
 `;
 
-export const InputBox = styled.input<{ disabled?: boolean }>`
+export const InputBox = styled.input<{
+  disabled?: boolean;
+  $a11yDisabled?: boolean;
+}>`
   width: 100%;
   font-size: ${({ theme }) => theme.size.md};
   padding: 1rem;
   border: 0.5px solid ${({ theme }) => theme.color.subText3};
   border-radius: 8px;
-  background-color: ${({ disabled, theme }) =>
-    disabled ? theme.color.natural100 : theme.color.white};
+  background-color: ${({ disabled, $a11yDisabled, theme }) =>
+    disabled || $a11yDisabled ? theme.color.natural100 : theme.color.white};
   color: ${({ theme }) => theme.color.text};
 
   &:focus {

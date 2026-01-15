@@ -23,8 +23,8 @@ const ApplicationStatusSection = () => {
   return (
     <Container>
       <Box>
-        <Info>
-          <TextContainer>
+        <Info role="button" tabIndex={0} aria-label={`지원 현황을 확인해 보세요. 총 ${totalApplicantCount}명의 지원자가 있습니다.`}>
+          <TextContainer aria-hidden="true">
             <Title>지원 현황 확인하기</Title>
             <SubTitle>
               총 {totalApplicantCount}명의
@@ -32,13 +32,13 @@ const ApplicationStatusSection = () => {
               지원자가 있어요
             </SubTitle>
           </TextContainer>
-          <ImgContainer></ImgContainer>
+          <ImgContainer aria-hidden="true"></ImgContainer>
         </Info>
         <div style={{ height: "0.5rem" }} />
         <BaseLongButton
           onClick={() => navigate("/applicate-landing")}
           label="보러가기"
-          aria-label="지원자 보러가기 버튼"
+          aria-label="지원자를 확인하려면 두번 탭하세요"
         ></BaseLongButton>
       </Box>
     </Container>

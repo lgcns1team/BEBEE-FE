@@ -4,19 +4,22 @@ import styled from "styled-components";
 
 import { useOtherMemberStore } from "../../store/useOtherMemberStore";
 import BadgeChips from "../../../Badge/components/BadgeChips";
+import { DISABILITY_TYPES } from "../../../../constants/disabilityTypes";
 
+// BadgeChips랑 동일한 코드
+type BadgeCode = "LEVEL_1" | "LEVEL_2" | null;
+
+const getBadgeTitle = (label: string, code: BadgeCode) => {
+  if (code === "LEVEL_1") return `${label} 조력자`;
+  if (code === "LEVEL_2") return `${label} 전문가`;
+  return null;
+};
 const ProfileDetailSection = () => {
   const { profileId } = useParams<{ profileId: string }>();
 
-  const {
-    profile,
-    isLoading,
-    error,
-    fetchMemberProfile,
-    clearProfile,
-  } = useOtherMemberStore();
+  const { profile, isLoading, error, fetchMemberProfile, clearProfile } =
+    useOtherMemberStore();
 
- 
   useEffect(() => {
     if (!profileId) return;
 
@@ -27,7 +30,43 @@ const ProfileDetailSection = () => {
     };
   }, [profileId, fetchMemberProfile, clearProfile]);
 
-  
+  const badges = profile.badges ?? [];
+
+const badgeTitles = badges
+  .map((b: any) => {
+    const disability = DISABILITY_TYPES.find(
+      (d) => d.id === b.disabilityCategoryId
+    );
+
+    if (!disability) return null;
+
+    const title = getBadgeTitle(disability.name, b.badgeCode);
+    if (!title) return null;
+
+    
+    const count = b.count ?? 1;
+    return count > 1 ? `${title} ${count}개` : title;
+  })
+  .filter(Boolean) as string[];
+
+const badgeText = badgeTitles.join(", ");
+  const genderText = profile.gender === "MALE" ? "남성" : "여성";
+  const helpCategoryText =
+    profile.helpCategories?.length > 0
+      ? profile.helpCategories.join(", ")
+      : "-";
+  const introText = profile.introduction?.trim() ? profile.introduction : "-";
+
+  const srSummary = [
+    `도우미 프로필 정보입니다.`,
+    `닉네임 ${profile.nickname}.`,
+    `뱃지 ${badgeText ? badgeText : "없음"}.`,
+    `성별 ${genderText}.`,
+    `나이 ${profile.ageGroup ?? "-"}대.`,
+    `주소 ${profile.address ?? "-"}.`,
+    `주요 도움 유형 ${helpCategoryText}.`,
+    `한줄 소개 ${introText}.`,
+  ].join(" ");
   if (isLoading) {
     return <Info>로딩 중...</Info>;
   }
@@ -51,9 +90,10 @@ const ProfileDetailSection = () => {
   ];
 
   return (
-    <Info>
-      <Top>
-        <ProfileImageWrapper>
+    <Info aria-label={srSummary} tabIndex={0} role="button">
+      <div aria-hidden="true">
+        <Top>
+          <ProfileImageWrapper>
             <ProfileImage src={profile.profileImageUrl ?? ""} alt="프로필" />
           </ProfileImageWrapper>
 
@@ -67,16 +107,17 @@ const ProfileDetailSection = () => {
                 </BadgeWrapper>
               )}
           </TopRight>
-      </Top>
+        </Top>
 
-      <Bottom>
-        {infoList.map(({ label, value }) => (
-          <InfoRow key={label}>
-            <InfoLabel>{label}</InfoLabel>
-            <InfoValue>{value ?? "-"}</InfoValue>
-          </InfoRow>
-        ))}
-      </Bottom>
+        <Bottom>
+          {infoList.map(({ label, value }) => (
+            <InfoRow key={label}>
+              <InfoLabel>{label}</InfoLabel>
+              <InfoValue>{value ?? "-"}</InfoValue>
+            </InfoRow>
+          ))}
+        </Bottom>
+      </div>
     </Info>
   );
 };
@@ -113,7 +154,6 @@ const ProfileImage = styled.img`
   height: 100%;
   object-fit: cover;
 `;
-
 
 const TopRight = styled.div`
   display: flex;
@@ -154,5 +194,3 @@ const InfoValue = styled.div`
   line-height: 1.4;
   word-break: break-word;
 `;
-
-

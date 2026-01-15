@@ -10,23 +10,31 @@ interface Props {
 }
 
 const MessageItem = ({ message, isMe }: Props) => {
-  // 시간 포맷팅 (예: 오전 4시 40분, 오후 1시 30분)
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const period = hours < 12 ? "오전" : "오후";
-    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-    return `${period} ${displayHours}시 ${minutes}분`;
+  // 스크린리더용 시간 포맷 (예: 오전04시05분, 오후01시30분) - KST 고정
+  const formatTimeForSr = (dateString: string) => {
+    const formatter = new Intl.DateTimeFormat("ko-KR", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+      timeZone: "Asia/Seoul",
+    });
+    const parts = formatter.formatToParts(new Date(dateString));
+    const hour = parts.find((p) => p.type === "hour")?.value ?? "";
+    const minute = parts.find((p) => p.type === "minute")?.value ?? "";
+    const period = parts.find((p) => p.type === "dayPeriod")?.value ?? "";
+    const hh = hour.padStart(2, "0");
+    const mm = minute.padStart(2, "0");
+    return `${period}${hh}시${mm}분`;
   };
 
-  // 화면 표시용 시간 포맷팅 (예: 14:05)
+  // 화면 표시용 시간 포맷팅 (예: 14:05) - KST 고정
   const formatTimeDisplay = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString("ko-KR", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
+      timeZone: "Asia/Seoul",
     });
   };
 
@@ -35,12 +43,10 @@ const MessageItem = ({ message, isMe }: Props) => {
     return (
       <MessageWrapper
         role="group"
-        aria-label={`${formatTime(message.createdAt)} 매칭 확인서 메시지`}
+        tabIndex={0}
+        aria-label={`${formatTimeForSr(message.createdAt)} 매칭 확인서 메시지`}
       >
         <MatchResult data={message} />
-        <span className="sr-only">
-          {formatTime(message.createdAt)} 매칭 확인서 메시지
-        </span>
       </MessageWrapper>
     );
   }
@@ -49,12 +55,10 @@ const MessageItem = ({ message, isMe }: Props) => {
     return (
       <MessageWrapper
         role="group"
-        aria-label={`${formatTime(message.createdAt)} 매칭 성공 메시지`}
+        tabIndex={0}
+        aria-label={`${formatTimeForSr(message.createdAt)} 매칭 성공 메시지`}
       >
         <MatchSuccess message={message} />
-        <span className="sr-only">
-          {formatTime(message.createdAt)} 매칭 성공 메시지
-        </span>
       </MessageWrapper>
     );
   }
@@ -63,25 +67,25 @@ const MessageItem = ({ message, isMe }: Props) => {
     return (
       <MessageWrapper
         role="group"
-        aria-label={`${formatTime(message.createdAt)} 매칭 실패 메시지`}
+        tabIndex={0}
+        aria-label={`${formatTimeForSr(message.createdAt)} 매칭 실패 메시지`}
       >
         <MatchFail />
-        <span className="sr-only">
-          {formatTime(message.createdAt)} 매칭 실패 메시지
-        </span>
       </MessageWrapper>
     );
   }
 
   // 2. 일반 텍스트 메시지인 경우 (말풍선 사용)
+  const text = (message.textContent || "").trim() || "내용 없음";
   const messageLabel = isMe
-    ? `${formatTime(message.createdAt)} 내가 보낸 메시지 "${message.textContent || "내용 없음"}"`
-    : `${formatTime(message.createdAt)} 상대방이 보낸 메시지 "${message.textContent || "내용 없음"}"`;
+    ? `내가보낸메세지 ${formatTimeForSr(message.createdAt)} ${text}`
+    : `상대방메세지 ${formatTimeForSr(message.createdAt)} ${text}`;
 
   return (
     <MessageRow
       $isMe={isMe}
       role="listitem"
+      tabIndex={0}
       aria-label={messageLabel}
     >
       {isMe && (
@@ -97,7 +101,6 @@ const MessageItem = ({ message, isMe }: Props) => {
           {formatTimeDisplay(message.createdAt)}
         </MessageTime>
       )}
-      <span className="sr-only">{messageLabel}</span>
     </MessageRow>
   );
 };

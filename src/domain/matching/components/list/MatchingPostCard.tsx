@@ -187,7 +187,7 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-bottom: 80px;
+  padding-bottom: 20px;
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural100};
   cursor: pointer;
   // 마우스 클릭시에는 안보이고 키보드/보조기기 사용자에게만 표시됩니다.

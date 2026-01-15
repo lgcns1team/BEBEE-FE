@@ -39,6 +39,15 @@ const DayHelpForm = ({
   const startTimeInputRef = useRef<HTMLInputElement>(null);
   const endTimeInputRef = useRef<HTMLInputElement>(null);
   const required = true;
+
+  const formatKoreanTimeForSr = (date: Date) => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const period = hours < 12 ? "오전" : "오후";
+    const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    const minuteStr = minutes === 0 ? "" : ` ${minutes}분`;
+    return `${period} ${displayHours}시${minuteStr}`;
+  };
   /** 날짜 */
   const handleCalendarIconClick = () => {
     datePickerInputRef.current?.click();
@@ -66,7 +75,7 @@ const DayHelpForm = ({
   };
 
   return (
-    <>
+    <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
       <DatePickerGlobalStyle />
       <FieldSet role="group" aria-label="하루 도움 날짜 및 시간 입력">
         <ModalLabel>
@@ -115,13 +124,20 @@ const DayHelpForm = ({
               showTimeSelect
               showTimeSelectOnly
               timeIntervals={30}
-              dateFormat="HH:mm"
+              timeFormat="HH시 mm분"
+              dateFormat="HH시 mm분"
               locale={ko}
               customInput={
                 <StyledTimeInput
                   ref={startTimeInputRef}
                   readOnly
-                  aria-label="시작 시간 선택"
+                  aria-label={
+                    dayEngagement.startTime
+                      ? `시작 시간 선택, 현재 ${formatKoreanTimeForSr(
+                          dayEngagement.startTime
+                        )} 선택됨`
+                      : "시작 시간 선택"
+                  }
                 />
               }
             />
@@ -133,17 +149,15 @@ const DayHelpForm = ({
             </TimeIconWrapper>
             <span className="sr-only">
               {dayEngagement.startTime
-                ? `선택된 시작 시간: ${dayEngagement.startTime.toLocaleTimeString("ko-KR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}`
+                ? `선택된 시작 시간: ${formatKoreanTimeForSr(
+                    dayEngagement.startTime
+                  )}`
                 : "시작 시간을 선택해주세요"}
             </span>
           </TimeInputWrapper>
 
           <TimeSeparator aria-label="시간 범위 구분">
-            ~
-            <span className="sr-only">부터</span>
+            ~<span className="sr-only">부터</span>
           </TimeSeparator>
 
           <TimeInputWrapper>
@@ -153,13 +167,20 @@ const DayHelpForm = ({
               showTimeSelect
               showTimeSelectOnly
               timeIntervals={30}
-              dateFormat="HH:mm"
+              timeFormat="HH시 mm분"
+              dateFormat="HH시 mm분"
               locale={ko}
               customInput={
                 <StyledTimeInput
                   ref={endTimeInputRef}
                   readOnly
-                  aria-label="종료 시간 선택"
+                  aria-label={
+                    dayEngagement.endTime
+                      ? `종료 시간 선택, 현재 ${formatKoreanTimeForSr(
+                          dayEngagement.endTime
+                        )} 선택됨`
+                      : "종료 시간 선택"
+                  }
                 />
               }
             />
@@ -171,16 +192,15 @@ const DayHelpForm = ({
             </TimeIconWrapper>
             <span className="sr-only">
               {dayEngagement.endTime
-                ? `선택된 종료 시간: ${dayEngagement.endTime.toLocaleTimeString("ko-KR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}`
+                ? `선택된 종료 시간: ${formatKoreanTimeForSr(
+                    dayEngagement.endTime
+                  )}`
                 : "종료 시간을 선택해주세요"}
             </span>
           </TimeInputWrapper>
         </TimeWrapper>
       </FieldSet>
-    </>
+    </div>
   );
 };
 

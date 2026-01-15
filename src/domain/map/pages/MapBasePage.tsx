@@ -4,8 +4,8 @@ import styled from "styled-components";
 
 import type { NearByPostDto, NearByHelperDto } from "../../../types/map.type";
 import CurrentLocationImage from "../components/images/current-location-red-with-radius.svg";
-import MapHelper from "../../../assets/images/map-helper.svg"
-import MapDisabled from "../../../assets/images/map-disabled.svg"
+import MapHelper from "../../../assets/images/map-helper.png"
+import MapDisabled from "../../../assets/images/map-disabled.png"
 type Center = { lat: number; lng: number };
 
 type Props =
