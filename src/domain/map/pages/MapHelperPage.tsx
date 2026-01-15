@@ -17,7 +17,7 @@ const MapHelperPage = () => {
   const navigate = useNavigate();
   const { user } = useUserStore();
 
-  // ✅ store
+  
   const findType = useMapStore((s) => s.findType);
   const center = useMapStore((s) => s.center);
   const radiusKm = useMapStore((s) => s.radiusKm);
@@ -32,7 +32,7 @@ const MapHelperPage = () => {
     [findType]
   );
 
-  /** ✅ 주변 게시글 조회 훅 */
+
   const { loading } = useNearbyPosts({
     type: findType,
     latitude: center.lat,
@@ -50,7 +50,7 @@ const MapHelperPage = () => {
         setFindType("CURRENT");
       },
       () => {
-        // 실패 시 HOME fallback
+       
         setFindType("HOME");
       },
       { enableHighAccuracy: true, timeout: 8000 }
@@ -61,7 +61,7 @@ const MapHelperPage = () => {
   const moveToHomeLocation = useCallback(() => {
     setFindType("HOME");
 
-    // 지도 중심 이동용 (요청에는 HOME이면 좌표 안 보내도 됨)
+    // 지도 중심 이동용 
     if (user?.latitude != null && user?.longitude != null) {
       setCenter({ lat: user.latitude, lng: user.longitude });
     }
@@ -80,11 +80,11 @@ const MapHelperPage = () => {
 
       <Content>
         <MapBasePage
-          mode="POST"              // ✅ MapBasePage가 게시글 마커 모드 구분한다면
+          mode="POST"              
           center={center}
-          radius={radiusKm * 1000} // 지도 원은 m
-          markers={posts}          // ✅ posts를 marker로 전달
-          loading={loading}        // MapBasePage가 받는다면
+          radius={radiusKm * 1000} 
+          markers={posts}          
+                 
         />
       </Content>
 

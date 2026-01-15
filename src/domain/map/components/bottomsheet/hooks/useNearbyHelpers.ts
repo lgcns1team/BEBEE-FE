@@ -7,14 +7,14 @@ type Args = {
   type: MapFindType;
   latitude?: number;
   longitude?: number;
-  radiusKm?: number;
+  radius?: number;
 };
 
 export function useNearbyHelpers({
   type,
   latitude,
   longitude,
-  radiusKm,
+  radius,
 }: Args) {
   const setHelpers = useMapStore((s) => s.setHelpers);
   const clearHelpers = useMapStore((s) => s.clearHelpers);
@@ -41,7 +41,7 @@ export function useNearbyHelpers({
           type,
           latitude,
           longitude,
-          radiusKm,
+          radius,
         });
 
         setHelpers(data.nearByHelpers ?? []);
@@ -52,7 +52,7 @@ export function useNearbyHelpers({
         setLoading(false);
       }
     })();
-  }, [type, latitude, longitude, radiusKm, setHelpers, clearHelpers]);
+  }, [type, latitude, longitude, radius, setHelpers, clearHelpers]);
 
   return { loading, error };
 }
