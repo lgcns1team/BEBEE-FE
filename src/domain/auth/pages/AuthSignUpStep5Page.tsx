@@ -34,8 +34,14 @@ const AuthSignUpStep5Page = () => {
   }
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("🔥 handleFileSelect 호출됨!", e.target.files);
     const file = e.target.files?.[0];
-    if (!file || !role) return;
+    console.log("📁 선택된 파일:", file);
+    console.log("👤 role:", role);
+    if (!file || !role) {
+      console.log("❌ 파일 또는 role이 없어서 return");
+      return;
+    }
 
     setIsUploading(true);
     try {
