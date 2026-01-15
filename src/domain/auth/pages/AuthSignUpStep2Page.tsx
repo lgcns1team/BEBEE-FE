@@ -16,6 +16,7 @@ import AuthSignUpHeader from "../components/AuthSignUpHeader";
 // - `PasswordPolicyValidator`를 통한 비밀번호 규격 검증 적용
 import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
 import { checkEmail } from "../../../api/authApi";
+import { PASSWORD_REGEX } from "../auth.constants";
 
 const AuthSignUpStep2Page = () => {
   const navigate = useNavigate();
@@ -47,8 +48,7 @@ const AuthSignUpStep2Page = () => {
 
   const validatePassword = (password: string) => {
     // 백엔드 규격: 대문자, 소문자, 숫자, 특수문자 포함 8~19자
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%&])[A-Za-z\d!@#$%&]{8,19}$/;
-    return passwordRegex.test(password);
+    return PASSWORD_REGEX.test(password);
   };
 
   const handleNext = async () => {
@@ -90,12 +90,13 @@ const AuthSignUpStep2Page = () => {
     }
 
     setErrors(newErrors);
-
-    // 에러가 없으면 다음 단계로
-    if (Object.keys(newErrors).length === 0) {
-      setAccountInfo(email, password);
-      navigate("/signup/step3");
+    if (Object.keys(newErrors).length) {
+      console.log(newErrors);
+      return;
     }
+
+    setAccountInfo(email, password);
+    navigate("/signup/step3");
   };
 
   return (
@@ -149,6 +150,7 @@ const AuthSignUpStep2Page = () => {
         onClick={handleNext}
         disabled={!email || !password || !passwordConfirm}
       />
+      <div style={{ height: "1rem" }} />
     </Layout>
   );
 };
