@@ -42,8 +42,8 @@ const Header = ({
       {/* 왼쪽: 항상 노출 */}
 
       {showBack && (
-        <Left onClick={onBack}>
-          <IoChevronBack size={25} aria-label="뒤로 가기" />
+        <Left onClick={onBack} aria-label="뒤로 가기">
+          <IoChevronBack size={25}  />
         </Left>
       )}
       {/* 타이틀 영역 */}
