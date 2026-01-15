@@ -142,8 +142,10 @@ const DayHelpWrite = ({ formData, updateField }: DayProps) => {
           required
         />
       </Container>
-
-      <BaseLongButton label="작성 완료" onClick={handleSubmit} />
+      <div style={{ paddingTop: "30px" }}>
+        {" "}
+        <BaseLongButton label="작성 완료" onClick={handleSubmit} />
+      </div>
     </>
   );
 };
@@ -162,7 +164,6 @@ const Container = styled.div`
     display: none;
   }
   padding-top: 20px;
-  padding-bottom: 30px;
 `;
 
 const TimeWrapper = styled.div`
