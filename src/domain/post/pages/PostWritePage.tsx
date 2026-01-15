@@ -13,7 +13,11 @@ import dayHelpImg from "../../../assets/images/day-help.png";
 import longHelpImg from "../../../assets/images/long-help.png";
 import { HELP_TAG_LIST } from "../../../constants/helpTags";
 import type { PostCreateReqDTO } from "../../../types/post.type";
-import { FieldSet, ModalLabel, RequiredMark } from "../../../styles/FieldSetStyle";
+import {
+  FieldSet,
+  ModalLabel,
+  RequiredMark,
+} from "../../../styles/FieldSetStyle";
 import { uploadFile } from "../../../api/fileApi2";
 import Layout from "../../../components/Layout";
 const PostWritePage = () => {
@@ -71,9 +75,11 @@ const PostWritePage = () => {
   };
   if (isDetailPage) {
     return (
-      <ScrollWrapper>
+      <Layout>
         <Header
-          title={formData.postType === "DAY" ? "하루 도움 작성" : "지속 도움 작성"}
+          title={
+            formData.postType === "DAY" ? "하루 도움 작성" : "지속 도움 작성"
+          }
           onBack={() => setIsDetailPage(false)}
           showBack
         />
@@ -83,7 +89,7 @@ const PostWritePage = () => {
         ) : (
           <LongHelpWrite formData={formData} updateField={updateField} />
         )}
-      </ScrollWrapper>
+      </Layout>
     );
   }
   /* ---------------- 이미지 선택 핸들러 ---------------- */
@@ -106,7 +112,9 @@ const PostWritePage = () => {
     // B. Presigned URL을 통한 S3 업로드
     try {
       const entityId = Date.now().toString();
-      const uploadPromises = fileArray.map((file) => uploadFile(file, "posts", entityId));
+      const uploadPromises = fileArray.map((file) =>
+        uploadFile(file, "posts", entityId)
+      );
       const uploadedUrls = await Promise.all(uploadPromises);
 
       // C. formData 업데이트
@@ -156,9 +164,13 @@ const PostWritePage = () => {
                 <HelpTypeContent>
                   <ImgWrapper src={type === "DAY" ? dayHelpImg : longHelpImg} />
                   <HelpTypeInfo>
-                    <HelpTypeTitle>{type === "DAY" ? "하루 도움" : "지속 도움"}</HelpTypeTitle>
+                    <HelpTypeTitle>
+                      {type === "DAY" ? "하루 도움" : "지속 도움"}
+                    </HelpTypeTitle>
                     <HelpTypeExample>
-                      {type === "DAY" ? "예) 11월 7일 이동 보조" : "예) 매주 화요일 병원 동행"}
+                      {type === "DAY"
+                        ? "예) 11월 7일 이동 보조"
+                        : "예) 매주 화요일 병원 동행"}
                     </HelpTypeExample>
                   </HelpTypeInfo>
                 </HelpTypeContent>
@@ -177,10 +189,15 @@ const PostWritePage = () => {
           <ImageUploadWrapper>
             <ImageList>
               {imagePreviews.length < 3 && (
-                <ImageUploadButton type="button" onClick={() => fileInputRef.current?.click()}>
+                <ImageUploadButton
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <ImagePlaceholder>
                     <IoIosCamera size={30} />
-                    <ImagePlaceholderText>{imagePreviews.length}/3</ImagePlaceholderText>
+                    <ImagePlaceholderText>
+                      {imagePreviews.length}/3
+                    </ImagePlaceholderText>
                   </ImagePlaceholder>
                 </ImageUploadButton>
               )}
@@ -261,16 +278,6 @@ const PostWritePage = () => {
 export default PostWritePage;
 
 // Styled-components
-const ScrollWrapper = styled.div`
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  display: flex;
-  padding: 0 16px 16px 16px;
-  background-color: ${({ theme }) => theme.color.white};
-`;
 
 const Container = styled.div`
   flex: 1;
@@ -280,11 +287,11 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
-  padding: 2rem 0;
   &::-webkit-scrollbar {
     display: none;
   }
-  padding-bottom: 20px;
+  padding-top: 20px;
+  padding-bottom: 30px;
 `;
 
 const HelpTypeContainer = styled.div`
@@ -297,7 +304,8 @@ const HelpTypeButton = styled.button<{ $selected: boolean }>`
   width: 100%;
   padding: 1rem;
   border: 0.5px solid
-    ${({ $selected, theme }) => ($selected ? theme.color.main : theme.color.subText3)};
+    ${({ $selected, theme }) =>
+      $selected ? theme.color.main : theme.color.subText3};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   background-color: ${({ $selected, theme }) =>
     $selected ? theme.color.subColor2 : theme.color.white};
@@ -351,8 +359,10 @@ const RadioButton = styled.div<{ $selected: boolean }>`
   height: 20px;
   border-radius: 50%;
   border: 0.5px solid
-    ${({ $selected, theme }) => ($selected ? theme.color.main : theme.color.subText3)};
-  background-color: ${({ $selected, theme }) => ($selected ? theme.color.main : theme.color.white)};
+    ${({ $selected, theme }) =>
+      $selected ? theme.color.main : theme.color.subText3};
+  background-color: ${({ $selected, theme }) =>
+    $selected ? theme.color.main : theme.color.white};
   position: relative;
   flex-shrink: 0;
   transition: all 0.2s ease;
