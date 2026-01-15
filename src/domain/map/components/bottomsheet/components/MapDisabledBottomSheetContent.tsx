@@ -1,21 +1,16 @@
-// import MapBottomSheetPostCard from "./MapDisabledBottomSheetPostCard";
-// import { useProfileStore } from "../../../../../store/useProfileStore";
-// import { usePostStore } from "../../../../../store/usePostStore";
-// const MapDisabledBottomSheetContent = () => {
-//   const helperProfiles = useProfileStore((state) => state.helperProfiles);
-//   const posts = usePostStore((state) => state.posts);
+import MapBottomSheetPostCard from "./MapDisabledBottomSheetPostCard";
 
-//   return (
-//     <>
-//       {helperProfiles.map((profile, index) => (
-//         <MapBottomSheetPostCard
-//           key={profile.memberId}
-//           profile={profile}
-//           post={posts[index]}
-//         />
-//       ))}
-//     </>
-//   );
-// };
+import { useMapStore } from "../../../store/useMapStore";
 
-// export default MapDisabledBottomSheetContent;
+const MapDisabledBottomSheetContent = () => {
+  const helpers = useMapStore((state) => state.helpers);
+  return (
+    <>
+      {helpers.map((helper) => (
+        <MapBottomSheetPostCard key={helper.id} helper={helper} />
+      ))}
+    </>
+  );
+};
+
+export default MapDisabledBottomSheetContent;

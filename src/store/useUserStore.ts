@@ -8,6 +8,9 @@ interface User {
   name: string;
   nickname: string;
   role: "DISABLED" | "HELPER" | "ADMIN";
+  addressRoad: string;
+  latitude: number;  
+  longitude: number;
 }
 
 interface UserStore {

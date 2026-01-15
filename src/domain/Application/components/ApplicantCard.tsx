@@ -3,10 +3,10 @@ import { FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import type { Applicant } from "../../../types/application.type";
 import type { Gender } from "../../auth/auth.types";
-import { chatApi } from "../../../api/chatApi";
-import { useApplicationStore } from "../store/useApplicationStore";
-import { useChatStore } from "../../chat/store/useChatStore";
-
+// import { chatApi } from "../../../api/chatApi";
+// import { useApplicationStore } from "../store/useApplicationStore";
+// import { useChatStore } from "../../chat/store/useChatStore";
+import { MdOutlineArrowForwardIos } from "react-icons/md";
 interface Props {
   applicants: Applicant[];
   isSharing: boolean;
@@ -20,99 +20,116 @@ const GENDER_KR: Record<Gender, string> = {
 
 const ApplicantList = ({ applicants, isSharing }: Props) => {
   const navigate = useNavigate();
-  const { currentPost, setCurrentPost } = useApplicationStore();
-  const { setActiveRoom } = useChatStore();
+  // const { currentPost, setCurrentPost } = useApplicationStore();
+  // const { setActiveRoom } = useChatStore();
   const filteredApplicants = isSharing
     ? applicants.filter((applicant) => applicant.isVolunteer)
     : applicants;
 
-  const goChat = async (otherMemberId: string, isVolunteer: boolean) => {
-    if (!currentPost) {
-      alert("게시글 정보를 불러올 수 없습니다.");
-      return;
-    }
+  // const goChat = async (otherMemberId: string, isVolunteer: boolean) => {
+  //   if (!currentPost) {
+  //     alert("게시글 정보를 불러올 수 없습니다.");
+  //     return;
+  //   }
 
-    try {
-      console.log("[ApplicantCard] 채팅방 생성 요청:", {
-        otherMemberId,
-        body: {
-          postId: currentPost.postId,
-          postTitle: currentPost.postTitle,
-          helpCategoryIds: currentPost.helpCategoryIds,
-          isVolunteer,
-        },
-      });
-      const res = await chatApi.createChatRoom(otherMemberId, {
-        postId: currentPost.postId,
-        postTitle: currentPost.postTitle,
-        helpCategoryIds: currentPost.helpCategoryIds,
-        isVolunteer,
-      });
-      console.log("[ApplicantCard] 채팅방 생성 응답:", {
-        chatroomId: res.chatroomId,
-        postId: res.postId,
-        postIdType: typeof res.postId,
-        isVolunteer: isVolunteer,
-        응답전체데이터: res,
-      });
-      const chatroomId = res.chatroomId;
+  //   try {
+  //     console.log("[ApplicantCard] 채팅방 생성 요청:", {
+  //       otherMemberId,
+  //       body: {
+  //         postId: currentPost.postId,
+  //         postTitle: currentPost.postTitle,
+  //         helpCategoryIds: currentPost.helpCategoryIds,
+  //         isVolunteer,
+  //       },
+  //     });
+  //     const res = await chatApi.createChatRoom(otherMemberId, {
+  //       postId: currentPost.postId,
+  //       postTitle: currentPost.postTitle,
+  //       helpCategoryIds: currentPost.helpCategoryIds,
+  //       isVolunteer,
+  //     });
+  //     console.log("[ApplicantCard] 채팅방 생성 응답:", {
+  //       chatroomId: res.chatroomId,
+  //       postId: res.postId,
+  //       postIdType: typeof res.postId,
+  //       isVolunteer: isVolunteer,
+  //       응답전체데이터: res,
+  //     });
+  //     const chatroomId = res.chatroomId;
 
-      // 채팅방 생성 응답의 postId를 store에 저장
-      if (res.postId) {
-        setCurrentPost({
-          postId: String(res.postId),
-          postTitle: currentPost.postTitle,
-          helpCategoryIds: currentPost.helpCategoryIds,
-        });
-      }
+  //     // 채팅방 생성 응답의 postId를 store에 저장
+  //     if (res.postId) {
+  //       setCurrentPost({
+  //         postId: String(res.postId),
+  //         postTitle: currentPost.postTitle,
+  //         helpCategoryIds: currentPost.helpCategoryIds,
+  //       });
+  //     }
 
-      // 채팅방 정보를 store에 저장 (응답에 isVolunteer가 없으므로 요청 시 전달한 값 포함)
-      setActiveRoom({
-        ...res,
-        isVolunteer,
-      });
+  //     // 채팅방 정보를 store에 저장 (응답에 isVolunteer가 없으므로 요청 시 전달한 값 포함)
+  //     setActiveRoom({
+  //       ...res,
+  //       isVolunteer,
+  //     });
 
-      navigate(`/chat/${chatroomId}`);
-    } catch (e) {
-      console.error("채팅방 생성 실패:", e);
-      alert("채팅방을 열 수 없습니다");
-    }
-  };
+  //     navigate(`/chat/${chatroomId}`);
+  //   } catch (e) {
+  //     console.error("채팅방 생성 실패:", e);
+  //     alert("채팅방을 열 수 없습니다");
+  //   }
+  // };
   return (
     <PostItemWrapper>
-      {filteredApplicants.map((applicant) => (
-        // <Card key={applicant.memberId}>
-        <Card>
-          <UserRow>
-            <UserText>
-              <div className="top-row" aria-label="도우미의 닉네임 입니다">
-                <span className="nickname">{applicant.nickname}</span>
-              </div>
+      {filteredApplicants.map((applicant) => {
+        const genderText = GENDER_KR[applicant.gender];
+        const ageText = `${applicant.ageGroup}대`;
+        const sharingText = applicant.isVolunteer
+          ? "나눔으로 지원한 도우미"
+          : "일반 지원 도우미";
 
-              <div
-                className="sub-info"
-                aria-label="도우미의 성별 및 나이 입니다"
-              >
-                {GENDER_KR[applicant.gender]} · {applicant.ageGroup}대
-              </div>
-            </UserText>
+        const cardLabel = `도우미 ${applicant.nickname}, ${genderText}, ${ageText}, ${sharingText}`;
 
-            <GoProfile
-              onClick={() => {
-                goChat(String(applicant.memberId), applicant.isVolunteer);
-              }}
-            >
-              채팅하기
-            </GoProfile>
-          </UserRow>
+        return (
+          <Card
+            key={applicant.memberId}
+            role="group"
+            tabIndex={0}
+            aria-label={cardLabel}
+          >
+            <UserRow>
+              <UserText>
+                <div className="top-row">
+                  <span className="nickname">{applicant.nickname}</span>
+                </div>
 
-          {applicant.isVolunteer && (
-            <SharingBadge aria-label="나눔으로 지원한 도우미 입니다">
-              나눔 <FaHeart size={14} color="#FFA2A2" />
-            </SharingBadge>
-          )}
-        </Card>
-      ))}
+                <div className="sub-info">
+                  {genderText} · {ageText}
+                </div>
+              </UserText>
+
+              <RightArea>
+                <MdOutlineArrowForwardIos
+                  size={20}
+                  onClick={() =>
+                    navigate(`/profile/${applicant.memberId}`, {
+                      state: { applicant },
+                    })
+                  }
+                  aria-label={`${applicant.nickname} 님 프로필 보기`}
+                  role="button"
+                  tabIndex={0}
+                />
+              </RightArea>
+            </UserRow>
+
+            {applicant.isVolunteer && (
+              <SharingBadge aria-hidden="true">
+                나눔 <FaHeart size={14} color="#FFA2A2" />
+              </SharingBadge>
+            )}
+          </Card>
+        );
+      })}
     </PostItemWrapper>
   );
 };
@@ -154,13 +171,8 @@ const UserText = styled.div`
   }
 `;
 
-const GoProfile = styled.button`
-  padding: 4px 8px;
-  color: ${({ theme }) => theme.color.text};
-  border: 1px solid ${({ theme }) => theme.color.main};
-  font-size: ${({ theme }) => theme.size.md};
-  background-color: ${({ theme }) => theme.color.subColor};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
+const RightArea = styled.div`
+  margin-left: auto;
   display: flex;
   align-items: center;
   cursor: pointer;

@@ -10,19 +10,16 @@ interface LayoutProps {
 const Layout = ({ children, bg }: LayoutProps) => {
   return <Wrapper bg={bg}>{children}</Wrapper>;
 };
-
 const Wrapper = styled.main<{ bg?: boolean }>`
   width: 100%;
-  max-width: 100%;
-  height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
-  max-height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding: 0 16px 16px 16px;
+  padding: 0px 16px;
   box-sizing: border-box;
   overflow: hidden;
   background-color: ${({ bg, theme }) =>
     bg ? theme.color.natural50 : theme.color.white};
+  overscroll-behavior: none;
 `;
-
 export default Layout;

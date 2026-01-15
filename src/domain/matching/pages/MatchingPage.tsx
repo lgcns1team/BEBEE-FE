@@ -20,6 +20,7 @@ import {
 import { toDateSet } from "../utils/engagementDates";
 
 import type { EngagementType } from "../../../types/match.type";
+import PullToRefreshWrapper from "../../../components/PullToRefreshWrapper";
 
 const getTodayYYYYMMDD = () => {
   const now = new Date();
@@ -37,27 +38,39 @@ const MatchingPage = () => {
   const [period, setPeriod] = useState<"week" | "month">("month");
 
   const [selectedDate, setSelectedDate] = useState(() => getTodayYYYYMMDD());
-
+  const [announce, setAnnounce] = useState("");
   const selectedType: EngagementType | null = useMemo(() => {
     if (activeTab === "하루 도움") return "DAY";
     if (activeTab === "지속 도움") return "TERM";
     return undefined; // 전체
   }, [activeTab]);
 
-  // 활동 완료
   const handleComplete = async (engagementId: string) => {
-    const res = await completeEngagement(engagementId);
-    const { isLastEngagement } = res.data;
+    try {
+      await completeEngagement(engagementId);
 
-    setEngagements((prev) =>
-      prev.map((e) =>
-        e.engagementId === engagementId
-          ? { ...e, status: isLastEngagement ? "REVIEW_ACTIVE" : "COMPLETED" }
-          : e
-      )
-    );
+      const res = await getEngagements({
+        date: selectedDate,
+        type: selectedType,
+      });
+
+      setEngagements(res.data.engagements ?? []);
+      setAnnounce("활동이 완료되었습니다.");
+    } catch (e) {
+      console.error("활동 완료 처리 실패", e);
+      setAnnounce("활동 완료 처리에 실패했습니다.");
+    }
   };
 
+  // Pull to Refresh 핸들러
+  const handleRefresh = async () => {
+    try {
+      const res = await getEngagements({ date: selectedDate, type: selectedType });
+      setEngagements(res.data.engagements ?? []);
+    } catch (e) {
+      console.error("새로고침 실패", e);
+    }
+  };
   // 캘린더 조회
   useEffect(() => {
     const [y, m] = selectedDate.split("-").map(Number);
@@ -76,17 +89,28 @@ const MatchingPage = () => {
   useEffect(() => {
     getEngagements({ date: selectedDate, type: selectedType })
       .then((res) => {
-        setEngagements(res.data.engagements ?? []);
+        const list = res.data.engagements ?? [];
+        setEngagements(list);
+
+        setAnnounce(
+          list.length === 0
+            ? "선택한 날짜에 활동이 없습니다."
+            : `활동 ${list.length}건이 표시되었습니다.`
+        );
       })
       .catch((e) => {
         console.error("engagements 조회 실패", e);
         setEngagements([]);
+        setAnnounce("활동 목록을 불러오지 못했습니다.");
       });
   }, [selectedDate, selectedType, setEngagements]);
 
   return (
     <Layout>
-      <PageContainer>
+      <PageContainer as="main" aria-label="활동 관리 페이지">
+        <span className="sr-only" aria-live="polite">
+          {announce}
+        </span>
         <Header title="활동 관리" />
 
         <StickyBox>
@@ -107,20 +131,21 @@ const MatchingPage = () => {
           <Category activeTab={activeTab} onChange={setActiveTab} />
         </StickyBox>
 
-        <ScrollArea>
-          {engagements.length === 0 ? (
-            <Empty>선택한 날짜에 활동이 없습니다.</Empty>
-          ) : (
-            engagements.map((eng) => (
-              <MatchingPostCard
-                key={eng.engagementId}
-                engagement={eng}
-                onComplete={handleComplete}
-              />
-            ))
-          )}
-        </ScrollArea>
-
+        <PullToRefreshWrapper onRefresh={handleRefresh}>
+          <ScrollArea>
+            {engagements.length === 0 ? (
+              <Empty>선택한 날짜에 활동이 없습니다.</Empty>
+            ) : (
+              engagements.map((eng) => (
+                <MatchingPostCard
+                  key={eng.engagementId}
+                  engagement={eng}
+                  onComplete={handleComplete}
+                />
+              ))
+            )}
+          </ScrollArea>
+        </PullToRefreshWrapper>
         <NavBar />
       </PageContainer>
     </Layout>

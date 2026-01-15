@@ -136,7 +136,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: FilterBottomSheetProps) => {
 
               <Content>
                 {/* 도움 지역 */}
-                <Section>
+                {/* <Section>
                   <Header>
                     <Label>도움 지역</Label>
                     {regions.length > 0 && (
@@ -162,7 +162,7 @@ const FilterBottomSheet = ({ isOpen, onClose }: FilterBottomSheetProps) => {
                   >
                     <Plus>＋</Plus> 추가하기
                   </AddRegionBtn>
-                </Section>
+                </Section> */}
 
                 {/* 도움 유형 */}
                 <Section>
@@ -211,9 +211,19 @@ const FilterBottomSheet = ({ isOpen, onClose }: FilterBottomSheetProps) => {
                 </Section>
 
                 {/* 꿀 범위 */}
-                <Label>회당 획득 꿀</Label>
-                <HoneyRange value={honeyRange} onChange={setHoneyRange} />
-
+                <div style={{ marginBottom: "32px" }}>
+                  <Label>회당 획득 꿀</Label>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <HoneyRange value={honeyRange} onChange={setHoneyRange} />
+                  </div>
+                </div>
                 {/* 장애 유형 */}
                 <Section>
                   <Label>장애 유형</Label>
@@ -281,6 +291,7 @@ const Dim = styled(motion.div)`
   inset: 0;
   background: ${({ theme }) => theme.color.text};
   z-index: 100;
+  -webkit-tap-highlight-color: transparent;
 `;
 
 const Sheet = styled(motion.div)`
@@ -291,17 +302,19 @@ const Sheet = styled(motion.div)`
   display: flex;
   justify-content: center;
   z-index: 101;
+  /* 아이폰에서 스크롤 시 시트가 위로 들리는 버그 방지 */
+  touch-action: none;
 `;
 
 const Container = styled.div`
   width: 100%;
-  max-width: 375px;
+  max-width: 400px;
   max-height: 85vh;
 
   background: ${({ theme }) => theme.color.white};
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
-
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 `;
@@ -310,16 +323,19 @@ const HandleBarWrapper = styled.div`
   padding: 10px 0;
   display: flex;
   justify-content: center;
+  cursor: grab;
 `;
 
 const HandleBar = styled.div`
   width: 45px;
   height: 4px;
-  background: ${({ theme }) => theme.color.natural100};
+  background: ${({ theme }) => theme.color.natural50};
   border-radius: ${({ theme }) => theme.borderRadius.sm};
 `;
 
 const Title = styled.div`
+  margin: 0;
+  padding: 0 0 16px 0;
   text-align: center;
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.bold};
@@ -329,6 +345,14 @@ const Content = styled.div`
   padding: 16px;
   flex: 1;
   overflow-y: auto;
+  /* iOS 부드러운 스크롤 */
+  -webkit-overflow-scrolling: touch;
+  /* 내부 스크롤 시 바닥 페이지 전파 방지 */
+  overscroll-behavior: contain;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const Section = styled.div`
@@ -338,11 +362,13 @@ const Section = styled.div`
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
 `;
 
 const Label = styled.div`
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.bold};
+  margin-bottom: 12px;
 `;
 
 const Count = styled.div`
@@ -359,49 +385,51 @@ const Row = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 10px;
 `;
 
-const RegionChipRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 12px 0;
-`;
+// const RegionChipRow = styled.div`
+//   display: flex;
+//   flex-wrap: wrap;
+//   gap: 8px;
+//   margin: 12px 0;
+// `;
 
-const RegionChip = styled.div`
-  padding: 8px 12px;
-  background: ${({ theme }) => theme.color.subColor2};
-  color: ${({ theme }) => theme.color.main};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  font-size: ${({ theme }) => theme.size.sm};
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-`;
+// const RegionChip = styled.div`
+//   padding: 8px 12px;
+//   background: ${({ theme }) => theme.color.subColor2};
+//   color: ${({ theme }) => theme.color.main};
+//   border-radius: ${({ theme }) => theme.borderRadius.lg};
+//   font-size: ${({ theme }) => theme.size.sm};
+//   display: inline-flex;
+//   align-items: center;
+//   gap: 6px;
+// `;
 
-const DeleteBtn = styled.span`
-  font-size: ${({ theme }) => theme.size.sm};
-  cursor: pointer;
-`;
+// const DeleteBtn = styled.span`
+//   font-size: ${({ theme }) => theme.size.sm};
+//   cursor: pointer;
+//   background: none;
+//   border: none;
+//   padding: 0;
+// `;
 
-const AddRegionBtn = styled.button`
-  width: 100%;
-  padding: 12px 0;
-  background: white;
-  border: 0.5px solid ${({ theme }) => theme.color.subText2};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  font-size: ${({ theme }) => theme.size.sm};
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  align-items: center;
-`;
+// const AddRegionBtn = styled.button`
+//   width: 100%;
+//   padding: 12px 0;
+//   background: white;
+//   border: 0.5px solid ${({ theme }) => theme.color.subText2};
+//   border-radius: ${({ theme }) => theme.borderRadius.lg};
+//   font-size: ${({ theme }) => theme.size.sm};
+//   display: flex;
+//   justify-content: center;
+//   gap: 6px;
+//   align-items: center;
+// `;
 
-const Plus = styled.span`
-  font-size: ${({ theme }) => theme.size.sm};
-  color: ${({ theme }) => theme.color.text};
-`;
+// const Plus = styled.span`
+//   font-size: ${({ theme }) => theme.size.sm};
+//   color: ${({ theme }) => theme.color.text};
+// `;
 
 const GenderTabs = styled.div`
   display: grid;
@@ -414,14 +442,14 @@ const GenderTab = styled.button<{ $active?: boolean }>`
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   font-size: ${({ theme }) => theme.size.sm};
   background: ${({ $active, theme }) =>
-    $active ? "#fff" : theme.color.natural100};
+    $active ? "#fff" : theme.color.natural50};
 
   color: ${({ $active, theme }) =>
     $active ? theme.color.main : theme.color.subText2};
 
   border: 1px solid
     ${({ $active, theme }) =>
-      $active ? theme.color.main : theme.color.natural100};
+      $active ? theme.color.main : theme.color.natural50};
 
   appearance: none;
   -webkit-tap-highlight-color: transparent;
@@ -432,14 +460,14 @@ const DayChip = styled.button<{ $active?: boolean }>`
   width: 32px;
   height: 32px;
   background: ${({ $active, theme }) =>
-    $active ? theme.color.subColor2 : theme.color.natural100};
+    $active ? theme.color.subColor2 : theme.color.natural50};
 
   color: ${({ $active, theme }) =>
     $active ? theme.color.main : theme.color.subText2};
 
   border: 0.5px solid
     ${({ $active, theme }) =>
-      $active ? theme.color.main : theme.color.natural100};
+      $active ? theme.color.main : theme.color.natural50};
   font-size: ${({ theme }) => theme.size.sm};
   appearance: none;
   -webkit-tap-highlight-color: transparent;
@@ -449,13 +477,18 @@ const Buttons = styled.div`
   display: flex;
   gap: 10px;
   padding: 16px;
+  /* 아이폰 홈바 대응 코드 */
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  background: white;
+  border-top: 1px solid #eee;
+  z-index: 10;
 `;
 
 const ResetBtn = styled.button`
   flex: 1;
   padding: 14px 0;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
-  background: ${({ theme }) => theme.color.natural100};
+  background: ${({ theme }) => theme.color.natural50};
   color: ${({ theme }) => theme.color.subText};
   font-weight: ${({ theme }) => theme.weight.medium};
   font-size: ${({ theme }) => theme.size.md};

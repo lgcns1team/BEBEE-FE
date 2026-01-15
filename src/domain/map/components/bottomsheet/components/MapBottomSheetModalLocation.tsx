@@ -2,28 +2,45 @@ import React from "react";
 import styled from "styled-components";
 import { FiHome } from "react-icons/fi";
 import { BiCurrentLocation } from "react-icons/bi";
-
+import { useUserStore } from "../../../../../store/useUserStore";
 interface Props {
   onClose: () => void;
+/** 현재 위치 기준 */
   onClickCurrentLocation: () => void;
+  /** 집 기준 */
+  onClickHomeLocation: () => void;
+  /** 회원가입 시 입력한 주소 */
+  addressRoad : string
+
 }
 
 const MapBottomSheetModalLocation = ({
   onClose,
   onClickCurrentLocation,
+  onClickHomeLocation,
+  
 }: Props) => {
+  const {user} = useUserStore();
   return (
     <Overlay onClick={onClose}>
       <Wrapper onClick={(e) => e.stopPropagation()}>
         <Title>어디에서 찾고 계신가요?</Title>
-        <Home>
-          <FiHome size={20} />
 
+        {/* 집 */}
+        <Home
+          onClick={() => {
+            onClickHomeLocation();
+            onClose();
+          }}
+        >
+          <FiHome size={20} />
           <HomeRight>
             <MainName>집</MainName>
-            <SubName>서울시 중구 장충동</SubName>
+            <SubName>{user.addressRoad|| "주소 정보 없음"}</SubName>
           </HomeRight>
         </Home>
+
+        {/* 현재 위치 */}
         <Current
           onClick={() => {
             onClickCurrentLocation();
@@ -71,6 +88,7 @@ const Home = styled.div`
   display: flex;
   gap: 16px;
   align-items: center;
+  cursor: pointer;
 `;
 
 const HomeRight = styled.div`
