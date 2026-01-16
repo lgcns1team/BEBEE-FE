@@ -51,7 +51,7 @@ const PostCard = ({ post }: PostCardProps) => {
               <InfoLine>
                 <MapPinIcon size={16} />
                 {/* 지역명에서 동네 이름만 추출 (예: '장충동') */}
-                <InfoText>{post.legalDongName.split(" ").pop()}</InfoText>
+                <InfoText>{post.legalDongName}</InfoText>
               </InfoLine>
 
               <InfoLine>
