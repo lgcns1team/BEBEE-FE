@@ -102,6 +102,7 @@ const DayHelpForm = ({
                 aria-label="도움 날짜 선택"
               />
             }
+            disabled
           />
           <span className="sr-only">
             {dayEngagement.date
@@ -140,6 +141,7 @@ const DayHelpForm = ({
                   }
                 />
               }
+              disabled
             />
             <TimeIconWrapper
               onClick={handleStartTimeIconClick}
@@ -183,6 +185,7 @@ const DayHelpForm = ({
                   }
                 />
               }
+              disabled
             />
             <TimeIconWrapper
               onClick={handleEndTimeIconClick}
