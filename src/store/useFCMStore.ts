@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { MessagePayload } from "firebase/messaging";
 
 interface FCMMessage {
+  chatroomId: string;
   title: string;
   body: string;
   data?: Record<string, any>;
@@ -29,6 +30,7 @@ export const useFCMMessageStore = create<FCMMessageStore>((set) => ({
         body,
         data: payload.data,
         messageId: payload.messageId,
+        chatroomId: payload.data?.chatroomId || "",
       },
       isOpen: true,
     });

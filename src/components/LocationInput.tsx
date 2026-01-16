@@ -27,6 +27,7 @@ interface LocationInputProps {
   }) => void;
   required?: boolean;
   placeholder?: string;
+  onFocus?: React.FocusEventHandler<HTMLInputElement>;
 }
 
 const LocationInput = ({
