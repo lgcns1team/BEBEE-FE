@@ -163,6 +163,8 @@ const ScrollArea = styled.div`
 
 const DateInput = styled.input`
   width: 100%;
+  height: 54px;  /* 다른 InputBox와 동일한 높이 */
+  min-height: 54px;
   font-size: ${({ theme }) => theme.size.md};
   padding: 1rem;
   border: 0.5px solid ${({ theme }) => theme.color.subText3};
