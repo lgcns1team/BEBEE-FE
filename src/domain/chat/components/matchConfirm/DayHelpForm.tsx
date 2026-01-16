@@ -5,7 +5,7 @@ import { forwardRef } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/locale";
-
+import { FieldSet } from "../../../../styles/FieldSetStyle";
 import { CiCalendar } from "react-icons/ci";
 import { IoIosArrowDown } from "react-icons/io";
 
@@ -207,13 +207,6 @@ const DayHelpForm = ({
 export default DayHelpForm;
 
 // Styled-components
-
-const FieldSet = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem; // label과 input/select 사이 간격
-  margin-top: 2.5rem;
-`;
 
 const ModalLabel = styled.label`
   font-size: ${({ theme }) => theme.size.lg};
