@@ -7,6 +7,7 @@ import "../style/payStyle.css";
 type CheckoutState = {
   amount: number; // 실제 결제할 원화 금액
   honey: number; // 충전할 꿀의 양
+  redirectTo?: string;
 };
 
 const clientKey = import.meta.env.VITE_TOSS_PAYMENTS_CLIENT_KEY;
@@ -133,6 +134,9 @@ export function CheckoutPage() {
     if (!widgets || !prepared || !state) return;
 
     try {
+      const redirectParam = state.redirectTo
+        ? `?redirect=${encodeURIComponent(state.redirectTo)}`
+        : "";
       const selectedPaymentMethod =
         await paymentMethodWidgetRef.current?.getSelectedPaymentMethod?.();
       console.log("selectedPaymentMethod:", selectedPaymentMethod);
@@ -142,8 +146,8 @@ export function CheckoutPage() {
       await widgets.requestPayment({
         orderId: prepared.orderId,
         orderName: `꿀 충전 ${state.honey}꿀`,
-        successUrl: `${origin}/payments/success`,
-        failUrl: `${origin}/payments/fail`,
+        successUrl: `${origin}/payments/success${redirectParam}`,
+        failUrl: `${origin}/payments/fail${redirectParam}`,
       });
     } catch (e) {
       console.error(e);

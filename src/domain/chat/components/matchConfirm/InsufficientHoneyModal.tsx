@@ -8,6 +8,7 @@ interface Props {
   currentHoney: number;
   requiredHoney: number;
   onClose: () => void;
+  redirectTo?: string;
 }
 
 const InsufficientHoneyModal = ({
@@ -15,6 +16,7 @@ const InsufficientHoneyModal = ({
   currentHoney,
   requiredHoney,
   onClose,
+  redirectTo,
 }: Props) => {
   const navigate = useNavigate();
 
@@ -22,7 +24,9 @@ const InsufficientHoneyModal = ({
 
   const handleRecharge = () => {
     onClose();
-    navigate("/charge");
+    navigate("/charge", {
+      state: { redirectTo },
+    });
   };
 
   const modalContent = (

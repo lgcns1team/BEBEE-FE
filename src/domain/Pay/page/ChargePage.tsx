@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
@@ -7,6 +7,8 @@ import { preparePayment } from "../../../api/paymentApi";
 const ChargePage = () => {
   const [amount, setAmount] = useState<string>("");
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo = (location.state as { redirectTo?: string } | null)?.redirectTo;
   const handleQuickAmount = (value: number) => {
     const currentAmount = amount === "" ? 0 : parseInt(amount);
     const newAmount = currentAmount + value;
@@ -49,6 +51,7 @@ const ChargePage = () => {
           orderId,
           amount: serverAmout,
           honey,
+          redirectTo,
         },
       });
     } catch (e) {
