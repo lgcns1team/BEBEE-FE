@@ -7,6 +7,7 @@ import Header from "../../../components/Header";
 import { useMemberStore } from "../../../store/useMemberStore";
 import ReceivedReview from "../../profile/components/common/ReceivedReview";
 import BadgeChips from "../../Badge/components/BadgeChips";
+import defaultProfileImage from "../../../assets/images/bee-santa.png";
 
 const ProfileInfoPage = () => {
   const navigate = useNavigate();
@@ -51,47 +52,49 @@ const ProfileInfoPage = () => {
   ];
 
   return (
-  <Layout bg>
-    <Header title="프로필" showBack onBack={() => navigate(-1)} bg />
+    <Layout bg>
+      <Header title="프로필" showBack onBack={() => navigate(-1)} bg />
 
-    
-    <ScrollContainer>
-      <Info>
-        <Top>
-          <ProfileImageWrapper>
-            <ProfileImage src={member.profileImageUrl ?? ""} alt="프로필" />
-          </ProfileImageWrapper>
+      <ScrollContainer>
+        <Info>
+          <Top>
+            <ProfileImageWrapper>
+              <ProfileImage
+                src={member.profileImageUrl || defaultProfileImage}
+                alt="프로필"
+              />
+            </ProfileImageWrapper>
 
-          <TopRight>
-            <NickName>{member.nickname}</NickName>
-            {member.role === "HELPER" &&
-              member.badges &&
-              member.badges.length > 0 && (
-                <BadgeWrapper>
-                  <BadgeChips badges={member.badges} />
-                </BadgeWrapper>
-              )}
-          </TopRight>
-        </Top>
+            <TopRight>
+              <NickName>{member.nickname}</NickName>
+              {member.role === "HELPER" &&
+                member.badges &&
+                member.badges.length > 0 && (
+                  <BadgeWrapper>
+                    <BadgeChips badges={member.badges} />
+                  </BadgeWrapper>
+                )}
+            </TopRight>
+          </Top>
 
-        <Divider />
+          <Divider />
 
-        <Bottom>
-          {infoList.map(({ label, value }) => (
-            <InfoRow key={label}>
-              <InfoLabel>{label}</InfoLabel>
-              <InfoValue>{value ?? "-"}</InfoValue>
-            </InfoRow>
-          ))}
-        </Bottom>
+          <Bottom>
+            {infoList.map(({ label, value }) => (
+              <InfoRow key={label}>
+                <InfoLabel>{label}</InfoLabel>
+                <InfoValue>{value ?? "-"}</InfoValue>
+              </InfoRow>
+            ))}
+          </Bottom>
 
-        <ProfileModifyButton>프로필 수정</ProfileModifyButton>
-      </Info>
+          <ProfileModifyButton>프로필 수정</ProfileModifyButton>
+        </Info>
 
-      <ReceivedReview mode="me" />
-    </ScrollContainer>
-  </Layout>
-);
+        <ReceivedReview mode="me" />
+      </ScrollContainer>
+    </Layout>
+  );
 };
 
 export default ProfileInfoPage;
