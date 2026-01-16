@@ -4,8 +4,8 @@ import styled from "styled-components";
 
 import type { NearByPostDto, NearByHelperDto } from "../../../types/map.type";
 import CurrentLocationImage from "../components/images/current-location-red-with-radius.svg";
-import MapHelper from "../../../assets/images/map-helper.png"
-import MapDisabled from "../../../assets/images/map-disabled.png"
+import MapHelper from "../../../assets/images/map-helper.png";
+import MapDisabled from "../../../assets/images/map-disabled.png";
 type Center = { lat: number; lng: number };
 
 type Props =
@@ -101,7 +101,8 @@ export default MapBasePage;
 const MapWrapper = styled.div`
   position: fixed;
   width: 100%;
-  max-width: 375px;
+  left: 0;
+  right: 0;
   margin: 0 auto;
   top: ${HEADER_HEIGHT_REM};
   height: 100vh;

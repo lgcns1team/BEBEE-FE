@@ -76,7 +76,10 @@ const HomePage = () => {
 
     // 이미 초기화했거나 게시글이 있으면 다시 로드하지 않음
     // posts가 undefined/null이거나 배열이 아닐 경우를 대비해 안전하게 체크
-    if (hasInitialized.current || (Array.isArray(posts) && posts.length > 0 && !isLoading)) {
+    if (
+      hasInitialized.current ||
+      (Array.isArray(posts) && posts.length > 0 && !isLoading)
+    ) {
       return;
     }
 
@@ -122,26 +125,35 @@ const HomePage = () => {
 
   return (
     <Layout>
-      <Toast position="top" />
+      <Toast />
       {isModalOpen && <NotificationPermissionModal />}
       <Header>
         <Alarm />
         {/* ---------------- Tabs ---------------- */}
         <TabBar>
           {/* filters.type 대신 Store의 type 상태를 직접 사용 */}
-          <Tab $active={type === undefined} onClick={() => handleTypeChange(undefined)}>
+          <Tab
+            $active={type === undefined}
+            onClick={() => handleTypeChange(undefined)}
+          >
             전체
           </Tab>
           <Tab $active={type === "DAY"} onClick={() => handleTypeChange("DAY")}>
             하루 도움
           </Tab>
-          <Tab $active={type === "TERM"} onClick={() => handleTypeChange("TERM")}>
+          <Tab
+            $active={type === "TERM"}
+            onClick={() => handleTypeChange("TERM")}
+          >
             장기 도움
           </Tab>
         </TabBar>
         {/* ---------------- Filter Row ---------------- */}
         <FilterRow>
-          <FilterButton onClick={() => setIsFilterSheetOpen(true)} />
+          <FilterButton
+            onClick={() => setIsFilterSheetOpen(true)}
+            isActive={isFilterApplied}
+          />
           <Checkbox
             checked={isMatched === false}
             onChange={handleMatchedChange}
@@ -157,15 +169,23 @@ const HomePage = () => {
               {posts?.map((post) => {
                 if (!post) return null;
                 return (
-                  <div key={post.postId} onClick={() => navigate(`/post/${post.postId}`)}>
+                  <div
+                    key={post.postId}
+                    onClick={() => navigate(`/post/${post.postId}`)}
+                  >
                     <PostCard post={post} />
                   </div>
                 );
               })}
               {isLoading && <Loading />}
-              {!isLoading && posts?.length === 0 && <span>조건에 맞는 게시글이 없습니다.</span>}
+              {!isLoading && posts?.length === 0 && (
+                <span>조건에 맞는 게시글이 없습니다.</span>
+              )}
               {/* 무한 스크롤 감지용 타겟 (바닥) */}
-              <div ref={observerTarget} style={{ height: "50px", textAlign: "center" }}>
+              <div
+                ref={observerTarget}
+                style={{ height: "50px", textAlign: "center" }}
+              >
                 {!hasNext && posts?.length > 0 && <p>마지막 게시글입니다.</p>}
               </div>
             </ListWrapper>
@@ -174,7 +194,10 @@ const HomePage = () => {
 
         {/* ---------------- BottomSheet ---------------- */}
         {/* reqDTO 등의 상세 필터는 이 컴포넌트 내부에서 setReqDTO를 사용하도록 구성됩니다. */}
-        <FilterBottomSheet isOpen={isFilterSheetOpen} onClose={() => setIsFilterSheetOpen(false)} />
+        <FilterBottomSheet
+          isOpen={isFilterSheetOpen}
+          onClose={() => setIsFilterSheetOpen(false)}
+        />
         {!isHelper && <WriteButton onClick={() => navigate("/post/write")} />}
         <NavBar />
       </Wrapper>
@@ -193,6 +216,8 @@ const Wrapper = styled.div`
 const Header = styled.div`
   flex-shrink: 0;
   z-index: 100;
+
+  max-width: 370px;
 `;
 const TabBar = styled.div`
   position: fixed;
@@ -202,7 +227,11 @@ const TabBar = styled.div`
   border-bottom: 0.5px solid #d4d4d8;
   z-index: 90;
   background-color: white;
-  width: 343px;
+  width: 100%;
+  max-width: 370px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-sizing: border-box;
 `;
 
 const Tab = styled.button<{ $active?: boolean }>`
@@ -215,8 +244,10 @@ const Tab = styled.button<{ $active?: boolean }>`
   border: none;
 
   background-color: ${({ theme }) => theme.color.white};
-  color: ${({ theme, $active }) => ($active ? theme.color.text : theme.color.subText2)};
-  font-weight: ${({ theme, $active }) => ($active ? theme.weight.medium : theme.weight.regular)};
+  color: ${({ theme, $active }) =>
+    $active ? theme.color.text : theme.color.subText2};
+  font-weight: ${({ theme, $active }) =>
+    $active ? theme.weight.medium : theme.weight.regular};
 
   &::after {
     content: "";
@@ -227,7 +258,8 @@ const Tab = styled.button<{ $active?: boolean }>`
     height: 2px;
 
     /* 활성화 상태일 때만 theme.color.text(검은색계열)를 보여줌 */
-    background-color: ${({ theme, $active }) => ($active ? theme.color.text : "transparent")};
+    background-color: ${({ theme, $active }) =>
+      $active ? theme.color.text : "transparent"};
 
     border-radius: ${({ theme }) => theme.borderRadius.sm};
 
@@ -246,7 +278,11 @@ const FilterRow = styled.div`
   padding-top: 18px;
   background-color: ${({ theme }) => theme.color.white};
   justify-content: space-between;
-  width: 343px;
+  width: 100%;
+  max-width: 370px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-sizing: border-box;
 `;
 const ChevronDownIcon = styled(IoChevronDown)`
   color: ${({ theme }) => theme.color.subText2};

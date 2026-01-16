@@ -17,17 +17,17 @@ import { BsList } from "react-icons/bs";
 
 interface Props {
   onClickCurrentLocation: () => void;
-  onClickHomeLocation: () => void;    
+  onClickHomeLocation: () => void;
   locationLabel: string;
   radius: number;
   onChangeRadius: (r: number) => void;
-  addressRoad :string
+  addressRoad: string;
 }
 
 function MapHelperBottomSheet({
   onClickCurrentLocation,
   onClickHomeLocation,
-addressRoad,
+  addressRoad,
   locationLabel,
   radius,
   onChangeRadius,
@@ -54,7 +54,7 @@ addressRoad,
         <MapBottomSheetModalRadius
           onClose={() => setOpenModalRadius(false)}
           onApply={(nextRadius) => {
-            onChangeRadius(nextRadius); 
+            onChangeRadius(nextRadius);
             setOpenModalRadius(false);
           }}
           role="HELPER"
@@ -146,7 +146,6 @@ const Wrapper = styled(motion.div)`
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 375px;
   margin: 0 auto;
   z-index: 100;
   border-top-left-radius: ${({ theme }) => theme.borderRadius.lg};
