@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Layout from "../../../components/Layout";
@@ -7,7 +7,11 @@ import GeneralInput from "../../../components/GeneralInput";
 //import LocationInput from "../../../components/LocationInput";
 import AuthSignUpHeader from "../components/AuthSignUpHeader";
 import AuthGenderSelector from "../components/AuthGenderSelector";
-import { FieldSet, ModalLabel, RequiredMark } from "../../../styles/FieldSetStyle";
+import {
+  FieldSet,
+  ModalLabel,
+  RequiredMark,
+} from "../../../styles/FieldSetStyle";
 
 import BaseInput from "../../../components/BaseInput";
 import type { Gender } from "../auth.types";
@@ -27,7 +31,19 @@ const AuthSignUpStep3Page = () => {
   const [districtCode, setDistrictCode] = useState("");
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
-
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+const handleAddressFocus = () => {
+         // 0.1초 정도 지연을 주어 키보드가 올라오거나 패딩이 적용된 후 실행되게 함
+          setTimeout(() => {
+            if (scrollRef.current) {
+              scrollRef.current.scrollTo({
+                // ScrollArea의 전체 높이만큼 아래로 이동
+              top: scrollRef.current.scrollHeight,
+                behavior: "smooth",
+              });
+           }
+         }, 100); 
+      };
   const handleNext = async () => {
     if (nickname.length > 10) {
       alert("닉네임은 10자 이내로 입력해주세요.");
@@ -75,9 +91,13 @@ const AuthSignUpStep3Page = () => {
 
   return (
     <Layout>
-      <AuthSignUpHeader currentStep={3} totalSteps={6} onBack={() => navigate("/signup/step2")} />
+      <AuthSignUpHeader
+        currentStep={3}
+        totalSteps={6}
+        onBack={() => navigate("/signup/step2")}
+      />
       <PageContainer>
-        <ScrollArea>
+        <ScrollArea ref={scrollRef}>
           <GeneralInput
             inputLabel="이름"
             placeholder="이름을 입력해주세요"
@@ -99,7 +119,9 @@ const AuthSignUpStep3Page = () => {
             <DateInput
               type="date"
               value={birthDate}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBirthDate(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setBirthDate(e.target.value)
+              }
               max={new Date().toISOString().split("T")[0]} // 오늘 날짜까지만 선택 가능
             />
           </BaseInput>
@@ -123,6 +145,7 @@ const AuthSignUpStep3Page = () => {
           <LocationInput
             inputLabel="주소"
             value={address}
+            onFocus={handleAddressFocus}
             onSelect={(loc) => {
               setAddress(loc.address); // 입력창에 표시될 값
               setDistrictCode(loc.code); // (현재는 address_name 들어올 수 있음)
@@ -133,7 +156,11 @@ const AuthSignUpStep3Page = () => {
           />
         </ScrollArea>
       </PageContainer>
-      <BaseLongButton label="다음" onClick={handleNext} disabled={!isFormValid} />
+      <BaseLongButton
+        label="다음"
+        onClick={handleNext}
+        disabled={!isFormValid}
+      />
       <div style={{ height: "1rem" }} />
     </Layout>
   );
@@ -155,6 +182,19 @@ const ScrollArea = styled.div`
   flex-direction: column;
   gap: 2.5rem;
   padding: 2rem 0;
+  scroll-behavior: smooth;
+
+  
+  overflow-anchor: none;
+  overscroll-behavior: contain;
+
+ 
+  &:focus-within {
+    padding: 2rem 0 15rem 0;
+    transition: padding 0.25s ease;
+  }
+
+  transition: padding 0.25s ease;
 
   &::-webkit-scrollbar {
     display: none;
@@ -163,7 +203,7 @@ const ScrollArea = styled.div`
 
 const DateInput = styled.input`
   width: 100%;
-  height: 54px;  /* 다른 InputBox와 동일한 높이 */
+  height: 54px; /* 다른 InputBox와 동일한 높이 */
   min-height: 54px;
   font-size: ${({ theme }) => theme.size.md};
   padding: 1rem;
