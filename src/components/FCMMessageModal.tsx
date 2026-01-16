@@ -3,8 +3,10 @@ import styled, { keyframes } from "styled-components";
 import { useFCMMessageStore } from "../store/useFCMStore";
 import { IoClose } from "react-icons/io5";
 import bell from "../assets/images/bell.png";
+import { useNavigate } from "react-router-dom";
 export const FCMMessageModal = () => {
   const { message, isOpen, closeMessage } = useFCMMessageStore();
+  const navigate = useNavigate();
 
   // ESC 키로 닫기
   useEffect(() => {
@@ -25,8 +27,22 @@ export const FCMMessageModal = () => {
 
   if (!message) return null;
 
+  const handleMove = () => {
+    const destination =
+      message.data?.type === "APPLICATION"
+        ? "/applicate-status"
+        : message.data?.type === "CHAT"
+        ? `/chat/${message.chatroomId}`
+        : undefined;
+
+    closeMessage();
+    if (destination) {
+      navigate(destination);
+    }
+  };
+
   return (
-    <ModalContainer $isOpen={isOpen}>
+    <ModalContainer $isOpen={isOpen} onClick={handleMove}>
       <ModalContent>
         <CloseButton onClick={closeMessage} aria-label="닫기">
           <IoClose size={20} />
@@ -38,6 +54,11 @@ export const FCMMessageModal = () => {
             <Body>{message.body}</Body>
           </div>
         </MsgBox>
+        {message.data?.type === "APPLICATION"
+          ? "지원 현황으로 이동"
+          : message.data?.type === "CHAT"
+          ? "채팅 목록으로 이동"
+          : "확인"}
       </ModalContent>
     </ModalContainer>
   );
@@ -71,7 +92,7 @@ const MsgBox = styled.div`
 const ModalContent = styled.div`
   background-color: ${({ theme }) => theme.color.white};
   border-radius: 12px;
-  padding: 14px;
+  padding: 14px 14px 16px;
   max-width: 400px;
   width: 100%;
   margin: 0 auto;

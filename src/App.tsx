@@ -43,7 +43,7 @@ import BadgeSharePage from "./domain/Badge/page/BadgeSharePage";
 import ProfilePage from "./domain/profile/pages/ProfilePage";
 import LoadingPage from "./domain/auth/pages/LoadingPage";
 import MapPage from "./domain/map/pages/MapPage";
-import "./reset.css"
+import "./reset.css";
 function App() {
   // 모바일 브라우저 뷰포트 높이 초기화
   useEffect(() => {
@@ -54,8 +54,9 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <FCMMessageModal />
+
       <BrowserRouter>
+        <FCMMessageModal />
         <Routes>
           {/* 랜딩페이지 */}
           <Route path="/" element={<LandingPage />} />
@@ -101,7 +102,7 @@ function App() {
           <Route path="/badge" element={<BadgePage />} />
           <Route path="/badge/:disabilityId" element={<BadgeDetailPage />} />
           <Route path="/badge/share" element={<BadgeSharePage />} />
-          {/*  테스트 */}
+          {/*지원 현황 */}
           <Route path="/applicate-landing" element={<ApplicateLandingPage />} />
           <Route path="/applicate-status" element={<ApplicateStatusPage />} />
           <Route path="/applicant/:postId" element={<ApplicantPage />} />
