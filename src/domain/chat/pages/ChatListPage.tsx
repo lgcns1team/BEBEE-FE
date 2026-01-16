@@ -6,6 +6,7 @@ import { useChatHandler } from "../../../hooks/useChatHandler";
 import { formatChatTime } from "../utils/date";
 import { chatApi } from "../../../api/chatApi";
 import type { ChatroomListItem } from "../types/chat.types";
+import defaultProfileImage from "../../../assets/images/bee-santa.png";
 
 /* Components */
 import Header from "../../../components/Header";
@@ -198,7 +199,7 @@ const ChatListPage = () => {
                   }}
                 >
                   <ProfileImage
-                    src={room.otherProfileImageUrl}
+                    src={room.otherProfileImageUrl || defaultProfileImage}
                     alt=""
                     aria-hidden="true"
                   />
@@ -263,12 +264,12 @@ const ChatItem = styled.div`
   border-bottom: 0.5px solid ${({ theme }) => theme.color.natural100};
   cursor: pointer;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   padding: 20px 0;
 `;
 
 const ProfileImage = styled.img`
-  width: 15%;
+  width: 12%;
   border-radius: 50%;
   background-size: cover;
   background-position: center;
