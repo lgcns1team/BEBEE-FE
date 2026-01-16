@@ -20,7 +20,7 @@ import { useImageCompressionForOcr } from "../../../hooks/useImageCompressionFor
 
 const AuthSignUpStep5Page = () => {
   const navigate = useNavigate();
-  const { role, email, setUploadedFile, setFileUrl, setSystemFlag } =
+  const { role, email, setUploadedFile, setFileUrl, setSystemFlag, setOcrFields } =
     useAuthSignUpForm();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -89,6 +89,7 @@ const AuthSignUpStep5Page = () => {
       const result = await analyzeDocument(fileUrl, role);
       console.log(result);
       setSystemFlag(result.systemFlag);
+      setOcrFields(result.fields);  // OCR 추출 필드 저장
 
       // 3. Step 6으로 이동
       navigate("/signup/step6");

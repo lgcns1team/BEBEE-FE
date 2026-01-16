@@ -22,7 +22,7 @@ const AuthSignUpStep1Page = () => {
 
   return (
     <Layout>
-      <AuthSignUpHeader currentStep={1} totalSteps={5} onBack={() => navigate("/home")} />
+      <AuthSignUpHeader currentStep={1} totalSteps={6} onBack={() => navigate("/home")} />
       <PageContainer>
         <ScrollArea>
           <FieldSet>

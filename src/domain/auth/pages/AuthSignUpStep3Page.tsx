@@ -75,7 +75,7 @@ const AuthSignUpStep3Page = () => {
 
   return (
     <Layout>
-      <AuthSignUpHeader currentStep={3} totalSteps={5} onBack={() => navigate("/signup/step2")} />
+      <AuthSignUpHeader currentStep={3} totalSteps={6} onBack={() => navigate("/signup/step2")} />
       <PageContainer>
         <ScrollArea>
           <GeneralInput

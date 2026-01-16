@@ -4,6 +4,7 @@ import styled from "styled-components";
 import Layout from "../../../components/Layout";
 import BaseLongButton from "../../../components/BaseLongButton";
 import AuthSignUpHeader from "../components/AuthSignUpHeader";
+import GeneralInput from "../../../components/GeneralInput";
 import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
 import { signUpUser } from "../../../api/authApi";
 import type { SignUpRequest } from "../auth.types";
@@ -30,6 +31,7 @@ const AuthSignUpStep6Page = () => {
         disabilityDescription,
         fileUrl,
         systemFlag,
+        ocrFields,
         reset,
     } = useAuthSignUpForm();
 
@@ -39,6 +41,9 @@ const AuthSignUpStep6Page = () => {
     if (!systemFlag) {
         navigate("/signup/step5");
         return null;
+    } else {
+        console.log(ocrFields);
+        console.log(systemFlag);
     }
 
     // HIGH인 경우 재업로드 안내
@@ -151,6 +156,80 @@ const AuthSignUpStep6Page = () => {
                             <InfoText>⏱️ 관리자 검토 후 승인될 예정입니다. (보통 1-2일 소요)</InfoText>
                         </InfoBox>
                     )}
+
+                    {/* OCR 추출 결과 표시 - 역할별로 다른 필드 */}
+                    {ocrFields && Object.keys(ocrFields).length > 0 && (
+                        <OcrFieldsContainer>
+                            <OcrSectionTitle>인식된 정보</OcrSectionTitle>
+
+                            {/* 공통: 문서종류 */}
+                            {ocrFields.title && (
+                                <GeneralInput
+                                    inputLabel="문서종류"
+                                    value={ocrFields.title}
+                                    disabled
+                                />
+                            )}
+
+                            {/* 공통: 성명 */}
+                            {ocrFields.name && (
+                                <GeneralInput
+                                    inputLabel="성명"
+                                    value={ocrFields.name}
+                                    disabled
+                                />
+                            )}
+
+                            {/* 공통: 생년월일 */}
+                            {ocrFields.birth && (
+                                <GeneralInput
+                                    inputLabel="생년월일"
+                                    value={ocrFields.birth}
+                                    disabled
+                                />
+                            )}
+
+                            {/* HELPER 전용 필드 */}
+                            {role === "HELPER" && (
+                                <>
+                                    {ocrFields.hours && (
+                                        <GeneralInput
+                                            inputLabel="이수시간"
+                                            value={`${ocrFields.hours}시간`}
+                                            disabled
+                                        />
+                                    )}
+                                    {ocrFields.regno && (
+                                        <GeneralInput
+                                            inputLabel="등록번호"
+                                            value={ocrFields.regno}
+                                            disabled
+                                        />
+                                    )}
+                                </>
+                            )}
+
+                            {/* DISABLED 전용 필드 */}
+                            {role === "DISABLED" && (
+                                <>
+                                    {ocrFields.disability_type && (
+                                        <GeneralInput
+                                            inputLabel="장애유형"
+                                            value={ocrFields.disability_type}
+                                            disabled
+                                        />
+                                    )}
+                                    {ocrFields.disability_grade && (
+                                        <GeneralInput
+                                            inputLabel="장애등급"
+                                            value={ocrFields.disability_grade}
+                                            disabled
+                                        />
+                                    )}
+                                </>
+                            )}
+                        </OcrFieldsContainer>
+                    )}
                 </ScrollArea>
 
                 <BaseLongButton
@@ -213,4 +292,18 @@ const InfoText = styled.p`
   color: #855d1d;
   margin: 0.25rem 0;
   line-height: 1.4;
+`;
+
+const OcrFieldsContainer = styled.div`
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const OcrSectionTitle = styled.h2`
+  font-size: ${({ theme }) => theme.size.lg};
+  font-weight: ${({ theme }) => theme.weight.bold};
+  color: ${({ theme }) => theme.color.text};
+  margin-bottom: 0.5rem;
 `;
