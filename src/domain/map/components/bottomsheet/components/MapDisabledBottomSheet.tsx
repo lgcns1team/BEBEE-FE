@@ -32,12 +32,11 @@ function MapDisabledBottomSheet({
   radius,
   onChangeRadius,
   onClickHomeLocation,
-  
 }: Props) {
   const { sheet, content, snap, updateSnap, sheetY } = useMapBottomSheet();
   const [openModalLoacation, setOpenModalLocation] = useState(false);
   const [openModalRadius, setOpenModalRadius] = useState(false);
-  const {user} = useUserStore();
+  const { user } = useUserStore();
   const handleGoMap = () => {
     updateSnap("HALF");
   };
@@ -52,7 +51,7 @@ function MapDisabledBottomSheet({
           onClose={() => setOpenModalLocation(false)}
           onClickCurrentLocation={onClickCurrentLocation}
           onClickHomeLocation={onClickHomeLocation}
-          addressRoad = {user.addressRoad}
+          addressRoad={user.addressRoad}
         />
       )}
 
@@ -151,7 +150,6 @@ const Wrapper = styled(motion.div)`
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 375px;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -286,4 +284,3 @@ const ListImage = styled.img`
   width: 15px;
   height: 15px;
 `;
-
