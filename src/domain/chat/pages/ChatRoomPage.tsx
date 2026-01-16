@@ -170,8 +170,9 @@ const ChatRoom = () => {
         return;
       }
 
-      const senderId = Number(user.memberId);
-      const receiverId = Number(activeRoom.otherId);
+      // 숫자 변환 시 정밀도 손실 방지를 위해 문자열 그대로 사용
+      const senderId = String(user.memberId);
+      const receiverId = activeRoom.otherId;
 
       // 소켓으로 텍스트 메시지 발행
       sendMessage(senderId, receiverId, text, chatroomId);
