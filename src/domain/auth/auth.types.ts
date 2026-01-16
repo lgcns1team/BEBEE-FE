@@ -26,8 +26,9 @@ export interface SignUpRequest {
   longitude: number;
   districtCode: string;
 
-  // HELPER용: 도움 유형 목록
+  // HELPER용: 도움 유형 목록, 자기소개
   helpTypes?: string[];
+  introduction?: string;
 
   // DISABLED용: 장애 유형, 등급 및 설명
   disabilityType?: string;

@@ -13,8 +13,9 @@ import { DISABILITY_GRADES } from "../../../constants/disabilityGrades";
 
 const AuthSignUpStep4Page = () => {
   const navigate = useNavigate();
-  const { role, setHelpTypes, setDisabilityInfo } = useAuthSignUpForm();
+  const { role, setHelpTypes, setIntroduction, setDisabilityInfo } = useAuthSignUpForm();
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [helperIntroduction, setHelperIntroduction] = useState("");
   const [selectedDisabilityType, setSelectedDisabilityType] = useState("");
   const [selectedDisabilityGrade, setSelectedDisabilityGrade] = useState("");
   const [disabilityDescription, setDisabilityDescription] = useState("");
@@ -49,6 +50,7 @@ const AuthSignUpStep4Page = () => {
     // Zustand store에 저장
     if (role === "HELPER") {
       setHelpTypes(selectedTags);
+      setIntroduction(helperIntroduction);
     } else {
       setHelpTypes(selectedTags);  // 장애인도 도움 유형 저장
       setDisabilityInfo(selectedDisabilityType, selectedDisabilityGrade, disabilityDescription);
@@ -58,7 +60,8 @@ const AuthSignUpStep4Page = () => {
 
   useEffect(() => {
     if (role === "HELPER") {
-      setIsFormValid(selectedTags.length > 0);
+      // 도우미: 도움 유형 + 자기소개 필수
+      setIsFormValid(selectedTags.length > 0 && helperIntroduction.trim().length > 0);
       return;
     }
 
@@ -68,7 +71,7 @@ const AuthSignUpStep4Page = () => {
         !!selectedDisabilityType && !!selectedDisabilityGrade && !!disabilityDescription;
       setIsFormValid(isValid);
     }
-  }, [role, selectedTags, selectedDisabilityType, selectedDisabilityGrade, disabilityDescription]);
+  }, [role, selectedTags, helperIntroduction, selectedDisabilityType, selectedDisabilityGrade, disabilityDescription]);
 
   return (
     <Layout>
@@ -76,24 +79,40 @@ const AuthSignUpStep4Page = () => {
       <PageContainer>
         <ScrollArea>
           {role === "HELPER" ? (
-            // 도우미: 도움 유형 선택
-            <FieldSet>
-              <ModalLabel>
-                어떤 도움을 줄 수 있나요?
-                <RequiredMark>*</RequiredMark>
-              </ModalLabel>
-              <Row>
-                {HELP_TAG_NAMES.map((tag) => (
-                  <Badge
-                    key={tag}
-                    $active={selectedTags.includes(tag)}
-                    onClick={() => handleTagClick(tag)}
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-              </Row>
-            </FieldSet>
+            // 도우미: 도움 유형 선택 + 자기소개
+            <>
+              <FieldSet>
+                <ModalLabel>
+                  어떤 도움을 줄 수 있나요?
+                  <RequiredMark>*</RequiredMark>
+                </ModalLabel>
+                <Row>
+                  {HELP_TAG_NAMES.map((tag) => (
+                    <Badge
+                      key={tag}
+                      $active={selectedTags.includes(tag)}
+                      onClick={() => handleTagClick(tag)}
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                </Row>
+              </FieldSet>
+
+              <FieldSet>
+                <ModalLabel>
+                  자기소개<RequiredMark>*</RequiredMark>
+                </ModalLabel>
+                <Textarea
+                  placeholder="본인을 소개해주세요 (도움을 줄 수 있는 경험, 능력 등)"
+                  value={helperIntroduction}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    setHelperIntroduction(e.target.value)
+                  }
+                  rows={6}
+                />
+              </FieldSet>
+            </>
           ) : (
             // 장애인: 장애 정보 입력
             <>
