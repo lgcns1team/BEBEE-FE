@@ -20,7 +20,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   #root {
-    width: 375px;
+    width: 402px;
     max-width: 100%;
     margin: 0 auto;
     min-height: calc(var(--vh, 1vh) * 100); /* Mobile viewport fix */

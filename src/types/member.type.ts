@@ -18,7 +18,7 @@ export interface ReviewCount {
 export interface Badge {
   disabilityCategoryId: number;
   count: number;
-  badgeCode: BadgeCode
+  badgeCode: BadgeCode;
 }
 // 내 프로필 조회
 export interface MyProfile {
@@ -44,6 +44,7 @@ export interface MyProfile {
 
   disabilityType: string | null;
   disabilityDescription: string | null;
+  disabilityGrade: string | null;
 }
 
 // 타인이 보는 프로필 조회
@@ -99,6 +100,6 @@ export interface Member {
   disabilityDescription: string;
   badges: Badge[] | null;
   reviews: ReviewCount[];
-   helpCategories: number[];
-
+  helpCategories: number[];
+  disabilityGrade: string | null;
 }

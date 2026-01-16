@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { useOtherMemberStore } from "../../store/useOtherMemberStore";
 import BadgeChips from "../../../Badge/components/BadgeChips";
 import { DISABILITY_TYPES } from "../../../../constants/disabilityTypes";
+import defaultProfileImage from "../../../../assets/images/bee-santa.png";
 
 // BadgeChips랑 동일한 코드
 type BadgeCode = "LEVEL_1" | "LEVEL_2" | null;
@@ -30,10 +31,15 @@ const ProfileDetailSection = () => {
     };
   }, [profileId, fetchMemberProfile, clearProfile]);
 
-  const badges = profile?.badges ?? [];
+  type ProfileBadge = {
+    badgeCode: "LEVEL_1" | "LEVEL_2" | string;
+    disabilityCategoryId: string | number;
+  };
+
+  const badges = (profile?.badges as ProfileBadge[] | undefined) ?? [];
 
   const badgeTitles = badges
-    .map((b: any) => {
+    .map((b: ProfileBadge) => {
       const disability = DISABILITY_TYPES.find(
         (d) => String(d.id) === String(b.disabilityCategoryId)
       );
@@ -71,6 +77,8 @@ const ProfileDetailSection = () => {
     return <Info>프로필 정보를 불러올 수 없습니다.</Info>;
   }
 
+  const profileImageUrl = profile.profileImageUrl || defaultProfileImage;
+
   const infoList = [
     { label: "성별", value: profile.gender === "MALE" ? "남성" : "여성" },
     { label: "나이", value: `${profile.ageGroup}대` },
@@ -90,7 +98,7 @@ const ProfileDetailSection = () => {
       <div aria-hidden="true">
         <Top>
           <ProfileImageWrapper>
-            <ProfileImage src={profile.profileImageUrl ?? ""} alt="프로필" />
+            <ProfileImage src={profileImageUrl} alt="프로필" />
           </ProfileImageWrapper>
 
           <TopRight>

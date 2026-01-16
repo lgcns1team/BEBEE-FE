@@ -20,7 +20,7 @@ const DisabledTypeSection = () => {
 
   const disabilityType = member?.disabilityType || "";
   const disabilityDescription = member?.disabilityDescription || "";
-
+  const disabilityGrade = member?.disabilityGrade || "급수";
   if (!disabilityType) {
     return (
       <Container>
@@ -40,7 +40,7 @@ const DisabledTypeSection = () => {
         <ResumeItem>
           <Indicator $active={true} />
           <ResumeContent>
-            <ResumeYear>급수</ResumeYear>
+            <ResumeYear>{disabilityGrade}</ResumeYear>
             <ResumeTitle>{disabilityType}</ResumeTitle>
             {disabilityDescription && (
               <ResumeText>{disabilityDescription}</ResumeText>
