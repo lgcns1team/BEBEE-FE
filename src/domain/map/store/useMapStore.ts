@@ -31,7 +31,7 @@ interface MapStore {
 export const useMapStore = create<MapStore>((set) => ({
   findType: "CURRENT",
   center: { lat: 33.450701, lng: 126.570667 },
-  radiusKm: 3,
+  radiusKm: 1,
 
   helpers: [],
   posts: [],
