@@ -6,7 +6,6 @@ export const FieldSet = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin-top: 2.5rem;
 `;
 
 export const InputLabel = styled.label`

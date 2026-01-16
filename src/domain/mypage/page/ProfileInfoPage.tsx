@@ -43,17 +43,19 @@ const ProfileInfoPage = () => {
     {
       label: "주요 도움",
       value:
-        member.helpTypes && member.helpTypes.length > 0
-          ? member.helpTypes.join(", ")
+        member.helpCategories && member.helpCategories.length > 0
+          ? member.helpCategories.join(", ")
           : "-",
     },
     { label: "한줄소개", value: member.introduction || "-" },
   ];
 
   return (
-    <Layout bg>
-      <Header title="프로필" showBack onBack={() => navigate(-1)} bg />
+  <Layout bg>
+    <Header title="프로필" showBack onBack={() => navigate(-1)} bg />
 
+    
+    <ScrollContainer>
       <Info>
         <Top>
           <ProfileImageWrapper>
@@ -85,15 +87,25 @@ const ProfileInfoPage = () => {
 
         <ProfileModifyButton>프로필 수정</ProfileModifyButton>
       </Info>
+
       <ReceivedReview mode="me" />
-    </Layout>
-  );
+    </ScrollContainer>
+  </Layout>
+);
 };
 
 export default ProfileInfoPage;
 
 /* ================= styled ================= */
 
+const ScrollContainer = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 24px;
+
+  /* iOS 스크롤 자연스럽게 */
+  -webkit-overflow-scrolling: touch;
+`;
 const Info = styled.div`
   background-color: ${({ theme }) => theme.color.white};
   border-radius: ${({ theme }) => theme.borderRadius.lg};

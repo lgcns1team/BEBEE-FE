@@ -101,67 +101,81 @@ const MatchingPostCard = ({ engagement, onComplete }: Props) => {
     }
   };
 
-  return (
-    <Card role="button" aria-label={cardAriaLabel} tabIndex={0} >
-      <div aria-hidden="true">
-        <TopArea>
-          <Title
-            onClick={goMatchingInfo}
-            aria-label={`활동 제목 ${engagement.title} 입니다. 매칭 상세 정보로 이동합니다`}
+ return (
+    <Card>
+     <VisuallyHidden
+        tabIndex={0}
+        aria-label={cardAriaLabel}
+      >
+        {cardAriaLabel}
+      </VisuallyHidden>
+
+      <TopArea>
+        <Title
+          onClick={goMatchingInfo}
+          aria-label={`활동 제목 ${engagement.title} 입니다. 매칭 상세 정보로 이동합니다`}
+         
+        >
+          {engagement.title}
+        </Title>
+        {engagement.helpType === "DAY" && (
+          <OneDayBadge aria-label="하루 도움에 해당하는 활동입니다">
+            하루 도움
+          </OneDayBadge>
+        )}
+      </TopArea>
+
+      <BottomArea>
+        <BottomLeft>
+          <User
+            role="button"
+            tabIndex={0}
+            onClick={handleProfileClick}
+            aria-label={`매칭된 상대 ${engagement.otherNickname} 님의 프로필로 이동합니다`}
+            aria-hidden
           >
-            {engagement.title}
-          </Title>
-          {engagement.helpType === "DAY" && (
-            <OneDayBadge aria-label="하루 도움에 해당하는 활동입니다">
-              하루 도움
-            </OneDayBadge>
-          )}
-        </TopArea>
+            {engagement.otherNickname}
+          </User>
 
-        <BottomArea>
-          <BottomLeft>
-            <User
-              role="button"
-              tabIndex={0}
-              onClick={handleProfileClick}
-              aria-label={`매칭된 상대 ${engagement.otherNickname} 님의 프로필로 이동합니다`}
+          <InfoLine>
+            <MapPinIcon size={16} aria-hidden="true" />
+            <InfoText
+              aria-label={`활동 지역 ${engagement.region} 입니다`}
+              aria-hidden
             >
-              {engagement.otherNickname}
-            </User>
+              {engagement.region}
+            </InfoText>
+          </InfoLine>
 
-            <InfoLine>
-              <MapPinIcon size={16} aria-hidden="true" />
-              <InfoText aria-label={`활동 지역 ${engagement.region} 입니다`}>
-                {engagement.region}
-              </InfoText>
-            </InfoLine>
+          <InfoLine>
+            <CalendarIcon size={16} aria-hidden="true" />
+            <InfoText
+              aria-label={`도움 날짜 ${scheduleText} 입니다`}
+              aria-hidden
+            >
+              {scheduleText}
+            </InfoText>
+          </InfoLine>
 
-            <InfoLine>
-              <CalendarIcon size={16} aria-hidden="true" />
-              <InfoText aria-label={`도움 날짜 ${scheduleText} 입니다`}>
-                {scheduleText}
-              </InfoText>
-            </InfoLine>
+          <TagRow aria-label="도움 유형 태그 목록" aria-hidden>
+            {engagement.helpCategoryIds.map((cat) => (
+              <HelpTag key={cat}>{HELP_TAG_MAP[cat]}</HelpTag>
+            ))}
+          </TagRow>
+        </BottomLeft>
 
-            <TagRow aria-label="도움 유형 태그 목록">
-              {engagement.helpCategoryIds.map((cat) => (
-                <HelpTag key={cat}>{HELP_TAG_MAP[cat]}</HelpTag>
-              ))}
-            </TagRow>
-          </BottomLeft>
+        {engagement.thumbnailImageUrl && (
+          <BottomRight>
+            <Thumbnail aria-hidden>
+              <img
+                src={engagement.thumbnailImageUrl}
+                alt="활동과 관련된 이미지 입니다"
+              />
+            </Thumbnail>
+          </BottomRight>
+        )}
+      </BottomArea>
 
-          {engagement.thumbnailImageUrl && (
-            <BottomRight>
-              <Thumbnail>
-                <img
-                  src={engagement.thumbnailImageUrl}
-                  alt="활동과 관련된 이미지 입니다"
-                />
-              </Thumbnail>
-            </BottomRight>
-          )}
-        </BottomArea>
-      </div>
       <BottomBar>
         <BottomInner>
           <ChatButton
@@ -195,6 +209,19 @@ const Card = styled.div`
     outline: 2px solid ${({ theme }) => theme.color.main};
     outline-offset: 2px;
   }
+`;
+const VisuallyHidden = styled.div`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+  
+  
 `;
 
 const TopArea = styled.div`
@@ -261,7 +288,7 @@ const Thumbnail = styled.div`
   height: 80px;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   overflow: hidden;
-  margin-top: 20px;
+margin-top: 20px;
   img {
     width: 100%;
     height: 100%;

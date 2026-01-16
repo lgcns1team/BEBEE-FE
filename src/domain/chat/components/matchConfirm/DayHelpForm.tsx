@@ -75,7 +75,7 @@ const DayHelpForm = ({
   };
 
   return (
-    <>
+    <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
       <DatePickerGlobalStyle />
       <FieldSet role="group" aria-label="하루 도움 날짜 및 시간 입력">
         <ModalLabel>
@@ -200,7 +200,7 @@ const DayHelpForm = ({
           </TimeInputWrapper>
         </TimeWrapper>
       </FieldSet>
-    </>
+    </div>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from "react";
+import React, { useEffect, useRef, useMemo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import MessageItem from "./MessageItem";
@@ -10,6 +10,7 @@ const EMPTY_ARRAY: never[] = [];
 const MessageList = () => {
   const { chatroomId } = useParams<{ chatroomId: string }>();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   // 빈 배열 상수를 사용하여 매번 새로운 배열을 생성하지 않도록 함
   const rawMessages = useChatStore((state) => {
@@ -38,6 +39,27 @@ const MessageList = () => {
   const shouldScrollToBottomRef = useRef<boolean>(true);
   const previousMessagesLengthRef = useRef<number>(0);
 
+  const scrollToBottom = useCallback(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ block: "end", behavior: "auto" });
+    } else if (scrollRef.current) {
+      // 폴백
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, []);
+
+  useEffect(() => {
+    previousMessagesLengthRef.current = 0;
+    shouldScrollToBottomRef.current = true;
+
+    // 1. 즉시 실행 (다음 프레임)
+    requestAnimationFrame(scrollToBottom);
+
+    // 2. 약간의 지연 후 재실행 (안전 장치)
+    const timer = setTimeout(scrollToBottom, 120);
+
+    return () => clearTimeout(timer);
+  }, [chatroomId, scrollToBottom]);
   // 스크롤을 맨 아래로 이동 (새 메시지 수신/전송 시)
   useEffect(() => {
     if (!scrollRef.current) return;
@@ -55,16 +77,17 @@ const MessageList = () => {
         previousMessagesLengthRef.current === 0
       ) {
         requestAnimationFrame(() => {
-          if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-          }
+          scrollToBottom();
+          // 카드형 메시지(매칭확인서/성공 카드 등) 렌더 지연 대비 추가 호출
+          requestAnimationFrame(scrollToBottom);
+          setTimeout(scrollToBottom, 50);
         });
         shouldScrollToBottomRef.current = true;
       }
     }
 
     previousMessagesLengthRef.current = messages.length;
-  }, [messages.length]);
+  }, [messages.length, scrollToBottom]);
 
   // 위로 스크롤할 때 이전 메시지 불러오기
   useEffect(() => {
@@ -185,11 +208,15 @@ const MessageList = () => {
           아직 메시지가 없습니다.
         </span>
       )}
+      <BottomSpacer />
+      <div ref={bottomRef} />
     </ListContainer>
   );
 };
 
 export default MessageList;
+
+const SPACER_HEIGHT = "calc(80px + env(safe-area-inset-bottom, 0px))";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -200,7 +227,8 @@ const ListContainer = styled.div`
   gap: 12px;
   background-color: ${({ theme }) => theme.color.white};
   padding-top: 20px;
-  padding-bottom: 80px;
+  padding-bottom: 12px;
+
   -ms-overflow-style: none;
   scrollbar-width: none;
 
@@ -229,4 +257,9 @@ const DateDivider = styled.div`
     color: #999;
     background-color: transparent;
   }
+`;
+
+const BottomSpacer = styled.div`
+  height: ${SPACER_HEIGHT};
+  flex-shrink: 0;
 `;

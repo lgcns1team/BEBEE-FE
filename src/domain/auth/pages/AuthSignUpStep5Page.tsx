@@ -5,20 +5,27 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 import Layout from "../../../components/Layout";
 import BaseLongButton from "../../../components/BaseLongButton";
 import AuthSignUpHeader from "../components/AuthSignUpHeader";
-import { FieldSet, ModalLabel, RequiredMark } from "../../../styles/FieldSetStyle";
+import {
+  FieldSet,
+  ModalLabel,
+  RequiredMark,
+} from "../../../styles/FieldSetStyle";
 import { useAuthSignUpForm } from "../../../store/useAuthSignUpStore";
 import { uploadFileToS3ForSignup } from "../../../api/fileApi";
 import { analyzeDocument } from "../../../api/documentApi";
 import authHelperImage from "../../../assets/images/auth-helper.png";
 import authDisabledImage from "../../../assets/images/auth-disabled.png";
 import LoadingPage from "./LoadingPage";
+import { useImageCompressionForOcr } from "../../../hooks/useImageCompressionForOcr";
 
 const AuthSignUpStep5Page = () => {
   const navigate = useNavigate();
-  const { role, email, setUploadedFile, setFileUrl, setSystemFlag } = useAuthSignUpForm();
+  const { role, email, setUploadedFile, setFileUrl, setSystemFlag } =
+    useAuthSignUpForm();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { compressForOcr } = useImageCompressionForOcr();
 
   // role이 없으면 이전 단계로 리다이렉트
   useEffect(() => {
@@ -33,46 +40,85 @@ const AuthSignUpStep5Page = () => {
     return null;
   }
 
+  // 파일 선택 시 바로 S3 업로드 + OCR 실행
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("🔥 handleFileSelect 호출됨!", e.target.files);
     const file = e.target.files?.[0];
-    if (!file || !role) return;
-
-    setIsUploading(true);
-    try {
-      // 1. 파일 저장 (store)
-      setUploadedFile(file);
-
-      // 2. S3 업로드 (회원가입 전용 - JWT 불필요)
-      const fileUrl = await uploadFileToS3ForSignup(file, email);
-      setFileUrl(fileUrl);
-
-      // 3. 문서 분석 API 호출 (memberId 없이)
-      const result = await analyzeDocument(fileUrl, role);
-      console.log('문서 분석 결과:', result);
-      setSystemFlag(result.systemFlag);
-
-      // 4. Step 6으로 이동
-      navigate("/signup/step6");
-    } catch (error) {
-      console.error("문서 업로드/분석 실패:", error);
-      alert("문서 업로드 중 오류가 발생했습니다. 다시 시도해 주세요.");
-    } finally {
-      setIsUploading(false);
+    console.log("📁 선택된 파일:", file);
+    console.log("👤 role:", role);
+    if (!file || !role) {
+      console.log("❌ 파일 또는 role이 없어서 return");
+      return;
     }
+
+    // 업로드/분석은 확인 버튼(handleConfirm)에서 진행
+    setSelectedFile(file);
+    setUploadedFile(file);
   };
 
   const handleFileClick = () => {
     fileInputRef.current?.click();
   };
 
+  // 확인 버튼 클릭 시 업로드 및 OCR 인증 시작
+  const handleConfirm = async () => {
+    if (!selectedFile || !role) {
+      alert("파일을 선택해주세요.");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      console.time("compressForOcr"); // 압축 시간 측정
+      // 이미지 파일만 압축(PNG), PDF는 그대로 반환됨 (훅 내부에서 분기 + 폴백 처리)
+      const fileToUpload = await compressForOcr(selectedFile);
+      console.timeEnd("compressForOcr");
+
+      console.log("S3 업로드 시작", {
+        이름: fileToUpload.name,
+        타입: fileToUpload.type,
+        크기MB: (fileToUpload.size / 1024 / 1024).toFixed(2),
+      });
+
+      // 1. S3 업로드 (회원가입 전용 - JWT 불필요)
+      const fileUrl = await uploadFileToS3ForSignup(fileToUpload, email);
+      console.log("S3 업로드 완료, URL:", fileUrl);
+      setFileUrl(fileUrl);
+
+      // 2. 문서 분석 API 호출 (memberId 없이)
+      const result = await analyzeDocument(fileUrl, role);
+      console.log(result);
+      setSystemFlag(result.systemFlag);
+
+      // 3. Step 6으로 이동
+      navigate("/signup/step6");
+    } catch (error) {
+      console.error("문서 업로드/분석 실패:", error);
+      alert("문서 업로드 중 오류가 발생했습니다. 다시 시도해 주세요.");
+      setIsUploading(false);
+    }
+  };
+
+  // OCR 인증 중일 때 로딩 페이지 표시
+  if (isUploading) {
+    return <LoadingPage />;
+  }
+
+
   return (
     <Layout>
-      <AuthSignUpHeader currentStep={5} totalSteps={6} onBack={() => navigate("/signup/step4")} />
+      <AuthSignUpHeader
+        currentStep={5}
+        totalSteps={6}
+        onBack={() => navigate("/signup/step4")}
+      />
       <PageContainer>
         <ScrollArea>
           <FieldSet>
             <ModalLabel>
-              {role === "HELPER" ? "교육 이수증 업로드" : "장애인 복지카드/등록증 업로드"}
+              {role === "HELPER"
+                ? "교육 이수증 업로드"
+                : "장애인 복지카드/등록증 업로드"}
               <RequiredMark>*</RequiredMark>
             </ModalLabel>
             <HelpText>
@@ -90,9 +136,15 @@ const AuthSignUpStep5Page = () => {
             </RoleImageContainer>
 
             {/* 파일 업로드 버튼 */}
-            <FileUploadButton type="button" onClick={handleFileClick} disabled={isUploading}>
+            <FileUploadButton
+              type="button"
+              onClick={handleFileClick}
+              disabled={isUploading}
+            >
               <IoDocumentTextOutline size={40} />
-              <UploadText>{selectedFile ? selectedFile.name : "파일 선택"}</UploadText>
+              <UploadText>
+                {selectedFile ? selectedFile.name : "파일 선택"}
+              </UploadText>
               <UploadSubText>
                 {selectedFile
                   ? "파일이 선택되었습니다. 확인 버튼을 눌러주세요."
@@ -111,7 +163,7 @@ const AuthSignUpStep5Page = () => {
       </PageContainer>
       <BaseLongButton
         label={isUploading ? "업로드 중..." : "다음"}
-        onClick={handleFileClick}
+        onClick={handleConfirm}
         disabled={isUploading}
       />
       <div style={{ height: "1rem" }} />
