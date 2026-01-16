@@ -50,6 +50,7 @@ const AuthSignUpStep4Page = () => {
     if (role === "HELPER") {
       setHelpTypes(selectedTags);
     } else {
+      setHelpTypes(selectedTags);  // 장애인도 도움 유형 저장
       setDisabilityInfo(selectedDisabilityType, selectedDisabilityGrade, disabilityDescription);
     }
     navigate("/signup/step5");
@@ -63,6 +64,7 @@ const AuthSignUpStep4Page = () => {
 
     if (role === "DISABLED") {
       const isValid =
+        selectedTags.length > 0 &&  // 도움 유형 필수
         !!selectedDisabilityType && !!selectedDisabilityGrade && !!disabilityDescription;
       setIsFormValid(isValid);
     }
@@ -70,7 +72,7 @@ const AuthSignUpStep4Page = () => {
 
   return (
     <Layout>
-      <AuthSignUpHeader currentStep={4} totalSteps={5} onBack={() => navigate("/signup/step3")} />
+      <AuthSignUpHeader currentStep={4} totalSteps={6} onBack={() => navigate("/signup/step3")} />
       <PageContainer>
         <ScrollArea>
           {role === "HELPER" ? (
@@ -95,6 +97,25 @@ const AuthSignUpStep4Page = () => {
           ) : (
             // 장애인: 장애 정보 입력
             <>
+              {/* 도움 유형 선택 (도우미와 동일) */}
+              <FieldSet>
+                <ModalLabel>
+                  어떤 도움이 필요하신가요?
+                  <RequiredMark>*</RequiredMark>
+                </ModalLabel>
+                <Row>
+                  {HELP_TAG_NAMES.map((tag) => (
+                    <Badge
+                      key={tag}
+                      $active={selectedTags.includes(tag)}
+                      onClick={() => handleTagClick(tag)}
+                    >
+                      {tag}
+                    </Badge>
+                  ))}
+                </Row>
+              </FieldSet>
+
               <FieldSet>
                 <ModalLabel>
                   장애 유형<RequiredMark>*</RequiredMark>
