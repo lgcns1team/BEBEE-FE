@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import styled from "styled-components";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useChatStore } from "../store/useChatStore";
 import { useAgreementStore } from "../store/useAgreementStore";
 import { postApi } from "../../../api/postApi";
@@ -38,6 +38,7 @@ const typeLabelMap = {
 
 const MatchFormPage = () => {
   const { chatroomId } = useParams<{ chatroomId: string }>();
+  const location = useLocation();
 
   // PostDetailResponse를 AgreementRequest로 변환
   const convertPostToAgreementRequest = (
@@ -791,6 +792,7 @@ const MatchFormPage = () => {
               : agreementRequest?.totalHoney || 0
           }
           onClose={() => setIsInsufficientModalOpen(false)}
+          redirectTo={`${location.pathname}${location.search}`}
         />
       )}
     </MatchLayout>
