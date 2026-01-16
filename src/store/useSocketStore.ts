@@ -27,25 +27,12 @@ interface SocketStore {
   connect: () => void;
   disconnect: () => void;
   sendMessage: (
-    senderId: number,
-    receiverId: number,
+    senderId: string,
+    receiverId: string,
     text: string,
     chatroomId: string
   ) => void;
-  sendMatchConfirmation: (
-    receiverId: number,
-    chatroomId: string,
-    matchConfirmationData: {
-      location: string;
-      unitPoints: number;
-      totalPoints: number;
-      startDate?: string;
-      endDate?: string;
-      scheduleDays?: string[];
-      scheduleStartTimes?: string[];
-      scheduleEndTimes?: string[];
-    }
-  ) => void;
+
   addMessage: (msg: ChatMessage, chatroomId?: string) => void;
   clearMessages: (chatroomId?: string) => void;
   getMessages: (chatroomId: string) => ChatMessage[];
@@ -115,7 +102,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
                 const activeRoom = useChatStore.getState().activeRoom;
                 chatroomId = activeRoom?.chatroomId;
                 console.log(
-                  "📨 [웹소켓] chatroomId 없음, activeRoom 사용:",
+                  "[웹소켓] chatroomId 없음, activeRoom 사용:",
                   chatroomId,
                   "메시지 타입:",
                   receivedMsg.type
@@ -136,13 +123,10 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
                 // MATCH_CONFIRMATION, MATCH_SUCCESS, MATCH_FAILURE 메시지 수신 시 matchStatus 업데이트
                 if (receivedMsg.type === "MATCH_CONFIRMATION") {
-            
                   useChatStore.getState().updateMatchStatus("PROCEEDING");
                 } else if (receivedMsg.type === "MATCH_SUCCESS") {
-            
                   useChatStore.getState().updateMatchStatus("MATCHED");
                 } else if (receivedMsg.type === "MATCH_FAILURE") {
-               
                   useChatStore.getState().updateMatchStatus("NON_MATCHED");
                 }
               } else {
@@ -155,24 +139,11 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
                 });
               }
             } catch (e) {
-              console.error("❌ [웹소켓] 메시지 파싱 실패:", e, message.body);
+              console.error(" [웹소켓] 메시지 파싱 실패:", e, message.body);
             }
           },
           { id: `sub-${memberId}` } // ID 고유화
         );
-
-        // 연결 완료 후 대기 중인 매칭확인서 전송
-        const pending = get().pendingMatchConfirmations;
-        if (pending.length > 0) {
-          pending.forEach((pendingConfirmation) => {
-            get().sendMatchConfirmation(
-              pendingConfirmation.receiverId,
-              pendingConfirmation.chatroomId,
-              pendingConfirmation.matchConfirmationData
-            );
-          });
-          set({ pendingMatchConfirmations: [] });
-        }
       },
 
       onWebSocketError: (error) => {
@@ -207,12 +178,15 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
     const createdAt = new Date().toISOString();
     const payload = {
-      chatroomId,
-      receiverId,
+      chatroomId: String(chatroomId),
+      receiverId: String(receiverId),
       type: "TEXT",
       textContent: text,
-      createdAt,
+      createdAt: String(createdAt),
     };
+
+    // 송신 페이로드 로깅 (디버깅용)
+    console.log("[웹소켓 송신] /pub/chats", payload);
 
     // Optimistic Update 제거: 서버에서 받은 메시지만 표시하도록 변경
     // (중복 메시지 방지를 위해)
@@ -237,7 +211,7 @@ export const useSocketStore = create<SocketStore>((set, get) => ({
 
     if (!client?.active || !connected) {
       console.warn(
-        "⚠️ [sendMatchConfirmation] 연결되지 않음. 대기열에 추가 후 재연결 시도..."
+        "[sendMatchConfirmation] 연결되지 않음. 대기열에 추가 후 재연결 시도..."
       );
       // 대기열에 추가
       set((state) => ({
