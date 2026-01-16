@@ -654,6 +654,7 @@ const MatchFormPage = () => {
               <HelpTagDropDown
                 selectedTags={selectedTags}
                 onTagsChange={setSelectedTags}
+                autoFocusOnMount
               />
             </div>
 

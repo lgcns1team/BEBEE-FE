@@ -141,6 +141,7 @@ const DayHelpWrite = ({ formData, updateField }: DayProps) => {
           }
           required
         />
+        <BottomSpacer aria-hidden="true" />
       </Container>
       <div style={{ paddingTop: "30px" }}>
         {" "}
@@ -164,6 +165,11 @@ const Container = styled.div`
     display: none;
   }
   padding-top: 20px;
+`;
+
+const BottomSpacer = styled.div`
+  height: 2rem;
+  flex-shrink: 0;
 `;
 
 const TimeWrapper = styled.div`
