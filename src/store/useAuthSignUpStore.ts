@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { UserRole, Gender } from "../domain/auth/auth.types";
+import type { OcrFields } from "../api/documentApi";
 
 interface SignUpFormData {
     // Step 1: 역할 선택
@@ -33,6 +34,7 @@ interface SignUpFormData {
     uploadedFile: File | null;
     fileUrl: string | null;        // S3 업로드 후 URL
     systemFlag: string | null;     // 분석 결과 (LOW/MID/HIGH)
+    ocrFields: OcrFields | null;   // OCR 추출 필드 (name, birth 등)
 
     // 가입 완료 후 생성된 ID (재업로드 시 필요)
     memberId: string | null;
@@ -58,6 +60,7 @@ interface SignUpFormActions {
     setUploadedFile: (file: File | null) => void;
     setFileUrl: (url: string | null) => void;
     setSystemFlag: (flag: string | null) => void;
+    setOcrFields: (fields: OcrFields | null) => void;
     setMemberId: (id: string) => void;
     reset: () => void;
 }
@@ -83,6 +86,7 @@ const initialState: SignUpFormData = {
     uploadedFile: null,
     fileUrl: null,
     systemFlag: null,
+    ocrFields: null,
     memberId: null,
 };
 
@@ -108,6 +112,8 @@ export const useAuthSignUpForm = create<SignUpFormData & SignUpFormActions>(
         setFileUrl: (fileUrl) => set({ fileUrl }),
 
         setSystemFlag: (systemFlag) => set({ systemFlag }),
+
+        setOcrFields: (ocrFields) => set({ ocrFields }),
 
         setMemberId: (memberId) => set({ memberId }),
 

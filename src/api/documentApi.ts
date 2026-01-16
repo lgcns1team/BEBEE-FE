@@ -2,6 +2,22 @@ import axios from "axios";
 import { instance } from "./axiosInstance";
 
 /**
+ * OCR 추출 필드 타입
+ */
+export interface OcrFields {
+  // 도우미 (이수증)
+  name?: string;             // 성명
+  birth?: string;            // 생년월일
+  regno?: string;            // 등록번호
+  hours?: string;            // 이수시간
+  title?: string;            // 문서제목
+
+  // 장애인 (복지카드)
+  disability_type?: string;  // 장애유형 (예: 지체장애)
+  disability_grade?: string; // 장애등급 (예: 5급, 중증)
+}
+
+/**
  * 문서 분석 결과 타입
  */
 export interface AnalyzeDocumentResult {
@@ -9,6 +25,7 @@ export interface AnalyzeDocumentResult {
   ocrScore: number;
   forgeryScore: number;
   systemFlag: "LOW" | "MID" | "HIGH";
+  fields: OcrFields;
 }
 
 /**

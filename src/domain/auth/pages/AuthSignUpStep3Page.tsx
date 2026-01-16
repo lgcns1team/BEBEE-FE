@@ -60,7 +60,7 @@ const AuthSignUpStep3Page = () => {
     navigate("/signup/step4");
   };
 
-  const isFormValid = name && nickname && birthDate && phoneNumber && address;
+  const isFormValid = true; // name && nickname && birthDate && phoneNumber && address;
 
   // role이 없으면 이전 단계로 리다이렉트
   useEffect(() => {
@@ -75,7 +75,7 @@ const AuthSignUpStep3Page = () => {
 
   return (
     <Layout>
-      <AuthSignUpHeader currentStep={3} totalSteps={5} onBack={() => navigate("/signup/step2")} />
+      <AuthSignUpHeader currentStep={3} totalSteps={6} onBack={() => navigate("/signup/step2")} />
       <PageContainer>
         <ScrollArea>
           <GeneralInput
