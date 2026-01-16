@@ -21,8 +21,8 @@ const CareerSection = () => {
     },
     {
       id: 2,
-      year: "2024 취득",
-      title: "당신대박 이수증",
+      year: "2017 취득",
+      title: "사회복지사 2급",
       active: false,
     },
   ];
