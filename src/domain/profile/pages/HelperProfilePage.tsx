@@ -12,6 +12,7 @@ import { useApplicationStore } from "../../Application/store/useApplicationStore
 import { useChatStore } from "../../chat/store/useChatStore";
 import { chatApi } from "../../../api/chatApi";
 import type { Applicant } from "../../../types/application.type";
+import styled from "styled-components";
 type LocationState = {
   applicant?: Applicant;
 };
@@ -78,11 +79,12 @@ const HelperProfilePage = () => {
   return (
     <Layout bg>
       <Header title="프로필 정보" onBack={() => navigate(-1)} bg showBack />
-
+<ScrollContainer>
       <ProfileDetailSection />
 
       <ExperienceSection />
       <ReceivedReview mode="other" />
+      </ScrollContainer>
       <BaseLongButton
         label="채팅하기"
         onClick={() =>
@@ -90,8 +92,18 @@ const HelperProfilePage = () => {
         }
         aria-label={`${applicant?.nickname} 님과 채팅하기`}
       />
+      
     </Layout>
   );
 };
 
 export default HelperProfilePage;
+
+const ScrollContainer = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 24px;
+
+  /* iOS 스크롤 자연스럽게 */
+  -webkit-overflow-scrolling: touch;
+`;
