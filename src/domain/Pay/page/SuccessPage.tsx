@@ -19,6 +19,8 @@ export function SuccessPage() {
   const paymentKey = params.get("paymentKey");
   const orderId = params.get("orderId");
   const amountStr = params.get("amount");
+  const redirectToParam = params.get("redirect");
+  const redirectTo = redirectToParam ? decodeURIComponent(redirectToParam) : null;
 
   const amount = useMemo(() => Number(amountStr), [amountStr]);
   const [isConfirmed, setIsConfirmed] = useState(false);
@@ -63,7 +65,7 @@ export function SuccessPage() {
       setCurrentHoney(currentHoneyRes.currentHoney);
       await refreshCurrentHoney();
       alert("결제가 완료 되었습니다!");
-      navigate("/mypage", { replace: true });
+      navigate(redirectTo || "/mypage", { replace: true });
     } catch (e: any) {
       // 실패 시 재시도 가능하게 하기
       sessionStorage.removeItem(dedupKey);
