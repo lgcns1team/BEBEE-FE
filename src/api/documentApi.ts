@@ -38,7 +38,9 @@ export const analyzeDocument = async (fileUrl: string, role: string): Promise<An
   params.append("role", role);
 
   const response = await axios.post(
-    `${import.meta.env.VITE_API_URL || "https://api.be-bee.link"}/member/documents/upload?${params.toString()}`
+    `${import.meta.env.VITE_API_URL || "https://api.be-bee.link"}/member/documents/upload?${params.toString()}`,
+    null,
+    { timeout: 300000 }
   );
   return response.data;
 };
