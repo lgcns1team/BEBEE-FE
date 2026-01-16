@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { IoIosArrowDown } from "react-icons/io";
 import { HELP_TAG_LIST } from "../constants/helpTags";
@@ -6,13 +6,18 @@ import { HELP_TAG_LIST } from "../constants/helpTags";
 interface TagFilterProps {
   selectedTags: number[];
   onTagsChange: (tags: number[]) => void;
+  autoFocusOnMount?: boolean;
 }
 
 const TagFilter: React.FC<TagFilterProps> = ({
   selectedTags,
   onTagsChange,
+  autoFocusOnMount = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const itemsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   const handleTagToggle = (id: number) => {
     // ID가 이미 있으면 제거, 없으면 추가
@@ -23,16 +28,64 @@ const TagFilter: React.FC<TagFilterProps> = ({
     }
   };
 
+  const closeList = () => {
+    setIsOpen(false);
+    buttonRef.current?.focus();
+  };
+
+  // 페이지 진입 시 드롭다운 버튼으로 초점 이동 (매칭하기 → 폼 진입 시 사용)
+  useEffect(() => {
+    if (!autoFocusOnMount) return;
+    const id = requestAnimationFrame(() => {
+      buttonRef.current?.focus();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [autoFocusOnMount]);
+
+  // 드롭다운 열릴 때 첫 옵션으로 포커스 이동 (토큰 제거 버튼 건너뛰기)
+  useEffect(() => {
+    if (!isOpen) return;
+    const id = requestAnimationFrame(() => {
+      itemsRef.current[0]?.focus();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [isOpen]);
+
+  // ESC로 닫기
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeList();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen]);
+
   return (
     <Container>
       <Title id="tag-label">주요 도움 유형</Title>
+      <VisuallyHidden aria-live="polite">
+        주요 도움 유형 선택 드롭다운입니다. 두 번 탭하여 목록을 열 수 있습니다.
+      </VisuallyHidden>
 
       <DropdownWrapper>
         <DropdownButton
+          ref={buttonRef}
           type="button"
           onClick={() => setIsOpen(!isOpen)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setIsOpen((prev) => !prev);
+            }
+          }}
           aria-expanded={isOpen}
           aria-labelledby="tag-label"
+          aria-haspopup="listbox"
+          aria-label="주요 도움 유형 선택 드롭다운입니다. 두 번 탭하여 목록을 열 수 있습니다."
         >
           <TagsContainer aria-live="polite">
             {selectedTags.length === 0 && (
@@ -50,7 +103,7 @@ const TagFilter: React.FC<TagFilterProps> = ({
                       handleTagToggle(id);
                     }}
                     role="button"
-                    tabIndex={0}
+                    tabIndex={isOpen ? -1 : 0} // 열림 상태에서는 탭 포커스 제외
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
@@ -72,16 +125,42 @@ const TagFilter: React.FC<TagFilterProps> = ({
         </DropdownButton>
 
         {isOpen && (
-          <DropdownList role="listbox">
-            {HELP_TAG_LIST.map((tag) => {
+          <DropdownList role="listbox" ref={listRef} tabIndex={-1}>
+            <VisuallyHidden aria-live="polite">리스트 열림</VisuallyHidden>
+            {HELP_TAG_LIST.map((tag, index) => {
               const isSelected = selectedTags.includes(tag.id);
+              const isLast = index === HELP_TAG_LIST.length - 1;
               return (
                 <DropdownItem
                   key={tag.id}
+                  ref={(el) => {
+                    itemsRef.current[index] = el;
+                  }}
                   role="option"
                   aria-selected={isSelected}
+                  aria-label={`${tag.name} ${
+                    isSelected ? "선택됨" : "선택되지 않음"
+                  }`}
                   onClick={() => handleTagToggle(tag.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleTagToggle(tag.id);
+                    } else if (e.key === "Escape") {
+                      e.preventDefault();
+                      closeList();
+                    } else if (e.key === "Tab") {
+                      if (!e.shiftKey && isLast) {
+                        e.preventDefault();
+                        itemsRef.current[0]?.focus();
+                      } else if (e.shiftKey && index === 0) {
+                        e.preventDefault();
+                        itemsRef.current[HELP_TAG_LIST.length - 1]?.focus();
+                      }
+                    }
+                  }}
                   isSelected={isSelected}
+                  tabIndex={0}
                 >
                   <Checkbox isSelected={isSelected} aria-hidden="true">
                     {isSelected && "✓"}
@@ -227,4 +306,17 @@ const Checkbox = styled.div<{ isSelected: boolean }>`
 const Placeholder = styled.span`
   color: ${({ theme }) => theme.color.natural200};
   font-size: ${({ theme }) => theme.size.md};
+`;
+
+// 스크린리더 전용 텍스트
+const VisuallyHidden = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 `;

@@ -237,6 +237,7 @@ const LongHelpWrite = ({ formData, updateField }: DayProps) => {
             required
           />
         </FieldSet>
+        <BottomSpacer aria-hidden="true" />
       </Container>
 
       <BaseLongButton label="작성 완료" onClick={handleSubmit} />
@@ -259,7 +260,11 @@ const Container = styled.div`
     display: none;
   }
   padding-top: 20px;
-  padding-bottom: 30px;
+`;
+
+const BottomSpacer = styled.div`
+  height: 2rem;
+  flex-shrink: 0;
 `;
 
 const DateInputWrapper = styled.div`
