@@ -4,8 +4,14 @@ export type MyRole = "DISABLED" | "HELPER" | "ADMIN";
 
 export type BadgeCode = "LEVEL_1" | "LEVEL_2" | null;
 
+// export interface ReviewCount {
+//   keywordId: number;
+//   count: number;
+// }
 export interface ReviewCount {
   keywordId: number;
+  description: string;
+  isPositive: boolean;
   count: number;
 }
 

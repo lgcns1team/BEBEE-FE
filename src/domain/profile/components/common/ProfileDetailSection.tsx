@@ -56,7 +56,7 @@ const ProfileDetailSection = () => {
   const srSummary = [
     `도우미 프로필 정보입니다.`,
     `닉네임 ${profile.nickname}.`,
-    `뱃지 ${badgeText ? badgeText : "없음"}.`,
+    `보유 중인 뱃지 ${badgeText ? badgeText : "없음"}.`,
     `성별 ${genderText}.`,
     `나이 ${profile.ageGroup ?? "-"}대.`,
     `주소 ${profile.address ?? "-"}.`,

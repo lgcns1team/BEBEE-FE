@@ -2,11 +2,8 @@ import styled from "styled-components";
 import ReviewBadge from "../../../../components/ReviewBadge";
 import { useMemberStore } from "../../../../store/useMemberStore";
 import { useOtherMemberStore } from "../../store/useOtherMemberStore";
-import { useEffect, useMemo, useState } from "react";
-import {
-  getReviewKeywords,
-  type ReviewKeyword,
-} from "../../../../api/reviewApi";
+import { useEffect, useMemo } from "react";
+import type { ReviewCount } from "../../../../types/member.type";
 
 type Mode = "me" | "other";
 
@@ -15,66 +12,41 @@ interface Props {
 }
 
 const ReceivedReview = ({ mode }: Props) => {
-  
   const myStore = useMemberStore();
   const otherStore = useOtherMemberStore();
 
   const profile = mode === "me" ? myStore.member : otherStore.profile;
-
   const isLoading = mode === "me" ? myStore.isLoading : otherStore.isLoading;
 
-  const [keywords, setKeywords] = useState<ReviewKeyword[]>([]);
   useEffect(() => {
-    console.log("profile", profile);
-    console.log("reviews", profile?.reviews);
-  });
- 
-  useEffect(() => {
-    getReviewKeywords()
-      .then((res) => setKeywords(res.keywords ?? []))
-      .catch((e) => console.error("리뷰 키워드 조회 실패:", e));
-  }, []);
+    if (mode !== "me") return;
+    if (myStore.member) return;
+    if (myStore.isLoading) return;
 
-  /** keywordId → keyword 매핑 */
-  const keywordMap = useMemo(() => {
-    const map = new Map<number, ReviewKeyword>();
-    keywords.forEach((k) => map.set(k.keywordId, k));
-    return map;
-  }, [keywords]);
+    myStore.fetchMember();
+  }, [mode, myStore]);
 
-  /** 화면에 표시할 리뷰 목록 */
   const items = useMemo(() => {
-    if (!profile || !profile.reviews?.length) return [];
+    const reviews = (profile?.reviews ?? []) as ReviewCount[];
+    if (reviews.length === 0) return [];
 
-    return profile.reviews
-      .map((review) => {
-        const keyword = keywordMap.get(review.keywordId);
-        if (!keyword) return null;
+    if (mode === "other") {
+      return reviews.filter((r) => r.isPositive);
+    }
 
-        if (mode === "other" && !keyword.isPositive) return null;
+    return reviews;
+  }, [profile, mode]);
 
-        return {
-          keywordId: review.keywordId,
-          description: keyword.description,
-          count: review.count,
-        };
-      })
-      .filter(Boolean) as {
-      keywordId: number;
-      description: string;
-      count: number;
-    }[];
-  }, [profile, keywordMap, mode]);
-
-  if (isLoading || !profile || items.length === 0) return null;
+  if (isLoading || !profile) return null;
+  if (items.length === 0) return null;
 
   return (
-    <Container>
+    <Container aria-label="받은 후기 목록입니다.">
       <Title>받은 후기</Title>
 
       <BadgeWrap>
         {items.map((item) => (
-          <ReviewBadge key={item.keywordId}>
+          <ReviewBadge key={String(item.keywordId)}>
             {item.description}
             {item.count > 1 && ` · ${item.count}`}
           </ReviewBadge>
@@ -94,14 +66,18 @@ const Container = styled.div`
   width: 100%;
   margin-top: 20px;
   padding: 20px;
+
   display: flex;
   flex-direction: column;
   gap: 12px;
+
+  max-height: 240px;
 `;
 
 const Title = styled.div`
   font-size: ${({ theme }) => theme.size.md};
   font-weight: ${({ theme }) => theme.weight.bold};
+  flex-shrink: 0;
 `;
 
 const BadgeWrap = styled.div`
