@@ -54,11 +54,6 @@ export const FCMMessageModal = () => {
             <Body>{message.body}</Body>
           </div>
         </MsgBox>
-        {message.data?.type === "APPLICATION"
-          ? "지원 현황으로 이동"
-          : message.data?.type === "CHAT"
-          ? "채팅 목록으로 이동"
-          : "확인"}
       </ModalContent>
     </ModalContainer>
   );

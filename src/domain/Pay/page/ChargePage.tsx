@@ -5,10 +5,14 @@ import Layout from "../../../components/Layout";
 import Header from "../../../components/Header";
 import { preparePayment } from "../../../api/paymentApi";
 const ChargePage = () => {
-  const [amount, setAmount] = useState<string>("");
   const navigate = useNavigate();
   const location = useLocation();
-  const redirectTo = (location.state as { redirectTo?: string } | null)?.redirectTo;
+  const { redirectTo, requiredHoney } =
+    (location.state as { redirectTo?: string; requiredHoney?: number } | null) ??
+    {};
+  const [amount, setAmount] = useState<string>(
+    requiredHoney ? String(requiredHoney) : ""
+  );
   const handleQuickAmount = (value: number) => {
     const currentAmount = amount === "" ? 0 : parseInt(amount);
     const newAmount = currentAmount + value;
