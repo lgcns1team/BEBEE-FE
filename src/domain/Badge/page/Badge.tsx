@@ -156,7 +156,7 @@ const BadgeSections = styled.div`
   position: relative;
   top: 260px;
   z-index: 2;
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -200,7 +200,7 @@ interface SnowflakeProps {
 
 const Snowflake = styled.div<SnowflakeProps>`
   position: absolute;
-  top: 35px;
+  top: 60px;
   left: ${({ $left }) => `${$left}%`};
   width: ${({ $size }) => `${$size}px`};
   height: ${({ $size }) => `${$size}px`};
