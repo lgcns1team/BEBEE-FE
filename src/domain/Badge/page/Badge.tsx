@@ -70,8 +70,9 @@ const Badge = () => {
   return (
     <BadgeContainer>
       <BannerSection>
+    <div style={{paddingLeft:"14px", paddingRight:"14px"}}>
         <Header title="뱃지" onBack={() => navigate(-1)} showBack />
-
+      </div>
         {/* 배너 섹션 */}
 
         <BannerImage src={badgeBanner} alt="뱃지 배너" />
@@ -200,7 +201,7 @@ interface SnowflakeProps {
 
 const Snowflake = styled.div<SnowflakeProps>`
   position: absolute;
-  top: 60px;
+  top: 65px;
   left: ${({ $left }) => `${$left}%`};
   width: ${({ $size }) => `${$size}px`};
   height: ${({ $size }) => `${$size}px`};
