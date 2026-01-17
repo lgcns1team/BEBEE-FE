@@ -126,7 +126,7 @@ function MapDisabledBottomSheet({
         {snap === "MIN" && (
           <GoListButton
             onClick={handleGoList}
-            style={{ bottom: "140px" }}
+            style={{ bottom: "170px" }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
@@ -228,7 +228,7 @@ const GoMapButton = styled(motion.button)`
   pointer-events: auto;
   position: absolute;
   bottom: 100px;
-  left: 30%;
+  left: 35%;
   transform: translateX(-50%);
   width: 120px;
   height: 42px;
