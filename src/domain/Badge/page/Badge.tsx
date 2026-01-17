@@ -6,25 +6,31 @@ import { useBadgeStore } from "../store/useBadgeStore";
 import { DISABILITY_TYPES } from "../../../constants/disabilityTypes";
 import badgeBanner from "../../../assets/images/badge-banner.png";
 import StampCard from "../components/StampCard";
-import LoadingSpinner from "../../../components/LoadingSpinner";
 import Loading from "../../../components/Loading";
 
 const SNOW_COUNT = 60;
 
 const Badge = () => {
   const navigate = useNavigate();
-  const { isLoading, error, fetchBadgeStatus, getBadgeStatusByDisabilityId } = useBadgeStore();
+  const { isLoading, error, fetchBadgeStatus, getBadgeStatusByDisabilityId } =
+    useBadgeStore();
+
+  // 순수 함수 기반 의사 난수(재렌더에도 동일 값 유지)
+  const pseudoRandom = (seed: number) => {
+    const x = Math.sin(seed * 9999) * 10000;
+    return x - Math.floor(x);
+  };
 
   // 눈송이 위치와 속도 초기화 (렌더링마다 변경되지 않도록)
   const snowflakes = useMemo(() => {
     return Array.from({ length: SNOW_COUNT }, (_, i) => ({
       id: i,
       left: (i * 7) % 100,
-      size: Math.random() * 4 + 3,
-      opacity: Math.random() * 0.7 + 0.3,
-      duration: Math.random() * 3 + 5,
-      delay: Math.random() * 2,
-      drift: (Math.random() - 0.5) * 50,
+      size: pseudoRandom(i + 1) * 4 + 3,
+      opacity: pseudoRandom(i + 2) * 0.7 + 0.3,
+      duration: pseudoRandom(i + 3) * 3 + 5,
+      delay: pseudoRandom(i + 4) * 2,
+      drift: (pseudoRandom(i + 5) - 0.5) * 50,
     }));
   }, []);
 
@@ -141,7 +147,7 @@ const BadgeContainer = styled.div`
 const BannerSection = styled.div`
   position: fixed;
   top: 0;
-  width: 375px;
+  width: 402px;
   height: 220px;
   z-index: 1;
 `;
@@ -155,7 +161,7 @@ const BadgeSections = styled.div`
   flex-direction: column;
   gap: 6px;
   overflow-y: auto;
-  padding: 0 16px 280px 16px;
+  padding: 0 16px calc(320px + env(safe-area-inset-bottom, 0px)) 16px;
   &::-webkit-scrollbar {
     display: none;
   }
@@ -167,6 +173,9 @@ const BannerImage = styled.img`
   object-fit: cover;
   position: relative;
   z-index: 1;
+  display: felx;
+  left: 0;
+  right: 0;
 `;
 
 const SnowContainer = styled.div`
@@ -211,18 +220,11 @@ const Snowflake = styled.div<SnowflakeProps>`
       transform: translateX(${({ $drift }) => $drift}px) rotate(180deg);
     }
     100% {
-      transform: translateY(190px) translateX(${({ $drift }) => $drift * 1.2}px) rotate(360deg);
+      transform: translateY(190px) translateX(${({ $drift }) => $drift * 1.2}px)
+        rotate(360deg);
       opacity: ${({ $opacity }) => $opacity * 0.5};
     }
   }
-`;
-
-const LoadingContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  color: ${({ theme }) => theme.color.subText2};
 `;
 
 const ErrorContainer = styled.div`
