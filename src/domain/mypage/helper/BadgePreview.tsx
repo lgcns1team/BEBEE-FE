@@ -110,7 +110,6 @@ const BadgePreviewContainer = styled.div`
   width: 100%;
   padding: 20px 16px;
   background-color: ${({ theme }) => theme.color.white};
-  border-radius: 12px;
 `;
 
 const BadgeHeader = styled.div`
@@ -132,7 +131,6 @@ const ViewAllButton = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px 8px;
   transition: color 0.2s ease;
 
   &:hover {
