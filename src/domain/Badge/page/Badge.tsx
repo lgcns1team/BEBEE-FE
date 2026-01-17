@@ -154,7 +154,7 @@ const BannerSection = styled.div`
 
 const BadgeSections = styled.div`
   position: relative;
-  top: 262px;
+  top: 264px;
   z-index: 2;
   height: 100dvh;
   display: flex;
