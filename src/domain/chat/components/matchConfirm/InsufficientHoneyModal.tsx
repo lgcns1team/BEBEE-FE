@@ -25,7 +25,7 @@ const InsufficientHoneyModal = ({
   const handleRecharge = () => {
     onClose();
     navigate("/charge", {
-      state: { redirectTo },
+      state: { redirectTo, requiredHoney },
     });
   };
 

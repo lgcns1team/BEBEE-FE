@@ -270,9 +270,11 @@ const ChatItem = styled.div`
 
 const ProfileImage = styled.img`
   width: 12%;
+  aspect-ratio: 1 / 1;
+  height: auto;
   border-radius: 50%;
-  background-size: cover;
-  background-position: center;
+  object-fit: cover;
+  object-position: center;
   flex-shrink: 0;
 `;
 
