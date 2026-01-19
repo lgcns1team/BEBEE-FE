@@ -193,7 +193,7 @@ const ShareButton = ({
         ? `${disabilityName} ${levelText} 뱃지`
         : "비비 뱃지";
       const shareText = disabilityName
-        ? `나는 ${disabilityName} ${levelText}입니다! 비비 앱에서 더 많은 정보를 확인해보세요.`
+        ? `나는 ${disabilityName} ${levelText}입니다! 비비와 함께 더 나은 세상을 만들어가요`
         : "비비 뱃지를 획득했어요!";
 
       // 1. Web Share API 시도 (모바일)
