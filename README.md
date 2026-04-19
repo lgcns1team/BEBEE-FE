@@ -42,9 +42,3 @@
 ---
 
 <br/>
-
-### flyway 관련 명령
-- flway 초기화
-```shell
-./gradlew :member-service:flywayClean # member-service 자리에 다른 서비스 이름이 와도 된다.
-```
