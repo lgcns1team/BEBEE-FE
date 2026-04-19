@@ -27,15 +27,6 @@
 
 <br/><br/>
 
-## 2. 기술스택
-<img width="5760" height="3240" alt="기술스택" src="https://github.com/user-attachments/assets/925f6bd5-da82-4cd4-aa66-a05eb5d8b0a6" />
-
-<br/><br/>
-
-## 3. 시스템 아키텍처
-<img width="5760" height="3240" alt="백엔드 시스템 아키텍처" src="https://github.com/user-attachments/assets/3d17765e-3fe3-4f41-972e-e41dcbafff19" />
-
-<br/><br/>
 
 [📌 발표 자료 전체 보기](https://github.com/user-attachments/files/25568291/1._._.-compressed.pdf)
 
